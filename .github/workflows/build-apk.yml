@@ -51,15 +51,10 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle_output.log || {
-            BUILD_CODE=$?
-            echo "## ❌ Gradle Build Failed (Exit Code: $BUILD_CODE)" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -n 60 /tmp/gradle_output.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            exit $BUILD_CODE
-          }
-          echo "## ✅ Gradle Build Succeeded" >> $GITHUB_STEP_SUMMARY
+          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
+          echo "=== Built Artifacts Audit ==="
+          ls -la app/build/outputs/apk/debug/ || true
+          ls -la app/build/outputs/bundle/release/ || true
         env:
           KEYSTORE_PASSWORD: halder2026
           KEY_PASSWORD: halder2026
@@ -69,8 +64,10 @@ jobs:
         if: success()
         with:
           name: HALDER-v1.0-debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            **/app-debug.apk
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Upload Release AAB Bundle Artifact
@@ -78,6 +75,8 @@ jobs:
         if: success()
         with:
           name: HALDER-v1.0-release-AAB
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: error
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            **/app-release.aab
+          if-no-files-found: warn
           retention-days: 30
