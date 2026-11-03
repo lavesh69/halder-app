@@ -334,7 +334,8 @@ export class ProductService {
     if (updates.price !== undefined && updates.price <= 0) {
       throw AppError.badRequest('Price must be greater than zero.');
     }
-    if (updates.availableQuantity !== undefined && updates.availableQuantity < 0) {
+    const availableQty = updates.availableQuantity !== undefined ? updates.availableQuantity : updates.available_quantity;
+    if (availableQty !== undefined && availableQty < 0) {
       throw AppError.badRequest('Available quantity cannot be negative.');
     }
 
@@ -357,9 +358,9 @@ export class ProductService {
       fields.push('unit = ?');
       values.push(updates.unit);
     }
-    if (updates.availableQuantity !== undefined) {
+    if (availableQty !== undefined) {
       fields.push('available_quantity = ?');
-      values.push(updates.availableQuantity);
+      values.push(availableQty);
     }
     if (updates.isOrganic !== undefined) {
       fields.push('is_organic = ?');

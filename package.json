@@ -25,6 +25,8 @@
     "server:production": "node --import tsx server/tests/production_phases.test.ts",
     "server:e2e": "node --import tsx server/tests/e2e_journey.ts",
     "server:comprehensive": "node --import tsx server/tests/comprehensive_modules.test.ts",
+    "server:gates": "node --import tsx server/tests/launch_gate_scenarios.test.ts",
+    "server:concurrency": "node --import tsx server/tests/concurrency_load.test.ts",
     "server:backup": "node --import tsx server/scripts/backup.ts",
     "cap:sync": "cap sync android",
     "cap:open": "cap open android",
