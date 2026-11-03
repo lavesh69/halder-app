@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 import { v4 as uuidv4 } from 'uuid';
@@ -85,6 +85,12 @@ export class PaymentService {
       [farmerId]
     );
 
+    // Query actual order gross and subtotal from orders table for completed/paid orders
+    const orderSales = Database.get<any>(
+      "SELECT COALESCE(SUM(total_amount), 0) as total_gross, COALESCE(SUM(subtotal), 0) as total_subtotal FROM orders WHERE farmer_id = ? AND (payment_status = 'paid' OR order_status = 'delivered')",
+      [farmerId]
+    );
+
     const pending = payouts
       .filter((p) => p.status === 'pending')
       .reduce((sum, p) => sum + p.net_amount, 0);
@@ -93,12 +99,13 @@ export class PaymentService {
       .filter((p) => p.status === 'processed')
       .reduce((sum, p) => sum + p.net_amount, 0);
 
-    const totalGross = payouts.reduce((sum, p) => sum + p.gross_amount, 0);
+    const payoutGross = payouts.reduce((sum, p) => sum + p.gross_amount, 0);
+    const totalGross = Math.max(payoutGross, orderSales?.total_gross || 0);
 
     return {
       farmerId,
-      totalEarnings: Math.round(pending + processed),
-      availableBalance: Math.round(pending),
+      totalEarnings: Math.round(pending + processed) || Math.round(totalGross * 0.9),
+      availableBalance: Math.round(pending) || Math.max(0, Math.round((totalGross * 0.9) - processed)),
       processedBalance: Math.round(processed),
       totalGrossSales: Math.round(totalGross),
       history: payouts,

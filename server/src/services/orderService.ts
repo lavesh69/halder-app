@@ -1,4 +1,4 @@
-﻿import { Database } from '../db/database';
+import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
@@ -113,7 +113,10 @@ export class OrderService {
 
       for (const [farmerId, group] of Object.entries(farmerGroups)) {
         const orderId = `order-${uuidv4()}`;
-        const orderNumber = `#HD${Math.floor(1000 + Math.random() * 9000)}`;
+        let orderNumber = `#HD${Date.now().toString().slice(-4)}${Math.floor(1000 + Math.random() * 9000)}`;
+        while (Database.get('SELECT id FROM orders WHERE order_number = ?', [orderNumber])) {
+          orderNumber = `#HD${Date.now().toString().slice(-4)}${Math.floor(1000 + Math.random() * 9000)}`;
+        }
 
         const subtotal = group.items.reduce((s, it) => s + it.subtotal, 0);
         const deliveryFee = subtotal >= 200 ? 0 : 25;

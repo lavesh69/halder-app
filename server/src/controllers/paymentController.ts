@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { PaymentService } from '../services/paymentService';
 import { PhonePeService } from '../services/phonepeService';
 import { PaytmService } from '../services/paytmService';
@@ -17,7 +17,7 @@ export class PaymentController {
 
   static async getFarmerPayouts(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.user?.farmerProfileId || (req.query.farmerId as string);
+      const farmerId = (req.query.farmerId as string) || req.user?.farmerProfileId;
       if (!farmerId) {
         return res.status(400).json({ success: false, error: { message: 'Farmer ID required' } });
       }

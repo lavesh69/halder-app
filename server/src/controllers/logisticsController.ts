@@ -67,6 +67,31 @@ export class LogisticsController {
     try {
       const { id } = req.params;
       const { is_available, current_lat, current_lng, status } = req.body;
+
+      const partner = Database.get<any>('SELECT * FROM delivery_partners WHERE id = ?', [id]);
+      if (!partner) {
+        throw AppError.notFound('Delivery partner not found');
+      }
+
+      const user = (req as any).user;
+      if (user && user.role !== 'admin' && partner.user_id !== user.id) {
+        throw AppError.forbidden('Unauthorized: You can only update your own delivery partner profile');
+      }
+
+      if (current_lat != null) {
+        const numLat = Number(current_lat);
+        if (isNaN(numLat) || numLat < -90 || numLat > 90) {
+          throw AppError.badRequest('Invalid latitude: must be a valid number between -90 and 90 degrees');
+        }
+      }
+
+      if (current_lng != null) {
+        const numLng = Number(current_lng);
+        if (isNaN(numLng) || numLng < -180 || numLng > 180) {
+          throw AppError.badRequest('Invalid longitude: must be a valid number between -180 and 180 degrees');
+        }
+      }
+
       const now = new Date().toISOString();
 
       Database.run(
@@ -77,7 +102,7 @@ export class LogisticsController {
           status = COALESCE(?, status),
           updated_at = ?
          WHERE id = ?`,
-        [is_available ?? null, current_lat ?? null, current_lng ?? null, status ?? null, now, id]
+        [is_available ?? null, current_lat != null ? Number(current_lat) : null, current_lng != null ? Number(current_lng) : null, status ?? null, now, id]
       );
 
       const updated = Database.get('SELECT * FROM delivery_partners WHERE id = ?', [id]);
@@ -325,6 +350,27 @@ export class LogisticsController {
         throw AppError.badRequest('GPS coordinates (lat, lng) are required');
       }
 
+      const numLat = Number(lat);
+      const numLng = Number(lng);
+
+      if (isNaN(numLat) || numLat < -90 || numLat > 90) {
+        throw AppError.badRequest('Invalid latitude: must be a valid number between -90 and 90 degrees');
+      }
+
+      if (isNaN(numLng) || numLng < -180 || numLng > 180) {
+        throw AppError.badRequest('Invalid longitude: must be a valid number between -180 and 180 degrees');
+      }
+
+      const partner = Database.get<any>('SELECT * FROM delivery_partners WHERE id = ?', [id]);
+      if (!partner) {
+        throw AppError.notFound('Delivery partner not found');
+      }
+
+      const user = (req as any).user;
+      if (user && user.role !== 'admin' && partner.user_id !== user.id) {
+        throw AppError.forbidden('Unauthorized: You can only update telemetry for your own delivery partner account');
+      }
+
       const now = new Date().toISOString();
       Database.run(
         `UPDATE delivery_partners SET
@@ -332,15 +378,15 @@ export class LogisticsController {
           current_lng = ?,
           updated_at = ?
          WHERE id = ?`,
-        [Number(lat), Number(lng), now, id]
+        [numLat, numLng, now, id]
       );
 
       res.json({
         success: true,
         data: {
           partner_id: id,
-          current_lat: Number(lat),
-          current_lng: Number(lng),
+          current_lat: numLat,
+          current_lng: numLng,
           speed_kmh: Number(speed_kmh || 0),
           heading_deg: Number(heading_deg || 0),
           telemetry_type: is_simulated ? 'simulated_telemetry' : 'live_gps_telemetry',
@@ -363,6 +409,39 @@ export class LogisticsController {
       const totalDeliveries = Database.get<any>("SELECT COUNT(*) as count FROM delivery_tasks WHERE status = 'delivered'") || { count: 0 };
       const avgRating = Database.get<any>('SELECT AVG(rating) as avg_rating FROM delivery_partners') || { avg_rating: 4.9 };
 
+      // Calculate actual transit duration from completed tasks with recorded timestamps
+      const transitStats = Database.get<any>(`
+        SELECT 
+          AVG((julianday(delivered_at) - julianday(picked_up_at)) * 24 * 60) as avg_transit_minutes,
+          COUNT(*) as timed_count
+        FROM delivery_tasks 
+        WHERE status = 'delivered' 
+          AND picked_up_at IS NOT NULL 
+          AND delivered_at IS NOT NULL
+          AND delivered_at >= picked_up_at
+      `);
+
+      // Calculate actual on-time performance against estimated delivery times
+      const onTimeStats = Database.get<any>(`
+        SELECT 
+          COUNT(*) as total_with_estimate,
+          SUM(CASE WHEN delivered_at <= estimated_delivery_time THEN 1 ELSE 0 END) as on_time_count
+        FROM delivery_tasks 
+        WHERE status = 'delivered' 
+          AND estimated_delivery_time IS NOT NULL 
+          AND delivered_at IS NOT NULL
+      `);
+
+      const hasRealTransit = transitStats && transitStats.timed_count > 0 && transitStats.avg_transit_minutes != null;
+      const realTransitMinutes = hasRealTransit ? Math.round(transitStats.avg_transit_minutes) : null;
+
+      const hasRealOnTime = onTimeStats && onTimeStats.total_with_estimate > 0;
+      const realOnTimePct = hasRealOnTime ? Math.round((onTimeStats.on_time_count / onTimeStats.total_with_estimate) * 1000) / 10 : null;
+
+      // Fleet benchmark estimates (clearly flagged when actual database records are insufficient)
+      const benchmarkTransitMinutes = 35;
+      const benchmarkOnTimeRate = 98.0;
+
       res.json({
         success: true,
         data: {
@@ -371,8 +450,15 @@ export class LogisticsController {
           completed_deliveries: totalDeliveries.count,
           fleet_average_rating: Math.round((avgRating.avg_rating || 4.9) * 10) / 10,
           tasks_by_status: tasksSummary,
-          average_transit_minutes: 38,
-          on_time_delivery_rate_pct: 97.4
+          average_transit_minutes: realTransitMinutes ?? benchmarkTransitMinutes,
+          is_transit_time_estimated: !hasRealTransit,
+          on_time_delivery_rate_pct: realOnTimePct ?? benchmarkOnTimeRate,
+          is_on_time_rate_estimated: !hasRealOnTime,
+          metrics_source: {
+            transit_time: hasRealTransit ? 'database_actual' : 'preliminary_benchmark_estimate',
+            on_time_rate: hasRealOnTime ? 'database_actual' : 'preliminary_benchmark_estimate',
+            sample_size_timed_tasks: transitStats?.timed_count || 0
+          }
         }
       });
     } catch (err) {
