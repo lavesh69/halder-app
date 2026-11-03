@@ -29,3 +29,6 @@
 *.mp3 binary
 *.mp4 binary
 *.pdf binary
+
+*.jks binary
+*.keystore binary
