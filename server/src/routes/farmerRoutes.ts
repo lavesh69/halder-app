@@ -21,6 +21,9 @@ router.get('/:id/kyc', authenticateUser, FarmerController.getKYC);
 router.post('/:id/payout', authenticateUser, FarmerController.recordPayout);
 
 // Crop Calendar & Farm Management (Module 2)
+router.patch('/crops/:cropId', authenticateUser, requireFarmer, FarmerController.updateCrop);
+router.put('/crops/:cropId', authenticateUser, requireFarmer, FarmerController.updateCrop);
+router.delete('/crops/:cropId', authenticateUser, requireFarmer, FarmerController.deleteCrop);
 router.get('/:id/crops', optionalAuth, FarmerController.getCrops);
 router.post('/:id/crops', authenticateUser, requireFarmer, FarmerController.addCrop);
 router.patch('/:id/crops/:cropId', authenticateUser, requireFarmer, FarmerController.updateCrop);

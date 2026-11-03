@@ -59,8 +59,16 @@ export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Deh
         </button>
       </div>
 
+      {/* Severe Alert Banner if Active */}
+      {weather.severeAlert && (
+        <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs flex items-center gap-2">
+          <Wind className="w-4 h-4 text-amber-300 shrink-0" />
+          <span className="font-medium text-[11px] leading-tight">{weather.severeAlert}</span>
+        </div>
+      )}
+
       {/* Metrics */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-2 border-t border-white/10 text-center text-[10px]">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-white/10 text-center text-[10px]">
         <div className="min-w-0 px-1">
           <span className="text-zinc-300 block truncate">Humidity</span>
           <span className="font-bold text-xs block truncate">{weather.humidity}%</span>
@@ -68,6 +76,10 @@ export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Deh
         <div className="border-x border-white/10 min-w-0 px-1">
           <span className="text-zinc-300 block truncate">Rain Chance</span>
           <span className="font-bold text-xs block truncate">{weather.rainChance}%</span>
+        </div>
+        <div className="border-r border-white/10 min-w-0 px-1">
+          <span className="text-zinc-300 block truncate">Wind Speed</span>
+          <span className="font-bold text-xs block truncate">{weather.windSpeedKmh ?? 8} km/h</span>
         </div>
         <div className="min-w-0 px-1">
           <span className="text-zinc-300 block truncate">Best Harvest</span>
@@ -81,6 +93,14 @@ export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Deh
       <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xs text-[11px] flex items-start gap-2">
         <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
         <span className="leading-relaxed">{weather.advisory}</span>
+      </div>
+
+      {/* Attribution & KVK Advisory Disclaimer */}
+      <div className="pt-1 text-[9px] text-zinc-400 border-t border-white/5 space-y-0.5">
+        <p className="truncate">Source: {weather.provider || 'Open-Meteo Weather API (WMO Standard)'}</p>
+        <p className="italic text-zinc-400/80 leading-normal">
+          {weather.disclaimer || 'Agronomic advisory estimates are computer-assisted. Consult local Krishi Vigyan Kendra (KVK) extension officers for high-impact decisions.'}
+        </p>
       </div>
     </div>
   );

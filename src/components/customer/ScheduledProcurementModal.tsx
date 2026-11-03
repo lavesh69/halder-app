@@ -80,6 +80,27 @@ export const ScheduledProcurementModal: React.FC<Props> = ({ isOpen, onClose, de
     }
   };
 
+  const handleSkip = async (subId: string) => {
+    try {
+      const res = await ApiClient.skipScheduledProcurement(subId);
+      showToast(res.message || 'Next delivery skipped successfully', 'info');
+      fetchSubscriptions();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to skip delivery', 'error');
+    }
+  };
+
+  const handleToggleStatus = async (subId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'active' ? 'paused' : 'active';
+    try {
+      await ApiClient.updateScheduledProcurementStatus(subId, nextStatus);
+      showToast(`Subscription ${nextStatus === 'active' ? 'resumed' : 'paused'} successfully`, 'info');
+      fetchSubscriptions();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update subscription status', 'error');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div className="bg-white dark:bg-[#1B201D] border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
@@ -269,6 +290,25 @@ export const ScheduledProcurementModal: React.FC<Props> = ({ isOpen, onClose, de
                       <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
                       {sub.delivery_address}
                     </p>
+
+                    <div className="flex items-center gap-2 pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50">
+                      <button
+                        onClick={() => handleSkip(sub.id)}
+                        className="px-3 py-1 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-300 font-bold text-[11px] rounded-lg transition"
+                      >
+                        Skip Next Drop
+                      </button>
+                      <button
+                        onClick={() => handleToggleStatus(sub.id, sub.status)}
+                        className={`px-3 py-1 font-bold text-[11px] rounded-lg transition ${
+                          sub.status === 'active'
+                            ? 'bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
+                      >
+                        {sub.status === 'active' ? 'Pause' : 'Resume'}
+                      </button>
+                    </div>
                   </div>
                 ))
               )}

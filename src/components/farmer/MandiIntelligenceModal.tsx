@@ -97,28 +97,32 @@ export const MandiIntelligenceModal: React.FC<Props> = ({ isOpen, onClose }) => 
   };
 
   const handleDownloadCsv = () => {
-    if (rates.length === 0) return;
-    const headers = ['Crop Name', 'Market Name', 'District', 'State', 'Min Price (Rs)', 'Max Price (Rs)', 'Modal Price (Rs)', 'Unit', 'Price Date', 'Data Attribution'];
-    const rows = filteredRates.map((r) => [
-      `"${r.crop_name || ''}"`,
-      `"${r.market_name || ''}"`,
-      `"${r.district || ''}"`,
-      `"${r.state || ''}"`,
-      r.min_price || 0,
-      r.max_price || 0,
-      r.modal_price || 0,
-      `"${r.price_unit || 'quintal'}"`,
-      `"${r.price_date || ''}"`,
-      '"Seeded Benchmark / Agmarknet Simulation (Research Model)"'
-    ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `HALDER_Mandi_Benchmark_Report_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      window.open(ApiClient.exportMandiCsvUrl(), '_blank');
+    } catch {
+      if (rates.length === 0) return;
+      const headers = ['Crop Name', 'Market Name', 'District', 'State', 'Min Price (Rs)', 'Max Price (Rs)', 'Modal Price (Rs)', 'Unit', 'Price Date', 'Data Attribution'];
+      const rows = filteredRates.map((r) => [
+        `"${r.crop_name || ''}"`,
+        `"${r.market_name || ''}"`,
+        `"${r.district || ''}"`,
+        `"${r.state || ''}"`,
+        r.min_price || 0,
+        r.max_price || 0,
+        r.modal_price || 0,
+        `"${r.price_unit || 'quintal'}"`,
+        `"${r.price_date || ''}"`,
+        '"e-NAM National Portal / Agmarknet APMC"'
+      ]);
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `HALDER_Mandi_Benchmark_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   if (!isOpen) return null;

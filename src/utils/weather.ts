@@ -5,9 +5,13 @@ export interface AgroWeatherInfo {
   humidity: number;
   condition: string;
   rainChance: number;
+  windSpeedKmh?: number;
+  severeAlert?: string | null;
   advisory: string;
   harvestWindow: string;
   source?: string;
+  provider?: string;
+  disclaimer?: string;
   cachedAt?: string;
 }
 

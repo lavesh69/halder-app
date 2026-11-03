@@ -45,7 +45,7 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
   const [sowingDate, setSowingDate] = useState('');
   const [expectedHarvestDate, setExpectedHarvestDate] = useState('');
   const [estimatedYieldKg, setEstimatedYieldKg] = useState('500');
-  const [farmingMethod, setFarmingMethod] = useState('100% Certified Organic');
+  const [farmingMethod, setFarmingMethod] = useState('Organic Certified');
   const [certifications, setCertifications] = useState('NPOP / Jaivik Bharat');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -264,10 +264,10 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
                     onChange={(e) => setFarmingMethod(e.target.value)}
                     className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-hidden"
                   >
-                    <option value="100% Certified Organic">100% Certified Organic</option>
-                    <option value="ZBNF (Zero Budget Natural)">ZBNF (Zero Budget Natural)</option>
-                    <option value="Hydroponic / Protected">Hydroponic / Protected Polyhouse</option>
-                    <option value="Traditional Residue-Free">Traditional Residue-Free</option>
+                    <option value="Organic Certified">Organic Certified (NPOP / Jaivik)</option>
+                    <option value="Natural/Zero Budget">Natural / Zero Budget (ZBNF)</option>
+                    <option value="Hydroponic">Hydroponic / Protected Polyhouse</option>
+                    <option value="Traditional">Traditional Sustainable</option>
                   </select>
                 </div>
               </div>

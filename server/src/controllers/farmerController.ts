@@ -236,6 +236,19 @@ export class FarmerController {
         return res.status(400).json({ success: false, error: { message: 'crop_name, season, sowing_date, and expected_harvest_date are required' } });
       }
 
+      let normMethod = 'Traditional';
+      const rawMethod = (farming_method || '').toLowerCase();
+      if (rawMethod.includes('organic')) normMethod = 'Organic Certified';
+      else if (rawMethod.includes('natural') || rawMethod.includes('zbnf')) normMethod = 'Natural/Zero Budget';
+      else if (rawMethod.includes('hydro')) normMethod = 'Hydroponic';
+
+      let normSeason = 'Rabi';
+      const rawSeason = (season || '').toLowerCase();
+      if (rawSeason.includes('kharif')) normSeason = 'Kharif';
+      else if (rawSeason.includes('zaid')) normSeason = 'Zaid';
+      else if (rawSeason.includes('year') || rawSeason.includes('annual')) normSeason = 'Year-round';
+      else if (rawSeason.includes('rabi')) normSeason = 'Rabi';
+
       const id = 'crop-' + Date.now();
       const now = new Date().toISOString();
 
@@ -245,8 +258,8 @@ export class FarmerController {
           estimated_yield_kg, farming_method, certifications, status, created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'growing', ?, ?)`,
         [
-          id, farmerId, crop_name, season, sowing_date, expected_harvest_date,
-          Number(estimated_yield_kg) || 100, farming_method || 'Traditional',
+          id, farmerId, crop_name, normSeason, sowing_date, expected_harvest_date,
+          Number(estimated_yield_kg) || 100, normMethod,
           typeof certifications === 'string' ? certifications : JSON.stringify(certifications || []),
           now, now
         ]
