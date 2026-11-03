@@ -138,7 +138,7 @@ export const MainApp: React.FC = () => {
   };
 
   const appContent = (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#111412] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0F1411] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
       {/* Global Toast */}
       <Toast />
 

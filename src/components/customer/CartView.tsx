@@ -220,7 +220,7 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
       </div>
 
       {/* Proceed Checkout Action */}
-      <div className="p-4 bg-white dark:bg-[#151917] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft-lg flex items-center justify-between gap-4">
+      <div className="p-4 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft-lg flex items-center justify-between gap-4">
         <div>
           <span className="text-[11px] text-zinc-400 block font-medium">Total</span>
           <span className="text-xl font-black text-emerald-700 dark:text-emerald-400">

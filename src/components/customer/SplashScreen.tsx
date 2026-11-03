@@ -22,7 +22,7 @@ export const SplashScreen: React.FC = () => {
   }, [setShowSplash]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#FAF9F6] dark:bg-[#111412] p-5 sm:p-8 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] select-none transition-colors">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#F7F9F6] dark:bg-[#0F1411] p-5 sm:p-8 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] select-none transition-colors">
       <div className="w-full flex justify-end">
         <button
           onClick={() => setShowSplash(false)}

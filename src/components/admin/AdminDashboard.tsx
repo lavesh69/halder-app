@@ -606,7 +606,7 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6 pb-28 animate-fade-in text-xs">
       {/* TOP HEADER: BRAND IDENTITY & GLOBAL CONTROLS */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#181D1A] p-4 sm:p-5 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 shadow-soft">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#181F1A] p-4 sm:p-5 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 shadow-soft">
         <div className="flex items-center gap-3.5">
           <div className="p-3 bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl shadow-md shrink-0">
             <ShieldCheck className="w-7 h-7" />
@@ -719,7 +719,7 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all duration-150 ${
                 isSelected
-                  ? 'bg-white dark:bg-[#181D1A] text-emerald-800 dark:text-emerald-400 shadow-soft scale-[1.01]'
+                  ? 'bg-white dark:bg-[#181F1A] text-emerald-800 dark:text-emerald-400 shadow-soft scale-[1.01]'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-white/40'
               }`}
             >
@@ -749,7 +749,7 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === 'overview' && (
         <div className="space-y-6 animate-fade-in">
           {/* Time Range Selector & Live Mandi Telemetry Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft">
             <div className="flex flex-wrap items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -786,7 +786,7 @@ export const AdminDashboard: React.FC = () => {
             {/* 1. Total Registered Users */}
             <div
               onClick={() => setActiveTab('users')}
-              className="p-4 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
+              className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Total Users</span>
@@ -803,7 +803,7 @@ export const AdminDashboard: React.FC = () => {
             {/* 2. Verified Farmers */}
             <div
               onClick={() => setActiveTab('verification')}
-              className="p-4 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
+              className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Verified Farmers</span>
@@ -820,7 +820,7 @@ export const AdminDashboard: React.FC = () => {
             {/* 3. Active Mandi Classifieds */}
             <div
               onClick={() => setActiveTab('products')}
-              className="p-4 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
+              className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Active Listings</span>
@@ -837,7 +837,7 @@ export const AdminDashboard: React.FC = () => {
             {/* 4. Orders Completed */}
             <div
               onClick={() => setActiveTab('orders')}
-              className="p-4 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
+              className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Orders Placed</span>
@@ -852,7 +852,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {/* 5. Gross Marketplace GMV */}
-            <div className="p-4 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
+            <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Gross GMV</span>
                 <ArrowUpRight className="w-4 h-4 text-emerald-600" />
@@ -868,7 +868,7 @@ export const AdminDashboard: React.FC = () => {
             {/* 6. Pending KYC Review */}
             <div
               onClick={() => setActiveTab('verification')}
-              className={`p-4 bg-white dark:bg-[#181D1A] rounded-2xl border transition-all cursor-pointer group ${
+              className={`p-4 bg-white dark:bg-[#181F1A] rounded-2xl border transition-all cursor-pointer group ${
                 pendingFarmersCount > 0
                   ? 'border-amber-300 dark:border-amber-800/80 bg-amber-50/20'
                   : 'border-zinc-200 dark:border-zinc-800 shadow-soft'
@@ -889,7 +889,7 @@ export const AdminDashboard: React.FC = () => {
 
           {/* System Health & Infrastructure Telemetry Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
+            <div className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 rounded-xl">
                 <Cpu className="w-4 h-4" />
               </div>
@@ -899,7 +899,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
+            <div className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
               <div className="p-2 bg-blue-50 dark:bg-blue-950 text-blue-600 rounded-xl">
                 <Server className="w-4 h-4" />
               </div>
@@ -909,7 +909,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
+            <div className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
               <div className="p-2 bg-purple-50 dark:bg-purple-950 text-purple-600 rounded-xl">
                 <Wifi className="w-4 h-4" />
               </div>
@@ -919,7 +919,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 bg-white dark:bg-[#181D1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
+            <div className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center gap-3">
               <div className="p-2 bg-amber-50 dark:bg-amber-950 text-amber-600 rounded-xl">
                 <Bell className="w-4 h-4" />
               </div>
@@ -933,7 +933,7 @@ export const AdminDashboard: React.FC = () => {
           {/* Quick Access Grid: Emergency Kill-Switch Status & Financials */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {/* Kill Switch Quick Status */}
-            <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
+            <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-red-600" />
@@ -975,7 +975,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Payment & Turnover Breakdown */}
-            <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
+            <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-emerald-600" />
@@ -1001,7 +1001,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Produce & Machinery Taxonomy Volume */}
-            <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
+            <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Layers className="w-4 h-4 text-emerald-600" />
@@ -1029,7 +1029,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Live Orders Stream with 1-Tap Live GPS Track */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-emerald-600" />
@@ -1083,7 +1083,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 2: USERS & ROLE GOVERNANCE */}
       {/* ========================================================================= */}
       {activeTab === 'users' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -1417,7 +1417,7 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === 'verification' && (
         <div className="space-y-6 animate-fade-in">
           {/* Sub-section A: Pending Government Identity & 7/12 Queue */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-amber-500/10 text-amber-600 rounded-xl">
@@ -1525,7 +1525,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Sub-section B: All Registered Farmers Roster */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="font-black text-sm text-zinc-900 dark:text-white flex items-center gap-2">
@@ -1637,7 +1637,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 4: LISTINGS & CLASSIFIEDS MODERATION (OLX STYLE) */}
       {/* ========================================================================= */}
       {activeTab === 'products' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -1861,7 +1861,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 5: ORDERS & DISPUTE MONITOR */}
       {/* ========================================================================= */}
       {activeTab === 'orders' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -1889,7 +1889,7 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setOrdersSubTab('orders')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
                 ordersSubTab === 'orders'
-                  ? 'bg-white dark:bg-[#181D1A] text-emerald-800 dark:text-emerald-400 shadow-2xs'
+                  ? 'bg-white dark:bg-[#181F1A] text-emerald-800 dark:text-emerald-400 shadow-2xs'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
               }`}
             >
@@ -1899,7 +1899,7 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setOrdersSubTab('disputes')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
                 ordersSubTab === 'disputes'
-                  ? 'bg-white dark:bg-[#181D1A] text-purple-700 dark:text-purple-400 shadow-2xs'
+                  ? 'bg-white dark:bg-[#181F1A] text-purple-700 dark:text-purple-400 shadow-2xs'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
               }`}
             >
@@ -2141,7 +2141,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 6: CATEGORIES & TAXONOMIES */}
       {/* ========================================================================= */}
       {activeTab === 'categories' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
           <div>
             <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
               <Layers className="w-5 h-5 text-emerald-600" />
@@ -2270,7 +2270,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 7: SYSTEM AUDIT LOGS */}
       {/* ========================================================================= */}
       {activeTab === 'audit' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -2346,7 +2346,7 @@ export const AdminDashboard: React.FC = () => {
       {/* SECTION 8: PLATFORM GOVERNANCE & SETTINGS */}
       {/* ========================================================================= */}
       {activeTab === 'settings' && (
-        <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -2519,7 +2519,7 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === 'logistics' && (
         <div className="space-y-6 animate-fade-in">
           {/* Header Card */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <Truck className="w-5 h-5 text-emerald-600" />
@@ -2539,7 +2539,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Sub-section A: Fleet Partners */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center justify-between">
               <span>Active Delivery Fleet ({deliveryPartners.length})</span>
               <span className="text-xs text-emerald-600 font-bold">100% Geo-Tracked</span>
@@ -2592,7 +2592,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Sub-section B: Delivery Tasks & OTP Handover */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
               Active Dispatch Tasks ({deliveryTasks.length})
             </h3>
@@ -2718,7 +2718,7 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === 'finance' && (
         <div className="space-y-6 animate-fade-in">
           {/* Header Card */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-emerald-600" />
@@ -2778,7 +2778,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Double-Entry Ledger Table */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
               Authoritative Double-Entry Transaction Ledger
             </h3>
@@ -2830,7 +2830,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Mandi Benchmark Entry Form (Module 4) */}
-          <div className="p-5 bg-white dark:bg-[#181D1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
+          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-600" />
               <span>Official APMC Mandi Benchmark Rates Entry</span>
@@ -2930,7 +2930,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {inspectingKycDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-2xl bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar">
+          <div className="w-full max-w-2xl bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="w-6 h-6 text-emerald-600" />
@@ -3112,7 +3112,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {isRejectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
             <div className="flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />
               <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
@@ -3184,7 +3184,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {isKillSwitchModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-lg bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border-2 border-red-500/30 p-6 space-y-5">
+          <div className="w-full max-w-lg bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border-2 border-red-500/30 p-6 space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2 text-red-600">
                 <ShieldAlert className="w-6 h-6 animate-pulse" />
@@ -3250,7 +3250,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {isPushBroadcastOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-purple-600" />
@@ -3349,7 +3349,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {isAddUserModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-emerald-600" />
@@ -3446,7 +3446,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {editingProductPrice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-sm bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
+          <div className="w-full max-w-sm bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
             <h3 className="font-black text-sm text-zinc-900 dark:text-white">
               Edit Price for "{editingProductPrice.name}"
             </h3>
@@ -3488,7 +3488,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {viewingInvoiceOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-lg bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+          <div className="w-full max-w-lg bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div>
                 <h3 className="font-black text-base text-zinc-900 dark:text-white">
@@ -3577,7 +3577,7 @@ export const AdminDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {inspectingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-[#181D1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-3">
                 <img

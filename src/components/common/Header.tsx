@@ -44,7 +44,7 @@ export const Header: React.FC = () => {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#111412]/95 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 transition-colors">
+    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
       <div className="max-w-7xl px-2 sm:px-6 mx-auto py-2 transition-all duration-200">
         <div className="flex items-center justify-between gap-1.5 sm:gap-2">
           {/* Logo & Location Selector */}
@@ -54,14 +54,15 @@ export const Header: React.FC = () => {
             {/* Location Selector Pill (Clickable) */}
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-1 text-xs text-zinc-700 dark:text-zinc-200 hover:text-emerald-700 dark:hover:text-emerald-400 bg-zinc-100/90 dark:bg-zinc-800/90 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-zinc-200/60 dark:border-zinc-700/60 transition-colors max-w-[100px] xs:max-w-[125px] sm:max-w-[155px] truncate shadow-2xs"
+              className="flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[100px] xs:max-w-[125px] sm:max-w-[155px] truncate shadow-soft focus-visible:ring-2"
               title={t('location.change_location')}
+              aria-label="Change current location"
             >
-              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
               <span className="font-bold truncate text-[11px]">
                 {currentLocation.split(',')[0]}
               </span>
-              <ChevronDown className="w-3 h-3 text-zinc-400 shrink-0 ml-0.5" />
+              <ChevronDown className="w-3 h-3 text-[#89948C] shrink-0 ml-0.5" />
             </button>
           </div>
 
@@ -73,8 +74,9 @@ export const Header: React.FC = () => {
             {/* Search Trigger */}
             <button
               onClick={() => setIsSearchScreenOpen(true)}
-              className="p-1 sm:p-1.5 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+              className="p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
               title={t('nav.search')}
+              aria-label="Search produce"
             >
               <Search className="w-4 h-4" />
             </button>
@@ -82,12 +84,13 @@ export const Header: React.FC = () => {
             {/* Notification Bell with Badge */}
             <button
               onClick={() => setIsNotificationModalOpen(true)}
-              className="relative p-1 sm:p-1.5 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+              className="relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
               title={t('nav.notifications')}
+              aria-label="View notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-emerald-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs animate-pulse">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-[#176B45] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -97,12 +100,13 @@ export const Header: React.FC = () => {
             {role === 'customer' && (
               <button
                 onClick={() => setCustomerTab('favorites')}
-                className="relative p-1 sm:p-1.5 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+                className="relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
                 title={t('nav.favorites')}
+                aria-label="View favorites"
               >
                 <Heart className="w-4 h-4" />
                 {favorites.length > 0 && (
-                  <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#D9534F] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                     {favorites.length}
                   </span>
                 )}
@@ -113,12 +117,13 @@ export const Header: React.FC = () => {
             {role === 'customer' && (
               <button
                 onClick={() => setCustomerTab('cart')}
-                className="relative p-1 sm:p-1.5 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+                className="relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
                 title="View Basket / Cart"
+                aria-label="View shopping cart"
               >
                 <ShoppingBag className="w-4 h-4" />
                 {cart.length > 0 && (
-                  <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-emerald-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#176B45] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                     {cart.length}
                   </span>
                 )}
@@ -126,14 +131,14 @@ export const Header: React.FC = () => {
             )}
 
             {/* 3-Way Role Selector */}
-            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/90 p-0.5 rounded-full border border-zinc-200/70 dark:border-zinc-700/70 text-[10px] font-bold">
+            <div className="flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
               <button
                 onClick={() => setRole('customer')}
                 title={t('nav.buyer')}
-                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
+                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'customer'
-                    ? 'bg-white dark:bg-[#1B201D] text-emerald-700 dark:text-emerald-400 shadow-2xs'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'
+                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
+                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
                 }`}
               >
                 <ShoppingBag className="w-3 h-3" />
@@ -143,10 +148,10 @@ export const Header: React.FC = () => {
               <button
                 onClick={() => setRole('farmer')}
                 title={t('nav.farmer')}
-                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
+                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'farmer'
-                    ? 'bg-white dark:bg-[#1B201D] text-emerald-700 dark:text-emerald-400 shadow-2xs'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'
+                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
+                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
                 }`}
               >
                 <Sprout className="w-3 h-3" />
@@ -156,10 +161,10 @@ export const Header: React.FC = () => {
               <button
                 onClick={() => setRole('admin')}
                 title={t('nav.admin')}
-                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
+                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'admin'
-                    ? 'bg-purple-600 text-white shadow-2xs'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'
+                    ? 'bg-purple-600 text-white shadow-soft font-bold'
+                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
                 }`}
               >
                 <Shield className="w-3 h-3" />
@@ -167,11 +172,11 @@ export const Header: React.FC = () => {
               </button>
             </div>
 
-            {/* Direct Login Button (Visible when not logged in or exploring) */}
+            {/* Direct Login Button (Visible when not logged in) */}
             {!isLoggedIn && (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-full text-[11px] sm:text-xs font-bold shadow-2xs transition-all ml-0.5"
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] sm:text-xs font-bold shadow-soft transition-all ml-0.5"
                 title="Sign In with Google or Mobile OTP"
               >
                 <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24">
@@ -188,12 +193,13 @@ export const Header: React.FC = () => {
             <button
               onClick={toggleTheme}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-1.5 rounded-full text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="p-2 rounded-full text-[#66736B] dark:text-[#A6B3AA] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               {isDark ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-4 h-4 text-[#D99A32]" />
               ) : (
-                <Moon className="w-4 h-4 text-zinc-600" />
+                <Moon className="w-4 h-4 text-[#202923]" />
               )}
             </button>
 
@@ -201,12 +207,13 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setIsDeviceFrame(!isDeviceFrame)}
               title={isDeviceFrame ? 'Full Width View' : 'Phone Frame View'}
-              className="hidden md:flex p-1.5 rounded-full text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              aria-label={isDeviceFrame ? 'Full Width View' : 'Phone Frame View'}
+              className="hidden md:flex p-2 rounded-full text-[#66736B] dark:text-[#A6B3AA] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               {isDeviceFrame ? (
                 <Monitor className="w-4 h-4" />
               ) : (
-                <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <Smartphone className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
               )}
             </button>
           </div>
@@ -215,7 +222,7 @@ export const Header: React.FC = () => {
 
       {/* Global Broadcast Advisory Banner */}
       {platformSettings?.emergencyAlert && (
-        <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 dark:from-amber-950/60 dark:via-amber-900/40 dark:to-amber-950/60 border-t border-b border-amber-500/30 px-3 py-1.5 text-xs text-amber-950 dark:text-amber-200 flex items-center justify-center gap-2 text-center animate-fade-in font-bold">
+        <div className="bg-[#D99A32]/15 dark:bg-[#D99A32]/25 border-t border-b border-[#D99A32]/30 px-3 py-1.5 text-xs text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center gap-2 text-center animate-fade-in font-bold">
           <span className="shrink-0 text-sm">📢</span>
           <span className="truncate">{platformSettings.emergencyAlert}</span>
         </div>

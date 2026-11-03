@@ -138,7 +138,7 @@ export const SearchScreen: React.FC = () => {
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#FAF9F6] dark:bg-[#111412] flex flex-col max-w-5xl mx-auto overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-[#F7F9F6] dark:bg-[#0F1411] flex flex-col max-w-5xl mx-auto overflow-hidden animate-fade-in">
       {/* Search Header Bar */}
       <div className="p-4 bg-white dark:bg-[#1B201D] border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-2.5 shadow-xs">
         <button

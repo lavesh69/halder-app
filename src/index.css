@@ -5,28 +5,44 @@
 @layer base {
   :root {
     color-scheme: light;
-    --brand-primary: #059669;
-    --brand-primary-hover: #047857;
-    --brand-accent: #10b981;
-    --surface-bg: #FAF9F6;
+    --brand-primary: #176B45;
+    --brand-primary-hover: #124C36;
+    --brand-fresh: #2E8B57;
+    --brand-soft: #EAF5EE;
+    --surface-bg: #F7F9F6;
     --surface-card: #FFFFFF;
-    --surface-border: #E5E7EB;
-    --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --text-muted: #9CA3AF;
+    --surface-card-muted: #F0F4F1;
+    --surface-border: #E5EBE6;
+    --text-primary: #202923;
+    --text-secondary: #66736B;
+    --text-muted: #89948C;
+
+    /* Semantic tokens */
+    --semantic-success: #238653;
+    --semantic-warning: #D99A32;
+    --semantic-danger: #D9534F;
+    --semantic-info: #4285B8;
   }
 
   .dark {
     color-scheme: dark;
-    --brand-primary: #10b981;
-    --brand-primary-hover: #059669;
-    --brand-accent: #34d399;
-    --surface-bg: #111412;
-    --surface-card: #1B201D;
-    --surface-border: #27272A;
-    --text-primary: #F9FAFB;
-    --text-secondary: #D1D5DB;
-    --text-muted: #9CA3AF;
+    --brand-primary: #2E8B57;
+    --brand-primary-hover: #176B45;
+    --brand-fresh: #5FB383;
+    --brand-soft: #182A20;
+    --surface-bg: #0F1411;
+    --surface-card: #181F1A;
+    --surface-card-muted: #222B25;
+    --surface-border: #29352D;
+    --text-primary: #F2F5F3;
+    --text-secondary: #A6B3AA;
+    --text-muted: #728277;
+
+    /* Semantic tokens (dark tuned) */
+    --semantic-success: #2EA063;
+    --semantic-warning: #E8A838;
+    --semantic-danger: #E25E5A;
+    --semantic-info: #5097CD;
   }
   
   html {
@@ -35,7 +51,7 @@
   }
 
   body {
-    @apply antialiased font-sans bg-[#FAF9F6] dark:bg-[#111412] text-zinc-900 dark:text-zinc-100;
+    @apply antialiased font-sans bg-[#F7F9F6] dark:bg-[#0F1411] text-[#202923] dark:text-[#F2F5F3];
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
@@ -47,7 +63,7 @@
 
   /* Accessible focus indicators across all interactive elements */
   :focus-visible {
-    @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-white dark:ring-offset-[#111412];
+    @apply outline-none ring-2 ring-[#176B45] dark:ring-[#2E8B57] ring-offset-2 ring-offset-white dark:ring-offset-[#0F1411];
   }
 }
 
@@ -60,11 +76,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.35);
+  background: rgba(137, 148, 140, 0.35);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.55);
+  background: rgba(102, 115, 107, 0.55);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -86,23 +102,49 @@
 
 /* Reusable Design System Component Utilities */
 @layer components {
-  /* Standard 44px interactive button */
+  /* Standard 44px interactive buttons */
+  .btn-primary {
+    @apply min-h-[44px] px-4 py-2.5 bg-[#176B45] hover:bg-[#124C36] active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-soft transition-all duration-150 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply min-h-[44px] px-4 py-2.5 bg-white dark:bg-[#181F1A] hover:bg-[#F0F4F1] dark:hover:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] font-bold text-sm rounded-xl transition-all duration-150 inline-flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply min-h-[44px] px-4 py-2.5 bg-transparent hover:bg-[#EAF5EE] dark:hover:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] border border-[#176B45]/40 dark:border-[#2E8B57]/40 font-bold text-sm rounded-xl transition-all duration-150 inline-flex items-center justify-center gap-2;
+  }
+
+  .btn-ghost {
+    @apply min-h-[40px] px-3 py-2 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white font-semibold text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-1.5;
+  }
+
+  .btn-danger {
+    @apply min-h-[44px] px-4 py-2.5 bg-[#D9534F] hover:bg-[#C9302C] active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-soft transition-all duration-150 inline-flex items-center justify-center gap-2;
+  }
+
+  /* Backward compatibility alias */
   .btn-touch-primary {
-    @apply min-h-[44px] px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-sm rounded-2xl shadow-soft transition-all duration-150 flex items-center justify-center gap-2;
+    @apply btn-primary;
   }
 
   .btn-touch-secondary {
-    @apply min-h-[44px] px-4 py-2.5 bg-white dark:bg-[#1B201D] hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 font-bold text-sm rounded-2xl transition-all duration-150 flex items-center justify-center gap-2;
+    @apply btn-secondary;
+  }
+
+  /* Standard card surface */
+  .card-surface {
+    @apply bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-2xl shadow-soft transition-all;
   }
 
   /* Standard form inputs */
   .form-input-responsive {
-    @apply min-h-[44px] w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all;
+    @apply min-h-[44px] w-full px-3.5 py-2.5 bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-xl text-sm text-[#202923] dark:text-[#F2F5F3] placeholder:text-[#89948C] focus:outline-none focus:ring-2 focus:ring-[#176B45] dark:focus:ring-[#2E8B57] transition-all;
   }
 
   /* Responsive Modal Container */
   .modal-sheet-responsive {
-    @apply w-full max-w-lg bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden animate-slide-up;
+    @apply w-full max-w-lg bg-white dark:bg-[#181F1A] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#E5EBE6] dark:border-[#29352D] max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden animate-slide-up;
   }
 }
 
