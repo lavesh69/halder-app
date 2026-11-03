@@ -51,10 +51,16 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
-          echo "=== Built Artifacts Audit ==="
-          ls -la app/build/outputs/apk/debug/ || true
-          ls -la app/build/outputs/bundle/release/ || true
+          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace > /tmp/gradle_output.txt 2>&1 || true
+          tail -n 60 /tmp/gradle_output.txt
+          ERR=$(grep -A 3 -m 1 "What went wrong:" /tmp/gradle_output.txt | tr '\n' ' ' | cut -c 1-240)
+          echo "::notice title=Gradle Diagnosis::$ERR"
+          if grep -q "BUILD SUCCESSFUL" /tmp/gradle_output.txt; then
+            echo "BUILD PASSED"
+          else
+            echo "::error title=Gradle Failed::$ERR"
+            exit 1
+          fi
         env:
           KEYSTORE_PASSWORD: halder2026
           KEY_PASSWORD: halder2026
