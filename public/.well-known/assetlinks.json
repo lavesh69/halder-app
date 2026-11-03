@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.halder.mandi",
+      "sha256_cert_fingerprints": [
+        "7C:62:F8:5E:48:55:57:40:C1:04:A2:53:5B:62:BB:3C:76:CB:46:B8:81:5C:F2:E6:60:08:D2:3D:F4:C0:98:4F"
+      ]
+    }
+  }
+]

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration: Enforce HTTPS across all network communications -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Production Whitelisted Domains -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">halder.in</domain>
+        <domain includeSubdomains="true">trycloudflare.com</domain>
+        <domain includeSubdomains="true">unsplash.com</domain>
+    </domain-config>
+
+    <!-- Debug overrides for local developer testing -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

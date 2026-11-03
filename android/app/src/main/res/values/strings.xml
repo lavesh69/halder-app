@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HALDER</string>
+    <string name="title_activity_main">HALDER</string>
+    <string name="package_name">com.halder.mandi</string>
+    <string name="custom_url_scheme">com.halder.mandi</string>
+</resources>

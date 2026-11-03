@@ -1,0 +1,220 @@
+import React, { useState } from 'react';
+import { useApp } from './context/AppContext';
+import { Header } from './components/common/Header';
+import { BottomNav } from './components/common/BottomNav';
+import { Toast } from './components/common/Toast';
+import { LocationModal } from './components/common/LocationModal';
+
+// Customer screens & modals
+import { SplashScreen } from './components/customer/SplashScreen';
+import { Onboarding } from './components/customer/Onboarding';
+import { MarketplaceHome } from './components/customer/MarketplaceHome';
+import { SearchScreen } from './components/customer/SearchScreen';
+import { FilterBottomSheet } from './components/customer/FilterBottomSheet';
+import { FavoritesView } from './components/customer/FavoritesView';
+import { CartView } from './components/customer/CartView';
+import { CheckoutView } from './components/customer/CheckoutView';
+import { CustomerOrdersView } from './components/customer/CustomerOrdersView';
+import { CustomerProfileView } from './components/customer/CustomerProfileView';
+import { ListingDetailModal } from './components/customer/ListingDetailModal';
+import { FarmerSellerProfileModal } from './components/customer/FarmerSellerProfileModal';
+import { OrderTrackingModal } from './components/customer/OrderTrackingModal';
+import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal';
+import { FastSellModal } from './components/customer/FastSellModal';
+import { MyAdsModal } from './components/customer/MyAdsModal';
+import { CustomerChatsView } from './components/customer/CustomerChatsView';
+import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
+
+// Farmer screens & modals
+import { FarmerDashboard } from './components/farmer/FarmerDashboard';
+import { FarmerProductsView } from './components/farmer/FarmerProductsView';
+import { FarmerOrdersView } from './components/farmer/FarmerOrdersView';
+import { FarmerEarningsView } from './components/farmer/FarmerEarningsView';
+import { FarmerChatView } from './components/farmer/FarmerChatView';
+import { FarmerProfileView } from './components/farmer/FarmerProfileView';
+import { AddProductModal } from './components/farmer/AddProductModal';
+
+// Admin dashboard & Notifications
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import { NotificationModal } from './components/common/NotificationModal';
+import { useAndroidHardware } from './hooks/useAndroidHardware';
+
+export const MainApp: React.FC = () => {
+  const { isOffline } = useAndroidHardware();
+  const {
+    role,
+    customerTab,
+    farmerTab,
+    showSplash,
+    hasSeenOnboarding,
+    isLoggedIn,
+    isLoginModalOpen,
+    setIsLoginModalOpen,
+    isDeviceFrame,
+    isSearchScreenOpen,
+    buyNowProduct,
+    setBuyNowProduct,
+  } = useApp();
+
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Splash Screen
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
+  // Onboarding / Sign In
+  if (!hasSeenOnboarding) {
+    return <Onboarding />;
+  }
+
+  // Customer Screen Router
+  const renderCustomerScreen = () => {
+    // If user clicked "Buy Now", immediately show checkout with single item
+    if (buyNowProduct || isCheckingOut) {
+      return (
+        <CheckoutView
+          onBack={() => {
+            setIsCheckingOut(false);
+            setBuyNowProduct(null);
+          }}
+        />
+      );
+    }
+
+    if (customerTab === 'favorites') {
+      return <FavoritesView />;
+    }
+
+    switch (customerTab) {
+      case 'home':
+        return <MarketplaceHome />;
+      case 'chats':
+        return <CustomerChatsView />;
+      case 'my-ads':
+        return <CustomerMyAdsView />;
+      case 'search':
+        return <SearchScreen />;
+      case 'cart':
+        return <CartView onProceedToCheckout={() => setIsCheckingOut(true)} />;
+      case 'orders':
+        return <CustomerOrdersView />;
+      case 'profile':
+        return <CustomerProfileView />;
+      default:
+        return <MarketplaceHome />;
+    }
+  };
+
+  // Farmer Screen Router
+  const renderFarmerScreen = () => {
+    switch (farmerTab) {
+      case 'dashboard':
+        return <FarmerDashboard />;
+      case 'listings':
+        return <FarmerProductsView />;
+      case 'orders':
+        return <FarmerOrdersView />;
+      case 'earnings':
+        return <FarmerEarningsView />;
+      case 'chat':
+        return <FarmerChatView />;
+      case 'profile':
+        return <FarmerProfileView />;
+      default:
+        return <FarmerDashboard />;
+    }
+  };
+
+  // Screen Dispatcher based on Role
+  const renderScreen = () => {
+    if (role === 'admin') {
+      return <AdminDashboard />;
+    }
+    if (role === 'farmer') {
+      return renderFarmerScreen();
+    }
+    return renderCustomerScreen();
+  };
+
+  const appContent = (
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#111412] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
+      {/* Global Toast */}
+      <Toast />
+
+      {/* Offline Status Banner */}
+      {isOffline && (
+        <div className="bg-amber-500 text-zinc-950 font-bold text-xs py-1.5 px-3 text-center flex items-center justify-center gap-1.5 shadow-sm sticky top-0 z-50">
+          <span>📡 You are offline. Browsing saved farm produce.</span>
+        </div>
+      )}
+
+      {/* Marketplace Header */}
+      <Header />
+
+      {/* Main Screen Feed */}
+      <main className="flex-1 max-w-7xl px-3 sm:px-6 w-full mx-auto pt-4 pb-24 transition-all duration-200">
+        {renderScreen()}
+      </main>
+
+      {/* Modals & Overlays */}
+      <ListingDetailModal />
+      <FarmerSellerProfileModal />
+      <OrderTrackingModal />
+      <MarketplaceChatModal />
+      <FastSellModal />
+      <AddProductModal />
+      <MyAdsModal />
+      <FilterBottomSheet />
+      <LocationModal />
+      <NotificationModal />
+      {isSearchScreenOpen && <SearchScreen />}
+      {isLoginModalOpen && (
+        <Onboarding
+          initialShowLogin={true}
+          onClose={() => setIsLoginModalOpen(false)}
+        />
+      )}
+
+      {/* Bottom Navigation */}
+      <BottomNav />
+    </div>
+  );
+
+  if (isDeviceFrame) {
+    return (
+      <div className="min-h-screen bg-zinc-200 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-8 transition-colors">
+        <div className="w-full max-w-[420px] h-[880px] bg-black rounded-[48px] p-3 shadow-2xl border-4 border-zinc-800 relative overflow-hidden flex flex-col">
+          {/* Dynamic Notch / Speaker Pill */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-50 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-zinc-900 border border-zinc-800 mr-2" />
+            <div className="w-10 h-1.5 bg-zinc-800 rounded-full" />
+          </div>
+
+          {/* Device Screen Viewport */}
+          <div className="w-full h-full rounded-[38px] overflow-hidden overflow-y-auto no-scrollbar relative flex flex-col">
+            {appContent}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return appContent;
+};
+
+import { ThemeProvider } from './context/ThemeContext';
+import { AppProvider } from './context/AppContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AppProvider>
+          <MainApp />
+        </AppProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}
