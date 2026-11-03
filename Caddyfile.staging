@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# HALDER Staging Reverse Proxy Configuration
+
+{$STAGING_DOMAIN:staging.halder.example.com} {
+    # Automatic HTTPS via Let's Encrypt / ZeroSSL
+
+    # Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(self), geolocation=(self), microphone=()"
+    }
+
+    # API Endpoints Reverse Proxy
+    handle /api/* {
+        reverse_proxy halder-api:5000
+    }
+
+    # Real-Time WebSocket Endpoint
+    handle /ws {
+        reverse_proxy halder-api:5000
+    }
+
+    # User Uploads Static Serving
+    handle /uploads/* {
+        reverse_proxy halder-api:5000
+    }
+
+    # Health Check
+    handle /health {
+        reverse_proxy halder-api:5000
+    }
+
+    # Frontend Single Page Application (React 19)
+    handle {
+        root * /srv/dist
+        try_files {path} /index.html
+        file_server
+    }
+
+    # Logging
+    log {
+        output stdout
+        format console
+    }
+}

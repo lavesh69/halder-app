@@ -1,0 +1,62 @@
+name: Deploy HALDER Staging Environment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+
+jobs:
+  deploy-staging:
+    name: Build & Deploy to Staging VM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Staging Secrets Availability
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.STAGING_SSH_HOST }}" ] || [ -z "${{ secrets.STAGING_SSH_KEY }}" ]; then
+            echo "::warning title=Missing Staging Secrets::Staging deployment skipped because STAGING_SSH_HOST and STAGING_SSH_KEY are not configured."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup SSH Agent
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+      - name: Deploy Staging Stack via SSH
+        if: steps.check-secrets.outputs.configured == 'true'
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} << 'EOF'
+            set -e
+            APP_DIR="/opt/halder-staging"
+            mkdir -p $APP_DIR
+            cd $APP_DIR
+            if [ -d .git ]; then
+              git fetch origin main
+              git reset --hard origin/main
+            else
+              git clone https://github.com/lavesh69/halder-app.git .
+            fi
+            
+            # Backup current staging DB before deploying new container
+            if [ -f data/halder_staging.db ]; then
+              cp data/halder_staging.db "server/backups/staging_pre_deploy_$(date +%s).db"
+            fi
+            
+            # Rebuild and restart staging stack
+            docker compose -f docker-compose.staging.yml build
+            docker compose -f docker-compose.staging.yml up -d
+            
+            # Healthcheck
+            sleep 10
+            curl -f http://localhost:5000/api/v1/health || exit 1
+          EOF
