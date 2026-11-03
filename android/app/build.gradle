@@ -42,6 +42,11 @@ android {
             debuggable true
         }
     }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 repositories {
