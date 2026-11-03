@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+﻿import { DatabaseSync } from 'node:sqlite';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';

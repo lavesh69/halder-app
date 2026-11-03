@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket, RawData } from 'ws';
+﻿import { WebSocketServer, WebSocket, RawData } from 'ws';
 import http from 'http';
 import { CryptoUtil } from '../utils/crypto';
 import { Database } from '../db/database';

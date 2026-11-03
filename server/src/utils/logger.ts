@@ -1,4 +1,4 @@
-import { env } from '../config/env';
+﻿import { env } from '../config/env';
 
 export class Logger {
   static info(message: string, meta?: any) {

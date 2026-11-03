@@ -1,4 +1,4 @@
-import http from 'http';
+﻿import http from 'http';
 import { WebSocket } from 'ws';
 import { app } from '../src/app';
 import { initChatSocket, ChatSocketService } from '../src/websocket/chatSocket';

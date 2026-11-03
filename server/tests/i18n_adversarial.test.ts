@@ -1,4 +1,4 @@
-import {
+﻿import {
   enTranslations,
   hiTranslations,
   paTranslations,

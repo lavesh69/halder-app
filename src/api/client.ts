@@ -676,6 +676,208 @@ export class ApiClient {
     });
     return res.data;
   }
+
+  // ==========================================
+  // MODULE 2: FARM CROPS & BUSINESS INSIGHTS
+  // ==========================================
+  static async getFarmerCrops(farmerId: string): Promise<any[]> {
+    return this.request<any[]>(`/farmers/${farmerId}/crops`);
+  }
+
+  static async addFarmerCrop(farmerId: string, cropData: any): Promise<any> {
+    return this.request<any>(`/farmers/${farmerId}/crops`, {
+      method: 'POST',
+      body: cropData,
+    });
+  }
+
+  static async updateFarmerCrop(cropId: string, cropData: any): Promise<any> {
+    return this.request<any>(`/farmers/crops/${cropId}`, {
+      method: 'PATCH',
+      body: cropData,
+    });
+  }
+
+  static async deleteFarmerCrop(cropId: string): Promise<any> {
+    return this.request<any>(`/farmers/crops/${cropId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async getFarmerBusinessInsights(farmerId: string): Promise<any> {
+    return this.request<any>(`/farmers/${farmerId}/business-insights`);
+  }
+
+  // ==========================================
+  // MODULE 4: MANDI INTELLIGENCE
+  // ==========================================
+  static async getMandiPrices(params?: { crop?: string; state?: string; district?: string }): Promise<any[]> {
+    return this.request<any[]>('/mandi/prices', { params });
+  }
+
+  static async getMandiAnalytics(): Promise<any> {
+    return this.request<any>('/mandi/analytics');
+  }
+
+  static async getCropDemandIndicators(): Promise<any[]> {
+    return this.request<any[]>('/mandi/demand');
+  }
+
+  static async estimateFarmerProfit(params: { crop: string; yieldKg: number; platformPrice: number }): Promise<any> {
+    return this.request<any>('/mandi/estimate', { params });
+  }
+
+  static async createMandiPrice(data: any): Promise<any> {
+    return this.request<any>('/mandi/prices', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // ==========================================
+  // MODULE 5: LOGISTICS ENGINE
+  // ==========================================
+  static async getDeliveryPartners(): Promise<any[]> {
+    return this.request<any[]>('/logistics/partners');
+  }
+
+  static async getDeliveryTasks(params?: { status?: string; partner_id?: string }): Promise<any[]> {
+    return this.request<any[]>('/logistics/tasks', { params });
+  }
+
+  static async getDeliveryTaskForOrder(orderId: string): Promise<any> {
+    return this.request<any>(`/logistics/tasks/order/${orderId}`);
+  }
+
+  static async verifyDeliveryOtp(taskId: string, otp: string, notes?: string): Promise<any> {
+    return this.request<any>(`/logistics/tasks/${taskId}/verify-otp`, {
+      method: 'POST',
+      body: { otp, notes },
+    });
+  }
+
+  static async updateDeliveryTaskStatus(taskId: string, status: string, notes?: string): Promise<any> {
+    return this.request<any>(`/logistics/tasks/${taskId}/status`, {
+      method: 'PATCH',
+      body: { status, notes },
+    });
+  }
+
+  static async assignDeliveryTask(data: { order_id: string; delivery_partner_id: string; pickup_notes?: string }): Promise<any> {
+    return this.request<any>('/logistics/tasks/assign', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // ==========================================
+  // MODULE 6: FINANCIAL ENGINE & SETTLEMENTS
+  // ==========================================
+  static async getFinancialDashboard(): Promise<any> {
+    return this.request<any>('/finance/dashboard');
+  }
+
+  static async getFarmerEarningsBreakdown(farmerId: string): Promise<any> {
+    return this.request<any>(`/finance/farmer-earnings/${farmerId}`);
+  }
+
+  static async requestWithdrawal(farmerId: string, amount: number, payoutMethod?: string, payoutAddress?: string): Promise<any> {
+    return this.request<any>('/finance/withdraw', {
+      method: 'POST',
+      body: { farmerId, amount, payoutMethod, payoutAddress },
+    });
+  }
+
+  static async getFinancialTransactions(params?: { limit?: number; type?: string }): Promise<any[]> {
+    return this.request<any[]>('/finance/transactions', { params });
+  }
+
+  static async getFinancialSettings(): Promise<any> {
+    return this.request<any>('/finance/settings');
+  }
+
+  static async updateFinancialSettings(settings: Record<string, string | number>): Promise<any> {
+    return this.request<any>('/finance/settings', {
+      method: 'PATCH',
+      body: settings,
+    });
+  }
+
+  static exportFinancialCsvUrl(): string {
+    return `${BASE_URL}/finance/export`;
+  }
+
+  // ==========================================
+  // MODULE 8: ADVANCED MARKETPLACE
+  // ==========================================
+  static async getB2BProfile(userId: string): Promise<any> {
+    return this.request<any>(`/advanced/b2b/profile/${userId}`);
+  }
+
+  static async registerB2BProfile(data: { company_name: string; gstin?: string; business_type: string; contact_person: string; email: string; phone: string; address: string }): Promise<any> {
+    return this.request<any>('/advanced/b2b/profile', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async getWholesaleQuotations(params?: { farmer_id?: string; user_id?: string }): Promise<any[]> {
+    return this.request<any[]>('/advanced/b2b/quotations', { params });
+  }
+
+  static async createWholesaleQuotation(data: { product_id: string; farmer_id: string; quantity: number; requested_price_per_unit: number; notes?: string }): Promise<any> {
+    return this.request<any>('/advanced/b2b/quotations', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async updateWholesaleQuotationStatus(id: string, data: { status: string; farmer_counter_price?: number; notes?: string }): Promise<any> {
+    return this.request<any>(`/advanced/b2b/quotations/${id}`, {
+      method: 'PATCH',
+      body: data,
+    });
+  }
+
+  static async getGroupBuys(): Promise<any[]> {
+    return this.request<any[]>('/advanced/group-buys');
+  }
+
+  static async joinGroupBuy(id: string, quantity: number): Promise<any> {
+    return this.request<any>(`/advanced/group-buys/${id}/join`, {
+      method: 'POST',
+      body: { quantity },
+    });
+  }
+
+  static async getScheduledProcurements(): Promise<any[]> {
+    return this.request<any[]>('/advanced/procurements');
+  }
+
+  static async createScheduledProcurement(data: { product_id: string; quantity: number; unit?: string; frequency: string; delivery_time_slot?: string; delivery_address: string }): Promise<any> {
+    return this.request<any>('/advanced/procurements', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async updateScheduledProcurementStatus(id: string, status: string): Promise<any> {
+    return this.request<any>(`/advanced/procurements/${id}/status`, {
+      method: 'PATCH',
+      body: { status },
+    });
+  }
+
+  static async getFarmerSubscription(farmerId: string): Promise<any> {
+    return this.request<any>(`/advanced/subscriptions/${farmerId}`);
+  }
+
+  static async upgradeFarmerSubscription(farmerId: string, planId: string): Promise<any> {
+    return this.request<any>('/advanced/subscriptions', {
+      method: 'POST',
+      body: { farmerId, planId },
+    });
+  }
 }
 
 

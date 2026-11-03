@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { Database } from '../src/db/database';
 import { env } from '../src/config/env';

@@ -1,4 +1,4 @@
--- ==========================================================
+﻿-- ==========================================================
 -- HALDER Production Database Relational Schema (SQLite / WAL)
 -- ==========================================================
 
@@ -386,5 +386,239 @@ CREATE INDEX IF NOT EXISTS idx_users_halder_id ON users(halder_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_reporter ON reports(reporter_id);
 CREATE INDEX IF NOT EXISTS idx_device_tokens_user ON device_tokens(user_id);
+
+-- ==========================================================
+-- MODULE 2 TO MODULE 8 SCHEMA EXTENSIONS
+-- ==========================================================
+
+-- 19. Farm Crops & Crop Calendar (Module 2)
+CREATE TABLE IF NOT EXISTS farm_crops (
+  id TEXT PRIMARY KEY,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  crop_name TEXT NOT NULL,
+  season TEXT NOT NULL CHECK(season IN ('Kharif', 'Rabi', 'Zaid', 'Year-round')),
+  sowing_date TEXT NOT NULL,
+  expected_harvest_date TEXT NOT NULL,
+  estimated_yield_kg REAL NOT NULL DEFAULT 100,
+  farming_method TEXT NOT NULL DEFAULT 'Traditional' CHECK(farming_method IN ('Traditional', 'Organic Certified', 'Hydroponic', 'Natural/Zero Budget')),
+  certifications TEXT DEFAULT '[]',
+  status TEXT NOT NULL DEFAULT 'growing' CHECK(status IN ('sown', 'growing', 'harvesting', 'harvested')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_farm_crops_farmer ON farm_crops(farmer_id);
+
+-- 20. Mandi Prices Intelligence (Module 4)
+CREATE TABLE IF NOT EXISTS mandi_prices (
+  id TEXT PRIMARY KEY,
+  crop_name TEXT NOT NULL,
+  commodity TEXT NOT NULL,
+  variety TEXT DEFAULT 'Local',
+  state TEXT NOT NULL,
+  district TEXT NOT NULL,
+  market_name TEXT NOT NULL,
+  min_price REAL NOT NULL CHECK(min_price >= 0),
+  max_price REAL NOT NULL CHECK(max_price >= min_price),
+  modal_price REAL NOT NULL CHECK(modal_price >= min_price AND modal_price <= max_price),
+  arrival_quantity_tonnes REAL DEFAULT 10.0,
+  price_date TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT 'Agmarknet / e-NAM Verified',
+  is_verified INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_mandi_prices_crop ON mandi_prices(crop_name);
+CREATE INDEX IF NOT EXISTS idx_mandi_prices_loc ON mandi_prices(state, district, market_name);
+CREATE INDEX IF NOT EXISTS idx_mandi_prices_date ON mandi_prices(price_date);
+
+-- 21. Crop Demand & Seasonal Indicators (Module 4 & 8)
+CREATE TABLE IF NOT EXISTS crop_demand_indicators (
+  id TEXT PRIMARY KEY,
+  crop_name TEXT NOT NULL UNIQUE,
+  season TEXT NOT NULL,
+  demand_level TEXT NOT NULL CHECK(demand_level IN ('high', 'moderate', 'low')),
+  price_outlook TEXT NOT NULL CHECK(price_outlook IN ('bullish', 'stable', 'bearish')),
+  recommended_selling_window TEXT NOT NULL,
+  avg_mandi_modal_price REAL NOT NULL,
+  retail_mandi_spread_pct REAL NOT NULL DEFAULT 25.0,
+  profitability_score INTEGER NOT NULL DEFAULT 85,
+  insights_summary TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+-- 22. Delivery Partners (Module 5)
+CREATE TABLE IF NOT EXISTS delivery_partners (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  vehicle_type TEXT NOT NULL DEFAULT 'bike' CHECK(vehicle_type IN ('bike', 'scooter', 'pickup_truck', 'van', 'tractor')),
+  vehicle_number TEXT NOT NULL,
+  license_number TEXT NOT NULL,
+  service_zone TEXT NOT NULL DEFAULT 'Dehradun Urban & Peri-Urban',
+  is_available INTEGER NOT NULL DEFAULT 1,
+  current_lat REAL DEFAULT 30.3165,
+  current_lng REAL DEFAULT 78.0322,
+  rating REAL NOT NULL DEFAULT 4.9,
+  total_deliveries INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'offline', 'suspended')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_delivery_partners_user ON delivery_partners(user_id);
+CREATE INDEX IF NOT EXISTS idx_delivery_partners_avail ON delivery_partners(is_available, status);
+
+-- 23. Delivery Tasks (Module 5)
+CREATE TABLE IF NOT EXISTS delivery_tasks (
+  id TEXT PRIMARY KEY,
+  order_id TEXT NOT NULL UNIQUE REFERENCES orders(id) ON DELETE CASCADE,
+  partner_id TEXT REFERENCES delivery_partners(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'pending_assignment' CHECK(status IN ('pending_assignment', 'assigned', 'pickup_in_progress', 'picked_up', 'out_for_delivery', 'delivered', 'failed', 'returned', 'cancelled')),
+  pickup_address TEXT NOT NULL,
+  delivery_address TEXT NOT NULL,
+  distance_km REAL NOT NULL DEFAULT 5.0,
+  delivery_fee REAL NOT NULL DEFAULT 40.0,
+  partner_payout REAL NOT NULL DEFAULT 32.0,
+  otp_code TEXT NOT NULL DEFAULT '1234',
+  proof_image TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  assigned_at TEXT,
+  picked_up_at TEXT,
+  delivered_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_delivery_tasks_order ON delivery_tasks(order_id);
+CREATE INDEX IF NOT EXISTS idx_delivery_tasks_partner ON delivery_tasks(partner_id);
+CREATE INDEX IF NOT EXISTS idx_delivery_tasks_status ON delivery_tasks(status);
+
+-- 24. B2B Buyer Profiles (Module 8)
+CREATE TABLE IF NOT EXISTS b2b_profiles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  business_name TEXT NOT NULL,
+  business_type TEXT NOT NULL CHECK(business_type IN ('restaurant', 'hotel', 'retailer', 'wholesaler', 'institution', 'fpo')),
+  gstin TEXT DEFAULT '',
+  fssai_license TEXT DEFAULT '',
+  credit_limit REAL DEFAULT 50000.0,
+  verified INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_b2b_profiles_user ON b2b_profiles(user_id);
+
+-- 25. Wholesale Quotations & Negotiations (Module 8)
+CREATE TABLE IF NOT EXISTS wholesale_quotations (
+  id TEXT PRIMARY KEY,
+  quotation_number TEXT NOT NULL UNIQUE,
+  buyer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  requested_quantity REAL NOT NULL CHECK(requested_quantity > 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  offered_price_per_unit REAL NOT NULL CHECK(offered_price_per_unit > 0),
+  farmer_counter_price REAL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'accepted', 'rejected', 'ordered')),
+  notes TEXT DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_buyer ON wholesale_quotations(buyer_id);
+CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_farmer ON wholesale_quotations(farmer_id);
+
+-- 26. Farmer Subscriptions (Module 8)
+CREATE TABLE IF NOT EXISTS farmer_subscriptions (
+  id TEXT PRIMARY KEY,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  plan_id TEXT NOT NULL CHECK(plan_id IN ('free', 'kisan_mitra', 'kisan_samridhi', 'fpo_business')),
+  plan_name TEXT NOT NULL,
+  price_monthly REAL NOT NULL DEFAULT 0,
+  max_listings INTEGER NOT NULL DEFAULT 10,
+  features_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'expired', 'cancelled')),
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  payment_reference TEXT DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_farmer_subscriptions_farmer ON farmer_subscriptions(farmer_id);
+
+-- 27. Group Buys (Module 8)
+CREATE TABLE IF NOT EXISTS group_buys (
+  id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  target_quantity REAL NOT NULL CHECK(target_quantity > 0),
+  current_quantity REAL NOT NULL DEFAULT 0,
+  unit TEXT NOT NULL DEFAULT 'kg',
+  retail_price REAL NOT NULL,
+  discounted_price REAL NOT NULL,
+  discount_percent REAL NOT NULL,
+  min_buyers_count INTEGER NOT NULL DEFAULT 3,
+  current_buyers_count INTEGER NOT NULL DEFAULT 0,
+  deadline TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'completed', 'expired', 'cancelled')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_group_buys_product ON group_buys(product_id);
+CREATE INDEX IF NOT EXISTS idx_group_buys_status ON group_buys(status);
+
+-- 28. Group Buy Participants (Module 8)
+CREATE TABLE IF NOT EXISTS group_buy_participants (
+  id TEXT PRIMARY KEY,
+  group_buy_id TEXT NOT NULL REFERENCES group_buys(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  quantity REAL NOT NULL CHECK(quantity > 0),
+  subtotal REAL NOT NULL CHECK(subtotal >= 0),
+  order_id TEXT REFERENCES orders(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL,
+  UNIQUE(group_buy_id, user_id)
+);
+
+-- 29. Scheduled Procurements (Module 8)
+CREATE TABLE IF NOT EXISTS scheduled_procurements (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  quantity REAL NOT NULL CHECK(quantity > 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  frequency TEXT NOT NULL CHECK(frequency IN ('daily', 'alternate_days', 'weekly', 'biweekly', 'monthly')),
+  delivery_time_slot TEXT NOT NULL DEFAULT 'Morning (06:00 - 08:30 AM)',
+  delivery_address TEXT NOT NULL,
+  next_delivery_date TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'paused', 'cancelled')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_scheduled_procurements_user ON scheduled_procurements(user_id);
+
+-- 30. Authoritative Financial Transactions Ledger (Module 6)
+CREATE TABLE IF NOT EXISTS financial_transactions (
+  id TEXT PRIMARY KEY,
+  transaction_ref TEXT NOT NULL UNIQUE,
+  type TEXT NOT NULL CHECK(type IN ('order_payment', 'farmer_payout', 'platform_commission', 'refund', 'subscription_fee', 'delivery_charge')),
+  reference_id TEXT,
+  user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  farmer_id TEXT REFERENCES farmer_profiles(id) ON DELETE SET NULL,
+  debit_amount REAL NOT NULL DEFAULT 0 CHECK(debit_amount >= 0),
+  credit_amount REAL NOT NULL DEFAULT 0 CHECK(credit_amount >= 0),
+  balance_after REAL NOT NULL DEFAULT 0,
+  description TEXT NOT NULL,
+  gst_rate REAL NOT NULL DEFAULT 0.0,
+  gst_amount REAL NOT NULL DEFAULT 0.0,
+  status TEXT NOT NULL DEFAULT 'completed' CHECK(status IN ('completed', 'pending', 'reversed')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_financial_transactions_type ON financial_transactions(type);
+CREATE INDEX IF NOT EXISTS idx_financial_transactions_farmer ON financial_transactions(farmer_id);
+CREATE INDEX IF NOT EXISTS idx_financial_transactions_created ON financial_transactions(created_at);
+
+-- 31. Platform Configuration Settings (Module 6 & 7)
+CREATE TABLE IF NOT EXISTS platform_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  description TEXT,
+  updated_at TEXT NOT NULL
+);
 
 

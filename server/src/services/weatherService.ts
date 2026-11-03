@@ -1,4 +1,4 @@
-export interface AgroWeatherInfo {
+﻿export interface AgroWeatherInfo {
   temperature: number;
   humidity: number;
   condition: string;

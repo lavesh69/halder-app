@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { weatherService } from '../services/weatherService';
 import { aiWeatherLimiter } from '../middleware/rateLimiter';
 import { requireFeature } from '../config/killSwitch';

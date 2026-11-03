@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Deep text and input sanitization (AI App Security Checklist - Point 4)
  * Strips scripts, event handlers, pseudo-protocols, and dangerous HTML entities
  */

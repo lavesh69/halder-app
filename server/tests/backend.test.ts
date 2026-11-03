@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+﻿process.env.NODE_ENV = 'test';
 import { app } from '../src/app';
 import { seedDatabase } from '../src/db/seed';
 import { Database } from '../src/db/database';

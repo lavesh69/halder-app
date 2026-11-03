@@ -1,4 +1,4 @@
-import { app } from '../src/app';
+﻿import { app } from '../src/app';
 import { Database } from '../src/db/database';
 import { CryptoUtil } from '../src/utils/crypto';
 import { v4 as uuidv4 } from 'uuid';

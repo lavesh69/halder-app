@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { ChatController } from '../controllers/chatController';
 import { authenticateUser } from '../middleware/auth';
 import { verifyConversationAccess } from '../middleware/idor';

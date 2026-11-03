@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
 
 export function requireRole(...allowedRoles: ('customer' | 'farmer' | 'admin')[]) {

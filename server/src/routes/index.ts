@@ -14,6 +14,10 @@ import { weatherRouter } from './weatherRoutes';
 import favoriteRoutes from './favoriteRoutes';
 import reportRoutes from './reportRoutes';
 import customerRoutes from './customerRoutes';
+import mandiRoutes from './mandiRoutes';
+import logisticsRoutes from './logisticsRoutes';
+import financeRoutes from './financeRoutes';
+import advancedRoutes from './advancedRoutes';
 import { Database } from '../db/database';
 import { IdentityService } from '../services/identityService';
 
@@ -73,6 +77,7 @@ apiRouter.get('/identity/:halderId', (req, res, next) => {
   }
 });
 
+// Core Routes
 apiRouter.use('/auth', authRoutes);
 apiRouter.use('/products', productRoutes);
 apiRouter.use('/orders', orderRoutes);
@@ -89,5 +94,11 @@ apiRouter.use('/weather', weatherRouter);
 apiRouter.use('/favorites', favoriteRoutes);
 apiRouter.use('/reports', reportRoutes);
 apiRouter.use('/customers', customerRoutes);
+
+// Ecosystem Routes (Modules 4, 5, 6, 8)
+apiRouter.use('/mandi', mandiRoutes);
+apiRouter.use('/logistics', logisticsRoutes);
+apiRouter.use('/finance', financeRoutes);
+apiRouter.use('/advanced', advancedRoutes);
 
 export default apiRouter;

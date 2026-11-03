@@ -1,4 +1,4 @@
-import { Database } from '../src/db/database';
+﻿import { Database } from '../src/db/database';
 
 const BASE_URL = 'http://localhost:5000/api/v1';
 

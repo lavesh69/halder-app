@@ -19,6 +19,8 @@ import {
   TrendingUp,
   Activity,
   Settings,
+  Truck,
+  CreditCard,
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
@@ -118,6 +120,30 @@ export const BottomNav: React.FC = () => {
           >
             <Package className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">Orders</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('logistics')}
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
+              adminTab === 'logistics'
+                ? 'text-purple-600 dark:text-purple-400 font-bold'
+                : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-700'
+            }`}
+          >
+            <Truck className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Fleet</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('finance')}
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
+              adminTab === 'finance'
+                ? 'text-purple-600 dark:text-purple-400 font-bold'
+                : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-700'
+            }`}
+          >
+            <CreditCard className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Finance</span>
           </button>
 
           <button

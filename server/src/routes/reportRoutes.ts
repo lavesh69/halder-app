@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { ReportController } from '../controllers/reportController';
 import { authenticateUser } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';

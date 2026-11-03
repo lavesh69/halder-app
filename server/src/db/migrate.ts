@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { Database } from './database';
 
@@ -19,8 +19,33 @@ export function runMigrations() {
     if (!colNames.includes('phonepe_transaction_id')) {
       db.exec(`ALTER TABLE orders ADD COLUMN phonepe_transaction_id TEXT DEFAULT ''`);
     }
+    if (!colNames.includes('cancellation_reason')) {
+      db.exec(`ALTER TABLE orders ADD COLUMN cancellation_reason TEXT DEFAULT ''`);
+    }
+    if (!colNames.includes('refund_amount')) {
+      db.exec(`ALTER TABLE orders ADD COLUMN refund_amount REAL DEFAULT 0`);
+    }
+    if (!colNames.includes('dispute_status')) {
+      db.exec(`ALTER TABLE orders ADD COLUMN dispute_status TEXT DEFAULT 'none'`);
+    }
+    if (!colNames.includes('delivery_otp')) {
+      db.exec(`ALTER TABLE orders ADD COLUMN delivery_otp TEXT DEFAULT '1234'`);
+    }
+
+    // Products table enhancements (Wholesale, MOQ, Stock Alerts)
+    const prodCols = db.prepare(`PRAGMA table_info(products)`).all() as any[];
+    const prodColNames = prodCols.map((c) => c.name);
+    if (!prodColNames.includes('wholesale_price')) {
+      db.exec(`ALTER TABLE products ADD COLUMN wholesale_price REAL DEFAULT NULL`);
+    }
+    if (!prodColNames.includes('moq')) {
+      db.exec(`ALTER TABLE products ADD COLUMN moq REAL DEFAULT 1`);
+    }
+    if (!prodColNames.includes('stock_alert_threshold')) {
+      db.exec(`ALTER TABLE products ADD COLUMN stock_alert_threshold REAL DEFAULT 5`);
+    }
   } catch (err: any) {
-    console.warn('[Migration] Notice on orders columns migration:', err.message);
+    console.warn('[Migration] Notice on orders/products columns migration:', err.message);
   }
 
   // Migration: Update CHECK constraint to support 'phonepe' payment method
@@ -57,6 +82,10 @@ export function runMigrations() {
           tracking_number TEXT,
           notes TEXT DEFAULT '',
           phonepe_transaction_id TEXT DEFAULT '',
+          cancellation_reason TEXT DEFAULT '',
+          refund_amount REAL DEFAULT 0,
+          dispute_status TEXT DEFAULT 'none',
+          delivery_otp TEXT DEFAULT '1234',
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL
         );

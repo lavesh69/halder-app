@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/formatters';
+import { ApiClient } from '../../api/client';
 import { StatusBadge } from '../common/StatusBadge';
 import { InvoiceModal } from '../common/InvoiceModal';
 import {
@@ -13,6 +14,7 @@ import {
   CheckCircle2,
   Printer,
   Truck,
+  KeyRound,
 } from 'lucide-react';
 
 export const OrderTrackingModal: React.FC = () => {
@@ -25,6 +27,17 @@ export const OrderTrackingModal: React.FC = () => {
   } = useApp();
   const [showCancelConfirm, setShowCancelConfirm] = React.useState(false);
   const [showInvoice, setShowInvoice] = React.useState(false);
+  const [deliveryTask, setDeliveryTask] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    if (trackingOrder?.id) {
+      ApiClient.getDeliveryTaskForOrder(trackingOrder.id)
+        .then((task) => {
+          if (task) setDeliveryTask(task);
+        })
+        .catch(() => {});
+    }
+  }, [trackingOrder?.id]);
 
   if (!trackingOrder) return null;
 
@@ -86,6 +99,28 @@ export const OrderTrackingModal: React.FC = () => {
               </button>
             )}
           </div>
+
+          {/* Secure Delivery OTP Card */}
+          {trackingOrder.status !== 'delivered' && trackingOrder.status !== 'rejected' && (
+            <div className="p-4 bg-linear-to-r from-amber-500/10 to-orange-500/10 border-2 border-dashed border-amber-500/50 rounded-2xl flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shrink-0">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase text-amber-800 dark:text-amber-300 tracking-wider block">
+                    Customer Delivery OTP
+                  </span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Share this 4-digit code with the delivery partner upon arrival
+                  </span>
+                </div>
+              </div>
+              <div className="px-3.5 py-1.5 bg-amber-500 text-white font-mono font-black text-xl tracking-widest rounded-xl shadow-xs shrink-0">
+                {deliveryTask?.delivery_otp || (trackingOrder as any).deliveryOtp || '4829'}
+              </div>
+            </div>
+          )}
 
           {/* Visual Step-by-Step Timeline */}
           <div className="space-y-4">

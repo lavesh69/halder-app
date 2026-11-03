@@ -1,4 +1,4 @@
-import { Database } from '../db/database';
+﻿import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 import { sanitizeText } from '../utils/sanitize';
 import { NotificationService } from './notificationService';

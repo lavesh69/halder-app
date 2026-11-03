@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { DatabaseSync } from 'node:sqlite';
 import { runBackup } from '../scripts/backup';

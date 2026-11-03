@@ -1,4 +1,4 @@
-import { Database } from '../db/database';
+﻿import { Database } from '../db/database';
 import { CryptoUtil } from '../utils/crypto';
 import { AppError } from '../utils/errors';
 import { v4 as uuidv4 } from 'uuid';

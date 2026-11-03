@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ListingCard } from '../common/ListingCard';
 import { ExploreCategoriesModal } from './ExploreCategoriesModal';
+import { GroupBuyModal } from './GroupBuyModal';
+import { B2BWholesaleModal } from './B2BWholesaleModal';
+import { ScheduledProcurementModal } from './ScheduledProcurementModal';
 import { ProductCategory } from '../../types';
 import {
   Search,
@@ -17,6 +20,9 @@ import {
   TrendingUp,
   LayoutGrid,
   List,
+  Building2,
+  CalendarClock,
+  ShoppingBag,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -36,6 +42,9 @@ const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
 export const MarketplaceHome: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isExploreCategoriesOpen, setIsExploreCategoriesOpen] = useState(false);
+  const [isGroupBuyOpen, setIsGroupBuyOpen] = useState(false);
+  const [isB2bOpen, setIsB2bOpen] = useState(false);
+  const [isScheduledOpen, setIsScheduledOpen] = useState(false);
 
   const {
     products,
@@ -133,6 +142,69 @@ export const MarketplaceHome: React.FC = () => {
             Find
           </span>
         </div>
+      </div>
+
+      {/* 1.5 Special Marketplace Modes & Programs */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <button
+          onClick={() => setIsGroupBuyOpen(true)}
+          className="p-3 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl flex items-center justify-between text-left hover:border-emerald-500 transition group cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[11px] font-black text-emerald-950 dark:text-emerald-200 block">
+                Community Group Buy (सामूहिक खरीद)
+              </span>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block">
+                Pool orders with neighbors & save 25%+
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-emerald-600 shrink-0" />
+        </button>
+
+        <button
+          onClick={() => setIsB2bOpen(true)}
+          className="p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/80 rounded-2xl flex items-center justify-between text-left hover:border-zinc-400 dark:hover:border-zinc-500 transition group cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-zinc-800 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
+              <Building2 className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[11px] font-black text-zinc-900 dark:text-white block">
+                B2B Wholesale (थोक मंडी)
+              </span>
+              <span className="text-[10px] text-zinc-500 block">
+                Bulk supply for restaurants & stores
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-400 shrink-0" />
+        </button>
+
+        <button
+          onClick={() => setIsScheduledOpen(true)}
+          className="p-3 bg-linear-to-r from-teal-50 to-cyan-50 dark:from-teal-950/40 dark:to-cyan-950/40 border border-teal-200/80 dark:border-teal-800/60 rounded-2xl flex items-center justify-between text-left hover:border-teal-500 transition group cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
+              <CalendarClock className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[11px] font-black text-teal-950 dark:text-teal-200 block">
+                Daily Subscriptions (दैनिक दूध व सब्जी)
+              </span>
+              <span className="text-[10px] text-teal-700 dark:text-teal-400 block">
+                Fresh morning drops to your door
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-teal-600 shrink-0" />
+        </button>
       </div>
 
       {/* 2. Browse Categories Horizontal Scroll */}
@@ -442,6 +514,21 @@ export const MarketplaceHome: React.FC = () => {
       <ExploreCategoriesModal
         isOpen={isExploreCategoriesOpen}
         onClose={() => setIsExploreCategoriesOpen(false)}
+      />
+
+      <GroupBuyModal
+        isOpen={isGroupBuyOpen}
+        onClose={() => setIsGroupBuyOpen(false)}
+      />
+
+      <B2BWholesaleModal
+        isOpen={isB2bOpen}
+        onClose={() => setIsB2bOpen(false)}
+      />
+
+      <ScheduledProcurementModal
+        isOpen={isScheduledOpen}
+        onClose={() => setIsScheduledOpen(false)}
       />
     </div>
   );

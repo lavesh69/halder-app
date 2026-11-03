@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/formatters';
+import { ApiClient } from '../../api/client';
 import { StatusBadge } from '../common/StatusBadge';
 import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';
+import { FarmCropCalendarModal } from './FarmCropCalendarModal';
+import { FarmerSubscriptionModal } from './FarmerSubscriptionModal';
+import { FarmerBusinessInsightsModal } from './FarmerBusinessInsightsModal';
+import { MandiIntelligenceModal } from './MandiIntelligenceModal';
 import {
   ShoppingBag,
   Sprout,
@@ -26,6 +31,9 @@ import {
   Calculator,
   Coins,
   Scale,
+  Calendar,
+  Crown,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 interface MandiRate {
@@ -100,6 +108,21 @@ export const FarmerDashboard: React.FC = () => {
     .reduce((sum, o) => sum + o.total, 0);
 
   const [selectedMandiCrop, setSelectedMandiCrop] = useState<string>('All');
+  // Modals for Ecosystem Modules
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [isInsightsModalOpen, setIsInsightsModalOpen] = useState(false);
+  const [isMandiModalOpen, setIsMandiModalOpen] = useState(false);
+  const [mandiPrices, setMandiPrices] = useState<any[]>([]);
+
+  useEffect(() => {
+    ApiClient.getMandiPrices()
+      .then((data) => {
+        if (data && data.length > 0) setMandiPrices(data);
+      })
+      .catch((err) => console.warn('Mandi rates fetch:', err));
+  }, []);
+
   // Kisan Yield & Profit Calculator State
   const [calcCropId, setCalcCropId] = useState<string>('wheat');
   const [calcAcres, setCalcAcres] = useState<number>(2);
@@ -154,7 +177,7 @@ export const FarmerDashboard: React.FC = () => {
       </div>
 
       {/* Kisan Quick Action Shortcuts */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         <button
           onClick={() => setIsFastSellOpen(true)}
           className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/50 flex flex-col items-center justify-center gap-1 hover:bg-emerald-100 transition shadow-2xs group"
@@ -180,6 +203,18 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setIsCropModalOpen(true)}
+          className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group"
+        >
+          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
+            <Calendar className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
+            Harvest Plan
+          </span>
+        </button>
+
+        <button
           onClick={() => setFarmerTab('orders')}
           className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group relative"
         >
@@ -197,6 +232,42 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setIsMandiModalOpen(true)}
+          className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group"
+        >
+          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
+            <Activity className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
+            Mandi Bhav
+          </span>
+        </button>
+
+        <button
+          onClick={() => setIsInsightsModalOpen(true)}
+          className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group"
+        >
+          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
+            <FileSpreadsheet className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
+            Insights
+          </span>
+        </button>
+
+        <button
+          onClick={() => setIsSubModalOpen(true)}
+          className="p-3 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-200/80 dark:border-amber-800/50 flex flex-col items-center justify-center gap-1 hover:border-amber-400 transition shadow-2xs group"
+        >
+          <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition">
+            <Crown className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
+            Kisan Plan
+          </span>
+        </button>
+
+        <button
           onClick={() => setFarmerTab('earnings')}
           className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group"
         >
@@ -204,36 +275,7 @@ export const FarmerDashboard: React.FC = () => {
             <TrendingUp className="w-4 h-4" />
           </div>
           <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
-            Payouts (खाता)
-          </span>
-        </button>
-
-        <button
-          onClick={() => setFarmerTab('chat')}
-          className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group relative"
-        >
-          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
-            <MessageCircle className="w-4 h-4" />
-          </div>
-          {unreadChatCount > 0 && (
-            <span className="absolute top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">
-              {unreadChatCount}
-            </span>
-          )}
-          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
-            Buyer Chat
-          </span>
-        </button>
-
-        <button
-          onClick={() => setFarmerTab('profile')}
-          className="p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 flex flex-col items-center justify-center gap-1 hover:border-emerald-500 transition shadow-2xs group"
-        >
-          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">
-            Kisan KYC
+            Payouts
           </span>
         </button>
       </div>
@@ -304,6 +346,15 @@ export const FarmerDashboard: React.FC = () => {
                 );
               })}
             </div>
+
+            <button
+              onClick={() => setIsMandiModalOpen(true)}
+              className="w-full mt-1 py-2 px-3 bg-zinc-50 dark:bg-zinc-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-zinc-200/80 dark:border-zinc-700/80 hover:border-emerald-500 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span>Open Mandi Intelligence & Profit Estimator</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Incoming Orders Section (Accept / Reject with Call Customer) */}
@@ -545,6 +596,30 @@ export const FarmerDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals for Farmer Ecosystem & Intelligence */}
+      <FarmCropCalendarModal
+        isOpen={isCropModalOpen}
+        onClose={() => setIsCropModalOpen(false)}
+        farmerId={currentFarmerId}
+      />
+
+      <FarmerSubscriptionModal
+        isOpen={isSubModalOpen}
+        onClose={() => setIsSubModalOpen(false)}
+        farmerId={currentFarmerId}
+      />
+
+      <FarmerBusinessInsightsModal
+        isOpen={isInsightsModalOpen}
+        onClose={() => setIsInsightsModalOpen(false)}
+        farmerId={currentFarmerId}
+      />
+
+      <MandiIntelligenceModal
+        isOpen={isMandiModalOpen}
+        onClose={() => setIsMandiModalOpen(false)}
+      />
     </div>
   );
 };

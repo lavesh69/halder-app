@@ -1,4 +1,4 @@
-import http from 'http';
+﻿import http from 'http';
 import { app } from '../src/app';
 import { initChatSocket } from '../src/websocket/chatSocket';
 import { Database } from '../src/db/database';
