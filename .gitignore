@@ -34,6 +34,10 @@ android/.gradle
 android/app/build
 android/build
 
+# Binary executables and tools
+*.exe
+cloudflared.exe
+
 # Temporary generation scripts and agent workspaces
 *.py
 .agents/
