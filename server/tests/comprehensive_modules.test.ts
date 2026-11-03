@@ -465,6 +465,208 @@ async function runComprehensiveModulesTests() {
     assert.strictEqual(killSwitch.isEnabled('ai_advisory'), true);
     console.log('  ✅ [PASS] Kill switch toggling persists state in platform_settings table and logs administrative audit record');
 
+    // --- 8. B2B Wholesale Profile Verification Flaw Fix & Admin Approval ---
+    console.log('\n--- 8. B2B Wholesale Profile Verification Flaw Fix & Admin Approval ---');
+    // Customer B saves a B2B profile
+    const b2bSaveRes = await request('/advanced/b2b/profile', {
+      method: 'POST',
+      token: customerBToken,
+      body: {
+        business_name: 'Doon Organic Kitchen & Bistro',
+        business_type: 'restaurant',
+        gstin: '05AAAAA0000A1Z5',
+        fssai_license: '10012345678901',
+      },
+    });
+    assert.strictEqual(b2bSaveRes.status, 200);
+    const savedB2bProfile = b2bSaveRes.data.data;
+    assert.strictEqual(savedB2bProfile.verified, 0, 'New B2B profile must NOT be auto-verified (must be 0)');
+    assert.strictEqual(savedB2bProfile.status, 'pending', 'New B2B profile status must be pending');
+    console.log('  ✅ [PASS] B2B profile submitted with verified = 0 and status = "pending" (no auto-verification flaw)');
+
+    // Admin verifies and approves the B2B profile
+    const verifyApproveRes = await request(`/advanced/b2b/profiles/${savedB2bProfile.id}/verify`, {
+      method: 'PATCH',
+      token: adminToken,
+      body: {
+        action: 'approve',
+        credit_limit: 100000,
+      },
+    });
+    assert.strictEqual(verifyApproveRes.status, 200);
+    assert.strictEqual(verifyApproveRes.data.data.verified, 1);
+    assert.strictEqual(verifyApproveRes.data.data.status, 'verified');
+    assert.strictEqual(verifyApproveRes.data.data.credit_limit, 100000);
+
+    // Verify audit log
+    const b2bAudit = Database.get<any>(
+      `SELECT * FROM audit_logs WHERE action = 'B2B_PROFILE_VERIFIED' AND target_id = ?`,
+      [savedB2bProfile.id]
+    );
+    assert.ok(b2bAudit, 'Admin B2B verification must be recorded in audit_logs');
+    console.log('  ✅ [PASS] Admin successfully verified B2B profile, updated credit limit, and recorded audit log');
+
+    // Non-admin cannot verify -> 403
+    const nonAdminVerifyRes = await request(`/advanced/b2b/profiles/${savedB2bProfile.id}/verify`, {
+      method: 'PATCH',
+      token: customerAToken,
+      body: { action: 'approve' },
+    });
+    assert.strictEqual(nonAdminVerifyRes.status, 403);
+    console.log('  ✅ [PASS] Non-admin blocked from verifying B2B profile (403 Forbidden)');
+
+    // --- 9. B2B Quotation State Machine Transitions ---
+    console.log('\n--- 9. B2B Quotation State Machine Transitions ---');
+    // Buyer requests quote from Farmer A
+    const quoteReqRes = await request('/advanced/b2b/quotations', {
+      method: 'POST',
+      token: customerBToken,
+      body: {
+        product_id: 'prod-1',
+        requested_quantity: 100,
+        unit: 'kg',
+        offered_price_per_unit: 40,
+        notes: 'Bulk order for banquet',
+      },
+    });
+    assert.strictEqual(quoteReqRes.status, 201);
+    const quotation = quoteReqRes.data.data;
+    assert.strictEqual(quotation.status, 'pending');
+
+    // Invalid transition directly from pending to ordered -> 400
+    const invalidTransRes = await request(`/advanced/b2b/quotations/${quotation.id}`, {
+      method: 'PATCH',
+      token: farmerAToken,
+      body: { status: 'ordered' },
+    });
+    assert.strictEqual(invalidTransRes.status, 400);
+    console.log('  ✅ [PASS] Invalid quotation transition (pending -> ordered) rejected with 400 Bad Request');
+
+    // Farmer A counters the offer
+    const counterRes = await request(`/advanced/b2b/quotations/${quotation.id}`, {
+      method: 'PATCH',
+      token: farmerAToken,
+      body: {
+        status: 'counter_offered',
+        farmer_counter_price: 45,
+        notes: 'Can do ₹45/kg with crate packing included',
+      },
+    });
+    assert.strictEqual(counterRes.status, 200);
+    assert.strictEqual(counterRes.data.data.status, 'counter_offered');
+    assert.strictEqual(counterRes.data.data.farmer_counter_price, 45);
+    console.log('  ✅ [PASS] Farmer countered quote (pending -> counter_offered) with counter price');
+
+    // Buyer accepts the counter offer
+    const acceptRes = await request(`/advanced/b2b/quotations/${quotation.id}`, {
+      method: 'PATCH',
+      token: customerBToken,
+      body: { status: 'accepted' },
+    });
+    assert.strictEqual(acceptRes.status, 200);
+    assert.strictEqual(acceptRes.data.data.status, 'accepted');
+    console.log('  ✅ [PASS] Buyer accepted counter offer (counter_offered -> accepted)');
+
+    // Once accepted, trying to counter or reject -> 400
+    const tamperAcceptedRes = await request(`/advanced/b2b/quotations/${quotation.id}`, {
+      method: 'PATCH',
+      token: farmerAToken,
+      body: { status: 'rejected' },
+    });
+    assert.strictEqual(tamperAcceptedRes.status, 400);
+    console.log('  ✅ [PASS] Mutating accepted quotation rejected with 400 Bad Request (terminal state protection)');
+
+    // --- 10. Group Buying Capacity Caps & Completed Deal Protection ---
+    console.log('\n--- 10. Group Buying Capacity Caps & Completed Deal Protection ---');
+    // Deal 1 is already completed with 100/100 kg. Trying to join -> 400
+    const joinCompletedRes = await request(`/advanced/group-buys/${groupBuyId}/join`, {
+      method: 'POST',
+      token: customerAToken,
+      body: { quantity: 10 },
+    });
+    assert.strictEqual(joinCompletedRes.status, 400);
+    console.log('  ✅ [PASS] Joining completed group buy pool rejected with 400 Bad Request');
+
+    // Trying to leave completed deal -> 400
+    const leaveCompletedRes = await request(`/advanced/group-buys/${groupBuyId}/leave`, {
+      method: 'POST',
+      token: customerBToken,
+    });
+    assert.strictEqual(leaveCompletedRes.status, 400);
+    console.log('  ✅ [PASS] Leaving completed group buy pool rejected with 400 Bad Request');
+
+    // Create deal 3 to test capacity limit
+    const deal3Res = await request('/advanced/group-buys', {
+      method: 'POST',
+      token: customerAToken,
+      body: {
+        product_id: 'prod-1',
+        title: 'Capped Volume Apple Pool',
+        target_quantity: 50,
+        unit: 'kg',
+        discounted_price: 70,
+        min_buyers_count: 2,
+        duration_hours: 48,
+      },
+    });
+    assert.strictEqual(deal3Res.status, 201);
+    const deal3Id = deal3Res.data.data.id;
+
+    // Join with 30 kg -> OK
+    await request(`/advanced/group-buys/${deal3Id}/join`, {
+      method: 'POST',
+      token: customerAToken,
+      body: { quantity: 30 },
+    });
+
+    // Try to join with 25 kg (exceeds 20 kg remaining capacity) -> 400
+    const exceedCapRes = await request(`/advanced/group-buys/${deal3Id}/join`, {
+      method: 'POST',
+      token: customerBToken,
+      body: { quantity: 25 },
+    });
+    assert.strictEqual(exceedCapRes.status, 400);
+    const errMessage = exceedCapRes.data?.error?.message || exceedCapRes.data?.message || '';
+    assert.ok(errMessage.includes('exceeds remaining capacity'));
+    console.log('  ✅ [PASS] Overbooking beyond target_quantity strictly rejected (400 Bad Request)');
+
+    // --- 11. Logistics Fleet Telemetry & Benchmark Formatting ---
+    console.log('\n--- 11. Logistics Fleet Telemetry & Benchmark Formatting ---');
+    // Get partner
+    const partnersRes = await request('/logistics/partners', { token: adminToken });
+    assert.strictEqual(partnersRes.status, 200);
+    const partner = partnersRes.data.data[0];
+    assert.ok(partner);
+
+    // Update telemetry with speed and heading
+    const telemetryRes = await request(`/logistics/partners/${partner.id}/telemetry`, {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        lat: 30.3200,
+        lng: 78.0400,
+        speed_kmh: 38.5,
+        heading_deg: 180,
+      },
+    });
+    assert.strictEqual(telemetryRes.status, 200);
+    assert.strictEqual(telemetryRes.data.data.speed_kmh, 38.5);
+    assert.strictEqual(telemetryRes.data.data.heading_deg, 180);
+
+    // Check database persistence of telemetry
+    const dbPartner = Database.get<any>('SELECT * FROM delivery_partners WHERE id = ?', [partner.id]);
+    assert.strictEqual(dbPartner.speed_kmh, 38.5);
+    assert.strictEqual(dbPartner.heading_deg, 180);
+    console.log('  ✅ [PASS] Logistics partner telemetry updated with speed and heading stored in database');
+
+    // Check analytics source flags
+    const analyticsRes = await request('/logistics/analytics', { token: adminToken });
+    assert.strictEqual(analyticsRes.status, 200);
+    assert.ok(analyticsRes.data.data.metrics_source);
+    assert.ok(typeof analyticsRes.data.data.average_transit_minutes === 'number');
+    assert.ok(analyticsRes.data.data.average_transit_formatted);
+    console.log('  ✅ [PASS] Logistics fleet analytics provides transparent metrics source indicators');
+
     console.log('\n======================================================');
     console.log('🎉 ALL COMPREHENSIVE MODULES & HARDENING TESTS PASSED (100%)');
     console.log('======================================================\n');

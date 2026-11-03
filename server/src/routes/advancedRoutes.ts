@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AdvancedController } from '../controllers/advancedController';
 import { authenticateUser } from '../middleware/auth';
+import { requireAdmin } from '../middleware/rbac';
 
 const router = Router();
 
@@ -9,6 +10,8 @@ router.use(authenticateUser);
 // B2B Wholesale
 router.get('/b2b/profile', AdvancedController.getB2bProfile);
 router.post('/b2b/profile', AdvancedController.saveB2bProfile);
+router.get('/b2b/profiles', requireAdmin, AdvancedController.listB2bProfiles);
+router.patch('/b2b/profiles/:id/verify', requireAdmin, AdvancedController.verifyB2bProfile);
 router.get('/b2b/quotations', AdvancedController.getQuotations);
 router.post('/b2b/quotations', AdvancedController.requestQuotation);
 router.patch('/b2b/quotations/:id', AdvancedController.updateQuotationStatus);

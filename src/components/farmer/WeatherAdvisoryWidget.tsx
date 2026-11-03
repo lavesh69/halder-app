@@ -45,7 +45,7 @@ export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Deh
               <span className="text-xs font-semibold text-emerald-200">{weather.condition}</span>
             </div>
             <span className="text-[10px] text-zinc-300">
-              {city} Agro Valley • Live METAR
+              {city} Agro Valley • {weather.source === 'live_upstream' ? 'Live Forecast' : weather.source === 'cache' ? 'Cached Forecast' : 'Agro Baseline'}
             </span>
           </div>
         </div>

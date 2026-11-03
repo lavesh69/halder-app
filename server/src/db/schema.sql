@@ -490,6 +490,7 @@ CREATE TABLE IF NOT EXISTS delivery_tasks (
   assigned_at TEXT,
   picked_up_at TEXT,
   delivered_at TEXT,
+  estimated_delivery_time TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -507,6 +508,10 @@ CREATE TABLE IF NOT EXISTS b2b_profiles (
   fssai_license TEXT DEFAULT '',
   credit_limit REAL DEFAULT 50000.0,
   verified INTEGER NOT NULL DEFAULT 0,
+  verified_by TEXT DEFAULT NULL,
+  verified_at TEXT DEFAULT NULL,
+  rejection_reason TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'verified', 'rejected')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -523,7 +528,7 @@ CREATE TABLE IF NOT EXISTS wholesale_quotations (
   unit TEXT NOT NULL DEFAULT 'kg',
   offered_price_per_unit REAL NOT NULL CHECK(offered_price_per_unit > 0),
   farmer_counter_price REAL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'accepted', 'rejected', 'ordered')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'counter_offered', 'accepted', 'rejected', 'ordered', 'expired')),
   notes TEXT DEFAULT '',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL

@@ -83,8 +83,84 @@ export function runMigrations() {
     if (!spColNames.includes('last_executed_at')) {
       db.exec(`ALTER TABLE scheduled_procurements ADD COLUMN last_executed_at TEXT DEFAULT NULL`);
     }
+
+    // B2B Profiles enhancement (admin verification, rejection reason, status)
+    const b2bCols = db.prepare(`PRAGMA table_info(b2b_profiles)`).all() as any[];
+    const b2bColNames = b2bCols.map((c) => c.name);
+    if (!b2bColNames.includes('verified_by')) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN verified_by TEXT DEFAULT NULL`);
+    }
+    if (!b2bColNames.includes('verified_at')) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN verified_at TEXT DEFAULT NULL`);
+    }
+    if (!b2bColNames.includes('rejection_reason')) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN rejection_reason TEXT DEFAULT ''`);
+    }
+    if (!b2bColNames.includes('status')) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN status TEXT DEFAULT 'pending'`);
+    }
+
+    // Delivery partners enhancement (speed and heading telemetry)
+    const dpCols = db.prepare(`PRAGMA table_info(delivery_partners)`).all() as any[];
+    const dpColNames = dpCols.map((c) => c.name);
+    if (!dpColNames.includes('speed_kmh')) {
+      db.exec(`ALTER TABLE delivery_partners ADD COLUMN speed_kmh REAL DEFAULT 0`);
+    }
+    if (!dpColNames.includes('heading_deg')) {
+      db.exec(`ALTER TABLE delivery_partners ADD COLUMN heading_deg REAL DEFAULT 0`);
+    }
+
+    // Delivery tasks enhancement (estimated_delivery_time)
+    const dtCols = db.prepare(`PRAGMA table_info(delivery_tasks)`).all() as any[];
+    const dtColNames = dtCols.map((c) => c.name);
+    if (!dtColNames.includes('estimated_delivery_time')) {
+      db.exec(`ALTER TABLE delivery_tasks ADD COLUMN estimated_delivery_time TEXT DEFAULT NULL`);
+    }
   } catch (err: any) {
     console.warn('[Migration] Notice on orders/products columns migration:', err.message);
+  }
+
+  // Migration: Update wholesale_quotations CHECK constraint to support 'counter_offered' and 'expired'
+  try {
+    const wqSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='wholesale_quotations'`).get() as any;
+    if (wqSql && wqSql.sql && (!wqSql.sql.includes("'counter_offered'") || !wqSql.sql.includes("'expired'"))) {
+      console.log('[Migration] Updating wholesale_quotations table constraint for counter_offered and expired...');
+      db.exec(`
+        PRAGMA foreign_keys=off;
+        CREATE TABLE wholesale_quotations_new (
+          id TEXT PRIMARY KEY,
+          quotation_number TEXT NOT NULL UNIQUE,
+          buyer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+          product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+          requested_quantity REAL NOT NULL CHECK(requested_quantity > 0),
+          unit TEXT NOT NULL DEFAULT 'kg',
+          offered_price_per_unit REAL NOT NULL CHECK(offered_price_per_unit > 0),
+          farmer_counter_price REAL,
+          status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'counter_offered', 'accepted', 'rejected', 'ordered', 'expired')),
+          notes TEXT DEFAULT '',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        INSERT INTO wholesale_quotations_new (
+          id, quotation_number, buyer_id, farmer_id, product_id,
+          requested_quantity, unit, offered_price_per_unit, farmer_counter_price,
+          status, notes, created_at, updated_at
+        ) SELECT 
+          id, quotation_number, buyer_id, farmer_id, product_id,
+          requested_quantity, unit, offered_price_per_unit, farmer_counter_price,
+          status, notes, created_at, updated_at
+        FROM wholesale_quotations;
+        DROP TABLE wholesale_quotations;
+        ALTER TABLE wholesale_quotations_new RENAME TO wholesale_quotations;
+        CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_buyer ON wholesale_quotations(buyer_id);
+        CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_farmer ON wholesale_quotations(farmer_id);
+        PRAGMA foreign_keys=on;
+      `);
+      console.log('[Migration] wholesale_quotations table successfully updated with enhanced status constraints.');
+    }
+  } catch (err: any) {
+    console.warn('[Migration] Notice on wholesale_quotations CHECK constraint update:', err.message);
   }
 
   // Migration: Update CHECK constraint to support 'phonepe' payment method

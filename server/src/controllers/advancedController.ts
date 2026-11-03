@@ -30,20 +30,122 @@ export class AdvancedController {
 
       if (existing) {
         Database.run(
-          `UPDATE b2b_profiles SET business_name = ?, business_type = ?, gstin = ?, fssai_license = ?, updated_at = ? WHERE user_id = ?`,
+          `UPDATE b2b_profiles SET business_name = ?, business_type = ?, gstin = ?, fssai_license = ?, verified = 0, status = 'pending', updated_at = ? WHERE user_id = ?`,
           [business_name, business_type, gstin || '', fssai_license || '', now, userId]
         );
       } else {
         const id = 'b2b-' + Date.now();
         Database.run(
-          `INSERT INTO b2b_profiles (id, user_id, business_name, business_type, gstin, fssai_license, verified, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+          `INSERT INTO b2b_profiles (id, user_id, business_name, business_type, gstin, fssai_license, verified, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 0, 'pending', ?, ?)`,
           [id, userId, business_name, business_type, gstin || '', fssai_license || '', now, now]
         );
       }
 
       const profile = Database.get('SELECT * FROM b2b_profiles WHERE user_id = ?', [userId]);
-      res.json({ success: true, message: 'B2B Wholesale profile verified & saved', data: profile });
+      res.json({ success: true, message: 'B2B Wholesale profile submitted and pending verification', data: profile });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // GET /api/v1/advanced/b2b/profiles (Admin only)
+  static listB2bProfiles(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { status } = req.query;
+      let query = `
+        SELECT bp.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+        FROM b2b_profiles bp
+        JOIN users u ON bp.user_id = u.id
+      `;
+      const params: any[] = [];
+      if (status) {
+        query += ' WHERE bp.status = ?';
+        params.push(status);
+      }
+      query += ' ORDER BY bp.created_at DESC';
+      const profiles = Database.query(query, params);
+      res.json({ success: true, count: profiles.length, data: profiles });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // PATCH /api/v1/advanced/b2b/profiles/:id/verify (Admin only)
+  static verifyB2bProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const adminId = (req as any).user.id;
+      const { action, rejection_reason, credit_limit } = req.body;
+
+      if (!action || !['approve', 'reject'].includes(action)) {
+        throw AppError.badRequest("Action must be either 'approve' or 'reject'");
+      }
+
+      const profile = Database.get<any>('SELECT * FROM b2b_profiles WHERE id = ?', [id]);
+      if (!profile) throw AppError.notFound('B2B profile not found');
+
+      const now = new Date().toISOString();
+      const auditLogId = 'audit-' + Date.now();
+
+      if (action === 'approve') {
+        const newCreditLimit = credit_limit ? Number(credit_limit) : (profile.credit_limit || 50000.0);
+        Database.run(
+          `UPDATE b2b_profiles SET
+            verified = 1,
+            status = 'verified',
+            verified_by = ?,
+            verified_at = ?,
+            rejection_reason = '',
+            credit_limit = ?,
+            updated_at = ?
+           WHERE id = ?`,
+          [adminId, now, newCreditLimit, now, id]
+        );
+
+        Database.run(
+          `INSERT INTO audit_logs (id, actor_id, actor_role, action, target_type, target_id, details, created_at)
+           VALUES (?, ?, 'admin', 'B2B_PROFILE_VERIFIED', 'b2b_profile', ?, ?, ?)`,
+          [
+            auditLogId,
+            adminId,
+            id,
+            JSON.stringify({ business_name: profile.business_name, action: 'approve', credit_limit: newCreditLimit }),
+            now
+          ]
+        );
+
+        const updated = Database.get('SELECT * FROM b2b_profiles WHERE id = ?', [id]);
+        return res.json({ success: true, message: 'B2B wholesale profile verified and approved', data: updated });
+      } else {
+        const reason = rejection_reason || 'B2B wholesale documentation failed verification standards';
+        Database.run(
+          `UPDATE b2b_profiles SET
+            verified = 0,
+            status = 'rejected',
+            verified_by = ?,
+            verified_at = ?,
+            rejection_reason = ?,
+            updated_at = ?
+           WHERE id = ?`,
+          [adminId, now, reason, now, id]
+        );
+
+        Database.run(
+          `INSERT INTO audit_logs (id, actor_id, actor_role, action, target_type, target_id, details, created_at)
+           VALUES (?, ?, 'admin', 'B2B_PROFILE_REJECTED', 'b2b_profile', ?, ?, ?)`,
+          [
+            auditLogId,
+            adminId,
+            id,
+            JSON.stringify({ business_name: profile.business_name, action: 'reject', reason }),
+            now
+          ]
+        );
+
+        const updated = Database.get('SELECT * FROM b2b_profiles WHERE id = ?', [id]);
+        return res.json({ success: true, message: 'B2B wholesale profile rejected', data: updated });
+      }
     } catch (err) {
       next(err);
     }
@@ -132,26 +234,73 @@ export class AdvancedController {
       const userId = (req as any).user.id;
       const role = (req as any).user.role;
       const isBuyer = quotation.buyer_id === userId;
-      const isFarmer = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ? AND id = ?', [userId, quotation.farmer_id]);
+      const farmerProfile = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ? AND id = ?', [userId, quotation.farmer_id]);
+      const isFarmer = !!farmerProfile;
 
       if (!isBuyer && !isFarmer && role !== 'admin') {
         throw AppError.forbidden('You are not authorized to modify this wholesale quotation');
       }
 
       const { status, farmer_counter_price, notes } = req.body;
+      if (!status) {
+        throw AppError.badRequest('status is required');
+      }
+
+      // Check current state machine
+      const current = quotation.status;
+      const target = status;
+
+      const allowedStatuses = ['pending', 'countered', 'counter_offered', 'accepted', 'rejected', 'ordered', 'expired'];
+      if (!allowedStatuses.includes(target)) {
+        throw AppError.badRequest(`Invalid quotation status '${target}'. Allowed: ${allowedStatuses.join(', ')}`);
+      }
+
+      // Enforce state machine transitions:
+      // Terminal states: 'rejected', 'expired', 'ordered'
+      if (['rejected', 'expired', 'ordered'].includes(current)) {
+        throw AppError.badRequest(`Quotation is in terminal state '${current}' and cannot be modified`);
+      }
+
+      // If current is 'accepted', only transition allowed is to 'ordered'
+      if (current === 'accepted' && target !== 'ordered') {
+        throw AppError.badRequest(`Quotation is already 'accepted' and can only transition to 'ordered'`);
+      }
+
+      // If current is 'pending':
+      if (current === 'pending') {
+        if (!['countered', 'counter_offered', 'accepted', 'rejected', 'expired'].includes(target)) {
+          throw AppError.badRequest(`Invalid transition from 'pending' to '${target}'`);
+        }
+      }
+
+      // If current is 'countered' or 'counter_offered':
+      if (['countered', 'counter_offered'].includes(current)) {
+        if (!['countered', 'counter_offered', 'accepted', 'rejected', 'expired', 'ordered'].includes(target)) {
+          throw AppError.badRequest(`Invalid transition from '${current}' to '${target}'`);
+        }
+      }
+
+      // If counter offered, validate counter price
+      if (['countered', 'counter_offered'].includes(target) && farmer_counter_price != null) {
+        if (Number(farmer_counter_price) <= 0) {
+          throw AppError.badRequest('farmer_counter_price must be greater than zero');
+        }
+      }
+
       const now = new Date().toISOString();
 
       Database.run(
         `UPDATE wholesale_quotations SET
-          status = COALESCE(?, status),
+          status = ?,
           farmer_counter_price = COALESCE(?, farmer_counter_price),
           notes = COALESCE(?, notes),
           updated_at = ?
          WHERE id = ?`,
-        [status ?? null, farmer_counter_price ?? null, notes ?? null, now, id]
+        [target, farmer_counter_price ?? null, notes ?? null, now, id]
       );
 
-      res.json({ success: true, message: `Quotation updated to ${status}` });
+      const updated = Database.get('SELECT * FROM wholesale_quotations WHERE id = ?', [id]);
+      res.json({ success: true, message: `Quotation updated to ${target}`, data: updated });
     } catch (err) {
       next(err);
     }
@@ -254,11 +403,15 @@ export class AdvancedController {
       const { quantity } = req.body;
 
       if (!quantity || Number(quantity) <= 0) {
-        throw AppError.badRequest('Valid quantity is required');
+        throw AppError.badRequest('Valid quantity greater than zero is required');
       }
 
-      const gb = Database.get<any>("SELECT * FROM group_buys WHERE id = ? AND status = 'active'", [id]);
-      if (!gb) throw AppError.notFound('Active group buy not found');
+      const gb = Database.get<any>("SELECT * FROM group_buys WHERE id = ?", [id]);
+      if (!gb) throw AppError.notFound('Group buy pool not found');
+
+      if (gb.status !== 'active') {
+        throw AppError.badRequest(`Cannot join group buy with status '${gb.status}'`);
+      }
 
       // Check deadline
       if (new Date(gb.deadline).getTime() < Date.now()) {
@@ -267,6 +420,16 @@ export class AdvancedController {
       }
 
       const qty = Number(quantity);
+      const remainingCapacity = gb.target_quantity - gb.current_quantity;
+
+      if (remainingCapacity <= 0) {
+        throw AppError.badRequest('This group buy pool has already reached its target capacity');
+      }
+
+      if (qty > remainingCapacity) {
+        throw AppError.badRequest(`Requested quantity (${qty} ${gb.unit}) exceeds remaining capacity (${remainingCapacity} ${gb.unit})`);
+      }
+
       const subtotal = qty * gb.discounted_price;
       const now = new Date().toISOString();
 
@@ -311,7 +474,12 @@ export class AdvancedController {
 
       const gb = Database.get<any>('SELECT * FROM group_buys WHERE id = ?', [id]);
       if (!gb) throw AppError.notFound('Group buy pool not found');
-      if (gb.status !== 'active') throw AppError.badRequest('Cannot leave a closed or completed group buy');
+      if (gb.status === 'completed') {
+        throw AppError.badRequest('Cannot leave a completed group buy pool');
+      }
+      if (gb.status !== 'active') {
+        throw AppError.badRequest('Cannot leave an inactive group buy pool');
+      }
 
       const participant = Database.get<any>('SELECT * FROM group_buy_participants WHERE group_buy_id = ? AND user_id = ?', [id, userId]);
       if (!participant) throw AppError.notFound('You have not joined this group buy pool');
@@ -520,6 +688,24 @@ export class AdvancedController {
         throw AppError.badRequest('Product currently out of stock for scheduled dispatch');
       }
 
+      // Fetch authentic customer details
+      const customer = Database.get<any>('SELECT name, phone FROM users WHERE id = ?', [procurement.user_id]) || {
+        name: 'Subscribed Customer',
+        phone: '+91 9800000000'
+      };
+
+      // Fetch authentic farmer details
+      const farmer = Database.get<any>(`
+        SELECT fp.farm_name, u.name as farmer_name, u.phone as farmer_phone
+        FROM farmer_profiles fp
+        JOIN users u ON fp.user_id = u.id
+        WHERE fp.id = ?
+      `, [procurement.farmer_id]) || {
+        farm_name: 'Farm Direct',
+        farmer_name: 'Kisan Direct',
+        farmer_phone: '+91 9800000000'
+      };
+
       const orderId = 'order-' + Date.now();
       const orderNum = `#HD-SCH-${Math.floor(10000 + Math.random() * 90000)}`;
       const now = new Date().toISOString();
@@ -532,13 +718,32 @@ export class AdvancedController {
             delivery_fee, farmer_tip, delivery_address, customer_phone, customer_name,
             farmer_name, farm_name, farmer_phone, payment_method, payment_status,
             order_status, delivery_mode, notes, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, '+91 9800000000', 'Subscribed Customer', 'Kisan Direct', 'Farm Direct', '+91 9800000000', 'cod', 'pending', 'placed', 'farmer_direct', 'Automated recurring farm subscription execution', ?, ?)`,
-          [orderId, orderNum, procurement.user_id, procurement.farmer_id, total, total, procurement.delivery_address, now, now]
+          ) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, 'cod', 'pending', 'placed', 'farmer_direct', 'Automated recurring farm subscription execution', ?, ?)`,
+          [
+            orderId,
+            orderNum,
+            procurement.user_id,
+            procurement.farmer_id,
+            total,
+            total,
+            procurement.delivery_address,
+            customer.phone || '+91 9800000000',
+            customer.name || 'Subscribed Customer',
+            farmer.farmer_name || 'Kisan Direct',
+            farmer.farm_name || 'Farm Direct',
+            farmer.farmer_phone || '+91 9800000000',
+            now,
+            now
+          ]
         );
 
-        // Advance next date
+        // Advance next date accurately based on frequency
         const nextD = new Date();
-        const days = procurement.frequency === 'daily' ? 1 : procurement.frequency === 'weekly' ? 7 : 30;
+        const days = procurement.frequency === 'daily' ? 1 
+          : procurement.frequency === 'alternate_days' ? 2 
+          : procurement.frequency === 'weekly' ? 7 
+          : procurement.frequency === 'biweekly' ? 14 
+          : 30;
         nextD.setDate(nextD.getDate() + days);
 
         Database.run(

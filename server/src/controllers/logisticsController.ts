@@ -371,14 +371,19 @@ export class LogisticsController {
         throw AppError.forbidden('Unauthorized: You can only update telemetry for your own delivery partner account');
       }
 
+      const speed = Number(speed_kmh || 0);
+      const heading = Number(heading_deg || 0);
       const now = new Date().toISOString();
+
       Database.run(
         `UPDATE delivery_partners SET
           current_lat = ?,
           current_lng = ?,
+          speed_kmh = ?,
+          heading_deg = ?,
           updated_at = ?
          WHERE id = ?`,
-        [numLat, numLng, now, id]
+        [numLat, numLng, speed, heading, now, id]
       );
 
       res.json({
@@ -387,8 +392,8 @@ export class LogisticsController {
           partner_id: id,
           current_lat: numLat,
           current_lng: numLng,
-          speed_kmh: Number(speed_kmh || 0),
-          heading_deg: Number(heading_deg || 0),
+          speed_kmh: speed,
+          heading_deg: heading,
           telemetry_type: is_simulated ? 'simulated_telemetry' : 'live_gps_telemetry',
           recorded_at: now
         }
@@ -451,12 +456,14 @@ export class LogisticsController {
           fleet_average_rating: Math.round((avgRating.avg_rating || 4.9) * 10) / 10,
           tasks_by_status: tasksSummary,
           average_transit_minutes: realTransitMinutes ?? benchmarkTransitMinutes,
+          average_transit_formatted: hasRealTransit ? `${realTransitMinutes} mins` : 'Insufficient telemetry data',
           is_transit_time_estimated: !hasRealTransit,
           on_time_delivery_rate_pct: realOnTimePct ?? benchmarkOnTimeRate,
+          on_time_delivery_formatted: hasRealOnTime ? `${realOnTimePct}%` : 'Insufficient telemetry data',
           is_on_time_rate_estimated: !hasRealOnTime,
           metrics_source: {
-            transit_time: hasRealTransit ? 'database_actual' : 'preliminary_benchmark_estimate',
-            on_time_rate: hasRealOnTime ? 'database_actual' : 'preliminary_benchmark_estimate',
+            transit_time: hasRealTransit ? 'database_actual' : 'insufficient_telemetry_data',
+            on_time_rate: hasRealOnTime ? 'database_actual' : 'insufficient_telemetry_data',
             sample_size_timed_tasks: transitStats?.timed_count || 0
           }
         }

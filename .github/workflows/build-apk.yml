@@ -38,7 +38,7 @@ jobs:
             fi
           fi
           yes | sdkmanager --licenses || true
-          sdkmanager "cmdline-tools;latest" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          sdkmanager "cmdline-tools;latest" "platform-tools" "platforms;android-34" "platforms;android-36" "build-tools;34.0.0" "build-tools;36.0.0"
 
       - name: Install Dependencies
         run: npm ci
