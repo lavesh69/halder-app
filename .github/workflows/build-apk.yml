@@ -25,19 +25,11 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK Tools
+      - name: Setup Android SDK Licenses
         run: |
-          export PATH="${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${PATH}"
-          echo "${ANDROID_HOME}/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "${ANDROID_HOME}/platform-tools" >> $GITHUB_PATH
-
           mkdir -p "${ANDROID_HOME}/licenses"
-          printf "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a6351dd797dd18b9f7f15e52a86014157\n" > "${ANDROID_HOME}/licenses/android-sdk-license"
-          printf "84831b9409646a3e8e188b7b8cb613c4c544e669\n7c027e5713e552a4f7832801458e0a3f9e2b17f5\n" > "${ANDROID_HOME}/licenses/android-sdk-preview-license"
-
-          yes | sdkmanager --licenses || true
-          sdkmanager --install "platforms;android-36" || sdkmanager --channel=3 --install "platforms;android-36" || true
-          sdkmanager --install "platforms;android-34" "platforms;android-35" "build-tools;34.0.0" "build-tools;36.0.0" || true
+          printf "8933bad161af4178b1185d1a37fbf41ea5269c55\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n84831b9409646a3e8e188b7b8cb613c4c544e669\n7c027e5713e552a4f7832801458e0a3f9e2b17f5\n" > "${ANDROID_HOME}/licenses/android-sdk-license"
+          printf "84831b9409646a3e8e188b7b8cb613c4c544e669\n7c027e5713e552a4f7832801458e0a3f9e2b17f5\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n" > "${ANDROID_HOME}/licenses/android-sdk-preview-license"
           yes | sdkmanager --licenses || true
 
       - name: Install Dependencies
@@ -59,16 +51,7 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace > /tmp/gradle_build.log 2>&1 || {
-            BUILD_RC=$?
-            echo "=== GRADLE FAILED WITH EXIT CODE $BUILD_RC ==="
-            tail -n 40 /tmp/gradle_build.log
-            ERR_MSG=$(grep -m 1 -E "FAILURE:|What went wrong:|Caused by:" /tmp/gradle_build.log | tr -d '\n\r' | cut -c 1-200)
-            echo "::error title=Gradle Build Error::${ERR_MSG:-Gradle build failed with exit code $BUILD_RC}"
-            exit $BUILD_RC
-          }
-          echo "=== BUILD SUCCESSFUL — Searching for generated artifacts ==="
-          find app/build/outputs/ -type f || true
+          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
         env:
           KEYSTORE_PASSWORD: halder2026
           KEY_PASSWORD: halder2026
