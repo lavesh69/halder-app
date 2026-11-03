@@ -25,17 +25,17 @@ import { MyAdsModal } from './components/customer/MyAdsModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 
-// Farmer screens & modals
-import { FarmerDashboard } from './components/farmer/FarmerDashboard';
-import { FarmerProductsView } from './components/farmer/FarmerProductsView';
-import { FarmerOrdersView } from './components/farmer/FarmerOrdersView';
-import { FarmerEarningsView } from './components/farmer/FarmerEarningsView';
-import { FarmerChatView } from './components/farmer/FarmerChatView';
-import { FarmerProfileView } from './components/farmer/FarmerProfileView';
+// Farmer screens & modals (Code-split for performance)
+const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
+const FarmerProductsView = React.lazy(() => import('./components/farmer/FarmerProductsView').then(m => ({ default: m.FarmerProductsView })));
+const FarmerOrdersView = React.lazy(() => import('./components/farmer/FarmerOrdersView').then(m => ({ default: m.FarmerOrdersView })));
+const FarmerEarningsView = React.lazy(() => import('./components/farmer/FarmerEarningsView').then(m => ({ default: m.FarmerEarningsView })));
+const FarmerChatView = React.lazy(() => import('./components/farmer/FarmerChatView').then(m => ({ default: m.FarmerChatView })));
+const FarmerProfileView = React.lazy(() => import('./components/farmer/FarmerProfileView').then(m => ({ default: m.FarmerProfileView })));
 import { AddProductModal } from './components/farmer/AddProductModal';
 
 // Admin dashboard & Notifications
-import { AdminDashboard } from './components/admin/AdminDashboard';
+const AdminDashboard = React.lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 import { NotificationModal } from './components/common/NotificationModal';
 import { useAndroidHardware } from './hooks/useAndroidHardware';
 
@@ -107,29 +107,47 @@ export const MainApp: React.FC = () => {
   };
 
   // Farmer Screen Router
+  // Farmer Screen Router (with code-split suspense boundary)
   const renderFarmerScreen = () => {
+    let content: React.ReactNode;
     switch (farmerTab) {
       case 'dashboard':
-        return <FarmerDashboard />;
+        content = <FarmerDashboard />;
+        break;
       case 'listings':
-        return <FarmerProductsView />;
+        content = <FarmerProductsView />;
+        break;
       case 'orders':
-        return <FarmerOrdersView />;
+        content = <FarmerOrdersView />;
+        break;
       case 'earnings':
-        return <FarmerEarningsView />;
+        content = <FarmerEarningsView />;
+        break;
       case 'chat':
-        return <FarmerChatView />;
+        content = <FarmerChatView />;
+        break;
       case 'profile':
-        return <FarmerProfileView />;
+        content = <FarmerProfileView />;
+        break;
       default:
-        return <FarmerDashboard />;
+        content = <FarmerDashboard />;
+        break;
     }
+    return (
+      <React.Suspense fallback={<div className="flex items-center justify-center min-h-[300px] text-sm text-zinc-500 font-medium">Loading Farmer Center...</div>}>
+        {content}
+      </React.Suspense>
+    );
   };
 
   // Screen Dispatcher based on Role
   const renderScreen = () => {
     if (role === 'admin') {
-      return <AdminDashboard />;
+      return (
+        <React.Suspense fallback={<div className="flex items-center justify-center min-h-[300px] text-sm text-zinc-500 font-medium">Loading Admin Command Center...</div>}>
+          <AdminDashboard />
+        </React.Suspense>
+      );
     }
     if (role === 'farmer') {
       return renderFarmerScreen();

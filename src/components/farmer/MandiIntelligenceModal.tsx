@@ -14,6 +14,7 @@ import {
   Coins,
   CheckCircle2,
   Sparkles,
+  Download,
 } from 'lucide-react';
 
 interface Props {
@@ -95,6 +96,31 @@ export const MandiIntelligenceModal: React.FC<Props> = ({ isOpen, onClose }) => 
     }
   };
 
+  const handleDownloadCsv = () => {
+    if (rates.length === 0) return;
+    const headers = ['Crop Name', 'Market Name', 'District', 'State', 'Min Price (Rs)', 'Max Price (Rs)', 'Modal Price (Rs)', 'Unit', 'Price Date', 'Data Attribution'];
+    const rows = filteredRates.map((r) => [
+      `"${r.crop_name || ''}"`,
+      `"${r.market_name || ''}"`,
+      `"${r.district || ''}"`,
+      `"${r.state || ''}"`,
+      r.min_price || 0,
+      r.max_price || 0,
+      r.modal_price || 0,
+      `"${r.price_unit || 'quintal'}"`,
+      `"${r.price_date || ''}"`,
+      '"Seeded Benchmark / Agmarknet Simulation (Research Model)"'
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `HALDER_Mandi_Benchmark_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!isOpen) return null;
 
   const filteredRates = rates.filter((r) => {
@@ -114,14 +140,16 @@ export const MandiIntelligenceModal: React.FC<Props> = ({ isOpen, onClose }) => 
               <Activity className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">
                   Mandi Intelligence & Price Comparison
                 </h3>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">
+                  Simulated / Seeded APMC Benchmarks
+                </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Official APMC/e-NAM benchmark rates, demand signals & revenue calculator
+                Agmarknet / e-NAM research model fixtures for market comparison & revenue calculation
               </p>
             </div>
           </div>
@@ -307,17 +335,27 @@ export const MandiIntelligenceModal: React.FC<Props> = ({ isOpen, onClose }) => 
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs">
-          <span className="text-zinc-400 flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            Verified Agmarknet / e-NAM Daily Commodity Database
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span className="text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 text-[11px]">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            Historical Agmarknet APMC Commodity Benchmarks (Research Simulation)
           </span>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold rounded-xl transition"
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownloadCsv}
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs"
+              title="Download Mandi Price Benchmark Report as CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download CSV</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold rounded-xl transition"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

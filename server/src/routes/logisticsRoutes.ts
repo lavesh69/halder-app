@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { LogisticsController } from '../controllers/logisticsController';
 import { authenticateUser } from '../middleware/auth';
 
@@ -9,6 +9,8 @@ router.use(authenticateUser);
 router.get('/partners', LogisticsController.getPartners);
 router.post('/partners', LogisticsController.registerPartner);
 router.patch('/partners/:id/status', LogisticsController.updateStatus);
+router.post('/partners/:id/telemetry', LogisticsController.updateTelemetry);
+router.get('/analytics', LogisticsController.getAnalytics);
 
 router.get('/tasks', LogisticsController.getTasks);
 router.get('/tasks/order/:orderId', LogisticsController.getTaskByOrderId);
