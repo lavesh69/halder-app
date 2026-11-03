@@ -51,7 +51,15 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
+          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle_output.log || {
+            BUILD_CODE=$?
+            echo "## ❌ Gradle Build Failed (Exit Code: $BUILD_CODE)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 60 /tmp/gradle_output.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $BUILD_CODE
+          }
+          echo "## ✅ Gradle Build Succeeded" >> $GITHUB_STEP_SUMMARY
         env:
           KEYSTORE_PASSWORD: halder2026
           KEY_PASSWORD: halder2026
