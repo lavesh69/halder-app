@@ -1,11 +1,24 @@
-﻿import { Database } from '../src/db/database';
+import http from 'http';
+import { app } from '../src/app';
+import { Database } from '../src/db/database';
+import { seedDatabase } from '../src/db/seed';
 
-const BASE_URL = 'http://localhost:5000/api/v1';
+let server: http.Server | null = null;
+const PORT = 5098;
+const BASE_URL = `http://localhost:${PORT}/api/v1`;
 
 async function runE2E() {
   console.log('==================================================');
   console.log('🚀 HALDER FULL END-TO-END PRODUCTION FLOW TEST');
   console.log('==================================================\n');
+
+  // Initialize DB & start ephemeral server for standalone test execution
+  seedDatabase();
+  await new Promise<void>((resolve) => {
+    server = app.listen(PORT, () => {
+      resolve();
+    });
+  });
 
   const ts = Date.now();
   const customerEmail = `aman_test_${ts}@halder.in`;
@@ -143,9 +156,16 @@ async function runE2E() {
   console.log('\n==================================================');
   console.log('🎉 ALL END-TO-END VERIFICATIONS PASSED WITH 100% INTEGRITY!');
   console.log('==================================================');
+
+  if (server) {
+    server.close();
+  }
 }
 
 runE2E().catch((err) => {
   console.error('❌ E2E Test Failure:', err);
+  if (server) {
+    server.close();
+  }
   process.exit(1);
 });

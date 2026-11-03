@@ -26,6 +26,8 @@ dist-ssr
 *.sqlite3
 
 # Uploads & User Content
+uploads/*
+!uploads/.gitkeep
 server/uploads/*
 !server/uploads/.gitkeep
 
