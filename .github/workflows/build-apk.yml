@@ -19,11 +19,11 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Setup Java 17 (JDK)
+      - name: Setup Java 21 (JDK required for AGP 8.13 & Android 16)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Android SDK Licenses
         run: |
@@ -51,16 +51,10 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace > /tmp/gradle_output.txt 2>&1 || true
-          tail -n 60 /tmp/gradle_output.txt
-          ERR=$(grep -A 3 -m 1 "What went wrong:" /tmp/gradle_output.txt | tr '\n' ' ' | cut -c 1-240)
-          echo "::notice title=Gradle Diagnosis::$ERR"
-          if grep -q "BUILD SUCCESSFUL" /tmp/gradle_output.txt; then
-            echo "BUILD PASSED"
-          else
-            echo "::error title=Gradle Failed::$ERR"
-            exit 1
-          fi
+          ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
+          echo "=== Verify Artifact Locations ==="
+          ls -la app/build/outputs/apk/debug/
+          ls -la app/build/outputs/bundle/release/
         env:
           KEYSTORE_PASSWORD: halder2026
           KEY_PASSWORD: halder2026
@@ -70,10 +64,8 @@ jobs:
         if: success()
         with:
           name: HALDER-v1.0-debug-APK
-          path: |
-            android/app/build/outputs/apk/debug/*.apk
-            **/app-debug.apk
-          if-no-files-found: warn
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
           retention-days: 30
 
       - name: Upload Release AAB Bundle Artifact
@@ -81,8 +73,6 @@ jobs:
         if: success()
         with:
           name: HALDER-v1.0-release-AAB
-          path: |
-            android/app/build/outputs/bundle/release/*.aab
-            **/app-release.aab
-          if-no-files-found: warn
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
           retention-days: 30
