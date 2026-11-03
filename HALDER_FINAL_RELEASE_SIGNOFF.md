@@ -3,7 +3,7 @@
 **Project:** HALDER Agricultural Marketplace (Direct Farmer-to-Mandi Ecosystem)  
 **Release Version:** v1.0.0  
 **Git Tag:** `v1.0.0`  
-**Latest Audited Commit SHA:** `73c273a02013def4574ac8d75c32e84bc4baf847`  
+**Latest Audited Commit SHA:** `47028058c834d631a04a60f9fbd4f632de437e75`  
 **Audit & Review Date:** 2026-11-03  
 **Final Release Decision:** **READY AFTER MINOR BLOCKERS**  
 **Engineering Authority:** Principal Architect, DevSecOps Lead & Release Engineering  
@@ -28,10 +28,10 @@ External cloud staging and production deployment are classified as **BLOCKED / N
 | **Release APK** | `android/app/build/outputs/apk/release/app-release.apk` | Signed v2 Scheme | **PASS** | 3,542,651 bytes, SHA-256 `A342AE...`, verified via `apksigner`. |
 | **Release AAB** | `android/app/build/outputs/bundle/release/app-release.aab` | Google Play Bundle | **PASS** | 3,400,460 bytes, SHA-256 `EB104C...`, release signed. |
 | **Android Signing** | `android/app/halder-release.jks` | RSA 2048-bit | **PASS** | Certificate DN: `CN=Halder Production, OU=Engineering, O=Halder Mandi Direct, L=Dehradun, ST=Uttarakhand, C=IN`. |
-| **CI/CD Test Suite** | GitHub Actions `ci.yml` | Full Test Automation | **PASS** | Run 41632094228: 17 suites, 236 assertions passing, lint clean, build clean. |
-| **CI/CD Mobile Build** | GitHub Actions `build-apk.yml` | Build & Artifact Upload | **PASS** | Run 41632094483: Android Debug APK & Release AAB built successfully on Ubuntu with Java 21. |
-| **APK Artifact (GitHub)** | `HALDER-v1.0-debug-APK` | 30-Day Retention | **PASS** | Artifact ID `13229276379` (4,107,867 bytes) verified in GitHub Actions. |
-| **AAB Artifact (GitHub)** | `HALDER-v1.0-release-AAB` | 30-Day Retention | **PASS** | Artifact ID `13228891569` (3,214,330 bytes) verified in GitHub Actions. |
+| **CI/CD Test Suite** | GitHub Actions `ci.yml` | Full Test Automation | **PASS** | Run 41635384810: 17 suites, 236 assertions passing, lint clean, build clean. |
+| **CI/CD Mobile Build** | GitHub Actions `build-apk.yml` | Build & Artifact Upload | **PASS** | Run 41635384666: Android Debug APK & Release AAB built successfully on Ubuntu with Java 21. |
+| **APK Artifact (GitHub)** | `HALDER-v1.0-debug-APK` | 30-Day Retention | **PASS** | Artifact ID `13229997867` (4,107,999 bytes) verified in GitHub Actions. |
+| **AAB Artifact (GitHub)** | `HALDER-v1.0-release-AAB` | 30-Day Retention | **PASS** | Artifact ID `13230047848` (3,214,422 bytes) verified in GitHub Actions. |
 | **Android Device Test** | Physical Device / Emulator | Runtime smoke test | **BLOCKED** | No physical device or emulator available (`adb devices` returned empty list). |
 | **Staging Infrastructure**| `Dockerfile`, `docker-compose.staging.yml`, `Caddyfile.staging` | Container manifests | **PASS** | Complete multi-stage build, Caddy TLS ingress, and automated deploy workflow committed. |
 | **Staging Deployment** | Cloud Staging Server | Remote Hosting | **BLOCKED** | No cloud target host or SSH secrets configured in repository. |

@@ -3,7 +3,7 @@
 **Project:** HALDER (Direct Mandi & Agricultural Marketplace)  
 **Release Version:** v1.0.0  
 **Git Tag:** `v1.0.0`  
-**Latest Audited Commit SHA:** `73c273a02013def4574ac8d75c32e84bc4baf847`  
+**Latest Audited Commit SHA:** `47028058c834d631a04a60f9fbd4f632de437e75`  
 **Repository:** https://github.com/lavesh69/halder-app  
 **Date:** 2026-11-03  
 **Engineering Authority:** Principal Release & DevOps Engineering  
@@ -30,15 +30,15 @@
 
 ### 1.2 GitHub Actions CI Runner Artifacts
 
-- **Workflow Run ID:** `41632094483`  
+- **Workflow Run ID:** `41635384666`  
 - **Workflow Name:** `Build HALDER Android APK & Release AAB`  
 - **Runner OS:** Ubuntu 24.04 LTS (Java 21 Zulu JDK + Android SDK Command-line Tools)  
-- **Direct Portal URL:** https://github.com/lavesh69/halder-app/actions/runs/41632094483  
+- **Direct Portal URL:** https://github.com/lavesh69/halder-app/actions/runs/41635384666  
 
 | Artifact Name | Artifact ID | Size on GitHub Storage | Verification Status |
 |---|---|---|---|
-| `HALDER-v1.0-debug-APK` | `13229276379` | 4,107,867 bytes (3.92 MB) | PASS (CI Automated Build) |
-| `HALDER-v1.0-release-AAB` | `13228891569` | 3,214,330 bytes (3.07 MB) | PASS (CI Automated Build) |
+| `HALDER-v1.0-debug-APK` | `13229997867` | 4,107,999 bytes (3.92 MB) | PASS (CI Automated Build) |
+| `HALDER-v1.0-release-AAB` | `13230047848` | 3,214,422 bytes (3.07 MB) | PASS (CI Automated Build) |
 
 ---
 
