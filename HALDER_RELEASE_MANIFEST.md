@@ -2,7 +2,7 @@
 
 **Project:** HALDER (Direct Mandi & Agricultural Marketplace)  
 **Release Version:** v1.0  
-**Commit SHA:** `ae29d0e` (main)  
+**Commit SHA:** `375c688` (main)  
 **Date:** 2026-11-03  
 **Engineering Authority:** Principal Release & DevOps Engineering  
 
@@ -19,11 +19,11 @@
 | **Min SDK** | 24 (Android 7.0 Nougat) | 24 (Android 7.0 Nougat) | 24 (Android 7.0 Nougat) |
 | **Target SDK** | 34 (Android 14 UpsideDownCake) | 34 (Android 14 UpsideDownCake) | 34 (Android 14 UpsideDownCake) |
 | **Compile SDK** | 36 (Android 16) | 36 (Android 16) | 36 (Android 16) |
-| **File Size (Bytes)**| 4,680,854 bytes (4.46 MB) | 3,542,651 bytes (3.38 MB) | 3,400,460 bytes (3.24 MB) |
-| **SHA-256 Checksum**| `4AD78C1003F9EE84EDBB2EBBED8BC3139C63426A395C4EB8A6A6910E6C426750` | `A342AE3393275618D5762FC745CF559EDBEA0CE54920550D41098BCC0859EBE5` | `EB104C2E2516789E4E9DEA29B0A8489F245558179D2B629AEC3DF19B6BCF05F6` |
+| **File Size (Local)** | 4,680,854 bytes (4.46 MB) | 3,542,651 bytes (3.38 MB) | 3,400,460 bytes (3.24 MB) |
+| **SHA-256 Checksum** | `4AD78C1003F9EE84EDBB2EBBED8BC3139C63426A395C4EB8A6A6910E6C426750` | `A342AE3393275618D5762FC745CF559EDBEA0CE54920550D41098BCC0859EBE5` | `EB104C2E2516789E4E9DEA29B0A8489F245558179D2B629AEC3DF19B6BCF05F6` |
 | **Build Timestamp** | 2026-11-03 12:09:00 IST | 2026-11-03 12:10:49 IST | 2026-11-03 12:10:03 IST |
 | **Signing Status** | Signed (Android Debug Key) | VERIFIED (APK Signature Scheme v2) | VERIFIED (Release Key Configured) |
-| **Installation Status** | NOT TESTED (No attached physical device or booted emulator) | NOT TESTED (Requires adb target) | Play Console Ready (Bundle format) |
+| **Installation Status**| NOT TESTED (No attached physical device or booted emulator) | NOT TESTED (Requires adb target) | Play Console Ready (Bundle format) |
 
 ---
 
@@ -49,15 +49,21 @@ Cryptographic verification performed via Android SDK `apksigner verify --verbose
 
 ---
 
-## 3. GitHub Actions CI/CD Pipeline Artifacts
+## 3. GitHub Actions CI/CD Verified Artifacts
 
 - **Workflow File:** `.github/workflows/build-apk.yml`
 - **Workflow Name:** `Build HALDER Android APK & Release AAB`
-- **Workflow Run URL:** [GitHub Actions Run 41598047575](https://github.com/lavesh69/halder-app/actions/runs/41598047575)
+- **Workflow Run ID:** `41600717827`
+- **Workflow Run Status:** **SUCCESS**
+- **Workflow Run URL:** https://github.com/lavesh69/halder-app/actions/runs/41600717827
 - **Artifact Retention:** 30 Days
-- **Configured Artifacts:**
-  1. `HALDER-v1.0-debug-APK` (`android/app/build/outputs/apk/debug/app-debug.apk`)
-  2. `HALDER-v1.0-release-AAB` (`android/app/build/outputs/bundle/release/app-release.aab`)
+
+### Uploaded Release Artifacts (Publicly Downloadable):
+
+| Artifact Name | Artifact ID | Size on GitHub | Status |
+|---|---|---|---|
+| **`HALDER-v1.0-debug-APK`** | `13213934426` | 4,107,865 bytes (3.92 MB) | **AVAILABLE (30-day retention)** |
+| **`HALDER-v1.0-release-AAB`** | `13214282640` | 3,214,330 bytes (3.07 MB) | **AVAILABLE (30-day retention)** |
 
 ---
 
