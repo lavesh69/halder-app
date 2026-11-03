@@ -1,4 +1,4 @@
-﻿-- ==========================================================
+-- ==========================================================
 -- HALDER Production Database Relational Schema (SQLite / WAL)
 -- ==========================================================
 
@@ -321,14 +321,21 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TEXT NOT NULL
 );
 
--- 17. Reports Table
+-- 17. Reports & Grievances Table
 CREATE TABLE IF NOT EXISTS reports (
   id TEXT PRIMARY KEY,
   reporter_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  order_id TEXT REFERENCES orders(id) ON DELETE SET NULL,
   product_id TEXT REFERENCES products(id) ON DELETE SET NULL,
   reported_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  category TEXT NOT NULL DEFAULT 'general' CHECK(category IN ('general', 'quality_issue', 'delivery_delay', 'damaged_goods', 'billing_dispute', 'middleman_complaint')),
+  priority TEXT NOT NULL DEFAULT 'medium' CHECK(priority IN ('low', 'medium', 'high', 'urgent')),
   reason TEXT NOT NULL,
   description TEXT,
+  evidence_url TEXT DEFAULT '',
+  assigned_admin_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  resolution_notes TEXT DEFAULT '',
+  resolution_reason TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'investigating', 'resolved', 'dismissed')),
   created_at TEXT NOT NULL,
   resolved_at TEXT
@@ -544,6 +551,7 @@ CREATE INDEX IF NOT EXISTS idx_farmer_subscriptions_farmer ON farmer_subscriptio
 -- 27. Group Buys (Module 8)
 CREATE TABLE IF NOT EXISTS group_buys (
   id TEXT PRIMARY KEY,
+  creator_id TEXT REFERENCES users(id) ON DELETE SET NULL,
   product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -586,6 +594,7 @@ CREATE TABLE IF NOT EXISTS scheduled_procurements (
   delivery_time_slot TEXT NOT NULL DEFAULT 'Morning (06:00 - 08:30 AM)',
   delivery_address TEXT NOT NULL,
   next_delivery_date TEXT NOT NULL,
+  last_executed_at TEXT,
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'paused', 'cancelled')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL

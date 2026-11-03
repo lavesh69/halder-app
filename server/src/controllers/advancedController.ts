@@ -126,6 +126,18 @@ export class AdvancedController {
   static updateQuotationStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const quotation = Database.get<any>('SELECT * FROM wholesale_quotations WHERE id = ?', [id]);
+      if (!quotation) throw AppError.notFound('Wholesale quotation not found');
+
+      const userId = (req as any).user.id;
+      const role = (req as any).user.role;
+      const isBuyer = quotation.buyer_id === userId;
+      const isFarmer = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ? AND id = ?', [userId, quotation.farmer_id]);
+
+      if (!isBuyer && !isFarmer && role !== 'admin') {
+        throw AppError.forbidden('You are not authorized to modify this wholesale quotation');
+      }
+
       const { status, farmer_counter_price, notes } = req.body;
       const now = new Date().toISOString();
 
@@ -164,6 +176,76 @@ export class AdvancedController {
     }
   }
 
+  // GET /api/v1/advanced/group-buys/my
+  static getMyGroupBuys(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user.id;
+      const myDeals = Database.query(`
+        SELECT gb.*, p.name as product_name, p.image as product_image, fp.farm_name,
+               gbp.quantity as user_committed_quantity, gbp.subtotal as user_committed_subtotal
+        FROM group_buys gb
+        JOIN products p ON gb.product_id = p.id
+        JOIN farmer_profiles fp ON gb.farmer_id = fp.id
+        JOIN group_buy_participants gbp ON gb.id = gbp.group_buy_id
+        WHERE gbp.user_id = ? OR gb.creator_id = ?
+        ORDER BY gb.created_at DESC
+      `, [userId, userId]);
+
+      res.json({ success: true, count: myDeals.length, data: myDeals });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /api/v1/advanced/group-buys (Open a new group buy pool)
+  static createGroupBuy(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user.id;
+      const { product_id, title, target_quantity, discounted_price, group_price, min_buyers_count, duration_hours } = req.body;
+      const effectiveDiscPrice = discounted_price ?? group_price;
+
+      if (!product_id || !title || !target_quantity || !effectiveDiscPrice) {
+        throw AppError.badRequest('product_id, title, target_quantity, and discounted_price are required');
+      }
+
+      const product = Database.get<any>('SELECT * FROM products WHERE id = ?', [product_id]);
+      if (!product) throw AppError.notFound('Product not found');
+
+      const targetQty = Number(target_quantity);
+      const discPrice = Number(effectiveDiscPrice);
+
+      if (isNaN(targetQty) || targetQty <= 0 || isNaN(discPrice) || discPrice <= 0) {
+        throw AppError.badRequest('Target quantity and discounted price must be numbers greater than zero');
+      }
+
+      const retailPrice = product.price;
+      const discountPercent = Math.max(0, Math.round(((retailPrice - discPrice) / retailPrice) * 100));
+
+      const id = 'gb-' + Date.now();
+      const now = new Date();
+      const hours = Number(duration_hours || 48);
+      const deadline = new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
+
+      Database.run(
+        `INSERT INTO group_buys (
+          id, creator_id, product_id, farmer_id, title, target_quantity, current_quantity,
+          unit, retail_price, discounted_price, discount_percent, min_buyers_count,
+          current_buyers_count, deadline, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 0, ?, 'active', ?)`,
+        [
+          id, userId, product_id, product.farmer_id, title, targetQty,
+          product.unit || 'kg', retailPrice, discPrice, discountPercent,
+          Number(min_buyers_count || 3), deadline, now.toISOString()
+        ]
+      );
+
+      const created = Database.get('SELECT * FROM group_buys WHERE id = ?', [id]);
+      res.status(201).json({ success: true, message: 'Community group buy pool opened', data: created });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // POST /api/v1/advanced/group-buys/:id/join
   static joinGroupBuy(req: Request, res: Response, next: NextFunction) {
     try {
@@ -177,6 +259,12 @@ export class AdvancedController {
 
       const gb = Database.get<any>("SELECT * FROM group_buys WHERE id = ? AND status = 'active'", [id]);
       if (!gb) throw AppError.notFound('Active group buy not found');
+
+      // Check deadline
+      if (new Date(gb.deadline).getTime() < Date.now()) {
+        Database.run("UPDATE group_buys SET status = 'expired' WHERE id = ?", [id]);
+        throw AppError.badRequest('This group buy pool has expired');
+      }
 
       const qty = Number(quantity);
       const subtotal = qty * gb.discounted_price;
@@ -194,13 +282,17 @@ export class AdvancedController {
           [partId, id, userId, qty, subtotal, now]
         );
 
-        // Update group buy progress
+        // Update group buy progress & complete if target met
+        const newTotalQty = gb.current_quantity + qty;
+        const newStatus = newTotalQty >= gb.target_quantity ? 'completed' : 'active';
+
         Database.run(
           `UPDATE group_buys SET
             current_quantity = current_quantity + ?,
-            current_buyers_count = (SELECT COUNT(DISTINCT user_id) FROM group_buy_participants WHERE group_buy_id = ?)
+            current_buyers_count = (SELECT COUNT(DISTINCT user_id) FROM group_buy_participants WHERE group_buy_id = ?),
+            status = ?
            WHERE id = ?`,
-          [qty, id, id]
+          [qty, id, newStatus, id]
         );
       });
 
@@ -211,7 +303,37 @@ export class AdvancedController {
     }
   }
 
-  // --- SCHEDULED PROCUREMENTS ---
+  // POST /api/v1/advanced/group-buys/:id/leave
+  static leaveGroupBuy(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user.id;
+      const { id } = req.params;
+
+      const gb = Database.get<any>('SELECT * FROM group_buys WHERE id = ?', [id]);
+      if (!gb) throw AppError.notFound('Group buy pool not found');
+      if (gb.status !== 'active') throw AppError.badRequest('Cannot leave a closed or completed group buy');
+
+      const participant = Database.get<any>('SELECT * FROM group_buy_participants WHERE group_buy_id = ? AND user_id = ?', [id, userId]);
+      if (!participant) throw AppError.notFound('You have not joined this group buy pool');
+
+      Database.transaction(() => {
+        Database.run('DELETE FROM group_buy_participants WHERE group_buy_id = ? AND user_id = ?', [id, userId]);
+        Database.run(
+          `UPDATE group_buys SET
+            current_quantity = MAX(0, current_quantity - ?),
+            current_buyers_count = (SELECT COUNT(DISTINCT user_id) FROM group_buy_participants WHERE group_buy_id = ?)
+           WHERE id = ?`,
+          [participant.quantity, id, id]
+        );
+      });
+
+      res.json({ success: true, message: 'Successfully left group buy pool' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // --- SCHEDULED PROCUREMENTS & PRODUCE SUBSCRIPTIONS ---
   // GET /api/v1/advanced/procurements
   static getProcurements(req: Request, res: Response, next: NextFunction) {
     try {
@@ -267,10 +389,57 @@ export class AdvancedController {
     }
   }
 
-  // PATCH /api/v1/advanced/procurements/:id/status
+  // PUT /api/v1/advanced/procurements/:id (Edit scheduled parameters)
+  static updateProcurement(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user.id;
+      const role = (req as any).user.role;
+
+      const procurement = Database.get<any>('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
+      if (!procurement) throw AppError.notFound('Procurement schedule not found');
+      if (procurement.user_id !== userId && role !== 'admin') {
+        throw AppError.forbidden('Unauthorized access to procurement schedule');
+      }
+
+      const { quantity, delivery_time_slot, delivery_address, frequency } = req.body;
+      let normalizedFreq = frequency ? String(frequency).toLowerCase().replace('-', '') : null;
+      if (normalizedFreq && !['daily', 'alternate_days', 'weekly', 'biweekly', 'monthly'].includes(normalizedFreq)) {
+        throw AppError.badRequest("Invalid delivery frequency. Allowed: 'daily', 'alternate_days', 'weekly', 'biweekly', 'monthly'");
+      }
+      const now = new Date().toISOString();
+
+      Database.run(
+        `UPDATE scheduled_procurements SET
+          quantity = COALESCE(?, quantity),
+          delivery_time_slot = COALESCE(?, delivery_time_slot),
+          delivery_address = COALESCE(?, delivery_address),
+          frequency = COALESCE(?, frequency),
+          updated_at = ?
+         WHERE id = ?`,
+        [quantity ? Number(quantity) : null, delivery_time_slot ?? null, delivery_address ?? null, normalizedFreq ?? null, now, id]
+      );
+
+      const updated = Database.get('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
+      res.json({ success: true, message: 'Procurement schedule updated', data: updated });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // PATCH /api/v1/advanced/procurements/:id/status (Pause / Resume / Cancel)
   static updateProcurementStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = (req as any).user.id;
+      const role = (req as any).user.role;
+
+      const procurement = Database.get<any>('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
+      if (!procurement) throw AppError.notFound('Procurement schedule not found');
+      if (procurement.user_id !== userId && role !== 'admin') {
+        throw AppError.forbidden('Unauthorized access to procurement schedule');
+      }
+
       const { status } = req.body;
       const now = new Date().toISOString();
 
@@ -280,6 +449,114 @@ export class AdvancedController {
       );
 
       res.json({ success: true, message: `Scheduled procurement marked as ${status}` });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /api/v1/advanced/procurements/:id/skip (Skip next delivery)
+  static skipNextDelivery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user.id;
+      const role = (req as any).user.role;
+
+      const procurement = Database.get<any>('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
+      if (!procurement) throw AppError.notFound('Procurement schedule not found');
+      if (procurement.user_id !== userId && role !== 'admin') {
+        throw AppError.forbidden('Unauthorized access to procurement schedule');
+      }
+
+      const currentDate = new Date(procurement.next_delivery_date || Date.now());
+      const daysToAdd = procurement.frequency === 'daily' ? 1 
+        : procurement.frequency === 'alternate_days' ? 2 
+        : procurement.frequency === 'weekly' ? 7 
+        : procurement.frequency === 'biweekly' ? 14 
+        : 30;
+
+      currentDate.setDate(currentDate.getDate() + daysToAdd);
+      const newNextDate = currentDate.toISOString().split('T')[0];
+      const now = new Date().toISOString();
+
+      Database.run(
+        'UPDATE scheduled_procurements SET next_delivery_date = ?, updated_at = ? WHERE id = ?',
+        [newNextDate, now, id]
+      );
+
+      res.json({
+        success: true,
+        message: `Next delivery skipped. Rescheduled to ${newNextDate}`,
+        data: {
+          id,
+          next_delivery_date: newNextDate,
+        },
+        nextDeliveryDate: newNextDate
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /api/v1/advanced/procurements/:id/execute (Trigger order for scheduled delivery)
+  static executeProcurement(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const procurement = Database.get<any>('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
+      if (!procurement) throw AppError.notFound('Procurement schedule not found');
+      if (procurement.status !== 'active') throw AppError.badRequest('Cannot execute a paused or cancelled schedule');
+
+      const today = new Date().toISOString().split('T')[0];
+      if (procurement.last_executed_at && procurement.last_executed_at.startsWith(today)) {
+        return res.json({
+          success: true,
+          message: 'Already executed for today',
+          data: { order_id: null },
+          order_id: null
+        });
+      }
+
+      const product = Database.get<any>('SELECT * FROM products WHERE id = ?', [procurement.product_id]);
+      if (!product || product.available_quantity < procurement.quantity) {
+        throw AppError.badRequest('Product currently out of stock for scheduled dispatch');
+      }
+
+      const orderId = 'order-' + Date.now();
+      const orderNum = `#HD-SCH-${Math.floor(10000 + Math.random() * 90000)}`;
+      const now = new Date().toISOString();
+      const total = Number((product.price * procurement.quantity).toFixed(2));
+
+      Database.transaction(() => {
+        Database.run(
+          `INSERT INTO orders (
+            id, order_number, customer_id, farmer_id, total_amount, subtotal,
+            delivery_fee, farmer_tip, delivery_address, customer_phone, customer_name,
+            farmer_name, farm_name, farmer_phone, payment_method, payment_status,
+            order_status, delivery_mode, notes, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, '+91 9800000000', 'Subscribed Customer', 'Kisan Direct', 'Farm Direct', '+91 9800000000', 'cod', 'pending', 'placed', 'farmer_direct', 'Automated recurring farm subscription execution', ?, ?)`,
+          [orderId, orderNum, procurement.user_id, procurement.farmer_id, total, total, procurement.delivery_address, now, now]
+        );
+
+        // Advance next date
+        const nextD = new Date();
+        const days = procurement.frequency === 'daily' ? 1 : procurement.frequency === 'weekly' ? 7 : 30;
+        nextD.setDate(nextD.getDate() + days);
+
+        Database.run(
+          'UPDATE scheduled_procurements SET last_executed_at = ?, next_delivery_date = ?, updated_at = ? WHERE id = ?',
+          [now, nextD.toISOString().split('T')[0], now, id]
+        );
+      });
+
+      res.json({
+        success: true,
+        message: 'Scheduled delivery executed and order placed successfully',
+        data: {
+          order_id: orderId,
+          order_number: orderNum,
+        },
+        order_id: orderId,
+        order_number: orderNum
+      });
     } catch (err) {
       next(err);
     }
@@ -298,14 +575,14 @@ export class AdvancedController {
       const plans = [
         { id: 'free', name: 'Free Kisan', priceMonthly: 0, maxListings: 10, features: ['10 Active Produce Listings', 'Local Consumer Chat', 'Standard Mandi Bhav'] },
         { id: 'kisan_mitra', name: 'Kisan Mitra (Basic)', priceMonthly: 199, maxListings: 25, features: ['25 Active Listings', 'SMS & WhatsApp Order Alerts', 'Direct Wholesale B2B', 'Zero Commission Boost'] },
-        { id: 'kisan_samridhi', name: 'Kisan Samridhi (Pro)', priceMonthly: 499, maxListings: 50, features: ['50 Active Listings', 'Top Placement on Customer Feed', 'B2B Wholesale Quotations', 'Dedicated Logistics Priority', 'Custom Farm Branding'] },
-        { id: 'fpo_business', name: 'FPO / Cooperative Enterprise', priceMonthly: 999, maxListings: 200, features: ['Unlimited / 200 Listings', 'Multi-farmer aggregate packing', 'Custom Mandi Intelligence reports', 'Direct corporate procurement contracts'] }
+        { id: 'samridhi', name: 'Samridhi (Professional)', priceMonthly: 499, maxListings: 100, features: ['100 Active Listings', 'Cold Storage Logistics Booking', 'Custom Farm Storefront', 'Dedicated Account Manager'] },
+        { id: 'fpo_enterprise', name: 'FPO / Cooperative Pro', priceMonthly: 1499, maxListings: 500, features: ['500 Active Listings', 'Multi-Farmer Aggregation', 'Direct Institution B2B Contracts', 'Export Quality Labeling'] }
       ];
 
       res.json({
         success: true,
         data: {
-          currentSubscription: sub || { plan_id: 'free', plan_name: 'Free Kisan', status: 'active', max_listings: 10 },
+          currentSubscription: sub || { plan_tier: 'free', status: 'active', auto_renew: 1 },
           availablePlans: plans
         }
       });
@@ -317,44 +594,27 @@ export class AdvancedController {
   // POST /api/v1/advanced/subscriptions
   static upgradeSubscription(req: Request, res: Response, next: NextFunction) {
     try {
-      const { farmerId, planId } = req.body;
-      if (!farmerId || !planId) {
-        throw AppError.badRequest('farmerId and planId are required');
+      const { farmer_id, plan_tier } = req.body;
+      if (!farmer_id || !plan_tier) {
+        throw AppError.badRequest('farmer_id and plan_tier are required');
       }
 
-      const planMap: Record<string, { name: string; price: number; maxListings: number }> = {
-        free: { name: 'Free Kisan', price: 0, maxListings: 10 },
-        kisan_mitra: { name: 'Kisan Mitra (Basic)', price: 199, maxListings: 25 },
-        kisan_samridhi: { name: 'Kisan Samridhi (Pro)', price: 499, maxListings: 50 },
-        fpo_business: { name: 'FPO / Cooperative Enterprise', price: 999, maxListings: 200 }
-      };
-
-      const selected = planMap[planId];
-      if (!selected) throw AppError.badRequest('Invalid subscription planId');
-
       const id = 'sub-' + Date.now();
-      const now = new Date().toISOString();
-      const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const now = new Date();
+      const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       Database.transaction(() => {
-        // Expire previous subscriptions
-        Database.run("UPDATE farmer_subscriptions SET status = 'expired' WHERE farmer_id = ?", [farmerId]);
-
-        // Insert new active subscription
+        Database.run("UPDATE farmer_subscriptions SET status = 'cancelled' WHERE farmer_id = ?", [farmer_id]);
         Database.run(
           `INSERT INTO farmer_subscriptions (
-            id, farmer_id, plan_id, plan_name, price_monthly, max_listings,
-            features_json, status, start_date, end_date, payment_reference, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, '{"active":true}', 'active', ?, ?, ?, ?)`,
-          [id, farmerId, planId, selected.name, selected.price, selected.maxListings, now, endDate, 'UPI-SUB-' + Date.now(), now]
+            id, farmer_id, plan_tier, billing_cycle, start_date, next_billing_date, auto_renew, status, created_at, updated_at
+          ) VALUES (?, ?, ?, 'monthly', ?, ?, 1, 'active', ?, ?)`,
+          [id, farmer_id, plan_tier, now.toISOString().split('T')[0], nextMonth, now.toISOString(), now.toISOString()]
         );
       });
 
-      res.status(201).json({
-        success: true,
-        message: `Plan upgraded to ${selected.name} successfully!`,
-        plan: selected
-      });
+      const updated = Database.get('SELECT * FROM farmer_subscriptions WHERE id = ?', [id]);
+      res.json({ success: true, message: `Upgraded to ${plan_tier} plan!`, data: updated });
     } catch (err) {
       next(err);
     }

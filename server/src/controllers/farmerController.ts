@@ -222,6 +222,14 @@ export class FarmerController {
   static async addCrop(req: Request, res: Response, next: NextFunction) {
     try {
       const farmerId = req.params.id;
+      const farmer = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [farmerId]);
+      if (!farmer) {
+        return res.status(404).json({ success: false, error: { message: 'Farmer profile not found' } });
+      }
+      if ((req as any).user.role !== 'admin' && farmer.user_id !== (req as any).user.id) {
+        return res.status(403).json({ success: false, error: { message: "You are not authorized to modify another farmer's crops" } });
+      }
+
       const { crop_name, season, sowing_date, expected_harvest_date, estimated_yield_kg, farming_method, certifications } = req.body;
 
       if (!crop_name || !season || !sowing_date || !expected_harvest_date) {
@@ -254,6 +262,15 @@ export class FarmerController {
   static async updateCrop(req: Request, res: Response, next: NextFunction) {
     try {
       const { cropId } = req.params;
+      const crop = Database.get<any>('SELECT * FROM farm_crops WHERE id = ?', [cropId]);
+      if (!crop) {
+        return res.status(404).json({ success: false, error: { message: 'Crop not found in calendar' } });
+      }
+      const farmer = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [crop.farmer_id]);
+      if ((req as any).user.role !== 'admin' && farmer?.user_id !== (req as any).user.id) {
+        return res.status(403).json({ success: false, error: { message: 'You are not authorized to modify this crop' } });
+      }
+
       const { status, estimated_yield_kg, expected_harvest_date } = req.body;
       const now = new Date().toISOString();
 
@@ -277,6 +294,15 @@ export class FarmerController {
   static async deleteCrop(req: Request, res: Response, next: NextFunction) {
     try {
       const { cropId } = req.params;
+      const crop = Database.get<any>('SELECT * FROM farm_crops WHERE id = ?', [cropId]);
+      if (!crop) {
+        return res.status(404).json({ success: false, error: { message: 'Crop not found in calendar' } });
+      }
+      const farmer = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [crop.farmer_id]);
+      if ((req as any).user.role !== 'admin' && farmer?.user_id !== (req as any).user.id) {
+        return res.status(403).json({ success: false, error: { message: 'You are not authorized to delete this crop' } });
+      }
+
       Database.run('DELETE FROM farm_crops WHERE id = ?', [cropId]);
       res.json({ success: true, message: 'Crop removed from calendar' });
     } catch (err) {

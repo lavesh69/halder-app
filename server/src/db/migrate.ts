@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { Database } from './database';
 
@@ -43,6 +43,45 @@ export function runMigrations() {
     }
     if (!prodColNames.includes('stock_alert_threshold')) {
       db.exec(`ALTER TABLE products ADD COLUMN stock_alert_threshold REAL DEFAULT 5`);
+    }
+
+    // Reports table enhancements (Grievances, Categories, Orders Linkage, Priority, Resolution)
+    const reportCols = db.prepare(`PRAGMA table_info(reports)`).all() as any[];
+    const reportColNames = reportCols.map((c) => c.name);
+    if (!reportColNames.includes('order_id')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN order_id TEXT DEFAULT NULL`);
+    }
+    if (!reportColNames.includes('category')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN category TEXT DEFAULT 'general'`);
+    }
+    if (!reportColNames.includes('priority')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN priority TEXT DEFAULT 'medium'`);
+    }
+    if (!reportColNames.includes('assigned_admin_id')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN assigned_admin_id TEXT DEFAULT NULL`);
+    }
+    if (!reportColNames.includes('resolution_notes')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN resolution_notes TEXT DEFAULT ''`);
+    }
+    if (!reportColNames.includes('resolution_reason')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN resolution_reason TEXT DEFAULT ''`);
+    }
+    if (!reportColNames.includes('evidence_url')) {
+      db.exec(`ALTER TABLE reports ADD COLUMN evidence_url TEXT DEFAULT ''`);
+    }
+
+    // Group Buys creator_id enhancement
+    const gbCols = db.prepare(`PRAGMA table_info(group_buys)`).all() as any[];
+    const gbColNames = gbCols.map((c) => c.name);
+    if (!gbColNames.includes('creator_id')) {
+      db.exec(`ALTER TABLE group_buys ADD COLUMN creator_id TEXT DEFAULT NULL`);
+    }
+
+    // Scheduled Procurements last_executed_at enhancement
+    const spCols = db.prepare(`PRAGMA table_info(scheduled_procurements)`).all() as any[];
+    const spColNames = spCols.map((c) => c.name);
+    if (!spColNames.includes('last_executed_at')) {
+      db.exec(`ALTER TABLE scheduled_procurements ADD COLUMN last_executed_at TEXT DEFAULT NULL`);
     }
   } catch (err: any) {
     console.warn('[Migration] Notice on orders/products columns migration:', err.message);

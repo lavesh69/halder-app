@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 
@@ -158,6 +158,24 @@ export class MandiController {
     }
   }
 
+  // GET /api/v1/mandi/export (CSV export)
+  static exportCsv(req: Request, res: Response, next: NextFunction) {
+    try {
+      const records = Database.query<any>('SELECT * FROM mandi_prices ORDER BY price_date DESC, crop_name ASC');
+      let csv = 'ID,Crop Name,Commodity,Variety,State,District,Market Name,Min Price (INR/kg),Max Price (INR/kg),Modal Price (INR/kg),Arrival (Tonnes),Date,Source,Last Updated\n';
+
+      for (const r of records) {
+        csv += `"${r.id}","${r.crop_name}","${r.commodity}","${r.variety || ''}","${r.state}","${r.district}","${r.market_name}",${r.min_price},${r.max_price},${r.modal_price},${r.arrival_quantity_tonnes || 0},"${r.price_date}","${(r.source || '').replace(/"/g, '""')}","${r.updated_at}"\n`;
+      }
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="halder-mandi-bhav.csv"');
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // POST /api/v1/mandi/prices (Admin entry)
   static addPriceRecord(req: Request, res: Response, next: NextFunction) {
     try {
@@ -168,6 +186,18 @@ export class MandiController {
 
       if (!crop_name || !commodity || !state || !district || !market_name || min_price == null || max_price == null || modal_price == null) {
         throw AppError.badRequest('All mandi price fields (crop, commodity, state, district, market, min, max, modal) are required');
+      }
+
+      const min = Number(min_price);
+      const max = Number(max_price);
+      const modal = Number(modal_price);
+
+      if (isNaN(min) || isNaN(max) || isNaN(modal) || min <= 0 || max <= 0 || modal <= 0) {
+        throw AppError.badRequest('Mandi prices must be valid numbers greater than zero');
+      }
+
+      if (min > modal || modal > max) {
+        throw AppError.badRequest('Invalid mandi price spread: min_price <= modal_price <= max_price required');
       }
 
       const id = 'mandi-' + Date.now();
@@ -182,7 +212,7 @@ export class MandiController {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
         [
           id, crop_name, commodity, variety || 'Local', state, district, market_name,
-          Number(min_price), Number(max_price), Number(modal_price),
+          min, max, modal,
           Number(arrival_quantity_tonnes || 10.0), dateVal, source || 'Admin APMC Verification',
           now, now
         ]

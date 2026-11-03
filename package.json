@@ -24,6 +24,7 @@
     "server:multi-gateway": "node --import tsx server/tests/multi_gateway_payment.test.ts",
     "server:production": "node --import tsx server/tests/production_phases.test.ts",
     "server:e2e": "node --import tsx server/tests/e2e_journey.ts",
+    "server:comprehensive": "node --import tsx server/tests/comprehensive_modules.test.ts",
     "server:backup": "node --import tsx server/scripts/backup.ts",
     "cap:sync": "cap sync android",
     "cap:open": "cap open android",

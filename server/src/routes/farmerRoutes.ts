@@ -24,6 +24,7 @@ router.post('/:id/payout', authenticateUser, FarmerController.recordPayout);
 router.get('/:id/crops', optionalAuth, FarmerController.getCrops);
 router.post('/:id/crops', authenticateUser, requireFarmer, FarmerController.addCrop);
 router.patch('/:id/crops/:cropId', authenticateUser, requireFarmer, FarmerController.updateCrop);
+router.put('/:id/crops/:cropId', authenticateUser, requireFarmer, FarmerController.updateCrop);
 router.delete('/:id/crops/:cropId', authenticateUser, requireFarmer, FarmerController.deleteCrop);
 
 // Business Insights (Module 2)

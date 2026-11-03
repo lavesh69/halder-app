@@ -1,4 +1,4 @@
-﻿import { Database } from '../db/database';
+import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
@@ -372,6 +372,22 @@ export class ProductService {
     if (updates.status !== undefined) {
       fields.push('status = ?');
       values.push(updates.status);
+    }
+    if (updates.moderationStatus !== undefined || updates.moderation_status !== undefined) {
+      fields.push('moderation_status = ?');
+      values.push(updates.moderationStatus || updates.moderation_status);
+    }
+    if (updates.wholesalePrice !== undefined || updates.wholesale_price !== undefined) {
+      fields.push('wholesale_price = ?');
+      values.push(updates.wholesalePrice ?? updates.wholesale_price);
+    }
+    if (updates.moq !== undefined) {
+      fields.push('moq = ?');
+      values.push(updates.moq);
+    }
+    if (updates.stockAlertThreshold !== undefined || updates.stock_alert_threshold !== undefined) {
+      fields.push('stock_alert_threshold = ?');
+      values.push(updates.stockAlertThreshold ?? updates.stock_alert_threshold);
     }
     if (updates.image !== undefined) {
       fields.push('image = ?');

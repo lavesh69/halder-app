@@ -105,6 +105,7 @@ export const AdminDashboard: React.FC = () => {
   // Real-time server states
   const [pendingKyc, setPendingKyc] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [serverReports, setServerReports] = useState<any[]>([]);
   const [killSwitchStates, setKillSwitchStates] = useState<Record<string, boolean>>({
     ai_advisory: true,
     chat: true,
@@ -205,12 +206,20 @@ export const AdminDashboard: React.FC = () => {
   // Orders Sub-tab & Disputes Management
   const [ordersSubTab, setOrdersSubTab] = useState<'orders' | 'disputes'>('orders');
 
-  const handleApproveDisputeRefund = (disputeId: string) => {
+  const handleApproveDisputeRefund = async (disputeId: string) => {
     resolveDispute(disputeId, 'refund', 'Refund approved by Admin. Instant UPI credit processed.');
+    await ApiClient.updateReportStatus(disputeId, {
+      status: 'resolved',
+      resolutionNotes: 'Refund approved by Admin. Instant UPI credit processed.'
+    }).catch(() => {});
   };
 
-  const handleDismissDispute = (disputeId: string) => {
+  const handleDismissDispute = async (disputeId: string) => {
     resolveDispute(disputeId, 'dismiss', 'Dismissed by Admin after review.');
+    await ApiClient.updateReportStatus(disputeId, {
+      status: 'dismissed',
+      resolutionNotes: 'Dismissed by Admin after review.'
+    }).catch(() => {});
   };
 
   // New Category Form
@@ -243,12 +252,14 @@ export const AdminDashboard: React.FC = () => {
       setDeliveryTasks(tasksRes || []);
 
       // 5. Financial Dashboard & Transactions (Module 6)
-      const [finRes, txRes] = await Promise.all([
+      const [finRes, txRes, repRes] = await Promise.all([
         ApiClient.getFinancialDashboard().catch(() => null),
         ApiClient.getFinancialTransactions({ limit: 50 }).catch(() => []),
+        ApiClient.getAdminReports().catch(() => null),
       ]);
       if (finRes) setFinancialDashboard(finRes);
       setFinancialTransactions(txRes || []);
+      if (Array.isArray(repRes)) setServerReports(repRes);
     } catch (e: any) {
       console.warn('[AdminDashboard] Server data refresh warning:', e.message);
     } finally {

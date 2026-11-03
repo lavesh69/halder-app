@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { ApiClient } from '../../api/client';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { StatusBadge } from '../common/StatusBadge';
 import { InvoiceModal } from '../common/InvoiceModal';
@@ -61,6 +62,7 @@ export const CustomerOrdersView: React.FC = () => {
   const handleConfirmDispute = (e: React.FormEvent) => {
     e.preventDefault();
     if (!disputeOrder) return;
+    const details = disputeDetails || 'Produce received does not meet organic grade quality.';
     raiseDispute({
       orderId: disputeOrder.id,
       orderNumber: disputeOrder.orderNumber,
@@ -69,9 +71,19 @@ export const CustomerOrdersView: React.FC = () => {
       customerName: disputeOrder.customerName,
       customerPhone: disputeOrder.customerPhone,
       category: disputeCategory,
-      details: disputeDetails || 'Produce received does not meet organic grade quality.',
+      details,
       amount: disputeOrder.total,
     });
+
+    // Also persist ticket in backend support registry
+    ApiClient.submitReport({
+      orderId: disputeOrder.id,
+      category: disputeCategory,
+      priority: 'high',
+      reason: disputeCategory,
+      description: details,
+    }).catch(() => {});
+
     setDisputeOrder(null);
     setDisputeDetails('');
   };

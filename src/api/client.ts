@@ -485,11 +485,48 @@ export class ApiClient {
     return res.data;
   }
 
-  // Reports API
-  static async submitReport(data: { productId?: string; reportedUserId?: string; reason: string; description?: string }): Promise<any> {
+  // Reports & Support Grievances API
+  static async submitReport(data: {
+    orderId?: string;
+    productId?: string;
+    reportedUserId?: string;
+    category?: string;
+    priority?: string;
+    reason: string;
+    description?: string;
+    evidenceUrl?: string;
+  }): Promise<any> {
     const res = await this.request<any>('/reports', {
       method: 'POST',
       body: data,
+    });
+    return res.data;
+  }
+
+  static async getMyReports(): Promise<any[]> {
+    const res = await this.request<any>('/reports/my');
+    return res.data;
+  }
+
+  static async getAdminReports(params?: { status?: string; category?: string; priority?: string }): Promise<any[]> {
+    const res = await this.request<any>('/reports', {
+      params,
+    });
+    return res.data;
+  }
+
+  static async updateReportStatus(
+    id: string,
+    updates: {
+      status?: string;
+      resolutionNotes?: string;
+      resolutionReason?: string;
+      assignedAdminId?: string;
+    }
+  ): Promise<any> {
+    const res = await this.request<any>(`/reports/${id}/status`, {
+      method: 'PATCH',
+      body: updates,
     });
     return res.data;
   }
@@ -715,6 +752,10 @@ export class ApiClient {
     return this.request<any[]>('/mandi/prices', { params });
   }
 
+  static exportMandiCsvUrl(): string {
+    return `${BASE_URL}/mandi/export`;
+  }
+
   static async getMandiAnalytics(): Promise<any> {
     return this.request<any>('/mandi/analytics');
   }
@@ -843,10 +884,34 @@ export class ApiClient {
     return this.request<any[]>('/advanced/group-buys');
   }
 
+  static async getMyGroupBuys(): Promise<any[]> {
+    return this.request<any[]>('/advanced/group-buys/my');
+  }
+
+  static async createGroupBuy(data: {
+    product_id: string;
+    title: string;
+    target_quantity: number;
+    discounted_price: number;
+    min_buyers_count?: number;
+    duration_hours?: number;
+  }): Promise<any> {
+    return this.request<any>('/advanced/group-buys', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
   static async joinGroupBuy(id: string, quantity: number): Promise<any> {
     return this.request<any>(`/advanced/group-buys/${id}/join`, {
       method: 'POST',
       body: { quantity },
+    });
+  }
+
+  static async leaveGroupBuy(id: string): Promise<any> {
+    return this.request<any>(`/advanced/group-buys/${id}/leave`, {
+      method: 'POST',
     });
   }
 
@@ -861,10 +926,29 @@ export class ApiClient {
     });
   }
 
+  static async updateScheduledProcurement(id: string, data: { quantity?: number; frequency?: string; delivery_time_slot?: string; delivery_address?: string }): Promise<any> {
+    return this.request<any>(`/advanced/procurements/${id}`, {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
   static async updateScheduledProcurementStatus(id: string, status: string): Promise<any> {
     return this.request<any>(`/advanced/procurements/${id}/status`, {
       method: 'PATCH',
       body: { status },
+    });
+  }
+
+  static async skipScheduledProcurement(id: string): Promise<any> {
+    return this.request<any>(`/advanced/procurements/${id}/skip`, {
+      method: 'POST',
+    });
+  }
+
+  static async executeScheduledProcurement(id: string): Promise<any> {
+    return this.request<any>(`/advanced/procurements/${id}/execute`, {
+      method: 'POST',
     });
   }
 
