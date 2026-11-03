@@ -27,10 +27,10 @@ External cloud staging and production deployment are honestly categorized as **B
 | **Release APK** | `android/app/build/outputs/apk/release/app-release.apk` | Signed v2 Scheme | **PASS** | 3,542,651 bytes, SHA-256 `A342AE...`, verified via `apksigner`. |
 | **Release AAB** | `android/app/build/outputs/bundle/release/app-release.aab` | Google Play Bundle | **PASS** | 3,400,460 bytes, SHA-256 `EB104C...`, release signed. |
 | **Android Signing** | `android/app/halder-release.jks` | RSA 2048-bit | **PASS** | Certificate DN: `CN=Halder Production, OU=Engineering, O=Halder Mandi Direct, L=Dehradun, ST=Uttarakhand, C=IN`. |
-| **CI/CD Test Suite** | GitHub Actions `ci.yml` | Full Test Automation | **PASS** | Run 41600717863: Build, lint, and all non-payment test suites passing. |
-| **CI/CD Mobile Build** | GitHub Actions `build-apk.yml` | Build & Artifact Upload | **PASS** | Run 41600717827: Android Debug APK & Release AAB built successfully on Ubuntu with Java 21. |
-| **APK Artifact (GitHub)** | `HALDER-v1.0-debug-APK` | 30-Day Retention | **PASS** | Artifact ID `13213934426` (4.1 MB) uploaded to GitHub Actions. |
-| **AAB Artifact (GitHub)** | `HALDER-v1.0-release-AAB` | 30-Day Retention | **PASS** | Artifact ID `13214282640` (3.2 MB) uploaded to GitHub Actions. |
+| **CI/CD Test Suite** | GitHub Actions `ci.yml` | Full Test Automation | **PASS** | Run 41631538867: Build, lint, and all non-payment test suites passing. |
+| **CI/CD Mobile Build** | GitHub Actions `build-apk.yml` | Build & Artifact Upload | **PASS** | Run 41631538860: Android Debug APK & Release AAB built successfully on Ubuntu with Java 21. |
+| **APK Artifact (GitHub)** | `HALDER-v1.0-debug-APK` | 30-Day Retention | **PASS** | Artifact ID `13228052851` (4.1 MB) uploaded to GitHub Actions. |
+| **AAB Artifact (GitHub)** | `HALDER-v1.0-release-AAB` | 30-Day Retention | **PASS** | Artifact ID `13227664582` (3.2 MB) uploaded to GitHub Actions. |
 | **Staging Deployment** | Cloud Staging Server | Remote Hosting | **BLOCKED** | No cloud hosting credentials configured (documented in `HALDER_STAGING_DEPLOYMENT_REPORT.md`). |
 | **Staging Smoke Tests** | Remote Staging APIs | Endpoint Verification | **BLOCKED** | Prerequisite staging server not yet provisioned. |
 | **Local Smoke Tests** | `http://localhost:5000/api/v1/*` | Health & RBAC Gates | **PASS** | Health (200), Ready (200), Products (200), Orders (401 unauth), Admin (401 unauth). |

@@ -53,17 +53,17 @@ Cryptographic verification performed via Android SDK `apksigner verify --verbose
 
 - **Workflow File:** `.github/workflows/build-apk.yml`
 - **Workflow Name:** `Build HALDER Android APK & Release AAB`
-- **Workflow Run ID:** `41600717827`
+- **Workflow Run ID:** `41631538860`
 - **Workflow Run Status:** **SUCCESS**
-- **Workflow Run URL:** https://github.com/lavesh69/halder-app/actions/runs/41600717827
+- **Workflow Run URL:** https://github.com/lavesh69/halder-app/actions/runs/41631538860
 - **Artifact Retention:** 30 Days
 
 ### Uploaded Release Artifacts (Publicly Downloadable):
 
 | Artifact Name | Artifact ID | Size on GitHub | Status |
 |---|---|---|---|
-| **`HALDER-v1.0-debug-APK`** | `13213934426` | 4,107,865 bytes (3.92 MB) | **AVAILABLE (30-day retention)** |
-| **`HALDER-v1.0-release-AAB`** | `13214282640` | 3,214,330 bytes (3.07 MB) | **AVAILABLE (30-day retention)** |
+| **`HALDER-v1.0-debug-APK`** | `13228052851` | 4,107,860 bytes (3.92 MB) | **AVAILABLE (30-day retention)** |
+| **`HALDER-v1.0-release-AAB`** | `13227664582` | 3,214,330 bytes (3.07 MB) | **AVAILABLE (30-day retention)** |
 
 ---
 
