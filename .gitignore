@@ -56,3 +56,5 @@ cloudflared.exe
 *.sln
 *.sw?
 
+
+.vercel

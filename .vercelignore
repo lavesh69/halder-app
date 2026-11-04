@@ -1,0 +1,12 @@
+# Vercel Deployment Ignore List
+android/
+server/backups/
+server/halder.db*
+*.db
+*.db-wal
+*.db-shm
+*.apk
+*.aab
+.github/
+dist/
+node_modules/
