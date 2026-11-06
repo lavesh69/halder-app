@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B7E36A"/><stop offset="1" stop-color="#48A83B"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D783"/><stop offset="1" stop-color="#DDAA43"/></linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="210" fill="#F7F6EC"/>
+  <circle cx="600" cy="470" r="310" fill="#173F2B"/>
+  <path d="M365 625 C355 475 455 315 620 255 C650 410 570 585 415 650 Z" fill="url(#leaf)"/>
+  <path d="M405 624 C470 520 535 430 617 331" fill="none" stroke="#F7F6EC" stroke-width="18" stroke-linecap="round"/>
+  <path d="M604 628 C625 485 755 390 870 395 C852 542 745 644 604 670 Z" fill="#78C45A"/>
+  <path d="M627 640 C700 555 770 492 840 444" fill="none" stroke="#173F2B" stroke-width="15" stroke-linecap="round"/>
+  <path d="M310 670 Q600 830 890 670" fill="none" stroke="url(#gold)" stroke-width="25" stroke-linecap="round"/>
+  <path d="M390 710 Q600 815 810 710" fill="none" stroke="#F7F6EC" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+  <text x="600" y="930" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="800" letter-spacing="12" fill="#173F2B">HALDER</text>
+  <text x="600" y="1010" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="600" letter-spacing="9" fill="#65805B">FARM TO YOU · FRESH EVERY DAY</text>
+</svg>
