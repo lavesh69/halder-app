@@ -25,14 +25,14 @@ const categories: ProductCategory[] = [
 ];
 
 const categoryIcons: Record<string, string> = {
-  All: '??',
-  Vegetables: '??',
-  Fruits: '??',
-  'Leafy Greens': '??',
-  Grains: '??',
-  Dairy: '??',
-  'Homemade Food': '??',
-  Other: '??',
+  All: '🌱',
+  Vegetables: '🥕',
+  Fruits: '🍎',
+  'Leafy Greens': '🥬',
+  Grains: '🌾',
+  Dairy: '🥛',
+  'Homemade Food': '🍯',
+  Other: '📦',
 };
 
 export const CustomerHome: React.FC = () => {
@@ -66,7 +66,7 @@ export const CustomerHome: React.FC = () => {
       {/* Greeting Header */}
       <div className="space-y-1">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-          <span>Good morning ??</span>
+          <span>Good morning ☀️</span>
         </div>
         <h2 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
           Fresh Farm Harvest
@@ -119,8 +119,8 @@ export const CustomerHome: React.FC = () => {
               Harvested at 5 AM today from local farms within 10 km.
             </p>
           </div>
-          <div className="absolute -right-4 -bottom-4 text-7xl opacity-30 select-none">
-            ??
+          <div className="absolute -right-4 -bottom-4 text-7xl opacity-20 select-none">
+            🌾
           </div>
         </div>
       )}

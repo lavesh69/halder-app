@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/formatters';
 import { X, Printer, Download, CheckCircle2, ShieldCheck, Sprout } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface InvoiceModalProps {
   orderId: string | null;
@@ -52,13 +53,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ orderId, onClose }) 
           {/* Header */}
           <div className="flex items-start justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
             <div>
-              <div className="flex items-center gap-1.5 font-black text-xl text-emerald-800 dark:text-emerald-400 tracking-wider">
-                <span>HALDER</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                  Direct Mandi
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+              <Logo size="sm" showTagline />
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
                 Connecting local farmers directly with consumers • 0 Middlemen
               </p>
             </div>

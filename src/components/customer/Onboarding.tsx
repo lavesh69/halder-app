@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Sparkles, Loader2, RotateCcw, CheckCircle2, X } from 'lucide-react';
+import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Sparkles, Loader2, RotateCcw, CheckCircle2, X, ShoppingBag } from 'lucide-react';
 import { GoogleSignInButton } from '../common/GoogleSignInButton';
+import { Logo } from '../common/Logo';
 import { ApiClient } from '../../api/client';
 
 interface OnboardingProps {
@@ -130,8 +131,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               <X className="w-5 h-5" />
             </button>
           )}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" /> Welcome to HALDER
+          <div className="flex justify-center mb-1">
+            <Logo size="md" showTagline />
           </div>
           <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
             Sign In to Continue
@@ -153,11 +154,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                 onClick={() => setSelectedRole('customer')}
                 className={`p-4 rounded-2xl border text-center transition-all ${
                   selectedRole === 'customer'
-                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
                     : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
                 }`}
               >
-                <div className="text-2xl mb-1">??</div>
+                <div className="p-2 rounded-xl bg-emerald-100/60 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 w-fit mx-auto mb-1.5">
+                  <ShoppingBag className="w-6 h-6" />
+                </div>
                 <div className="font-bold text-sm">Customer</div>
                 <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                   Buy fresh farm food
@@ -169,11 +172,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                 onClick={() => setSelectedRole('farmer')}
                 className={`p-4 rounded-2xl border text-center transition-all ${
                   selectedRole === 'farmer'
-                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
                     : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
                 }`}
               >
-                <div className="text-2xl mb-1">??</div>
+                <div className="p-2 rounded-xl bg-amber-100/60 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 w-fit mx-auto mb-1.5">
+                  <Sprout className="w-6 h-6" />
+                </div>
                 <div className="font-bold text-sm">Farmer</div>
                 <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                   Sell your harvest
@@ -332,12 +337,29 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             }}
             className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all text-center block"
           >
-            ? Seedha Bazaar Dekhein (Explore as Guest)
+            🌱 Seedha Bazaar Dekhein (Explore as Guest)
           </button>
         </form>
 
         <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 pb-2">
-          By continuing, you agree to HALDER's Farmer Fair-Trade Terms & Privacy Policy
+          By continuing, you agree to HALDER's{' '}
+          <a
+            href="/terms.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold"
+          >
+            Fair-Trade Terms
+          </a>{' '}
+          &{' '}
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold"
+          >
+            Privacy Policy
+          </a>
         </p>
       </div>
     );
@@ -381,7 +403,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               onClick={() => loginUser('customer', '9876543210')}
               className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 px-3 py-1 rounded-full border border-emerald-500/30 transition-all"
             >
-              Skip ?
+              Skip →
             </button>
           )}
         </div>

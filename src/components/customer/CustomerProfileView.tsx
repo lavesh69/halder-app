@@ -25,6 +25,7 @@ import {
   Phone,
   Mail,
   X,
+  Sprout,
 } from 'lucide-react';
 
 import { PrivacyPolicyModal } from '../common/PrivacyPolicyModal';
@@ -232,7 +233,9 @@ export const CustomerProfileView: React.FC = () => {
         className="p-4 bg-linear-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="text-2xl">??</div>
+          <div className="p-2 rounded-xl bg-white/10 text-emerald-200">
+            <Sprout className="w-6 h-6" />
+          </div>
           <div>
             <h4 className="font-bold text-sm">{t('profile.switch_to_farmer')}</h4>
             <p className="text-xs text-emerald-100">

@@ -40,7 +40,7 @@ export function useAndroidHardware() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
-      showToast('Internet connection restored! ??', 'success');
+      showToast('Internet connection restored! 🌱', 'success');
     };
     const handleOffline = () => {
       setIsOffline(true);
