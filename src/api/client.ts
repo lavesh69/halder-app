@@ -3,7 +3,11 @@
  * Connects frontend UI to backend REST endpoints (/api/v1/...) with JWT auth and seamless error handling.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.origin
+    ? `${window.location.origin}/api/v1`
+    : 'http://localhost:5000/api/v1');
 
 export class ApiClient {
   private static getToken(): string | null {

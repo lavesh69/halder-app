@@ -1,4 +1,4 @@
-﻿import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync } from 'node:sqlite';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
@@ -7,11 +7,25 @@ let dbInstance: DatabaseSync | null = null;
 
 export function getDatabase(): DatabaseSync {
   if (!dbInstance) {
-    const dbDir = path.dirname(env.DB_PATH);
+    let dbPath = env.DB_PATH;
+
+    // Support Vercel serverless writable storage (/tmp)
+    if (process.env.VERCEL) {
+      const tmpPath = path.join('/tmp', 'halder.db');
+      if (!fs.existsSync(tmpPath)) {
+        const sourcePath = path.resolve(process.cwd(), 'server', 'halder.db');
+        if (fs.existsSync(sourcePath)) {
+          fs.copyFileSync(sourcePath, tmpPath);
+        }
+      }
+      dbPath = tmpPath;
+    }
+
+    const dbDir = path.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
-    dbInstance = new DatabaseSync(env.DB_PATH);
+    dbInstance = new DatabaseSync(dbPath);
     dbInstance.exec('PRAGMA foreign_keys = ON;');
     dbInstance.exec('PRAGMA journal_mode = WAL;');
     dbInstance.exec('PRAGMA synchronous = NORMAL;');

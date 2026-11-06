@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: halder-backend-api
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    disk:
+      name: halder-data
+      mountPath: /opt/render/project/src/server/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_PATH
+        value: /opt/render/project/src/server/data/halder.db
+      - key: CORS_ORIGIN
+        value: https://halder-app.vercel.app,https://halder.in
+      - key: JWT_SECRET
+        generateValue: true
