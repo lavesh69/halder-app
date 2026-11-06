@@ -1,31 +1,19 @@
 {
-  "name": "HALDER – Farm to Market",
+  "name": "HALDER: Direct Mandi & Kisan",
   "short_name": "HALDER",
-  "description": "Fresh produce direct from local farmers to consumers and wholesale mandis.",
+  "description": "Direct farm-to-mandi agricultural marketplace connecting farmers directly with retail consumers and wholesale buyers.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F6F4E8",
-  "theme_color": "#0B3D2E",
-  "categories": ["business", "shopping", "food", "agriculture"],
+  "background_color": "#F7F9F6",
+  "theme_color": "#047857",
+  "categories": ["business", "shopping", "food"],
   "icons": [
     {
-      "src": "/brand/app/icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/brand/app/icon-512.svg",
-      "sizes": "512x512",
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 256x256 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/favicon.svg",
-      "sizes": "64x64",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ]
 }

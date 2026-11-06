@@ -1,94 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 130" fill="none" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" fill="none">
   <defs>
-    <linearGradient id="plSky" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFF8E7" />
-      <stop offset="60%" stop-color="#FEE7B8" />
-      <stop offset="100%" stop-color="#F9D48C" />
+    <linearGradient id="logoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
     </linearGradient>
-    <radialGradient id="plSun" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FFC107" />
-      <stop offset="70%" stop-color="#F4A017" />
-      <stop offset="100%" stop-color="#E28905" />
-    </radialGradient>
-    <linearGradient id="plMount" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2D6A4F" />
-      <stop offset="100%" stop-color="#1B4332" />
+    <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
     </linearGradient>
-    <linearGradient id="plFieldBack" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#388E3C" />
-      <stop offset="100%" stop-color="#1B5E20" />
+    <linearGradient id="logoSprout" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
     </linearGradient>
-    <linearGradient id="plFieldFront" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4CAF50" />
-      <stop offset="100%" stop-color="#2E7D32" />
-    </linearGradient>
-    <linearGradient id="plLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#A8E063" />
-      <stop offset="50%" stop-color="#56AB2F" />
-      <stop offset="100%" stop-color="#0B3D2E" />
-    </linearGradient>
-    <clipPath id="plBagInnerClip">
-      <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" />
-    </clipPath>
   </defs>
-
-  <!-- EMBLEM LOCKUP -->
-  <g transform="translate(6, 4) scale(1.08)">
-    <path d="M 44 32 C 44 16, 76 16, 76 32" stroke="#0B3D2E" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 45 32 C 45 18, 75 18, 75 32" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" fill="none" />
-    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" fill="#F6F4E8" stroke="#0B3D2E" stroke-width="4.5" stroke-linejoin="round" />
-    <g clip-path="url(#plBagInnerClip)">
-      <rect x="20" y="25" width="80" height="85" fill="url(#plSky)" />
-      <g opacity="0.35" stroke="#F4A017" stroke-width="1.5">
-        <line x1="60" y1="56" x2="30" y2="35" />
-        <line x1="60" y1="56" x2="42" y2="30" />
-        <line x1="60" y1="56" x2="60" y2="28" />
-        <line x1="60" y1="56" x2="78" y2="30" />
-        <line x1="60" y1="56" x2="90" y2="35" />
-      </g>
-      <circle cx="60" cy="56" r="13" fill="url(#plSun)" />
-      <polygon points="22,74 38,52 54,74" fill="url(#plMount)" opacity="0.85" />
-      <polygon points="46,74 66,48 86,74" fill="url(#plMount)" opacity="0.95" />
-      <polygon points="72,74 88,56 98,74" fill="url(#plMount)" opacity="0.8" />
-      <path d="M 22 72 Q 46 62 98 70 L 98 106 L 22 106 Z" fill="url(#plFieldBack)" />
-      
-      <g transform="translate(36, 63)">
-        <circle cx="2" cy="7" r="4.5" fill="#1B4332" />
-        <rect x="7" y="5" width="11" height="8" fill="#FFFFFF" stroke="#0B3D2E" stroke-width="0.8" />
-        <polygon points="5.5,5 12.5,0 19.5,5" fill="#D9534F" stroke="#0B3D2E" stroke-width="0.8" />
-        <rect x="11" y="8" width="3" height="5" fill="#0B3D2E" />
-        <rect x="8" y="7" width="2" height="2" fill="#F4A017" />
-        <circle cx="23" cy="7" r="4" fill="#2E7D32" />
-      </g>
-
-      <path d="M 22 83 Q 54 73 98 84 L 98 106 L 22 106 Z" fill="url(#plFieldFront)" />
-      <path d="M 22 88 Q 58 79 98 90" stroke="#A8E063" stroke-width="1.2" opacity="0.6" fill="none" />
-      <path d="M 46 104 C 54 94, 72 82, 92 68 C 91 82, 82 98, 62 104 Z" fill="url(#plLeaf)" stroke="#0B3D2E" stroke-width="1.2" />
-      <path d="M 54 102 Q 72 86 86 74" stroke="#A8E063" stroke-width="1.2" stroke-linecap="round" fill="none" />
-    </g>
-    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" stroke="#0B3D2E" stroke-width="4.5" fill="none" />
-    <circle cx="44" cy="33" r="2.2" fill="#F4A017" stroke="#0B3D2E" stroke-width="1" />
-    <circle cx="76" cy="33" r="2.2" fill="#F4A017" stroke="#0B3D2E" stroke-width="1" />
+  <!-- Icon Emblem -->
+  <g transform="translate(6, 6)">
+    <rect width="52" height="52" rx="14" fill="url(#logoBgGrad)" />
+    <!-- Stem -->
+    <path d="M26 38V18" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Left Leaf -->
+    <path d="M26 28C19 28 14 22 14 16C21 16 26 21 26 28Z" fill="url(#logoSprout)" />
+    <!-- Right Golden Leaf -->
+    <path d="M26 23C33 23 38 17 38 11C31 11 26 16 26 23Z" fill="url(#logoGold)" />
+    <!-- Sun Tip -->
+    <circle cx="26" cy="14" r="3" fill="#fef3c7" />
   </g>
-
-  <!-- WORDMARK -->
-  <g transform="translate(142, 20)">
-    <text x="0" y="44" font-family="'Montserrat', 'Inter', system-ui, sans-serif" font-weight="900" font-size="44" letter-spacing="4" fill="#0B3D2E">
-      HALDER
-    </text>
-    <circle cx="218" cy="22" r="5" fill="#F4A017" />
-    <text x="2" y="66" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="13" letter-spacing="4.5" fill="#2E7D32">
-      FARM TO MARKET
-    </text>
-    <g transform="translate(0, 78)">
-      <rect x="0" y="0" width="306" height="24" rx="12" fill="#F6F4E8" stroke="#D8DFD5" stroke-width="1" />
-      <text x="12" y="16" font-family="'Inter', system-ui, sans-serif" font-weight="600" font-size="9" fill="#0B3D2E">1. Farmers</text>
-      <circle cx="68" cy="12" r="1.5" fill="#F4A017" />
-      <text x="78" y="16" font-family="'Inter', system-ui, sans-serif" font-weight="600" font-size="9" fill="#0B3D2E">2. Fresh Produce</text>
-      <circle cx="152" cy="12" r="1.5" fill="#F4A017" />
-      <text x="162" y="16" font-family="'Inter', system-ui, sans-serif" font-weight="600" font-size="9" fill="#0B3D2E">3. Direct Delivery</text>
-      <circle cx="240" cy="12" r="1.5" fill="#F4A017" />
-      <text x="250" y="16" font-family="'Inter', system-ui, sans-serif" font-weight="800" font-size="9" fill="#2E7D32">4. You</text>
-    </g>
-  </g>
+  <!-- Wordmark -->
+  <text x="70" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" letter-spacing="3" fill="#064e3b">HALDER</text>
+  <!-- Tagline / Subtitle -->
+  <text x="71" y="50" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" letter-spacing="2.5" fill="#059669">DIRECT MANDI &amp; KISAN</text>
 </svg>

@@ -9,33 +9,27 @@ export default {
     extend: {
       colors: {
         halder: {
-          forest: '#0B3D2E',   /* Primary identity */
-          leaf: '#2E7D32',     /* Secondary identity */
-          lime: '#A8E063',     /* Freshness & highlights */
-          gold: '#F4A017',     /* Sunrise & premium accents */
-          cream: '#F6F4E8',    /* Main light backgrounds */
-          charcoal: '#17251D', /* Primary text */
-          white: '#FFFFFF',    /* Cards & contrast */
-          muted: '#EEF1EA',    /* Subtle backgrounds */
-          deep: '#07291F',
-          fresh: '#2E7D32',
+          forest: '#176B45',
+          deep: '#124C36',
+          fresh: '#2E8B57',
           soft: '#EAF5EE',
-          canvas: '#F6F4E8',
+          canvas: '#F7F9F6',
           surface: '#FFFFFF',
-          text: '#17251D',
-          secondary: '#4A5B52',
-          border: '#D8DFD5',
-          success: '#2E7D32',
-          warning: '#F4A017',
+          text: '#202923',
+          secondary: '#66736B',
+          muted: '#89948C',
+          border: '#E5EBE6',
+          success: '#238653',
+          warning: '#D99A32',
           danger: '#D9534F',
-          info: '#2B7A78',
-          darkBg: '#061B14',
-          darkCard: '#0B291F',
-          darkMuted: '#0F3327',
-          darkBorder: '#164635',
-          darkText: '#F6F4E8',
-          darkSecondary: '#A3B8AD',
-          darkMutedText: '#789083',
+          info: '#4285B8',
+          darkBg: '#0F1411',
+          darkCard: '#181F1A',
+          darkMuted: '#222B25',
+          darkBorder: '#29352D',
+          darkText: '#F2F5F3',
+          darkSecondary: '#A6B3AA',
+          darkMutedText: '#728277',
         },
         brand: {
           50: '#F0F7F3',
@@ -43,12 +37,12 @@ export default {
           200: '#CBE5D5',
           300: '#9BCEAF',
           400: '#5FB383',
-          500: '#2E7D32',
-          600: '#0B3D2E',
-          700: '#082E23',
-          800: '#062018',
-          900: '#041510',
-          950: '#020C09',
+          500: '#2E8B57',
+          600: '#176B45',
+          700: '#124C36',
+          800: '#0E3929',
+          900: '#0A2A1E',
+          950: '#051610',
         },
         primary: {
           light: '#EAF5EE',
@@ -77,8 +71,6 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        display: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
-        heading: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'soft': '0 2px 8px -1px rgba(18, 76, 54, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)',

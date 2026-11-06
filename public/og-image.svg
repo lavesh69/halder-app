@@ -1,90 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
   <defs>
-    <radialGradient id="pogBg" cx="20%" cy="30%" r="90%">
-      <stop offset="0%" stop-color="#124C36" />
-      <stop offset="50%" stop-color="#0B3D2E" />
-      <stop offset="100%" stop-color="#061B14" />
-    </radialGradient>
-    <clipPath id="pogClip">
-      <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" />
-    </clipPath>
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.12)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0.04)" />
+    </linearGradient>
   </defs>
 
-  <!-- Deep Forest Gradient Background -->
-  <rect width="1200" height="630" fill="url(#pogBg)" />
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#ogBg)" />
 
-  <path d="M -50 200 Q 600 80 1250 220" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
-  <path d="M -50 280 Q 600 160 1250 300" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
-  <path d="M -50 360 Q 600 240 1250 380" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
-  <path d="M -50 440 Q 600 320 1250 460" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
+  <!-- Background Decorative Rings -->
+  <circle cx="1050" cy="150" r="320" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+  <circle cx="1050" cy="150" r="220" stroke="rgba(255,255,255,0.08)" stroke-width="2" />
+  <circle cx="150" cy="520" r="280" stroke="rgba(255,255,255,0.05)" stroke-width="2" />
 
-  <!-- Left: Shopping Bag Master Artwork -->
-  <g transform="translate(100, 110) scale(2.8)">
-    <path d="M 44 32 C 44 16, 76 16, 76 32" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 45 32 C 45 18, 75 18, 75 32" stroke="#A8E063" stroke-width="2.5" stroke-linecap="round" fill="none" />
-    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" fill="#F6F4E8" stroke="#FFFFFF" stroke-width="4.5" stroke-linejoin="round" />
-    
-    <g clip-path="url(#pogClip)">
-      <rect x="20" y="25" width="80" height="85" fill="#FFF4D9" />
-      <circle cx="60" cy="56" r="13" fill="#F4A017" />
-      <polygon points="22,74 38,52 54,74" fill="#2D6A4F" />
-      <polygon points="46,74 66,48 86,74" fill="#1B4332" />
-      <path d="M 22 72 Q 46 62 98 70 L 98 106 L 22 106 Z" fill="#2E7D32" />
-      
-      <g transform="translate(36, 63)">
-        <circle cx="2" cy="7" r="4.5" fill="#1B4332" />
-        <rect x="7" y="5" width="11" height="8" fill="#FFFFFF" stroke="#0B3D2E" stroke-width="0.8" />
-        <polygon points="5.5,5 12.5,0 19.5,5" fill="#D9534F" stroke="#0B3D2E" stroke-width="0.8" />
-        <rect x="11" y="8" width="3" height="5" fill="#0B3D2E" />
-        <circle cx="23" cy="7" r="4" fill="#2E7D32" />
-      </g>
-
-      <path d="M 22 83 Q 54 73 98 84 L 98 106 L 22 106 Z" fill="#388E3C" />
-      <path d="M 46 104 C 54 94, 72 82, 92 68 C 91 82, 82 98, 62 104 Z" fill="#A8E063" stroke="#0B3D2E" stroke-width="1.2" />
-      <path d="M 54 102 Q 72 86 86 74" stroke="#0B3D2E" stroke-width="1.2" stroke-linecap="round" fill="none" />
-    </g>
-    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" stroke="#FFFFFF" stroke-width="4.5" fill="none" />
-    <circle cx="44" cy="33" r="2.2" fill="#F4A017" />
-    <circle cx="76" cy="33" r="2.2" fill="#F4A017" />
+  <!-- Brand Emblem (Large) -->
+  <g transform="translate(100, 100)">
+    <rect width="100" height="100" rx="28" fill="#10b981" />
+    <path d="M50 72V34" stroke="#a7f3d0" stroke-width="5" stroke-linecap="round" />
+    <path d="M50 54C37 54 28 42 28 30C41 30 50 40 50 54Z" fill="#34d399" />
+    <path d="M50 44C63 44 72 32 72 20C59 20 50 30 50 44Z" fill="url(#gold)" />
+    <circle cx="50" cy="24" r="6" fill="#fef3c7" />
   </g>
 
-  <!-- Right: Typography -->
-  <g transform="translate(490, 140)">
-    <rect x="0" y="0" width="320" height="36" rx="18" fill="#061B14" stroke="#155D44" stroke-width="1.5" />
-    <text x="160" y="23" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="13" fill="#A8E063" letter-spacing="2" text-anchor="middle">
-      INDIA'S DIRECT AGRI-MARKETPLACE
-    </text>
+  <!-- Brand Title -->
+  <text x="230" y="165" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="900" letter-spacing="8" fill="#ffffff">HALDER</text>
+  <text x="235" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" letter-spacing="4" fill="#a7f3d0">DIRECT MANDI &amp; KISAN</text>
 
-    <text x="0" y="115" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="80" letter-spacing="7" fill="#F6F4E8">
-      HALDER
-    </text>
-    <circle cx="395" cy="72" r="9" fill="#F4A017" />
+  <!-- Main Headline -->
+  <text x="100" y="290" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="800" fill="#ffffff">Farm-Fresh Produce Directly From Indian Farmers</text>
+  <text x="100" y="340" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="500" fill="#d1fae5">खेत से सीधे आपके घर • Zero Middlemen • 100% Fair Pricing</text>
 
-    <text x="4" y="155" font-family="'Inter', system-ui, sans-serif" font-weight="800" font-size="24" letter-spacing="6" fill="#A8E063">
-      FARM TO MARKET
-    </text>
+  <!-- Feature Cards Grid -->
+  <g transform="translate(100, 410)">
+    <!-- Card 1: Mandi Rates -->
+    <rect x="0" y="0" width="225" height="120" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.15)" />
+    <text x="24" y="44" font-size="26">🌾</text>
+    <text x="24" y="78" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="16" font-weight="700" fill="#ffffff">Live Mandi Rates</text>
+    <text x="24" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="12" fill="#a7f3d0">Daily APMC modal prices</text>
 
-    <text x="4" y="200" font-family="'Inter', system-ui, sans-serif" font-weight="400" font-size="20" fill="#E2E8F0" opacity="0.9">
-      Fresh Harvest Produce Direct from Local Farmers to Consumers &amp; Mandis
-    </text>
+    <!-- Card 2: AI Disease Scanner -->
+    <rect x="250" y="0" width="225" height="120" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.15)" />
+    <text x="274" y="44" font-size="26">📸</text>
+    <text x="274" y="78" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="16" font-weight="700" fill="#ffffff">AI Crop Scanner</text>
+    <text x="274" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="12" fill="#a7f3d0">Instant disease remedies</text>
 
-    <g transform="translate(0, 240)">
-      <rect x="0" y="0" width="620" height="52" rx="26" fill="#061B14" stroke="#155D44" stroke-width="1.5" />
-      <text x="75" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">1. Farmers</text>
-      <circle cx="155" cy="26" r="3" fill="#F4A017" />
-      <text x="235" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">2. Fresh Produce</text>
-      <circle cx="320" cy="26" r="3" fill="#F4A017" />
-      <text x="405" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">3. Direct Delivery</text>
-      <circle cx="500" cy="26" r="3" fill="#F4A017" />
-      <text x="560" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="900" font-size="15" fill="#A8E063" text-anchor="middle">4. You</text>
-    </g>
+    <!-- Card 3: B2B Wholesale -->
+    <rect x="500" y="0" width="225" height="120" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.15)" />
+    <text x="524" y="44" font-size="26">🤝</text>
+    <text x="524" y="78" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="16" font-weight="700" fill="#ffffff">B2B Wholesale</text>
+    <text x="524" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="12" fill="#a7f3d0">Bulk RFQ quotes &amp; deals</text>
 
-    <g transform="translate(4, 325)">
-      <text x="0" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F4A017">0% Middlemen Cut</text>
-      <text x="210" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F6F4E8">•</text>
-      <text x="235" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#A8E063">100% Provenance</text>
-      <text x="475" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F6F4E8">•</text>
-      <text x="500" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F4A017">Live APMC Mandi</text>
-    </g>
+    <!-- Card 4: Verified Logistics -->
+    <rect x="750" y="0" width="245" height="120" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.15)" />
+    <text x="774" y="44" font-size="26">🚚</text>
+    <text x="774" y="78" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="16" font-weight="700" fill="#ffffff">Direct Logistics</text>
+    <text x="774" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="12" fill="#a7f3d0">Doorstep delivery with OTP</text>
   </g>
+
+  <!-- URL Badge Bottom Right -->
+  <rect x="860" y="220" width="240" height="48" rx="24" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.2)" />
+  <text x="980" y="250" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">halder-app.vercel.app</text>
 </svg>

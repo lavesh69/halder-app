@@ -60,7 +60,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     return (
       <div
         onClick={handleCardClick}
-        className="shrink-0 w-64 p-3 bg-white dark:bg-[#0B291F] rounded-2xl border border-[#D8DFD5] dark:border-[#164635] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
+        className="shrink-0 w-64 p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
       >
         <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-[#F0F4F1] dark:bg-[#222B25]">
           <img
@@ -86,7 +86,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
         <div>
           <div className="flex items-baseline justify-between">
-            <span className="text-base font-black text-[#0B3D2E] dark:text-[#A8E063]">
+            <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
               {formatCurrency(product.price)}
               <span className="text-xs font-normal text-[#66736B] dark:text-[#A6B3AA]"> / {product.unit}</span>
             </span>
@@ -102,8 +102,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </button>
         </div>
 
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#D8DFD5] dark:border-[#164635]">
-          <span className="text-[11px] font-semibold text-[#0B3D2E] dark:text-[#A8E063]">
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#E5EBE6] dark:border-[#29352D]">
+          <span className="text-[11px] font-semibold text-[#176B45] dark:text-[#5FB383]">
             🟢 {product.availableQuantity} {product.unit} left
           </span>
           <button
@@ -111,7 +111,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               e.stopPropagation();
               addToCart(product, 1);
             }}
-            className="text-xs font-bold text-[#0B3D2E] dark:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0F3327] px-3 py-1.5 rounded-lg hover:bg-[#176B45] hover:text-white transition-colors flex items-center gap-1 active:scale-95"
+            className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] px-3 py-1.5 rounded-lg hover:bg-[#176B45] hover:text-white transition-colors flex items-center gap-1 active:scale-95"
           >
             <ShoppingBag className="w-3 h-3" />
             + Add
@@ -126,7 +126,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     return (
       <div
         onClick={handleCardClick}
-        className="bg-white dark:bg-[#0B291F] rounded-2xl border border-[#D8DFD5] dark:border-[#164635] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col overflow-hidden relative"
+        className="bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col overflow-hidden relative"
       >
         <div className="relative w-full aspect-[4/3] bg-[#F0F4F1] dark:bg-[#222B25] overflow-hidden">
           <img
@@ -195,7 +195,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <div>
             <div className="flex items-baseline justify-between gap-1">
               <div className="flex items-baseline gap-1">
-                <span className="text-base font-black text-[#0B3D2E] dark:text-[#A8E063]">
+                <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
                   {formatCurrency(product.price)}
                 </span>
                 <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA]">/ {product.unit}</span>
@@ -216,9 +216,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#D8DFD5] dark:border-[#164635] text-[10px]">
+          <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#E5EBE6] dark:border-[#29352D] text-[10px]">
             <span className="text-[#89948C]">{product.harvestDate || 'Fresh Harvest'}</span>
-            <span className="font-bold text-[#0B3D2E] dark:text-[#A8E063]">Stock: {product.availableQuantity}</span>
+            <span className="font-bold text-[#176B45] dark:text-[#5FB383]">Stock: {product.availableQuantity}</span>
           </div>
         </div>
       </div>
@@ -229,7 +229,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="p-3.5 bg-white dark:bg-[#0B291F] rounded-2xl border border-[#D8DFD5] dark:border-[#164635] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col sm:flex-row gap-3.5 relative overflow-hidden"
+      className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col sm:flex-row gap-3.5 relative overflow-hidden"
     >
       {/* Listing Photo */}
       <div className="relative w-full sm:w-48 aspect-[4/3] sm:aspect-[4/3] rounded-xl overflow-hidden bg-[#F0F4F1] dark:bg-[#222B25] shrink-0">
@@ -302,7 +302,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {/* Top Row: Price & Freshness Tag */}
           <div className="flex items-baseline justify-between gap-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-xl sm:text-2xl font-black text-[#0B3D2E] dark:text-[#A8E063]">
+              <span className="text-xl sm:text-2xl font-black text-[#176B45] dark:text-[#5FB383]">
                 {formatCurrency(product.price)}
               </span>
               <span className="text-xs font-semibold text-[#66736B] dark:text-[#A6B3AA]">
@@ -310,7 +310,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               </span>
             </div>
 
-            <span className="text-[10px] font-bold text-[#0B3D2E] dark:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0F3327] border border-[#176B45]/20 dark:border-[#2E8B57]/30 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] border border-[#176B45]/20 dark:border-[#2E8B57]/30 px-2 py-0.5 rounded-md">
               {product.freshnessTag}
             </span>
           </div>
@@ -327,7 +327,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               className="font-bold text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] truncate flex items-center gap-1"
             >
               <span>{product.farmerName}</span>
-              <ShieldCheck className="w-3.5 h-3.5 text-[#0B3D2E] dark:text-[#A8E063] shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
             </button>
             <span>•</span>
             <span className="truncate">{product.farmName}</span>
@@ -335,7 +335,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Available Quantity */}
           <div className="flex items-center gap-2 mt-2">
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0B3D2E] dark:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0F3327] px-2.5 py-1 rounded-lg">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] px-2.5 py-1 rounded-lg">
               <span className="w-1.5 h-1.5 rounded-full bg-[#2E8B57]" />
               Available: {product.availableQuantity} {product.unit}
             </span>
@@ -343,7 +343,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
 
         {/* Bottom Fast Action Buttons */}
-        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#D8DFD5] dark:border-[#164635]">
+        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#E5EBE6] dark:border-[#29352D]">
           <span className="text-[11px] text-[#89948C] truncate">
             📍 {product.location}
           </span>
@@ -356,7 +356,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               }}
               className="min-h-[44px] px-3.5 py-2 bg-[#F0F4F1] dark:bg-[#222B25] hover:bg-[#E5EBE6] dark:hover:bg-[#29352D] text-[#202923] dark:text-[#F2F5F3] text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 active:scale-95"
             >
-              <ShoppingBag className="w-4 h-4 text-[#0B3D2E] dark:text-[#A8E063]" />
+              <ShoppingBag className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
               <span>Cart</span>
             </button>
 

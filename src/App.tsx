@@ -156,7 +156,7 @@ export const MainApp: React.FC = () => {
   };
 
   const appContent = (
-    <div className="min-h-screen bg-[#F6F4E8] dark:bg-[#061B14] text-[#17251D] dark:text-[#F6F4E8] flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0F1411] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
       {/* Global Toast */}
       <Toast />
 
