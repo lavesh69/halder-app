@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && esbuild api/server.ts --bundle --platform=node --format=esm --target=node22 --outfile=api/index.js --external:node:sqlite --external:better-sqlite3",
+    "build": "tsc -b && vite build && esbuild api/server.ts --bundle --platform=node --format=esm --target=node22 --outfile=api/index.js --external:node:sqlite --external:better-sqlite3 \"--banner:js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
     "lint": "oxlint",
     "preview": "vite preview",
     "server": "node --import tsx server/src/server.ts",
