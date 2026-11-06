@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" fill="none">
+  <defs>
+    <linearGradient id="logoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="logoSprout" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  <!-- Icon Emblem -->
+  <g transform="translate(6, 6)">
+    <rect width="52" height="52" rx="14" fill="url(#logoBgGrad)" />
+    <!-- Stem -->
+    <path d="M26 38V18" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Left Leaf -->
+    <path d="M26 28C19 28 14 22 14 16C21 16 26 21 26 28Z" fill="url(#logoSprout)" />
+    <!-- Right Golden Leaf -->
+    <path d="M26 23C33 23 38 17 38 11C31 11 26 16 26 23Z" fill="url(#logoGold)" />
+    <!-- Sun Tip -->
+    <circle cx="26" cy="14" r="3" fill="#fef3c7" />
+  </g>
+  <!-- Wordmark -->
+  <text x="70" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" letter-spacing="3" fill="#064e3b">HALDER</text>
+  <!-- Tagline / Subtitle -->
+  <text x="71" y="50" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" letter-spacing="2.5" fill="#059669">DIRECT MANDI &amp; KISAN</text>
+</svg>

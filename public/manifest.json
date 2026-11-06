@@ -1,0 +1,19 @@
+{
+  "name": "HALDER: Direct Mandi & Kisan",
+  "short_name": "HALDER",
+  "description": "Direct farm-to-mandi agricultural marketplace connecting farmers directly with retail consumers and wholesale buyers.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F9F6",
+  "theme_color": "#047857",
+  "categories": ["business", "shopping", "food"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

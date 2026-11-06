@@ -12,45 +12,62 @@ export const Logo: React.FC<LogoProps> = ({
   className = '',
 }) => {
   const sizeClasses = {
-    sm: 'text-lg tracking-tight',
-    md: 'text-2xl tracking-tight',
-    lg: 'text-3xl tracking-tight',
-    xl: 'text-4xl tracking-tighter',
+    sm: 'text-base font-black tracking-wider',
+    md: 'text-xl font-black tracking-wider',
+    lg: 'text-2xl font-black tracking-wider',
+    xl: 'text-3xl font-black tracking-widest',
   };
 
-  const leafSizes = {
-    sm: 'w-4 h-4',
+  const badgeSizes = {
+    sm: 'w-6 h-6 rounded-lg',
+    md: 'w-8 h-8 rounded-xl',
+    lg: 'w-10 h-10 rounded-2xl',
+    xl: 'w-14 h-14 rounded-2xl',
+  };
+
+  const iconSizes = {
+    sm: 'w-3.5 h-3.5',
     md: 'w-5 h-5',
-    lg: 'w-7 h-7',
-    xl: 'w-9 h-9',
+    lg: 'w-6 h-6',
+    xl: 'w-8 h-8',
   };
 
   return (
-    <div className={`flex flex-col items-center select-none ${className}`}>
-      <div className="flex items-center gap-1.5 font-bold">
-        {/* Leaf/Sprout minimalist icon */}
-        <div className="relative flex items-center justify-center">
+    <div className={`flex flex-col items-start select-none ${className}`}>
+      <div className="flex items-center gap-2">
+        {/* Agricultural Sprout Shield */}
+        <div
+          className={`${badgeSizes[size]} bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-500 dark:to-emerald-700 flex items-center justify-center shadow-sm shrink-0`}
+        >
           <svg
-            className={`${leafSizes[size]} text-emerald-600 dark:text-emerald-400 transition-colors duration-200`}
+            className={`${iconSizes[size]} text-white`}
             viewBox="0 0 24 24"
-            fill="currentColor"
+            fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11.1 17.65C8.95 16.95 7.6 14.85 7.9 12.6C8.2 10.35 10.15 8.7 12.4 8.85C14.65 9 16.3 10.95 16.15 13.2C16 15.45 13.25 18.35 11.1 17.65Z" opacity="0.2"/>
-            <path d="M6.2 14.5C6.2 10.36 9.56 7 13.7 7C14.7 7 15.65 7.2 16.5 7.55C16.85 8.4 17.05 9.35 17.05 10.35C17.05 14.49 13.69 17.85 9.55 17.85C8.3 17.85 7.15 17.55 6.2 17C6.2 16.15 6.2 15.35 6.2 14.5Z" />
-            <path d="M10 16C10 12.5 12.5 9.5 16 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 21V11" stroke="#A7F3D0" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 16C7.5 16 5 12 5 7C9.5 7 12 11 12 16Z" fill="#34D399" />
+            <path d="M12 13C16.5 13 19 9 19 4C14.5 4 12 8 12 13Z" fill="#FBBF24" />
+            <circle cx="12" cy="7" r="1.5" fill="#FEF3C7" />
           </svg>
         </div>
-        <span
-          className={`font-black tracking-widest text-zinc-900 dark:text-white ${sizeClasses[size]}`}
-          style={{ letterSpacing: '0.12em' }}
-        >
-          HALDER
-        </span>
+
+        <div className="flex flex-col leading-none">
+          <span
+            className={`text-zinc-900 dark:text-white ${sizeClasses[size]} font-black`}
+            style={{ letterSpacing: '0.08em' }}
+          >
+            HALDER
+          </span>
+          <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mt-0.5">
+            Mandi Direct
+          </span>
+        </div>
       </div>
+
       {showTagline && (
-        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-0.5 tracking-normal">
-          Fresh from the farm. Direct to you.
+        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-1 tracking-normal">
+          Direct from farmers • खेत से सीधे आपके घर
         </span>
       )}
     </div>

@@ -508,6 +508,69 @@ export const MarketplaceHome: React.FC = () => {
         </div>
       </div>
 
+      {/* 8. Branded Trust & Compliance Footer */}
+      <div className="mt-8 pt-6 pb-12 border-t border-[#E5EBE6] dark:border-[#29352D] space-y-6">
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-[#13231A] dark:to-[#0F1A13] border border-emerald-200/60 dark:border-emerald-800/40">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="p-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs">
+              HALDER
+            </span>
+            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
+              Mandi Direct Trust Guarantee
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+              <span className="text-lg">🌿</span>
+              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">100% Farm Fresh</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Directly from local growers</p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+              <span className="text-lg">💰</span>
+              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">0% Middlemen Cut</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Farmers get 100% value</p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+              <span className="text-lg">⚖️</span>
+              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Live APMC Mandi</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Fair transparent benchmarks</p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+              <span className="text-lg">🛡️</span>
+              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Buyer Protection</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">24h dispute resolution</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Legal & Brand Signature Links */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-500 dark:text-zinc-400 px-2">
+          <div className="flex items-center gap-4">
+            <a
+              href="/privacy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-emerald-700 dark:hover:text-emerald-400 underline underline-offset-2"
+            >
+              Privacy Policy
+            </a>
+            <span>•</span>
+            <a
+              href="/terms.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-emerald-700 dark:hover:text-emerald-400 underline underline-offset-2"
+            >
+              Terms of Service
+            </a>
+          </div>
+          <p className="text-center sm:text-right font-medium">
+            HALDER Agricultural Marketplace • Empowering Kisan Ecosystem
+          </p>
+        </div>
+      </div>
+
       {/* Modals */}
       <ExploreCategoriesModal
         isOpen={isExploreCategoriesOpen}
