@@ -6,6 +6,7 @@ import { GroupBuyModal } from './GroupBuyModal';
 import { B2BWholesaleModal } from './B2BWholesaleModal';
 import { ScheduledProcurementModal } from './ScheduledProcurementModal';
 import { ProductCategory } from '../../types';
+import { Logo } from '../common/Logo';
 import {
   Search,
   SlidersHorizontal,
@@ -509,37 +510,35 @@ export const MarketplaceHome: React.FC = () => {
       </div>
 
       {/* 8. Branded Trust & Compliance Footer */}
-      <div className="mt-8 pt-6 pb-12 border-t border-[#E5EBE6] dark:border-[#29352D] space-y-6">
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-[#13231A] dark:to-[#0F1A13] border border-emerald-200/60 dark:border-emerald-800/40">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="p-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs">
-              HALDER
-            </span>
-            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
+      <div className="mt-8 pt-6 pb-12 border-t border-[#D8DFD5] dark:border-[#164635] space-y-6">
+        <div className="p-4 sm:p-5 rounded-3xl bg-[#F6F4E8] dark:bg-[#0B291F] border border-[#D8DFD5] dark:border-[#164635]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[#D8DFD5]/60 dark:border-[#164635]/60">
+            <Logo size="sm" showTagline />
+            <span className="text-[11px] font-bold text-[#0B3D2E] dark:text-[#A8E063] uppercase tracking-wider bg-white dark:bg-[#061B14] px-3 py-1 rounded-full border border-[#D8DFD5] dark:border-[#164635]">
               Mandi Direct Trust Guarantee
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
-            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#061B14] border border-[#D8DFD5]/60 dark:border-[#164635]/60">
               <span className="text-lg">🌿</span>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">100% Farm Fresh</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Directly from local growers</p>
+              <p className="text-xs font-bold text-[#17251D] dark:text-[#F6F4E8] mt-1">100% Farm Fresh</p>
+              <p className="text-[10px] text-[#4A5B52] dark:text-[#A3B8AD]">Directly from local growers</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#061B14] border border-[#D8DFD5]/60 dark:border-[#164635]/60">
               <span className="text-lg">💰</span>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">0% Middlemen Cut</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Farmers get 100% value</p>
+              <p className="text-xs font-bold text-[#17251D] dark:text-[#F6F4E8] mt-1">0% Middlemen Cut</p>
+              <p className="text-[10px] text-[#4A5B52] dark:text-[#A3B8AD]">Farmers get 100% value</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#061B14] border border-[#D8DFD5]/60 dark:border-[#164635]/60">
               <span className="text-lg">⚖️</span>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Live APMC Mandi</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Fair transparent benchmarks</p>
+              <p className="text-xs font-bold text-[#17251D] dark:text-[#F6F4E8] mt-1">Live APMC Mandi</p>
+              <p className="text-[10px] text-[#4A5B52] dark:text-[#A3B8AD]">Fair transparent benchmarks</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
+            <div className="p-3 rounded-2xl bg-white dark:bg-[#061B14] border border-[#D8DFD5]/60 dark:border-[#164635]/60">
               <span className="text-lg">🛡️</span>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Buyer Protection</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">24h dispute resolution</p>
+              <p className="text-xs font-bold text-[#17251D] dark:text-[#F6F4E8] mt-1">Buyer Protection</p>
+              <p className="text-[10px] text-[#4A5B52] dark:text-[#A3B8AD]">24h dispute resolution</p>
             </div>
           </div>
         </div>

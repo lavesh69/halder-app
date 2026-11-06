@@ -44,7 +44,7 @@ export const Header: React.FC = () => {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
+    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#061B14]/95 backdrop-blur-md border-b border-[#D8DFD5] dark:border-[#164635] transition-colors">
       <div className="max-w-7xl px-2 sm:px-6 mx-auto py-2 transition-all duration-200">
         <div className="flex items-center justify-between gap-1.5 sm:gap-2">
           {/* Logo & Location Selector */}
@@ -54,15 +54,15 @@ export const Header: React.FC = () => {
             {/* Location Selector Pill (Clickable) */}
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[100px] xs:max-w-[125px] sm:max-w-[155px] truncate shadow-soft focus-visible:ring-2"
+              className="flex items-center gap-1 text-xs text-[#17251D] dark:text-[#F6F4E8] hover:text-[#0B3D2E] dark:hover:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0B291F] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#D8DFD5] dark:border-[#164635] transition-colors max-w-[100px] xs:max-w-[125px] sm:max-w-[155px] truncate shadow-soft focus-visible:ring-2"
               title={t('location.change_location')}
               aria-label="Change current location"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#0B3D2E] dark:text-[#A8E063] shrink-0" />
               <span className="font-bold truncate text-[11px]">
                 {currentLocation.split(',')[0]}
               </span>
-              <ChevronDown className="w-3 h-3 text-[#89948C] shrink-0 ml-0.5" />
+              <ChevronDown className="w-3 h-3 text-[#7A8D83] shrink-0 ml-0.5" />
             </button>
           </div>
 
@@ -131,14 +131,14 @@ export const Header: React.FC = () => {
             )}
 
             {/* 3-Way Role Selector */}
-            <div className="flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
+            <div className="flex items-center bg-[#F6F4E8] dark:bg-[#0B291F] p-0.5 rounded-full border border-[#D8DFD5] dark:border-[#164635] text-[10px] font-bold">
               <button
                 onClick={() => setRole('customer')}
                 title={t('nav.buyer')}
                 className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'customer'
-                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+                    ? 'bg-white dark:bg-[#061B14] text-[#0B3D2E] dark:text-[#A8E063] shadow-soft font-bold'
+                    : 'text-[#4A5B52] dark:text-[#A3B8AD] hover:text-[#17251D]'
                 }`}
               >
                 <ShoppingBag className="w-3 h-3" />
@@ -150,8 +150,8 @@ export const Header: React.FC = () => {
                 title={t('nav.farmer')}
                 className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'farmer'
-                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+                    ? 'bg-white dark:bg-[#061B14] text-[#0B3D2E] dark:text-[#A8E063] shadow-soft font-bold'
+                    : 'text-[#4A5B52] dark:text-[#A3B8AD] hover:text-[#17251D]'
                 }`}
               >
                 <Sprout className="w-3 h-3" />
@@ -163,8 +163,8 @@ export const Header: React.FC = () => {
                 title={t('nav.admin')}
                 className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'admin'
-                    ? 'bg-purple-600 text-white shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+                    ? 'bg-[#0B3D2E] text-[#F6F4E8] shadow-soft font-bold'
+                    : 'text-[#4A5B52] dark:text-[#A3B8AD] hover:text-[#17251D]'
                 }`}
               >
                 <Shield className="w-3 h-3" />
@@ -176,7 +176,7 @@ export const Header: React.FC = () => {
             {!isLoggedIn && (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] sm:text-xs font-bold shadow-soft transition-all ml-0.5"
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#0B3D2E] hover:bg-[#07291F] active:scale-95 text-white rounded-full text-[11px] sm:text-xs font-bold shadow-soft transition-all ml-0.5"
                 title="Sign In with Google or Mobile OTP"
               >
                 <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24">

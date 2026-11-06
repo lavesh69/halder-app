@@ -1,28 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" width="100%" height="100%">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#047857" />
-      <stop offset="100%" stop-color="#064e3b" />
+    <linearGradient id="pfavSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF8E7" />
+      <stop offset="100%" stop-color="#FEE7B8" />
     </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f59e0b" />
-      <stop offset="100%" stop-color="#d97706" />
-    </linearGradient>
-    <linearGradient id="sproutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="100%" stop-color="#10b981" />
-    </linearGradient>
+    <radialGradient id="pfavSun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD54F" />
+      <stop offset="100%" stop-color="#F4A017" />
+    </radialGradient>
+    <clipPath id="pfavClip">
+      <path d="M 14 20 C 14 18, 15 17, 17 17 L 47 17 C 49 17, 50 18, 50 20 L 53 54 C 53 58, 50 61, 46 61 L 18 61 C 14 61, 11 58, 11 54 Z" />
+    </clipPath>
   </defs>
-  <!-- Rounded Brand Shield -->
-  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" />
-  <!-- Soil / Earth Base Curve -->
-  <path d="M12 48C20 44 44 44 52 48C46 54 18 54 12 48Z" fill="#022c22" opacity="0.6" />
-  <!-- Sprout Stem -->
-  <path d="M32 46V22" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" />
-  <!-- Left Fresh Leaf -->
-  <path d="M32 34C24 34 18 27 18 20C26 20 32 26 32 34Z" fill="url(#sproutGrad)" />
-  <!-- Right Golden Grain / Wheat Leaf -->
-  <path d="M32 28C40 28 46 21 46 14C38 14 32 20 32 28Z" fill="url(#goldGrad)" />
-  <!-- Sunlight Sprout Tip -->
-  <circle cx="32" cy="18" r="3.5" fill="#fde68a" />
+
+  <!-- Handle -->
+  <path d="M 24 17 C 24 8, 40 8, 40 17" stroke="#0B3D2E" stroke-width="4" stroke-linecap="round" fill="none" />
+  <path d="M 25 17 C 25 9.5, 39 9.5, 39 17" stroke="#2E7D32" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+  <!-- Bag Body -->
+  <path d="M 14 20 C 14 18, 15 17, 17 17 L 47 17 C 49 17, 50 18, 50 20 L 53 54 C 53 58, 50 61, 46 61 L 18 61 C 14 61, 11 58, 11 54 Z" fill="#F6F4E8" stroke="#0B3D2E" stroke-width="3" stroke-linejoin="round" />
+
+  <g clip-path="url(#pfavClip)">
+    <rect x="10" y="15" width="44" height="48" fill="url(#pfavSky)" />
+    <!-- Sun -->
+    <circle cx="32" cy="32" r="8" fill="url(#pfavSun)" />
+    <!-- Mountains -->
+    <polygon points="11,44 22,30 33,44" fill="#2D6A4F" />
+    <polygon points="26,44 38,27 49,44" fill="#1B4332" />
+    <!-- Rolling Field -->
+    <path d="M 10 42 Q 28 36 54 41 L 54 62 L 10 62 Z" fill="#2E7D32" />
+    <path d="M 10 49 Q 32 44 54 50 L 54 62 L 10 62 Z" fill="#4CAF50" />
+    <!-- Prominent Green Leaf -->
+    <path d="M 26 61 C 32 54, 43 47, 53 38 C 52 47, 47 57, 35 61 Z" fill="#A8E063" stroke="#0B3D2E" stroke-width="1" />
+  </g>
+
+  <!-- Rivets -->
+  <circle cx="24" cy="18" r="1.5" fill="#F4A017" />
+  <circle cx="40" cy="18" r="1.5" fill="#F4A017" />
 </svg>

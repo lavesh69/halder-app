@@ -92,8 +92,8 @@ export const CustomerHome: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all ${
                   isSelected
-                    ? 'bg-emerald-600 text-white shadow-soft ring-2 ring-emerald-500/30'
-                    : 'bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                    ? 'bg-[#0B3D2E] text-white shadow-soft ring-2 ring-[#0B3D2E]/30'
+                    : 'bg-white dark:bg-[#0B291F] text-[#17251D] dark:text-[#F6F4E8] border border-[#D8DFD5] dark:border-[#164635] hover:bg-[#F6F4E8] dark:hover:bg-[#0F3327]'
                 }`}
               >
                 <span>{categoryIcons[cat]}</span>
@@ -106,7 +106,7 @@ export const CustomerHome: React.FC = () => {
 
       {/* Hero Farm Provenance Banner */}
       {!searchQuery && selectedCategory === 'All' && (
-        <div className="relative p-5 rounded-3xl overflow-hidden bg-linear-to-r from-emerald-800 to-emerald-950 text-white shadow-soft-lg">
+        <div className="relative p-5 sm:p-6 rounded-3xl overflow-hidden bg-gradient-to-r from-[#0B3D2E] via-[#124C36] to-[#061B14] text-white shadow-soft-lg border border-[#164635]">
           <div className="relative z-10 max-w-[70%] space-y-2">
             <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full">
               <Sparkles className="w-3 h-3 text-amber-300" />

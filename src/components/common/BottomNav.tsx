@@ -45,7 +45,7 @@ export const BottomNav: React.FC = () => {
 
   if (role === 'admin') {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#061B14]/95 backdrop-blur-md border-t border-[#D8DFD5] dark:border-[#164635] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-between overflow-x-auto no-scrollbar px-1.5 py-1 gap-0.5">
           <button
             onClick={() => setAdminTab('overview')}
@@ -187,7 +187,7 @@ export const BottomNav: React.FC = () => {
 
   if (role === 'customer') {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#061B14]/95 backdrop-blur-md border-t border-[#D8DFD5] dark:border-[#164635] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-around px-1.5 sm:px-2 py-1">
           {/* 1. Home */}
           <button
@@ -197,7 +197,7 @@ export const BottomNav: React.FC = () => {
             }}
             className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
               customerTab === 'home'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -213,7 +213,7 @@ export const BottomNav: React.FC = () => {
             }}
             className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
               customerTab === 'orders'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -234,10 +234,10 @@ export const BottomNav: React.FC = () => {
             className="flex flex-col items-center justify-center -mt-5 group"
             title="Post Advertisement"
           >
-            <div className="w-13 h-13 rounded-full bg-[#176B45] group-hover:bg-[#124C36] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
+            <div className="w-13 h-13 rounded-full bg-[#0B3D2E] group-hover:bg-[#07291F] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
               <Plus className="w-6 h-6 stroke-[3]" />
             </div>
-            <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5">
+            <span className="text-[10px] font-black text-[#0B3D2E] dark:text-[#A8E063] mt-0.5">
               + SELL
             </span>
           </button>
@@ -250,7 +250,7 @@ export const BottomNav: React.FC = () => {
             }}
             className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
               customerTab === 'chats'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -273,7 +273,7 @@ export const BottomNav: React.FC = () => {
             }}
             className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
               customerTab === 'my-ads'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -289,7 +289,7 @@ export const BottomNav: React.FC = () => {
             }}
             className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
               customerTab === 'profile'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -303,14 +303,14 @@ export const BottomNav: React.FC = () => {
 
   // Farmer Bottom Nav
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#061B14]/95 backdrop-blur-md border-t border-[#D8DFD5] dark:border-[#164635] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
       <div className="flex items-center justify-between sm:justify-around overflow-x-auto no-scrollbar px-1 sm:px-2 py-1 gap-0.5">
         {/* 1. Dashboard (Mandi) */}
         <button
           onClick={() => setFarmerTab('dashboard')}
           className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'dashboard'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -323,7 +323,7 @@ export const BottomNav: React.FC = () => {
           onClick={() => setFarmerTab('listings')}
           className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'listings'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -336,7 +336,7 @@ export const BottomNav: React.FC = () => {
           onClick={() => setFarmerTab('orders')}
           className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'orders'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -357,10 +357,10 @@ export const BottomNav: React.FC = () => {
           className="flex flex-col items-center justify-center -mt-5 group px-0.5"
           title="Post new crop listing"
         >
-          <div className="w-13 h-13 rounded-full bg-[#176B45] group-hover:bg-[#124C36] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
+          <div className="w-13 h-13 rounded-full bg-[#0B3D2E] group-hover:bg-[#07291F] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
             <Plus className="w-6 h-6 stroke-[3]" />
           </div>
-          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5">
+          <span className="text-[10px] font-black text-[#0B3D2E] dark:text-[#A8E063] mt-0.5">
             + Sell
           </span>
         </button>
@@ -370,7 +370,7 @@ export const BottomNav: React.FC = () => {
           onClick={() => setFarmerTab('earnings')}
           className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'earnings'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -383,7 +383,7 @@ export const BottomNav: React.FC = () => {
           onClick={() => setFarmerTab('chat')}
           className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'chat'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -403,7 +403,7 @@ export const BottomNav: React.FC = () => {
           onClick={() => setFarmerTab('profile')}
           className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
             farmerTab === 'profile'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'text-[#0B3D2E] dark:text-[#A8E063] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >

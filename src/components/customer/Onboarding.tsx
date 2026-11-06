@@ -120,7 +120,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
 
   if (showRolePick) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] p-6 max-w-lg mx-auto overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F6F4E8] dark:bg-[#061B14] p-6 max-w-lg mx-auto overflow-y-auto">
         <div className="pt-6 space-y-2 text-center relative">
           {onClose && (
             <button
@@ -366,7 +366,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] max-w-lg mx-auto select-none transition-colors overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F6F4E8] dark:bg-[#061B14] max-w-lg mx-auto select-none transition-colors overflow-y-auto">
       {/* Top Bar with Sign In, Dots, and Skip */}
       <div className="flex items-center justify-between p-4 sm:p-5 shrink-0">
         <div className="flex items-center gap-1.5">

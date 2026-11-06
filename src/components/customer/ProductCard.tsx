@@ -41,7 +41,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
       <div
         onClick={handleCardClick}
-        className="shrink-0 w-64 p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
+        className="shrink-0 w-64 p-3 bg-white dark:bg-[#0B291F] rounded-2xl border border-[#D8DFD5] dark:border-[#164635] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
       >
         <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-[#F0F4F1] dark:bg-[#222B25]">
           <img
@@ -51,7 +51,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             loading="lazy"
           />
           <div className="absolute top-2 left-2 flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[#124C36] dark:text-[#5FB383] bg-white/95 dark:bg-[#181F1A]/95 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-xs">
+            <span className="text-[10px] font-bold text-[#124C36] dark:text-[#5FB383] bg-white/95 dark:bg-[#0B291F]/95 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-xs">
               {product.freshnessTag}
             </span>
           </div>
@@ -72,14 +72,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           <button
             onClick={handleFarmerClick}
-            className="text-[11px] text-[#176B45] dark:text-[#5FB383] hover:underline font-medium truncate block text-left mt-0.5"
+            className="text-[11px] text-[#0B3D2E] dark:text-[#A8E063] hover:underline font-medium truncate block text-left mt-0.5"
           >
             {product.farmName}
           </button>
 
-          <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#E5EBE6] dark:border-[#29352D]">
+          <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#D8DFD5] dark:border-[#164635]">
             <div>
-              <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
+              <span className="text-base font-black text-[#0B3D2E] dark:text-[#A8E063]">
                 {formatCurrency(product.price)}
               </span>
               <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] ml-0.5">
@@ -93,7 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   e.stopPropagation();
                   addToCart(product, 1);
                 }}
-                className="min-h-[44px] min-w-[64px] flex items-center justify-center gap-1 text-xs font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] hover:bg-[#176B45] hover:text-white px-3 py-1.5 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 transition-all active:scale-95 shadow-xs"
+                className="min-h-[44px] min-w-[64px] flex items-center justify-center gap-1 text-xs font-bold text-[#0B3D2E] dark:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0F3327] hover:bg-[#0B3D2E] hover:text-white px-3 py-1.5 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 transition-all active:scale-95 shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add</span>
@@ -101,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             ) : (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="min-h-[44px] flex items-center gap-2 bg-[#EAF5EE] dark:bg-[#182A20] border border-[#176B45]/30 dark:border-[#2E8B57]/40 rounded-xl px-2 py-1"
+                className="min-h-[44px] flex items-center gap-2 bg-[#F6F4E8] dark:bg-[#0F3327] border border-[#176B45]/30 dark:border-[#2E8B57]/40 rounded-xl px-2 py-1"
               >
                 <button
                   onClick={() => updateCartQuantity(product.id, quantity - 1)}
@@ -115,7 +115,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 </span>
                 <button
                   onClick={() => updateCartQuantity(product.id, quantity + 1)}
-                  className="w-7 h-7 rounded-lg bg-[#176B45] text-white flex items-center justify-center shadow-xs active:scale-90"
+                  className="w-7 h-7 rounded-lg bg-[#0B3D2E] text-white flex items-center justify-center shadow-xs active:scale-90"
                   aria-label="Increase quantity"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -132,7 +132,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
+      className="p-3 bg-white dark:bg-[#0B291F] rounded-2xl border border-[#D8DFD5] dark:border-[#164635] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
     >
       <div>
         <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-[#F0F4F1] dark:bg-[#222B25]">
@@ -144,7 +144,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           />
           {product.isOrganic && (
             <div className="absolute top-2 left-2">
-              <span className="text-[10px] font-bold text-[#124C36] dark:text-[#5FB383] bg-white/95 dark:bg-[#181F1A]/95 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
+              <span className="text-[10px] font-bold text-[#124C36] dark:text-[#5FB383] bg-white/95 dark:bg-[#0B291F]/95 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-[#176B45]" />
                 Organic
               </span>
@@ -170,9 +170,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#E5EBE6] dark:border-[#29352D]">
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#D8DFD5] dark:border-[#164635]">
         <div>
-          <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
+          <span className="text-base font-black text-[#0B3D2E] dark:text-[#A8E063]">
             {formatCurrency(product.price)}
           </span>
           <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] ml-0.5">
@@ -186,7 +186,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               e.stopPropagation();
               addToCart(product, 1);
             }}
-            className="min-h-[44px] min-w-[64px] flex items-center justify-center gap-1 text-xs font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] hover:bg-[#176B45] hover:text-white px-3 py-1.5 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 transition-all active:scale-95 shadow-xs"
+            className="min-h-[44px] min-w-[64px] flex items-center justify-center gap-1 text-xs font-bold text-[#0B3D2E] dark:text-[#A8E063] bg-[#F6F4E8] dark:bg-[#0F3327] hover:bg-[#0B3D2E] hover:text-white px-3 py-1.5 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 transition-all active:scale-95 shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add</span>
@@ -194,7 +194,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="min-h-[44px] flex items-center gap-2 bg-[#EAF5EE] dark:bg-[#182A20] border border-[#176B45]/30 dark:border-[#2E8B57]/40 rounded-xl px-2 py-1"
+            className="min-h-[44px] flex items-center gap-2 bg-[#F6F4E8] dark:bg-[#0F3327] border border-[#176B45]/30 dark:border-[#2E8B57]/40 rounded-xl px-2 py-1"
           >
             <button
               onClick={() => updateCartQuantity(product.id, quantity - 1)}
@@ -208,7 +208,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </span>
             <button
               onClick={() => updateCartQuantity(product.id, quantity + 1)}
-              className="w-7 h-7 rounded-lg bg-[#176B45] text-white flex items-center justify-center shadow-xs active:scale-90"
+              className="w-7 h-7 rounded-lg bg-[#0B3D2E] text-white flex items-center justify-center shadow-xs active:scale-90"
               aria-label="Increase quantity"
             >
               <Plus className="w-3.5 h-3.5" />

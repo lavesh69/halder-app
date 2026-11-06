@@ -1,0 +1,77 @@
+/**
+ * HALDER Typography Hierarchy
+ * Headings: Montserrat (SemiBold/Bold/Black)
+ * Body & Controls: Inter (Regular/Medium/SemiBold)
+ * Tabular Figures: Inter with cv05 or tnum
+ */
+
+/* Display (40-48px) */
+.text-display {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* H1 (32px) */
+h1, .text-h1 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 2rem);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+/* H2 (26px) */
+h2, .text-h2 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.625rem);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* H3 (22px) */
+h3, .text-h3 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.375rem);
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* H4 (18px) */
+h4, .text-h4 {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+/* Body (15-16px) */
+body, p, .text-body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Secondary (13-14px) */
+.text-secondary {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* Caption (12px) */
+.text-caption {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+/* Numeric / Analytics formatting */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}

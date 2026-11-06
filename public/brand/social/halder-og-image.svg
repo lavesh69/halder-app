@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none" width="100%" height="100%">
+  <defs>
+    <radialGradient id="ogBg" cx="20%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#124C36" />
+      <stop offset="50%" stop-color="#0B3D2E" />
+      <stop offset="100%" stop-color="#061B14" />
+    </radialGradient>
+    <clipPath id="ogClip">
+      <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" />
+    </clipPath>
+  </defs>
+
+  <!-- Deep Forest Gradient Background -->
+  <rect width="1200" height="630" fill="url(#ogBg)" />
+
+  <!-- Agricultural Contour Lines in Background -->
+  <path d="M -50 200 Q 600 80 1250 220" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
+  <path d="M -50 280 Q 600 160 1250 300" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
+  <path d="M -50 360 Q 600 240 1250 380" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
+  <path d="M -50 440 Q 600 320 1250 460" stroke="#134D3A" stroke-width="3" opacity="0.3" fill="none" />
+
+  <!-- Left: Shopping Bag Master Artwork (scaled ~2.8x) -->
+  <g transform="translate(100, 110) scale(2.8)">
+    <path d="M 44 32 C 44 16, 76 16, 76 32" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none" />
+    <path d="M 45 32 C 45 18, 75 18, 75 32" stroke="#A8E063" stroke-width="2.5" stroke-linecap="round" fill="none" />
+    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" fill="#F6F4E8" stroke="#FFFFFF" stroke-width="4.5" stroke-linejoin="round" />
+    
+    <g clip-path="url(#ogClip)">
+      <rect x="20" y="25" width="80" height="85" fill="#FFF4D9" />
+      <circle cx="60" cy="56" r="13" fill="#F4A017" />
+      <polygon points="22,74 38,52 54,74" fill="#2D6A4F" />
+      <polygon points="46,74 66,48 86,74" fill="#1B4332" />
+      <path d="M 22 72 Q 46 62 98 70 L 98 106 L 22 106 Z" fill="#2E7D32" />
+      
+      <!-- Farmhouse -->
+      <g transform="translate(36, 63)">
+        <circle cx="2" cy="7" r="4.5" fill="#1B4332" />
+        <rect x="7" y="5" width="11" height="8" fill="#FFFFFF" stroke="#0B3D2E" stroke-width="0.8" />
+        <polygon points="5.5,5 12.5,0 19.5,5" fill="#D9534F" stroke="#0B3D2E" stroke-width="0.8" />
+        <rect x="11" y="8" width="3" height="5" fill="#0B3D2E" />
+        <circle cx="23" cy="7" r="4" fill="#2E7D32" />
+      </g>
+
+      <path d="M 22 83 Q 54 73 98 84 L 98 106 L 22 106 Z" fill="#388E3C" />
+      <path d="M 46 104 C 54 94, 72 82, 92 68 C 91 82, 82 98, 62 104 Z" fill="#A8E063" stroke="#0B3D2E" stroke-width="1.2" />
+      <path d="M 54 102 Q 72 86 86 74" stroke="#0B3D2E" stroke-width="1.2" stroke-linecap="round" fill="none" />
+    </g>
+    <path d="M 28 36 C 28 33, 30 31, 33 31 L 87 31 C 90 31, 92 33, 92 36 L 96 92 C 96 99, 91 104, 84 104 L 36 104 C 29 104, 24 99, 24 92 Z" stroke="#FFFFFF" stroke-width="4.5" fill="none" />
+    <circle cx="44" cy="33" r="2.2" fill="#F4A017" />
+    <circle cx="76" cy="33" r="2.2" fill="#F4A017" />
+  </g>
+
+  <!-- Right: Branding & Value Props -->
+  <g transform="translate(490, 140)">
+    <!-- Brand Badge -->
+    <rect x="0" y="0" width="320" height="36" rx="18" fill="#061B14" stroke="#155D44" stroke-width="1.5" />
+    <text x="160" y="23" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="13" fill="#A8E063" letter-spacing="2" text-anchor="middle">
+      INDIA'S DIRECT AGRI-MARKETPLACE
+    </text>
+
+    <!-- Master Wordmark -->
+    <text x="0" y="115" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="80" letter-spacing="7" fill="#F6F4E8">
+      HALDER
+    </text>
+    <circle cx="395" cy="72" r="9" fill="#F4A017" />
+
+    <!-- Subtitle -->
+    <text x="4" y="155" font-family="'Inter', system-ui, sans-serif" font-weight="800" font-size="24" letter-spacing="6" fill="#A8E063">
+      FARM TO MARKET
+    </text>
+
+    <text x="4" y="200" font-family="'Inter', system-ui, sans-serif" font-weight="400" font-size="20" fill="#E2E8F0" opacity="0.9">
+      Fresh Harvest Produce Direct from Local Farmers to Consumers &amp; Mandis
+    </text>
+
+    <!-- 4 Pillars Badge Bar -->
+    <g transform="translate(0, 240)">
+      <rect x="0" y="0" width="620" height="52" rx="26" fill="#061B14" stroke="#155D44" stroke-width="1.5" />
+      <text x="75" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">1. Farmers</text>
+      <circle cx="155" cy="26" r="3" fill="#F4A017" />
+      <text x="235" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">2. Fresh Produce</text>
+      <circle cx="320" cy="26" r="3" fill="#F4A017" />
+      <text x="405" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" fill="#F6F4E8" text-anchor="middle">3. Direct Delivery</text>
+      <circle cx="500" cy="26" r="3" fill="#F4A017" />
+      <text x="560" y="32" font-family="'Inter', system-ui, sans-serif" font-weight="900" font-size="15" fill="#A8E063" text-anchor="middle">4. You</text>
+    </g>
+
+    <!-- Trust Stats Bar -->
+    <g transform="translate(4, 325)">
+      <text x="0" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F4A017">0% Middlemen Cut</text>
+      <text x="210" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F6F4E8">•</text>
+      <text x="235" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#A8E063">100% Provenance</text>
+      <text x="475" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F6F4E8">•</text>
+      <text x="500" y="24" font-family="'Montserrat', system-ui, sans-serif" font-weight="900" font-size="22" fill="#F4A017">Live APMC Mandi</text>
+    </g>
+  </g>
+</svg>

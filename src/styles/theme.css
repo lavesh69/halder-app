@@ -1,0 +1,63 @@
+/**
+ * HALDER Theme Configurations (Light & Dark)
+ */
+
+/* Light Mode Overrides (Explicit class or root) */
+:root,
+.light {
+  color-scheme: light;
+  --color-primary: var(--halder-forest);
+  --color-primary-hover: #07291F;
+  --color-secondary: var(--halder-leaf);
+  --color-background: var(--halder-cream);
+  --color-surface: var(--halder-white);
+  --color-surface-muted: var(--halder-muted);
+  --color-border: #D8DFD5;
+  --color-text-primary: var(--halder-charcoal);
+  --color-text-secondary: #4A5B52;
+  --color-text-muted: #7A8D83;
+}
+
+/* Dark Mode Overrides */
+.dark {
+  color-scheme: dark;
+  --color-primary: var(--halder-leaf);
+  --color-primary-hover: #388E3C;
+  --color-secondary: var(--halder-lime);
+  --color-secondary-hover: #BCEB7E;
+  --color-accent: var(--halder-gold);
+  --color-highlight: var(--halder-lime);
+
+  --color-success: #388E3C;
+  --color-warning: #FFB300;
+  --color-danger: #E57373;
+  --color-info: #4DB6AC;
+
+  --color-background: var(--halder-dark-bg);
+  --color-surface: var(--halder-dark-surface);
+  --color-surface-muted: var(--halder-dark-card);
+  --color-border: var(--halder-dark-border);
+  --color-border-subtle: #0F3327;
+
+  --color-text-primary: var(--halder-dark-text);
+  --color-text-secondary: var(--halder-dark-muted);
+  --color-text-muted: #789083;
+  --color-text-inverse: var(--halder-charcoal);
+
+  /* Legacy mappings in dark mode */
+  --brand-primary: #2E7D32;
+  --brand-primary-hover: #388E3C;
+  --brand-fresh: #A8E063;
+  --brand-soft: #0F3327;
+  --surface-bg: var(--halder-dark-bg);
+  --surface-card: var(--halder-dark-surface);
+  --surface-card-muted: var(--halder-dark-card);
+  --surface-border: var(--halder-dark-border);
+  --text-primary: var(--halder-dark-text);
+  --text-secondary: var(--halder-dark-muted);
+  --text-muted: #789083;
+  --semantic-success: #388E3C;
+  --semantic-warning: #FFB300;
+  --semantic-danger: #E57373;
+  --semantic-info: #4DB6AC;
+}
