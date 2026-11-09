@@ -26,6 +26,7 @@ import {
   Phone,
   ShieldCheck,
   TrendingUp,
+  Boxes,
 } from 'lucide-react';
 
 const CATEGORY_OPTIONS: ProductCategory[] = [
@@ -68,6 +69,7 @@ export const FarmerProductsView: React.FC = () => {
     bulkDeleteProducts,
     deleteProduct,
     setSelectedProduct,
+    setStockControlProduct,
     showToast,
     currentUser,
     activeCity,
@@ -603,6 +605,15 @@ export const FarmerProductsView: React.FC = () => {
                       title="Mark as Urgent Clearance"
                     >
                       <Flame className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Manage Stock & Audit History */}
+                    <button
+                      onClick={() => setStockControlProduct(product)}
+                      className="p-1.5 text-zinc-400 hover:text-emerald-600 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition"
+                      title="Manage Stock & Audit History"
+                    >
+                      <Boxes className="w-3.5 h-3.5" />
                     </button>
 
                     {/* Preview As Buyer */}

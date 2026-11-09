@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { ProductController } from '../controllers/productController';
 import { authenticateUser, optionalAuth } from '../middleware/auth';
 import { requireFarmer } from '../middleware/rbac';
@@ -14,19 +14,28 @@ const createProductSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
   price: z.number().positive('Price must be greater than 0'),
-  unit: z.enum(['kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box']),
+  unit: z.enum(['kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box', 'quintal', 'ton', 'bag', 'L']),
   availableQuantity: z.number().min(0, 'Quantity cannot be negative'),
   isOrganic: z.boolean().optional(),
   availableToday: z.boolean().optional(),
   location: z.string().min(2),
   city: z.string().optional(),
   image: z.string().url().or(z.string().min(5)),
+  images: z.array(z.string()).optional(),
+  priceSlabs: z.array(z.object({
+    minQuantity: z.number().positive(),
+    maxQuantity: z.number().optional(),
+    pricePerUnit: z.number().positive(),
+  })).optional(),
 });
 
 router.get('/', searchLimiter, optionalAuth, ProductController.list);
 router.get('/:id', ProductController.getById);
 router.post('/', authenticateUser, requireFarmer, validateBody(createProductSchema), ProductController.create);
 router.patch('/:id', authenticateUser, requireFarmer, verifyProductOwnership, ProductController.update);
+router.patch('/:id/stock', authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStock);
+router.get('/:id/stock-history', authenticateUser, requireFarmer, verifyProductOwnership, ProductController.getStockHistory);
+router.patch('/:id/status', authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStatus);
 router.delete('/:id', authenticateUser, requireFarmer, verifyProductOwnership, ProductController.delete);
 
 export default router;

@@ -17,6 +17,9 @@ import {
   Shield,
   Sprout,
   ShoppingBag,
+  Compass,
+  Megaphone,
+  HandCoins,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -36,6 +39,9 @@ export const Header: React.FC = () => {
     isLoggedIn,
     setIsLoginModalOpen,
     platformSettings,
+    setIsFarmMapOpen,
+    setIsRequirementsOpen,
+    setIsNegotiationsOpen,
   } = useApp();
 
   const { isDark, toggleTheme } = useTheme();
@@ -79,6 +85,36 @@ export const Header: React.FC = () => {
               aria-label="Search produce"
             >
               <Search className="w-4 h-4" />
+            </button>
+
+            {/* Farm Nearby Map Button */}
+            <button
+              onClick={() => setIsFarmMapOpen(true)}
+              className="p-2 text-[#176B45] dark:text-[#5FB383] hover:bg-[#EAF5EE] dark:hover:bg-[#182A20] rounded-full transition-colors"
+              title="Farm Nearby Map (खेत नक्शा)"
+              aria-label="Farm Nearby Map"
+            >
+              <Compass className="w-4 h-4" />
+            </button>
+
+            {/* Buyer Requirements Reverse Marketplace */}
+            <button
+              onClick={() => setIsRequirementsOpen(true)}
+              className="p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#176B45] dark:hover:text-[#5FB383] hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+              title="Buyer Demands & Quotations (मांग एवं कोटेशन)"
+              aria-label="Buyer Demands & Quotations"
+            >
+              <Megaphone className="w-4 h-4" />
+            </button>
+
+            {/* Price Negotiations & Offers */}
+            <button
+              onClick={() => setIsNegotiationsOpen(true)}
+              className="p-2 text-[#D99A32] hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-full transition-colors"
+              title="Price Negotiations & Offers (मोल-भाव)"
+              aria-label="Price Negotiations & Offers"
+            >
+              <HandCoins className="w-4 h-4" />
             </button>
 
             {/* Notification Bell with Badge */}

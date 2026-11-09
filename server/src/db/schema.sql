@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS products (
   latitude REAL,
   longitude REAL,
   image TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'unavailable', 'draft')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'unavailable', 'draft', 'paused', 'sold', 'expired')),
   moderation_status TEXT NOT NULL DEFAULT 'approved' CHECK(moderation_status IN ('approved', 'pending', 'flagged')),
   views_count INTEGER NOT NULL DEFAULT 0,
   likes_count INTEGER NOT NULL DEFAULT 0,
@@ -634,5 +634,145 @@ CREATE TABLE IF NOT EXISTS platform_settings (
   description TEXT,
   updated_at TEXT NOT NULL
 );
+
+-- ==========================================================
+-- AGRICULTURAL CLASSIFIEDS MARKETPLACE EXTENSIONS (MODULES 1, 2, 4, 5, 6, 11)
+-- ==========================================================
+
+-- 32. Inventory Audit Log (Module 2)
+CREATE TABLE IF NOT EXISTS inventory_audit_log (
+  id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  change_type TEXT NOT NULL CHECK(change_type IN ('restock', 'sale', 'adjustment', 'reservation', 'release', 'sold_out')),
+  previous_quantity REAL NOT NULL,
+  change_amount REAL NOT NULL,
+  new_quantity REAL NOT NULL,
+  reason TEXT DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_prod ON inventory_audit_log(product_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_farmer ON inventory_audit_log(farmer_id);
+
+-- 33. Product Price Slabs (Module 5)
+CREATE TABLE IF NOT EXISTS product_price_slabs (
+  id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  min_quantity REAL NOT NULL,
+  max_quantity REAL,
+  price_per_unit REAL NOT NULL CHECK(price_per_unit > 0),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_price_slabs_prod ON product_price_slabs(product_id);
+
+-- 34. Buyer Requirements (Module 4)
+CREATE TABLE IF NOT EXISTS buyer_requirements (
+  id TEXT PRIMARY KEY,
+  requirement_number TEXT NOT NULL UNIQUE,
+  buyer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  product_name TEXT NOT NULL,
+  category_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
+  category_name TEXT NOT NULL DEFAULT 'Vegetables',
+  required_quantity REAL NOT NULL CHECK(required_quantity > 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  target_price REAL CHECK(target_price >= 0),
+  is_negotiable INTEGER NOT NULL DEFAULT 1,
+  quality_grade TEXT DEFAULT 'Grade A',
+  required_date TEXT NOT NULL,
+  location TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Dehradun',
+  state TEXT NOT NULL DEFAULT 'Uttarakhand',
+  village TEXT DEFAULT '',
+  postal_code TEXT DEFAULT '248001',
+  latitude REAL DEFAULT 30.3165,
+  longitude REAL DEFAULT 78.0322,
+  delivery_preference TEXT NOT NULL DEFAULT 'flexible' CHECK(delivery_preference IN ('pickup', 'farmer_delivery', 'flexible')),
+  instructions TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('draft', 'active', 'receiving_offers', 'negotiating', 'offer_accepted', 'fulfilled', 'closed', 'expired')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_buyer_req_buyer ON buyer_requirements(buyer_id);
+CREATE INDEX IF NOT EXISTS idx_buyer_req_status ON buyer_requirements(status);
+CREATE INDEX IF NOT EXISTS idx_buyer_req_city ON buyer_requirements(city);
+
+-- 35. Requirement Quotations (Module 4)
+CREATE TABLE IF NOT EXISTS requirement_quotations (
+  id TEXT PRIMARY KEY,
+  quotation_number TEXT NOT NULL UNIQUE,
+  requirement_id TEXT NOT NULL REFERENCES buyer_requirements(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  available_quantity REAL NOT NULL CHECK(available_quantity > 0),
+  proposed_price REAL NOT NULL CHECK(proposed_price > 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  harvest_availability_date TEXT,
+  delivery_mode TEXT NOT NULL DEFAULT 'pickup' CHECK(delivery_mode IN ('pickup', 'farmer_delivery')),
+  message TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'submitted' CHECK(status IN ('submitted', 'countered', 'accepted', 'rejected', 'withdrawn')),
+  counter_price REAL DEFAULT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_req_quotations_req ON requirement_quotations(requirement_id);
+CREATE INDEX IF NOT EXISTS idx_req_quotations_farmer ON requirement_quotations(farmer_id);
+
+-- 36. Negotiation Threads (Module 5)
+CREATE TABLE IF NOT EXISTS negotiation_threads (
+  id TEXT PRIMARY KEY,
+  deal_reference_id TEXT NOT NULL UNIQUE,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  buyer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+  original_asking_price REAL NOT NULL,
+  current_price REAL NOT NULL,
+  quantity REAL NOT NULL CHECK(quantity > 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  required_date TEXT,
+  delivery_preference TEXT DEFAULT 'pickup',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'accepted', 'rejected', 'withdrawn', 'expired')),
+  final_agreed_price REAL DEFAULT NULL,
+  final_total_value REAL DEFAULT NULL,
+  agreed_at TEXT DEFAULT NULL,
+  deal_summary_json TEXT DEFAULT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_negotiations_prod ON negotiation_threads(product_id);
+CREATE INDEX IF NOT EXISTS idx_negotiations_buyer ON negotiation_threads(buyer_id);
+CREATE INDEX IF NOT EXISTS idx_negotiations_farmer ON negotiation_threads(farmer_id);
+
+-- 37. Negotiation Messages (Module 5)
+CREATE TABLE IF NOT EXISTS negotiation_messages (
+  id TEXT PRIMARY KEY,
+  negotiation_id TEXT NOT NULL REFERENCES negotiation_threads(id) ON DELETE CASCADE,
+  sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  sender_role TEXT NOT NULL CHECK(sender_role IN ('buyer', 'farmer')),
+  action TEXT NOT NULL CHECK(action IN ('offer', 'counter', 'accept', 'reject', 'withdraw')),
+  proposed_price REAL NOT NULL,
+  quantity REAL NOT NULL,
+  message TEXT DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_neg_messages_neg ON negotiation_messages(negotiation_id);
+
+-- 38. Saved Searches & Alerts (Module 11)
+CREATE TABLE IF NOT EXISTS saved_searches (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  search_name TEXT NOT NULL,
+  product_query TEXT DEFAULT '',
+  category_name TEXT DEFAULT 'All',
+  city TEXT DEFAULT 'All',
+  max_distance_km REAL DEFAULT 25.0,
+  min_price REAL DEFAULT 0,
+  max_price REAL DEFAULT 100000,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  notification_frequency TEXT DEFAULT 'instant' CHECK(notification_frequency IN ('instant', 'daily')),
+  last_matched_at TEXT DEFAULT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_saved_searches_user ON saved_searches(user_id);
+
 
 

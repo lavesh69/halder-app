@@ -32,7 +32,7 @@ export function runMigrations() {
       db.exec(`ALTER TABLE orders ADD COLUMN delivery_otp TEXT DEFAULT '1234'`);
     }
 
-    // Products table enhancements (Wholesale, MOQ, Stock Alerts)
+    // Products table enhancements (Wholesale, MOQ, Stock Alerts, Classifieds Slabs)
     const prodCols = db.prepare(`PRAGMA table_info(products)`).all() as any[];
     const prodColNames = prodCols.map((c) => c.name);
     if (!prodColNames.includes('wholesale_price')) {
@@ -43,6 +43,176 @@ export function runMigrations() {
     }
     if (!prodColNames.includes('stock_alert_threshold')) {
       db.exec(`ALTER TABLE products ADD COLUMN stock_alert_threshold REAL DEFAULT 5`);
+    }
+    if (!prodColNames.includes('total_quantity')) {
+      db.exec(`ALTER TABLE products ADD COLUMN total_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes('reserved_quantity')) {
+      db.exec(`ALTER TABLE products ADD COLUMN reserved_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes('sold_quantity')) {
+      db.exec(`ALTER TABLE products ADD COLUMN sold_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes('min_order_quantity')) {
+      db.exec(`ALTER TABLE products ADD COLUMN min_order_quantity REAL DEFAULT 1`);
+    }
+    if (!prodColNames.includes('is_negotiable')) {
+      db.exec(`ALTER TABLE products ADD COLUMN is_negotiable INTEGER DEFAULT 1`);
+    }
+    if (!prodColNames.includes('stock_status')) {
+      db.exec(`ALTER TABLE products ADD COLUMN stock_status TEXT DEFAULT 'available'`);
+    }
+    if (!prodColNames.includes('product_grade')) {
+      db.exec(`ALTER TABLE products ADD COLUMN product_grade TEXT DEFAULT 'Grade A'`);
+    }
+    if (!prodColNames.includes('quality_description')) {
+      db.exec(`ALTER TABLE products ADD COLUMN quality_description TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('organic_certification_body')) {
+      db.exec(`ALTER TABLE products ADD COLUMN organic_certification_body TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('storage_info')) {
+      db.exec(`ALTER TABLE products ADD COLUMN storage_info TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('packaging_info')) {
+      db.exec(`ALTER TABLE products ADD COLUMN packaging_info TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('village')) {
+      db.exec(`ALTER TABLE products ADD COLUMN village TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('district')) {
+      db.exec(`ALTER TABLE products ADD COLUMN district TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('state')) {
+      db.exec(`ALTER TABLE products ADD COLUMN state TEXT DEFAULT 'Uttarakhand'`);
+    }
+    if (!prodColNames.includes('postal_code')) {
+      db.exec(`ALTER TABLE products ADD COLUMN postal_code TEXT DEFAULT '248001'`);
+    }
+    if (!prodColNames.includes('farm_location_name')) {
+      db.exec(`ALTER TABLE products ADD COLUMN farm_location_name TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes('pickup_available')) {
+      db.exec(`ALTER TABLE products ADD COLUMN pickup_available INTEGER DEFAULT 1`);
+    }
+    if (!prodColNames.includes('farmer_delivery_available')) {
+      db.exec(`ALTER TABLE products ADD COLUMN farmer_delivery_available INTEGER DEFAULT 1`);
+    }
+
+    // Products table status check constraint update (active, unavailable, draft, paused, sold, expired)
+    try {
+      const prodSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='products'`).get() as any;
+      if (prodSql && prodSql.sql && !prodSql.sql.includes("'paused'")) {
+        console.log('[Migration] Updating products table status constraint to include paused, sold, and expired...');
+        db.exec(`
+          PRAGMA foreign_keys=off;
+          CREATE TABLE products_new (
+            id TEXT PRIMARY KEY,
+            farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+            category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+            name TEXT NOT NULL,
+            slug TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            price REAL NOT NULL CHECK(price > 0),
+            unit TEXT NOT NULL,
+            available_quantity REAL NOT NULL CHECK(available_quantity >= 0),
+            total_quantity REAL DEFAULT 0,
+            reserved_quantity REAL DEFAULT 0,
+            sold_quantity REAL DEFAULT 0,
+            min_order_quantity REAL DEFAULT 1,
+            is_negotiable INTEGER DEFAULT 1,
+            stock_status TEXT DEFAULT 'available',
+            product_grade TEXT DEFAULT 'Grade A',
+            quality_description TEXT DEFAULT '',
+            organic_certification_body TEXT DEFAULT '',
+            storage_info TEXT DEFAULT '',
+            packaging_info TEXT DEFAULT '',
+            village TEXT DEFAULT '',
+            district TEXT DEFAULT '',
+            state TEXT DEFAULT 'Uttarakhand',
+            postal_code TEXT DEFAULT '248001',
+            farm_location_name TEXT DEFAULT '',
+            pickup_available INTEGER DEFAULT 1,
+            farmer_delivery_available INTEGER DEFAULT 1,
+            wholesale_price REAL DEFAULT NULL,
+            moq REAL DEFAULT 1,
+            stock_alert_threshold REAL DEFAULT 5,
+            is_organic INTEGER NOT NULL DEFAULT 0,
+            available_today INTEGER NOT NULL DEFAULT 1,
+            harvest_date TEXT,
+            freshness_tag TEXT,
+            location TEXT NOT NULL,
+            city TEXT NOT NULL DEFAULT 'Dehradun',
+            latitude REAL,
+            longitude REAL,
+            image TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'unavailable', 'draft', 'paused', 'sold', 'expired')),
+            moderation_status TEXT NOT NULL DEFAULT 'approved' CHECK(moderation_status IN ('approved', 'pending', 'flagged')),
+            views_count INTEGER NOT NULL DEFAULT 0,
+            likes_count INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+          );
+          INSERT INTO products_new (
+            id, farmer_id, category_id, name, slug, description, price, unit,
+            available_quantity, total_quantity, reserved_quantity, sold_quantity, min_order_quantity, is_negotiable,
+            stock_status, product_grade, quality_description, organic_certification_body, storage_info, packaging_info,
+            village, district, state, postal_code, farm_location_name, pickup_available, farmer_delivery_available,
+            wholesale_price, moq, stock_alert_threshold, is_organic, available_today, harvest_date, freshness_tag,
+            location, city, latitude, longitude, image, status, moderation_status, views_count, likes_count,
+            created_at, updated_at
+          ) SELECT
+            id, farmer_id, category_id, name, slug, description, price, unit,
+            available_quantity, total_quantity, reserved_quantity, sold_quantity, min_order_quantity, is_negotiable,
+            stock_status, product_grade, quality_description, organic_certification_body, storage_info, packaging_info,
+            village, district, state, postal_code, farm_location_name, pickup_available, farmer_delivery_available,
+            wholesale_price, moq, stock_alert_threshold, is_organic, available_today, harvest_date, freshness_tag,
+            location, city, latitude, longitude, image, status, moderation_status, views_count, likes_count,
+            created_at, updated_at
+          FROM products;
+          DROP TABLE products;
+          ALTER TABLE products_new RENAME TO products;
+          CREATE INDEX IF NOT EXISTS idx_products_farmer ON products(farmer_id);
+          CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+          CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+          CREATE INDEX IF NOT EXISTS idx_products_city ON products(city);
+          CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+          PRAGMA foreign_keys=on;
+        `);
+      }
+    } catch (e: any) {
+      console.warn('[Migration] Notice on products constraint update:', e.message);
+    }
+
+    // Notifications table update for smart alerts and negotiation types
+    try {
+      const notifSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='notifications'`).get() as any;
+      if (notifSql && notifSql.sql && !notifSql.sql.includes("'offer'")) {
+        console.log('[Migration] Updating notifications table constraints for smart alerts and offers...');
+        db.exec(`
+          PRAGMA foreign_keys=off;
+          CREATE TABLE notifications_new (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            recipient_role TEXT NOT NULL CHECK(recipient_role IN ('customer', 'farmer', 'admin')),
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_read INTEGER NOT NULL DEFAULT 0,
+            read_at TEXT,
+            created_at TEXT NOT NULL
+          );
+          INSERT INTO notifications_new (id, user_id, recipient_role, type, title, message, is_read, read_at, created_at)
+          SELECT id, user_id, recipient_role, type, title, message, is_read, read_at, created_at FROM notifications;
+          DROP TABLE notifications;
+          ALTER TABLE notifications_new RENAME TO notifications;
+          CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+          CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(user_id, is_read);
+          PRAGMA foreign_keys=on;
+        `);
+      }
+    } catch (e: any) {
+      console.warn('[Migration] Notice on notifications constraint update:', e.message);
     }
 
     // Reports table enhancements (Grievances, Categories, Orders Linkage, Priority, Resolution)

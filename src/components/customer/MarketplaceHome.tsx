@@ -19,6 +19,10 @@ import {
   List,
   Building2,
   CalendarClock,
+  Compass,
+  Megaphone,
+  HandCoins,
+  Bell,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -54,6 +58,10 @@ export const MarketplaceHome: React.FC = () => {
     setSelectedFarmer,
     currentLocation,
     setIsLocationModalOpen,
+    setIsFarmMapOpen,
+    setIsRequirementsOpen,
+    setIsNegotiationsOpen,
+    setIsSavedSearchesOpen,
   } = useApp();
 
   const hasActiveFilters =
@@ -135,6 +143,69 @@ export const MarketplaceHome: React.FC = () => {
           <span className="text-xs font-bold bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] px-3 py-1 rounded-xl">
             Find
           </span>
+        </div>
+
+        {/* 1.2 Direct Agricultural Discovery Quick Action Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <button
+            onClick={() => setIsFarmMapOpen(true)}
+            className="p-3 bg-white dark:bg-[#181F1A] border border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0 group-hover:scale-105 transition">
+              <Compass className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-zinc-900 dark:text-white block">
+                Farm Map
+              </span>
+              <span className="text-[10px] text-zinc-500 block">खेत नक्शा</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setIsRequirementsOpen(true)}
+            className="p-3 bg-white dark:bg-[#181F1A] border border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0 group-hover:scale-105 transition">
+              <Megaphone className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-zinc-900 dark:text-white block">
+                Post Demand
+              </span>
+              <span className="text-[10px] text-zinc-500 block">फसल मांगें</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setIsNegotiationsOpen(true)}
+            className="p-3 bg-white dark:bg-[#181F1A] border border-amber-200 dark:border-amber-900/60 hover:border-amber-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-105 transition">
+              <HandCoins className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-zinc-900 dark:text-white block">
+                Negotiations
+              </span>
+              <span className="text-[10px] text-zinc-500 block">मोल-भाव</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setIsSavedSearchesOpen(true)}
+            className="p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-zinc-900 dark:text-white block">
+                Crop Alerts
+              </span>
+              <span className="text-[10px] text-zinc-500 block">स्मार्ट अलर्ट</span>
+            </div>
+          </button>
         </div>
       </div>
 

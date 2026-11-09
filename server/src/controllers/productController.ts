@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ProductService } from '../services/productService';
 
 export class ProductController {
@@ -86,6 +86,64 @@ export class ProductController {
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
       const product = ProductService.update(req.params.id, req.body);
+      res.json({
+        success: true,
+        data: product,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateStock(req: Request, res: Response, next: NextFunction) {
+    try {
+      const farmerId = req.user!.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can update stock.' },
+        });
+      }
+      const product = ProductService.updateStock(req.params.id, farmerId, req.body);
+      res.json({
+        success: true,
+        data: product,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getStockHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const farmerId = req.user!.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can view stock history.' },
+        });
+      }
+      const history = ProductService.getStockHistory(req.params.id, farmerId);
+      res.json({
+        success: true,
+        data: history,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const farmerId = req.user!.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can update listing status.' },
+        });
+      }
+      const { statusAction } = req.body;
+      const product = ProductService.updateStatus(req.params.id, farmerId, statusAction);
       res.json({
         success: true,
         data: product,

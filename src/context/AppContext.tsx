@@ -167,6 +167,18 @@ interface AppContextType {
   publishListing: (listingData: any) => void;
   addProduct: (listingData: any) => void;
 
+  // New Agricultural Modules State
+  isFarmMapOpen: boolean;
+  setIsFarmMapOpen: (open: boolean) => void;
+  isRequirementsOpen: boolean;
+  setIsRequirementsOpen: (open: boolean) => void;
+  isNegotiationsOpen: boolean;
+  setIsNegotiationsOpen: (open: boolean) => void;
+  isSavedSearchesOpen: boolean;
+  setIsSavedSearchesOpen: (open: boolean) => void;
+  stockControlProduct: Product | null;
+  setStockControlProduct: (p: Product | null) => void;
+
   // Chat / Contact
   isChatModalOpen: boolean;
   setIsChatModalOpen: (open: boolean) => void;
@@ -469,6 +481,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [isFastSellOpen, setIsFastSellOpen] = useState<boolean>(false);
   const [isMyAdsOpen, setIsMyAdsOpen] = useState<boolean>(false);
+
+  // New Agricultural Modules State
+  const [isFarmMapOpen, setIsFarmMapOpen] = useState<boolean>(false);
+  const [isRequirementsOpen, setIsRequirementsOpen] = useState<boolean>(false);
+  const [isNegotiationsOpen, setIsNegotiationsOpen] = useState<boolean>(false);
+  const [isSavedSearchesOpen, setIsSavedSearchesOpen] = useState<boolean>(false);
+  const [stockControlProduct, setStockControlProduct] = useState<Product | null>(null);
 
   // Buy Now
   const [buyNowProduct, setBuyNowProduct] = useState<{ product: Product; quantity: number } | null>(null);
@@ -1641,6 +1660,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAddProductOpen: setIsFastSellOpen,
         publishListing,
         addProduct: publishListing,
+        isFarmMapOpen,
+        setIsFarmMapOpen,
+        isRequirementsOpen,
+        setIsRequirementsOpen,
+        isNegotiationsOpen,
+        setIsNegotiationsOpen,
+        isSavedSearchesOpen,
+        setIsSavedSearchesOpen,
+        stockControlProduct,
+        setStockControlProduct,
         isChatModalOpen,
         setIsChatModalOpen,
         chatFarmer,

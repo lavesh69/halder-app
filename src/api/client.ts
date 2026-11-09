@@ -966,6 +966,273 @@ export class ApiClient {
       body: { farmerId, planId },
     });
   }
+
+  // ==========================================
+  // AGRICULTURAL CLASSIFIEDS MARKETPLACE APIS
+  // ==========================================
+
+  // Product Stock & Ad Lifecycle (Modules 1 & 2)
+  static async updateProductStock(productId: string, data: {
+    action: 'increase' | 'reduce' | 'set' | 'mark_sold_out' | 'restore';
+    amount?: number;
+    newQuantity?: number;
+    reason?: string;
+    harvestDate?: string;
+  }): Promise<any> {
+    return this.request(`/products/${productId}/stock`, {
+      method: 'PATCH',
+      body: data,
+    });
+  }
+
+  static async getProductStockHistory(productId: string): Promise<any[]> {
+    return this.request(`/products/${productId}/stock-history`);
+  }
+
+  static async updateProductStatus(productId: string, statusAction: 'pause' | 'resume' | 'mark_sold' | 'renew'): Promise<any> {
+    return this.request(`/products/${productId}/status`, {
+      method: 'PATCH',
+      body: { statusAction },
+    });
+  }
+
+  // Buyer Requirements Marketplace (Module 4)
+  static async createRequirement(data: {
+    productName: string;
+    category?: string;
+    categoryName?: string;
+    quantity?: number;
+    requiredQuantity?: number;
+    unit?: string;
+    targetPrice?: number;
+    isNegotiable?: boolean;
+    qualityGrade?: string;
+    requiredDate?: string;
+    location?: string;
+    city?: string;
+    district?: string;
+    state?: string;
+    village?: string;
+    postalCode?: string;
+    latitude?: number;
+    longitude?: number;
+    deliveryPreference?: 'pickup' | 'farmer_delivery' | 'flexible';
+    instructions?: string;
+  }): Promise<any> {
+    return this.request('/requirements', {
+      method: 'POST',
+      body: {
+        ...data,
+        categoryName: data.categoryName || data.category,
+        requiredQuantity: data.requiredQuantity || data.quantity || 1,
+        location: data.location || [data.village, data.district || data.city, data.state].filter(Boolean).join(', ') || 'Local Mandi',
+        requiredDate: data.requiredDate || new Date().toISOString().split('T')[0],
+      },
+    });
+  }
+
+  static async listRequirements(params?: {
+    category?: string;
+    city?: string;
+    search?: string;
+    status?: string;
+    maxDistanceKm?: number;
+    latitude?: number;
+    longitude?: number;
+    limit?: number;
+  }): Promise<any[]> {
+    return this.request('/requirements', {
+      params,
+    });
+  }
+
+  static async listMyRequirements(): Promise<any[]> {
+    return this.request('/requirements/my');
+  }
+
+  static async getRequirementById(id: string, coords?: { latitude?: number; longitude?: number }): Promise<any> {
+    return this.request(`/requirements/${id}`, {
+      params: coords,
+    });
+  }
+
+  static async updateRequirementStatus(id: string, status: string): Promise<any> {
+    return this.request(`/requirements/${id}/status`, {
+      method: 'PATCH',
+      body: { status },
+    });
+  }
+
+  static async deleteRequirement(id: string): Promise<any> {
+    return this.request(`/requirements/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async submitRequirementQuotation(requirementId: string, data: {
+    availableQuantity: number;
+    proposedPrice: number;
+    unit?: string;
+    harvestAvailabilityDate?: string;
+    deliveryMode?: 'pickup' | 'farmer_delivery';
+    message?: string;
+  }): Promise<any> {
+    return this.request(`/requirements/${requirementId}/quotations`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async listRequirementQuotations(requirementId: string): Promise<any[]> {
+    return this.request(`/requirements/${requirementId}/quotations`);
+  }
+
+  static async respondToRequirementQuotation(quoteId: string, action: 'accept' | 'reject' | 'counter' | 'withdraw', counterPrice?: number): Promise<any> {
+    return this.request(`/requirements/quotations/${quoteId}`, {
+      method: 'PATCH',
+      body: { action, counterPrice },
+    });
+  }
+
+  // Bulk Price & Direct Negotiation Engine (Module 5)
+  static async createOffer(data: {
+    productId: string;
+    proposedPrice: number;
+    quantity: number;
+    requiredDate?: string;
+    deliveryPreference?: string;
+    message?: string;
+  }): Promise<any> {
+    return this.request('/negotiations', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async listUserNegotiations(): Promise<any[]> {
+    return this.request('/negotiations');
+  }
+
+  static async getNegotiationById(id: string): Promise<any> {
+    return this.request(`/negotiations/${id}`);
+  }
+
+  static async counterOffer(negotiationId: string, data: {
+    proposedPrice: number;
+    quantity?: number;
+    message?: string;
+  }): Promise<any> {
+    return this.request(`/negotiations/${negotiationId}/counter`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async acceptOffer(negotiationId: string): Promise<any> {
+    return this.request(`/negotiations/${negotiationId}/accept`, {
+      method: 'POST',
+    });
+  }
+
+  static async rejectOffer(negotiationId: string): Promise<any> {
+    return this.request(`/negotiations/${negotiationId}/reject`, {
+      method: 'POST',
+    });
+  }
+
+  static async withdrawOffer(negotiationId: string): Promise<any> {
+    return this.request(`/negotiations/${negotiationId}/withdraw`, {
+      method: 'POST',
+    });
+  }
+
+  static async getDealSummary(negotiationId: string): Promise<any> {
+    return this.request(`/negotiations/${negotiationId}/deal-summary`);
+  }
+
+  static async getProductPriceSlabs(productId: string): Promise<any[]> {
+    return this.request(`/negotiations/slabs/${productId}`);
+  }
+
+  // Farm Nearby Map (Module 6)
+  static async getNearbyFarmers(params: {
+    latitude?: number;
+    longitude?: number;
+    radiusKm?: number;
+    category?: string;
+    verifiedOnly?: boolean;
+    availableTodayOnly?: boolean;
+    limit?: number;
+  }): Promise<any[]> {
+    return this.request('/map/nearby-farmers', {
+      params,
+    });
+  }
+
+  // Smart Alerts & Saved Searches (Module 11)
+  static async createSavedSearch(data: {
+    searchName: string;
+    productQuery?: string;
+    categoryName?: string;
+    city?: string;
+    maxDistanceKm?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    notificationFrequency?: 'instant' | 'daily';
+  }): Promise<any> {
+    return this.request('/alerts/saved-searches', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async listSavedSearches(): Promise<any[]> {
+    return this.request('/alerts/saved-searches');
+  }
+
+  static async deleteSavedSearch(id: string): Promise<any> {
+    return this.request(`/alerts/saved-searches/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async toggleSavedSearch(id: string): Promise<any> {
+    return this.request(`/alerts/saved-searches/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  }
+
+  // Aliases for unified component consumption
+  static async submitQuotation(requirementId: string, data: any): Promise<any> {
+    return this.submitRequirementQuotation(requirementId, {
+      availableQuantity: data.quantity ?? data.availableQuantity,
+      proposedPrice: data.offeredPrice ?? data.proposedPrice,
+      message: data.notes ?? data.message,
+      deliveryMode: data.deliveryMode,
+    });
+  }
+
+  static async acceptQuotation(quoteId: string): Promise<any> {
+    return this.respondToRequirementQuotation(quoteId, 'accept');
+  }
+
+  static async listNegotiations(params?: any): Promise<any> {
+    const list = await this.listUserNegotiations();
+    return { negotiations: list };
+  }
+
+  static async updateStock(productId: string, data: any): Promise<any> {
+    return this.updateProductStock(productId, {
+      action: 'set',
+      newQuantity: data.quantity,
+      reason: data.reason,
+    });
+  }
+
+  static async getStockHistory(productId: string): Promise<any> {
+    const history = await this.getProductStockHistory(productId);
+    return { history };
+  }
 }
 
 

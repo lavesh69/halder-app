@@ -105,6 +105,28 @@ export interface Product {
   isAvailable: boolean;
   status?: ProductStatus;
   moderationStatus?: ModerationStatus;
+  stock_status?: string;
+  total_quantity?: number;
+  productGrade?: string;
+  product_grade?: string;
+  qualityDescription?: string;
+  organicCertificationBody?: string;
+  organic_certification_body?: string;
+  storageInfo?: string;
+  storage_info?: string;
+  packagingInfo?: string;
+  packaging_info?: string;
+  village?: string;
+  district?: string;
+  state?: string;
+  postalCode?: string;
+  min_order_quantity?: number;
+  minOrderQuantity?: number;
+  pickupAvailable?: boolean;
+  pickup_available?: boolean;
+  farmerDeliveryAvailable?: boolean;
+  farmer_delivery_available?: boolean;
+  price_slabs?: PriceSlab[];
   createdAtTime?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -222,7 +244,7 @@ export interface AppNotification {
   recipientRole: Role;
   title: string;
   message: string;
-  type: 'order' | 'verification' | 'chat' | 'system';
+  type: 'order' | 'verification' | 'chat' | 'system' | 'offer' | 'negotiation' | 'deal' | 'requirement' | 'quotation' | 'alert' | 'stock';
   isRead: boolean;
   createdAt: string;
 }
@@ -248,4 +270,166 @@ export interface Farmer extends FarmerProfile {
   totalListingsCount?: number;
   totalOrdersCompleted?: number;
   responseRate?: number;
+}
+
+export interface PriceSlab {
+  id?: string;
+  minQuantity: number;
+  maxQuantity?: number;
+  pricePerUnit: number;
+}
+
+export interface BuyerRequirement {
+  id: string;
+  requirementNumber?: string;
+  requirementCode?: string;
+  buyerId: string;
+  buyerName: string;
+  buyerPhone: string;
+  productName: string;
+  categoryId?: string;
+  category?: string;
+  categoryName?: string;
+  quantity?: number;
+  requiredQuantity?: number;
+  unit: string;
+  targetPrice?: number;
+  isNegotiable: boolean;
+  qualityGrade?: string;
+  requiredDate?: string;
+  location?: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  village?: string;
+  postalCode?: string;
+  latitude?: number;
+  longitude?: number;
+  deliveryPreference?: 'pickup' | 'farmer_delivery' | 'flexible';
+  instructions?: string;
+  status: 'draft' | 'active' | 'open' | 'receiving_offers' | 'negotiating' | 'offer_accepted' | 'fulfilled' | 'closed' | 'expired';
+  quotationsCount?: number;
+  quotations?: RequirementQuotation[];
+  distanceKm?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RequirementQuotation {
+  id: string;
+  quotationNumber?: string;
+  quotationCode?: string;
+  requirementId: string;
+  farmerId: string;
+  farmerName: string;
+  farmName?: string;
+  farmerPhone?: string;
+  farmerAvatar?: string;
+  farmerRating?: number;
+  isVerified?: boolean;
+  availableQuantity?: number;
+  quantity?: number;
+  proposedPrice?: number;
+  offeredPrice?: number;
+  unit?: string;
+  harvestAvailabilityDate?: string;
+  deliveryMode?: 'pickup' | 'farmer_delivery';
+  deliveryTerms?: string;
+  message?: string;
+  notes?: string;
+  status: 'submitted' | 'countered' | 'accepted' | 'rejected' | 'withdrawn';
+  counterPrice?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NegotiationMessageItem {
+  id: string;
+  negotiationId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'buyer' | 'farmer';
+  action: 'offer' | 'counter' | 'accept' | 'reject' | 'withdraw';
+  proposedPrice: number;
+  quantity?: number;
+  message?: string;
+  createdAt: string;
+}
+
+export interface NegotiationThread {
+  id: string;
+  dealReferenceId: string;
+  productId: string;
+  productName: string;
+  productImage?: string;
+  originalAskingPrice?: number;
+  originalPrice?: number;
+  currentPrice: number;
+  quantity: number;
+  totalAmount?: number;
+  unit: string;
+  buyerId: string;
+  buyerName: string;
+  buyerPhone: string;
+  farmerId: string;
+  farmerName: string;
+  farmName?: string;
+  farmerPhone: string;
+  farmerAvatar?: string;
+  requiredDate?: string;
+  deliveryPreference?: string;
+  status: 'pending' | 'countered' | 'accepted' | 'rejected' | 'withdrawn' | 'expired';
+  finalAgreedPrice?: number;
+  finalTotalValue?: number;
+  agreedAt?: string;
+  dealSummary?: any;
+  messages: NegotiationMessageItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NearbyFarmer {
+  id: string;
+  userId?: string;
+  farmName: string;
+  farmerName?: string;
+  name?: string;
+  avatar?: string;
+  phone: string;
+  location: string;
+  city?: string;
+  latitude: number;
+  longitude: number;
+  rating: number;
+  verificationStatus?: string;
+  isVerified?: boolean;
+  distanceKm: number;
+  activeProductsCount?: number;
+  topProducts?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    unit: string;
+    image?: string;
+    category?: string;
+  }>;
+}
+
+export interface SavedSearch {
+  id: string;
+  userId: string;
+  searchName?: string;
+  productQuery?: string;
+  queryText?: string;
+  categoryName?: string;
+  city?: string;
+  maxDistanceKm?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  isActive: boolean;
+  notificationFrequency?: 'instant' | 'daily';
+  alertFrequency?: string;
+  lastMatchedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }

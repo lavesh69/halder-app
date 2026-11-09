@@ -18,6 +18,10 @@ import mandiRoutes from './mandiRoutes';
 import logisticsRoutes from './logisticsRoutes';
 import financeRoutes from './financeRoutes';
 import advancedRoutes from './advancedRoutes';
+import requirementRoutes from './requirementRoutes';
+import negotiationRoutes from './negotiationRoutes';
+import mapRoutes from './mapRoutes';
+import smartAlertRoutes from './smartAlertRoutes';
 import { Database } from '../db/database';
 import { IdentityService } from '../services/identityService';
 
@@ -100,5 +104,11 @@ apiRouter.use('/mandi', mandiRoutes);
 apiRouter.use('/logistics', logisticsRoutes);
 apiRouter.use('/finance', financeRoutes);
 apiRouter.use('/advanced', advancedRoutes);
+
+// Agricultural Classifieds Marketplace (Modules 1, 2, 4, 5, 6, 11)
+apiRouter.use('/requirements', requirementRoutes);
+apiRouter.use('/negotiations', negotiationRoutes);
+apiRouter.use('/map', mapRoutes);
+apiRouter.use('/alerts', smartAlertRoutes);
 
 export default apiRouter;

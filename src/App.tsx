@@ -25,6 +25,13 @@ import { MyAdsModal } from './components/customer/MyAdsModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 
+// Agricultural Classifieds & Reverse Marketplace Modals
+import { FarmNearbyMapModal } from './components/customer/FarmNearbyMapModal';
+import { RequirementsMarketplaceView } from './components/customer/RequirementsMarketplaceView';
+import { NegotiationThreadModal } from './components/customer/NegotiationThreadModal';
+import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
+import { StockControlModal } from './components/farmer/StockControlModal';
+
 // Farmer screens & modals (Code-split for performance)
 const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
 const FarmerProductsView = React.lazy(() => import('./components/farmer/FarmerProductsView').then(m => ({ default: m.FarmerProductsView })));
@@ -54,6 +61,16 @@ export const MainApp: React.FC = () => {
     isSearchScreenOpen,
     buyNowProduct,
     setBuyNowProduct,
+    isFarmMapOpen,
+    setIsFarmMapOpen,
+    isRequirementsOpen,
+    setIsRequirementsOpen,
+    isNegotiationsOpen,
+    setIsNegotiationsOpen,
+    isSavedSearchesOpen,
+    setIsSavedSearchesOpen,
+    stockControlProduct,
+    setStockControlProduct,
   } = useApp();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -185,7 +202,32 @@ export const MainApp: React.FC = () => {
       <MyAdsModal />
       <FilterBottomSheet />
       <LocationModal />
-      <NotificationModal />
+      <NotificationModal
+        onOpenNegotiation={() => setIsNegotiationsOpen(true)}
+        onOpenRequirements={() => setIsRequirementsOpen(true)}
+      />
+      <FarmNearbyMapModal
+        isOpen={isFarmMapOpen}
+        onClose={() => setIsFarmMapOpen(false)}
+      />
+      <RequirementsMarketplaceView
+        isOpen={isRequirementsOpen}
+        onClose={() => setIsRequirementsOpen(false)}
+      />
+      <NegotiationThreadModal
+        isOpen={isNegotiationsOpen}
+        onClose={() => setIsNegotiationsOpen(false)}
+        roleMode={role === 'farmer' ? 'farmer' : 'buyer'}
+      />
+      <SavedSearchesModal
+        isOpen={isSavedSearchesOpen}
+        onClose={() => setIsSavedSearchesOpen(false)}
+      />
+      <StockControlModal
+        product={stockControlProduct}
+        isOpen={!!stockControlProduct}
+        onClose={() => setStockControlProduct(null)}
+      />
       {isSearchScreenOpen && <SearchScreen />}
       {isLoginModalOpen && (
         <Onboarding

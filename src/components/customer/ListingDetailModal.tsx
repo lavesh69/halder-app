@@ -26,7 +26,12 @@ import {
   Maximize2,
   ChevronLeft,
   Copy,
+  Truck,
+  Award,
+  Boxes,
+  FileCheck,
 } from 'lucide-react';
+import { MakeOfferModal } from './MakeOfferModal';
 
 export const ListingDetailModal: React.FC = () => {
   const {
@@ -322,6 +327,94 @@ export const ListingDetailModal: React.FC = () => {
             </span>
           </div>
 
+          {/* Volume Price Slabs (Module 5) */}
+          {selectedProduct.price_slabs && selectedProduct.price_slabs.length > 0 && (
+            <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-200">
+                <Boxes className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Bulk Volume Pricing (थोक मूल्य छूट)</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {selectedProduct.price_slabs.map((slab, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2 bg-white dark:bg-zinc-800 rounded-xl border border-amber-200/60 dark:border-amber-800/40 text-center"
+                  >
+                    <span className="text-[10px] text-zinc-500 block">
+                      {slab.minQuantity}{slab.maxQuantity ? ` - ${slab.maxQuantity}` : '+'} {selectedProduct.unit}
+                    </span>
+                    <span className="text-xs font-black text-emerald-700 dark:text-emerald-400">
+                      ₹{slab.pricePerUnit}/{selectedProduct.unit}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quality & Farm Provenance Specs */}
+          {(selectedProduct.product_grade || selectedProduct.organic_certification_body || selectedProduct.storage_info || selectedProduct.packaging_info || selectedProduct.village || selectedProduct.district) && (
+            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/80 space-y-2 text-xs">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">
+                Quality & Farm Specifications
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                {selectedProduct.product_grade && (
+                  <div>
+                    <span className="text-zinc-400 block">Grade:</span>
+                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.product_grade}</strong>
+                  </div>
+                )}
+                {selectedProduct.organic_certification_body && (
+                  <div>
+                    <span className="text-zinc-400 block">Organic Body:</span>
+                    <strong className="text-emerald-600">{selectedProduct.organic_certification_body}</strong>
+                  </div>
+                )}
+                {(selectedProduct.village || selectedProduct.district) && (
+                  <div>
+                    <span className="text-zinc-400 block">Farm Village / Mandi:</span>
+                    <strong className="text-zinc-800 dark:text-zinc-200">
+                      {[selectedProduct.village, selectedProduct.district, selectedProduct.state].filter(Boolean).join(', ')}
+                    </strong>
+                  </div>
+                )}
+                {selectedProduct.min_order_quantity && (
+                  <div>
+                    <span className="text-zinc-400 block">Min Order (MOQ):</span>
+                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.min_order_quantity} {selectedProduct.unit}</strong>
+                  </div>
+                )}
+                {selectedProduct.packaging_info && (
+                  <div>
+                    <span className="text-zinc-400 block">Packaging:</span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{selectedProduct.packaging_info}</span>
+                  </div>
+                )}
+                {selectedProduct.storage_info && (
+                  <div>
+                    <span className="text-zinc-400 block">Storage:</span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{selectedProduct.storage_info}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Delivery / Pickup Availability */}
+              <div className="flex items-center gap-2 pt-1 border-t border-zinc-200/50 dark:border-zinc-700/50">
+                {selectedProduct.pickup_available !== false && (
+                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> Farm Gate Pickup
+                  </span>
+                )}
+                {selectedProduct.farmer_delivery_available && (
+                  <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-950/60 px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <Truck className="w-3 h-3" /> Farmer Delivery Available
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Seller / Farmer Profile Card (Marketplace Style) */}
           <div className="space-y-2">
             <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
@@ -616,85 +709,13 @@ export const ListingDetailModal: React.FC = () => {
           </div>
         )}
 
-        {/* OLX-Style Make an Offer Modal */}
+        {/* Negotiation Engine: Make an Offer Modal */}
         {showOfferModal && (
-          <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowOfferModal(false)}>
-            <div className="w-full max-w-sm bg-white dark:bg-[#1E2420] rounded-3xl p-5 border border-zinc-200 dark:border-zinc-700 shadow-2xl space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded-xl">
-                    <HandCoins className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">Make an Offer</h3>
-                    <p className="text-[11px] text-zinc-500">Listed: {formatCurrency(selectedProduct.price)} / {selectedProduct.unit}</p>
-                  </div>
-                </div>
-                <button onClick={() => setShowOfferModal(false)} className="p-1.5 text-zinc-400 hover:text-zinc-600 rounded-lg">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Fast Discount Buttons */}
-              <div className="space-y-1.5">
-                <span className="text-xs font-semibold text-zinc-500 block">Quick Suggestions:</span>
-                <div className="grid grid-cols-3 gap-2">
-                  {[0.9, 0.85, 0.8].map((factor) => {
-                    const price = Math.round(selectedProduct.price * factor);
-                    const pct = Math.round((1 - factor) * 100);
-                    return (
-                      <button
-                        key={factor}
-                        onClick={() => setCustomOffer(price)}
-                        className={`py-2 px-2 text-center rounded-xl border text-xs font-bold transition ${
-                          customOffer === price
-                            ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
-                            : 'border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50'
-                        }`}
-                      >
-                        <span className="block text-[10px] text-zinc-400 font-normal">{pct}% off</span>
-                        <span>₹{price}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Custom Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 block">Or enter your price (₹/{selectedProduct.unit}):</label>
-                <input
-                  type="number"
-                  value={customOffer}
-                  onChange={(e) => setCustomOffer(e.target.value === '' ? '' : Number(e.target.value))}
-                  placeholder={`e.g. ${Math.round(selectedProduct.price * 0.9)}`}
-                  className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                <button
-                  onClick={() => setShowOfferModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-xs text-zinc-600 dark:text-zinc-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    if (customOffer && Number(customOffer) > 0) {
-                      setShowOfferModal(false);
-                      handleSendOffer(Number(customOffer));
-                    }
-                  }}
-                  disabled={!customOffer || Number(customOffer) <= 0}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs disabled:opacity-50 shadow-soft transition"
-                >
-                  Send Offer
-                </button>
-              </div>
-            </div>
-          </div>
+          <MakeOfferModal
+            product={selectedProduct}
+            isOpen={showOfferModal}
+            onClose={() => setShowOfferModal(false)}
+          />
         )}
         {/* OLX Phone Call / Reveal Number Modal */}
         {showPhoneModal && (

@@ -18282,17 +18282,17 @@ var require_router = __commonJS({
     var toString = Object.prototype.toString;
     var proto = module.exports = function(options) {
       var opts = options || {};
-      function router18(req, res, next) {
-        router18.handle(req, res, next);
+      function router22(req, res, next) {
+        router22.handle(req, res, next);
       }
-      setPrototypeOf(router18, proto);
-      router18.params = {};
-      router18._params = [];
-      router18.caseSensitive = opts.caseSensitive;
-      router18.mergeParams = opts.mergeParams;
-      router18.strict = opts.strict;
-      router18.stack = [];
-      return router18;
+      setPrototypeOf(router22, proto);
+      router22.params = {};
+      router22._params = [];
+      router22.caseSensitive = opts.caseSensitive;
+      router22.mergeParams = opts.mergeParams;
+      router22.strict = opts.strict;
+      router22.stack = [];
+      return router22;
     };
     proto.param = function param(name, fn) {
       if (typeof name === "function") {
@@ -21861,7 +21861,7 @@ var require_application = __commonJS({
   "node_modules/express/lib/application.js"(exports, module) {
     "use strict";
     var finalhandler = require_finalhandler();
-    var Router21 = require_router();
+    var Router25 = require_router();
     var methods = require_methods();
     var middleware = require_init();
     var query = require_query();
@@ -21926,7 +21926,7 @@ var require_application = __commonJS({
     };
     app2.lazyrouter = function lazyrouter() {
       if (!this._router) {
-        this._router = new Router21({
+        this._router = new Router25({
           caseSensitive: this.enabled("case sensitive routing"),
           strict: this.enabled("strict routing")
         });
@@ -21935,17 +21935,17 @@ var require_application = __commonJS({
       }
     };
     app2.handle = function handle(req, res, callback) {
-      var router18 = this._router;
+      var router22 = this._router;
       var done = callback || finalhandler(req, res, {
         env: this.get("env"),
         onerror: logerror.bind(this)
       });
-      if (!router18) {
+      if (!router22) {
         debug("no routes defined on app");
         done();
         return;
       }
-      router18.handle(req, res, done);
+      router22.handle(req, res, done);
     };
     app2.use = function use(fn) {
       var offset = 0;
@@ -21965,15 +21965,15 @@ var require_application = __commonJS({
         throw new TypeError("app.use() requires a middleware function");
       }
       this.lazyrouter();
-      var router18 = this._router;
+      var router22 = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router18.use(path5, fn2);
+          return router22.use(path5, fn2);
         }
         debug(".use app under %s", path5);
         fn2.mountpath = path5;
         fn2.parent = this;
-        router18.use(path5, function mounted_app(req, res, next) {
+        router22.use(path5, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -23790,7 +23790,7 @@ var require_express = __commonJS({
     var mixin = require_merge_descriptors();
     var proto = require_application();
     var Route = require_route();
-    var Router21 = require_router();
+    var Router25 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23813,7 +23813,7 @@ var require_express = __commonJS({
     exports.request = req;
     exports.response = res;
     exports.Route = Route;
-    exports.Router = Router21;
+    exports.Router = Router25;
     exports.json = bodyParser.json;
     exports.query = require_query();
     exports.raw = bodyParser.raw;
@@ -79897,7 +79897,7 @@ var require_dist_cjs17 = __commonJS({
 });
 
 // server/src/app.ts
-var import_express21 = __toESM(require_express2(), 1);
+var import_express25 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib4(), 1);
 
 // node_modules/helmet/index.mjs
@@ -80472,7 +80472,7 @@ var import_cookie_parser = __toESM(require_cookie_parser(), 1);
 init_env();
 
 // server/src/routes/index.ts
-var import_express20 = __toESM(require_express2(), 1);
+var import_express24 = __toESM(require_express2(), 1);
 
 // server/src/routes/authRoutes.ts
 var import_express = __toESM(require_express2(), 1);
@@ -84133,6 +84133,210 @@ init_database();
 init_errors2();
 init_esm();
 init_sanitize();
+
+// server/src/services/smartAlertService.ts
+init_database();
+init_errors2();
+init_esm();
+var SmartAlertService = class {
+  /**
+   * Create a new saved search / buyer alert criteria
+   */
+  static createSavedSearch(userId, data) {
+    if (!data.searchName || data.searchName.trim().length === 0) {
+      throw AppError.badRequest("Search name is required.");
+    }
+    const id = `srch-${v4_default().slice(0, 8)}`;
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `INSERT INTO saved_searches (
+        id, user_id, search_name, product_query, category_name, city,
+        max_distance_km, min_price, max_price, is_active,
+        notification_frequency, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+      [
+        id,
+        userId,
+        data.searchName.trim(),
+        (data.productQuery || "").trim(),
+        data.categoryName || "All",
+        data.city || "All",
+        data.maxDistanceKm || 50,
+        data.minPrice || 0,
+        data.maxPrice || 1e5,
+        data.notificationFrequency || "instant",
+        now,
+        now
+      ]
+    );
+    return this.getSavedSearchById(id);
+  }
+  static getSavedSearchById(id) {
+    const row = Database.get("SELECT * FROM saved_searches WHERE id = ?", [id]);
+    if (!row) throw AppError.notFound("Saved search not found");
+    return {
+      id: row.id,
+      userId: row.user_id,
+      searchName: row.search_name,
+      productQuery: row.product_query,
+      categoryName: row.category_name,
+      city: row.city,
+      maxDistanceKm: row.max_distance_km,
+      minPrice: row.min_price,
+      maxPrice: row.max_price,
+      isActive: Boolean(row.is_active),
+      notificationFrequency: row.notification_frequency,
+      lastMatchedAt: row.last_matched_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+  static listSavedSearches(userId) {
+    const rows = Database.query(
+      "SELECT * FROM saved_searches WHERE user_id = ? ORDER BY created_at DESC",
+      [userId]
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      searchName: row.search_name,
+      productQuery: row.product_query,
+      categoryName: row.category_name,
+      city: row.city,
+      maxDistanceKm: row.max_distance_km,
+      minPrice: row.min_price,
+      maxPrice: row.max_price,
+      isActive: Boolean(row.is_active),
+      notificationFrequency: row.notification_frequency,
+      lastMatchedAt: row.last_matched_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  }
+  static deleteSavedSearch(id, userId) {
+    const search = Database.get("SELECT * FROM saved_searches WHERE id = ?", [id]);
+    if (!search) throw AppError.notFound("Saved search not found");
+    if (search.user_id !== userId) throw AppError.forbidden("Unauthorized access to saved search");
+    Database.run("DELETE FROM saved_searches WHERE id = ?", [id]);
+    return { success: true, message: "Saved search deleted" };
+  }
+  static toggleSavedSearch(id, userId) {
+    const search = Database.get("SELECT * FROM saved_searches WHERE id = ?", [id]);
+    if (!search) throw AppError.notFound("Saved search not found");
+    if (search.user_id !== userId) throw AppError.forbidden("Unauthorized access to saved search");
+    const nextState = search.is_active ? 0 : 1;
+    Database.run("UPDATE saved_searches SET is_active = ?, updated_at = ? WHERE id = ?", [
+      nextState,
+      (/* @__PURE__ */ new Date()).toISOString(),
+      id
+    ]);
+    return { success: true, isActive: Boolean(nextState) };
+  }
+  /**
+   * Matches a newly published product or price update against active saved searches
+   */
+  static matchListingAgainstSavedSearches(productId) {
+    const product = Database.get(
+      `SELECT p.*, c.name as category_name, f.user_id as farmer_user_id, f.farm_name
+       FROM products p
+       JOIN categories c ON p.category_id = c.id
+       JOIN farmer_profiles f ON p.farmer_id = f.id
+       WHERE p.id = ?`,
+      [productId]
+    );
+    if (!product) return;
+    const searches = Database.query(
+      `SELECT * FROM saved_searches WHERE is_active = 1 AND user_id != ?`,
+      [product.farmer_user_id]
+    );
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    for (const s2 of searches) {
+      if (s2.category_name !== "All" && s2.category_name.toLowerCase() !== product.category_name.toLowerCase()) {
+        continue;
+      }
+      if (s2.product_query && s2.product_query.trim().length > 0) {
+        const query = s2.product_query.toLowerCase().trim();
+        const pName = product.name.toLowerCase();
+        const pDesc = (product.description || "").toLowerCase();
+        if (!pName.includes(query) && !pDesc.includes(query)) {
+          continue;
+        }
+      }
+      if (product.price < s2.min_price || product.price > s2.max_price) {
+        continue;
+      }
+      if (s2.city !== "All" && product.city && s2.city.toLowerCase() !== product.city.toLowerCase()) {
+        if (product.latitude && product.longitude) {
+          const defaultCityLat = 30.3165;
+          const defaultCityLng = 78.0322;
+          const dist = calculateHaversineDistanceKm(defaultCityLat, defaultCityLng, product.latitude, product.longitude);
+          if (dist > s2.max_distance_km) {
+            continue;
+          }
+        }
+      }
+      const existingNotif = Database.get(
+        `SELECT id FROM notifications 
+         WHERE user_id = ? AND title LIKE ? AND created_at > datetime('now', '-1 day')`,
+        [s2.user_id, `%${product.name}%`]
+      );
+      if (existingNotif) {
+        continue;
+      }
+      const notifId = `notif-${v4_default().slice(0, 8)}`;
+      Database.run(
+        `INSERT INTO notifications (
+          id, user_id, recipient_role, type, title, message, is_read, created_at
+        ) VALUES (?, ?, 'customer', 'alert', ?, ?, 0, ?)`,
+        [
+          notifId,
+          s2.user_id,
+          `Fresh Listing Alert: ${product.name}`,
+          `New produce matching your alert "${s2.search_name}" was posted: ${product.name} at \u20B9${product.price}/${product.unit} by ${product.farm_name}.`,
+          now
+        ]
+      );
+      Database.run("UPDATE saved_searches SET last_matched_at = ? WHERE id = ?", [now, s2.id]);
+    }
+  }
+  /**
+   * Matches a new buyer requirement against nearby farmers
+   */
+  static matchRequirementAgainstNearbyFarmers(requirementId) {
+    const req = Database.get("SELECT * FROM buyer_requirements WHERE id = ?", [requirementId]);
+    if (!req) return;
+    const farmers = Database.query(
+      `SELECT f.id, f.user_id, f.farm_name, f.latitude, f.longitude
+       FROM farmer_profiles f
+       JOIN users u ON f.user_id = u.id
+       WHERE u.status = 'active' AND f.user_id != ?`,
+      [req.buyer_id]
+    );
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    for (const f5 of farmers) {
+      const lat = f5.latitude || 30.3165;
+      const lng = f5.longitude || 78.0322;
+      const dist = calculateHaversineDistanceKm(req.latitude || 30.3165, req.longitude || 78.0322, lat, lng);
+      if (dist <= 60) {
+        const notifId = `notif-${v4_default().slice(0, 8)}`;
+        Database.run(
+          `INSERT INTO notifications (
+            id, user_id, recipient_role, type, title, message, is_read, created_at
+          ) VALUES (?, ?, 'farmer', 'requirement', ?, ?, 0, ?)`,
+          [
+            notifId,
+            f5.user_id,
+            `New Buyer Demand: ${req.product_name} (${req.required_quantity} ${req.unit})`,
+            `A buyer in ${req.location} (${Math.round(dist)} km away) is looking for ${req.required_quantity} ${req.unit} of ${req.product_name}. Target: \u20B9${req.target_price || "Open"}. Submit your quotation!`,
+            now
+          ]
+        );
+      }
+    }
+  }
+};
+
+// server/src/services/productService.ts
 function calculateHaversineDistanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -84330,6 +84534,20 @@ var ProductService = class _ProductService {
       throw AppError.notFound("Product listing not found");
     }
     Database.run("UPDATE products SET views_count = views_count + 1 WHERE id = ?", [id]);
+    const images = Database.query(
+      "SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC",
+      [id]
+    );
+    product.images = images.length > 0 ? images.map((i5) => i5.image_url) : [product.image];
+    const slabs = Database.query(
+      "SELECT min_quantity, max_quantity, price_per_unit FROM product_price_slabs WHERE product_id = ? ORDER BY min_quantity ASC",
+      [id]
+    );
+    product.price_slabs = slabs.map((s2) => ({
+      minQuantity: Number(s2.min_quantity),
+      maxQuantity: s2.max_quantity ? Number(s2.max_quantity) : void 0,
+      pricePerUnit: Number(s2.price_per_unit)
+    }));
     return product;
   }
   static create(data) {
@@ -84347,40 +84565,98 @@ var ProductService = class _ProductService {
     const id = `prod-${v4_default()}`;
     const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.run(
-      `INSERT INTO products (
-        id, farmer_id, category_id, name, slug, description, price, unit,
-        available_quantity, is_organic, available_today, harvest_date,
-        freshness_tag, location, city, latitude, longitude, image,
-        status, moderation_status, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 'approved', ?, ?)`,
-      [
-        id,
-        data.farmerId,
-        actualCategoryId,
-        sanitizeText(data.name),
-        slug,
-        sanitizeText(data.description || ""),
-        data.price,
-        data.unit,
-        data.availableQuantity,
-        data.isOrganic ? 1 : 0,
-        data.availableToday !== false ? 1 : 0,
-        data.harvestDate || "Harvested today at 5:30 AM",
-        data.freshnessTag || "Crisp Morning Harvest",
-        sanitizeText(data.location),
-        data.city || "Dehradun",
-        data.latitude || 30.3165,
-        data.longitude || 78.0322,
-        data.image,
-        now,
-        now
-      ]
-    );
-    Database.run(
-      "UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?",
-      [data.farmerId]
-    );
+    const totalQty = data.totalQuantity !== void 0 ? data.totalQuantity : data.availableQuantity;
+    Database.transaction(() => {
+      Database.run(
+        `INSERT INTO products (
+          id, farmer_id, category_id, name, slug, description, price, unit,
+          available_quantity, total_quantity, min_order_quantity, is_negotiable,
+          product_grade, quality_description, organic_certification_body,
+          storage_info, packaging_info, village, district, state, postal_code,
+          pickup_available, farmer_delivery_available,
+          is_organic, available_today, harvest_date,
+          freshness_tag, location, city, latitude, longitude, image,
+          status, moderation_status, created_at, updated_at
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?,
+          ?, ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          ?, ?,
+          ?, ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          'active', 'approved', ?, ?
+        )`,
+        [
+          id,
+          data.farmerId,
+          actualCategoryId,
+          sanitizeText(data.name),
+          slug,
+          sanitizeText(data.description || ""),
+          data.price,
+          data.unit,
+          data.availableQuantity,
+          totalQty,
+          data.minOrderQuantity || 1,
+          data.isNegotiable !== false ? 1 : 0,
+          data.productGrade || "Grade A",
+          sanitizeText(data.qualityDescription || ""),
+          sanitizeText(data.organicCertificationBody || ""),
+          sanitizeText(data.storageInfo || ""),
+          sanitizeText(data.packagingInfo || ""),
+          sanitizeText(data.village || ""),
+          sanitizeText(data.district || ""),
+          data.state || "Uttarakhand",
+          data.postalCode || "248001",
+          data.pickupAvailable !== false ? 1 : 0,
+          data.farmerDeliveryAvailable !== false ? 1 : 0,
+          data.isOrganic ? 1 : 0,
+          data.availableToday !== false ? 1 : 0,
+          data.harvestDate || "Harvested today at 5:30 AM",
+          data.freshnessTag || "Crisp Morning Harvest",
+          sanitizeText(data.location),
+          data.city || "Dehradun",
+          data.latitude || 30.3165,
+          data.longitude || 78.0322,
+          data.image,
+          now,
+          now
+        ]
+      );
+      const imagesToSave = data.images && data.images.length > 0 ? data.images.slice(0, 8) : [data.image];
+      imagesToSave.forEach((imgUrl, idx) => {
+        Database.run(
+          "INSERT INTO product_images (id, product_id, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?)",
+          [`img-${v4_default().slice(0, 8)}`, id, imgUrl, idx, now]
+        );
+      });
+      if (data.priceSlabs && Array.isArray(data.priceSlabs)) {
+        for (const slab of data.priceSlabs) {
+          if (slab.minQuantity > 0 && slab.pricePerUnit > 0) {
+            Database.run(
+              "INSERT INTO product_price_slabs (id, product_id, min_quantity, max_quantity, price_per_unit, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+              [`slab-${v4_default().slice(0, 8)}`, id, slab.minQuantity, slab.maxQuantity || null, slab.pricePerUnit, now]
+            );
+          }
+        }
+      }
+      Database.run(
+        `INSERT INTO inventory_audit_log (
+          id, product_id, farmer_id, change_type, previous_quantity, change_amount, new_quantity, reason, created_at
+        ) VALUES (?, ?, ?, 'restock', 0, ?, ?, 'Initial listing stock published', ?)`,
+        [`inv-${v4_default().slice(0, 8)}`, id, data.farmerId, data.availableQuantity, data.availableQuantity, now]
+      );
+      Database.run(
+        "UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?",
+        [data.farmerId]
+      );
+    });
+    try {
+      SmartAlertService.matchListingAgainstSavedSearches(id);
+    } catch (e5) {
+      console.warn("Smart alert matching notice:", e5.message);
+    }
     return _ProductService.getById(id);
   }
   static update(id, updates) {
@@ -84433,28 +84709,185 @@ var ProductService = class _ProductService {
       fields.push("moderation_status = ?");
       values.push(updates.moderationStatus || updates.moderation_status);
     }
-    if (updates.wholesalePrice !== void 0 || updates.wholesale_price !== void 0) {
-      fields.push("wholesale_price = ?");
-      values.push(updates.wholesalePrice ?? updates.wholesale_price);
+    if (updates.isNegotiable !== void 0 || updates.is_negotiable !== void 0) {
+      fields.push("is_negotiable = ?");
+      values.push(updates.isNegotiable ?? updates.is_negotiable ? 1 : 0);
     }
-    if (updates.moq !== void 0) {
-      fields.push("moq = ?");
-      values.push(updates.moq);
+    if (updates.productGrade !== void 0 || updates.product_grade !== void 0) {
+      fields.push("product_grade = ?");
+      values.push(updates.productGrade || updates.product_grade);
     }
-    if (updates.stockAlertThreshold !== void 0 || updates.stock_alert_threshold !== void 0) {
-      fields.push("stock_alert_threshold = ?");
-      values.push(updates.stockAlertThreshold ?? updates.stock_alert_threshold);
+    if (updates.qualityDescription !== void 0 || updates.quality_description !== void 0) {
+      fields.push("quality_description = ?");
+      values.push(sanitizeText(updates.qualityDescription || updates.quality_description));
+    }
+    if (updates.storageInfo !== void 0 || updates.storage_info !== void 0) {
+      fields.push("storage_info = ?");
+      values.push(sanitizeText(updates.storageInfo || updates.storage_info));
+    }
+    if (updates.packagingInfo !== void 0 || updates.packaging_info !== void 0) {
+      fields.push("packaging_info = ?");
+      values.push(sanitizeText(updates.packagingInfo || updates.packaging_info));
+    }
+    if (updates.pickupAvailable !== void 0 || updates.pickup_available !== void 0) {
+      fields.push("pickup_available = ?");
+      values.push(updates.pickupAvailable ?? updates.pickup_available ? 1 : 0);
+    }
+    if (updates.farmerDeliveryAvailable !== void 0 || updates.farmer_delivery_available !== void 0) {
+      fields.push("farmer_delivery_available = ?");
+      values.push(updates.farmerDeliveryAvailable ?? updates.farmer_delivery_available ? 1 : 0);
+    }
+    if (updates.harvestDate !== void 0 || updates.harvest_date !== void 0) {
+      fields.push("harvest_date = ?");
+      values.push(updates.harvestDate || updates.harvest_date);
     }
     if (updates.image !== void 0) {
       fields.push("image = ?");
       values.push(updates.image);
     }
-    if (fields.length === 0) return existing;
-    fields.push("updated_at = ?");
-    values.push((/* @__PURE__ */ new Date()).toISOString());
-    values.push(id);
-    Database.run(`UPDATE products SET ${fields.join(", ")} WHERE id = ?`, values);
+    if (fields.length > 0) {
+      fields.push("updated_at = ?");
+      values.push((/* @__PURE__ */ new Date()).toISOString());
+      values.push(id);
+      Database.run(`UPDATE products SET ${fields.join(", ")} WHERE id = ?`, values);
+    }
+    if (updates.images && Array.isArray(updates.images)) {
+      Database.run("DELETE FROM product_images WHERE product_id = ?", [id]);
+      updates.images.slice(0, 8).forEach((imgUrl, idx) => {
+        Database.run(
+          "INSERT INTO product_images (id, product_id, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?)",
+          [`img-${v4_default().slice(0, 8)}`, id, imgUrl, idx, (/* @__PURE__ */ new Date()).toISOString()]
+        );
+      });
+    }
+    if (updates.priceSlabs && Array.isArray(updates.priceSlabs)) {
+      Database.run("DELETE FROM product_price_slabs WHERE product_id = ?", [id]);
+      for (const slab of updates.priceSlabs) {
+        if (slab.minQuantity > 0 && slab.pricePerUnit > 0) {
+          Database.run(
+            "INSERT INTO product_price_slabs (id, product_id, min_quantity, max_quantity, price_per_unit, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            [`slab-${v4_default().slice(0, 8)}`, id, slab.minQuantity, slab.maxQuantity || null, slab.pricePerUnit, (/* @__PURE__ */ new Date()).toISOString()]
+          );
+        }
+      }
+    }
     return _ProductService.getById(id);
+  }
+  /**
+   * Real-Time Stock Management (Module 2)
+   */
+  static updateStock(productId, farmerId, data) {
+    const product = Database.get("SELECT * FROM products WHERE id = ?", [productId]);
+    if (!product) throw AppError.notFound("Product not found");
+    if (product.farmer_id !== farmerId) throw AppError.forbidden("Unauthorized access to product inventory");
+    const previousQty = Number(product.available_quantity);
+    let finalQty = previousQty;
+    let changeAmount = 0;
+    let changeType = "adjustment";
+    if (data.action === "increase") {
+      const amt = Number(data.amount) || 0;
+      if (amt <= 0) throw AppError.badRequest("Increase amount must be greater than zero.");
+      changeAmount = amt;
+      finalQty = previousQty + amt;
+      changeType = "restock";
+    } else if (data.action === "reduce") {
+      const amt = Number(data.amount) || 0;
+      if (amt <= 0) throw AppError.badRequest("Reduction amount must be greater than zero.");
+      if (amt > previousQty) throw AppError.badRequest(`Cannot reduce more than remaining stock (${previousQty} ${product.unit}).`);
+      changeAmount = -amt;
+      finalQty = previousQty - amt;
+      changeType = "sale";
+    } else if (data.action === "set") {
+      const target = Number(data.newQuantity);
+      if (isNaN(target) || target < 0) throw AppError.badRequest("Quantity cannot be negative.");
+      changeAmount = target - previousQty;
+      finalQty = target;
+      changeType = changeAmount >= 0 ? "restock" : "adjustment";
+    } else if (data.action === "mark_sold_out") {
+      changeAmount = -previousQty;
+      finalQty = 0;
+      changeType = "sold_out";
+    } else if (data.action === "restore") {
+      const amt = Number(data.amount) || Number(data.newQuantity) || 10;
+      if (amt <= 0) throw AppError.badRequest("Restoration amount must be greater than zero.");
+      changeAmount = amt;
+      finalQty = amt;
+      changeType = "restock";
+    }
+    let stockStatus = "available";
+    if (finalQty <= 0) {
+      stockStatus = "out_of_stock";
+    } else if (finalQty <= (product.stock_alert_threshold || 5)) {
+      stockStatus = "limited_stock";
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.transaction(() => {
+      Database.run(
+        `UPDATE products SET
+          available_quantity = ?,
+          stock_status = ?,
+          status = ?,
+          harvest_date = COALESCE(?, harvest_date),
+          updated_at = ?
+         WHERE id = ?`,
+        [
+          finalQty,
+          stockStatus,
+          finalQty > 0 ? "active" : "unavailable",
+          data.harvestDate || null,
+          now,
+          productId
+        ]
+      );
+      Database.run(
+        `INSERT INTO inventory_audit_log (
+          id, product_id, farmer_id, change_type, previous_quantity, change_amount, new_quantity, reason, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          `inv-${v4_default().slice(0, 8)}`,
+          productId,
+          farmerId,
+          changeType,
+          previousQty,
+          changeAmount,
+          finalQty,
+          sanitizeText(data.reason || `Stock action: ${data.action}`),
+          now
+        ]
+      );
+    });
+    return _ProductService.getById(productId);
+  }
+  static getStockHistory(productId, farmerId) {
+    const product = Database.get("SELECT farmer_id FROM products WHERE id = ?", [productId]);
+    if (!product) throw AppError.notFound("Product not found");
+    if (product.farmer_id !== farmerId) throw AppError.forbidden("Unauthorized access to product inventory");
+    return Database.query(
+      "SELECT * FROM inventory_audit_log WHERE product_id = ? ORDER BY created_at DESC LIMIT 50",
+      [productId]
+    );
+  }
+  /**
+   * Ad Lifecycle Controls (Module 1: Pause, Resume, Mark Sold, Renew)
+   */
+  static updateStatus(productId, farmerId, statusAction) {
+    const product = Database.get("SELECT * FROM products WHERE id = ?", [productId]);
+    if (!product) throw AppError.notFound("Product not found");
+    if (product.farmer_id !== farmerId) throw AppError.forbidden("Unauthorized");
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    if (statusAction === "pause") {
+      Database.run("UPDATE products SET status = 'paused', updated_at = ? WHERE id = ?", [now, productId]);
+    } else if (statusAction === "resume") {
+      Database.run("UPDATE products SET status = 'active', updated_at = ? WHERE id = ?", [now, productId]);
+    } else if (statusAction === "mark_sold") {
+      Database.run("UPDATE products SET status = 'sold', available_quantity = 0, stock_status = 'out_of_stock', updated_at = ? WHERE id = ?", [now, productId]);
+    } else if (statusAction === "renew") {
+      Database.run(
+        "UPDATE products SET status = 'active', harvest_date = 'Freshly reconfirmed today', updated_at = ? WHERE id = ?",
+        [now, productId]
+      );
+    }
+    return _ProductService.getById(productId);
   }
   static delete(id) {
     const existing = Database.get("SELECT * FROM products WHERE id = ?", [id]);
@@ -84545,6 +84978,61 @@ var ProductController = class {
   static async update(req, res, next) {
     try {
       const product = ProductService.update(req.params.id, req.body);
+      res.json({
+        success: true,
+        data: product
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async updateStock(req, res, next) {
+    try {
+      const farmerId = req.user.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can update stock." }
+        });
+      }
+      const product = ProductService.updateStock(req.params.id, farmerId, req.body);
+      res.json({
+        success: true,
+        data: product
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getStockHistory(req, res, next) {
+    try {
+      const farmerId = req.user.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can view stock history." }
+        });
+      }
+      const history = ProductService.getStockHistory(req.params.id, farmerId);
+      res.json({
+        success: true,
+        data: history
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async updateStatus(req, res, next) {
+    try {
+      const farmerId = req.user.farmerProfileId;
+      if (!farmerId) {
+        return res.status(403).json({
+          success: false,
+          error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can update listing status." }
+        });
+      }
+      const { statusAction } = req.body;
+      const product = ProductService.updateStatus(req.params.id, farmerId, statusAction);
       res.json({
         success: true,
         data: product
@@ -84651,18 +85139,27 @@ var createProductSchema = external_exports.object({
   name: external_exports.string().min(2),
   description: external_exports.string().optional(),
   price: external_exports.number().positive("Price must be greater than 0"),
-  unit: external_exports.enum(["kg", "gram", "litre", "bunch", "piece", "packet", "dozen", "box"]),
+  unit: external_exports.enum(["kg", "gram", "litre", "bunch", "piece", "packet", "dozen", "box", "quintal", "ton", "bag", "L"]),
   availableQuantity: external_exports.number().min(0, "Quantity cannot be negative"),
   isOrganic: external_exports.boolean().optional(),
   availableToday: external_exports.boolean().optional(),
   location: external_exports.string().min(2),
   city: external_exports.string().optional(),
-  image: external_exports.string().url().or(external_exports.string().min(5))
+  image: external_exports.string().url().or(external_exports.string().min(5)),
+  images: external_exports.array(external_exports.string()).optional(),
+  priceSlabs: external_exports.array(external_exports.object({
+    minQuantity: external_exports.number().positive(),
+    maxQuantity: external_exports.number().optional(),
+    pricePerUnit: external_exports.number().positive()
+  })).optional()
 });
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
 router2.get("/:id", ProductController.getById);
 router2.post("/", authenticateUser, requireFarmer, validateBody(createProductSchema), ProductController.create);
 router2.patch("/:id", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.update);
+router2.patch("/:id/stock", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStock);
+router2.get("/:id/stock-history", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.getStockHistory);
+router2.patch("/:id/status", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStatus);
 router2.delete("/:id", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.delete);
 var productRoutes_default = router2;
 
@@ -91085,9 +91582,1358 @@ router17.get("/subscriptions/:farmerId", AdvancedController.getSubscription);
 router17.post("/subscriptions", AdvancedController.upgradeSubscription);
 var advancedRoutes_default = router17;
 
+// server/src/routes/requirementRoutes.ts
+var import_express20 = __toESM(require_express2(), 1);
+
+// server/src/services/requirementService.ts
+init_database();
+init_errors2();
+init_esm();
+init_sanitize();
+var RequirementService = class {
+  static generateRequirementNumber() {
+    const year2 = (/* @__PURE__ */ new Date()).getFullYear();
+    const count = Database.get("SELECT COUNT(*) as count FROM buyer_requirements");
+    const seq = (count?.count || 0) + 1;
+    return `REQ-${year2}-${String(seq).padStart(4, "0")}`;
+  }
+  static generateQuotationNumber() {
+    const year2 = (/* @__PURE__ */ new Date()).getFullYear();
+    const count = Database.get("SELECT COUNT(*) as count FROM requirement_quotations");
+    const seq = (count?.count || 0) + 1;
+    return `QUO-${year2}-${String(seq).padStart(4, "0")}`;
+  }
+  static createRequirement(buyerId, data) {
+    if (!data.productName || data.productName.trim().length === 0) {
+      throw AppError.badRequest("Product name is required.");
+    }
+    if (!data.requiredQuantity || data.requiredQuantity <= 0) {
+      throw AppError.badRequest("Required quantity must be greater than zero.");
+    }
+    if (!data.requiredDate) {
+      throw AppError.badRequest("Required delivery/harvest date is required.");
+    }
+    const id = `req-${v4_default()}`;
+    const reqNumber = this.generateRequirementNumber();
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `INSERT INTO buyer_requirements (
+        id, requirement_number, buyer_id, product_name, category_name,
+        required_quantity, unit, target_price, is_negotiable,
+        quality_grade, required_date, location, city, state, village,
+        postal_code, latitude, longitude, delivery_preference,
+        instructions, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+      [
+        id,
+        reqNumber,
+        buyerId,
+        sanitizeText(data.productName),
+        data.categoryName || "Vegetables",
+        data.requiredQuantity,
+        data.unit || "kg",
+        data.targetPrice !== void 0 ? data.targetPrice : null,
+        data.isNegotiable !== false ? 1 : 0,
+        data.qualityGrade || "Grade A",
+        data.requiredDate,
+        sanitizeText(data.location),
+        data.city || "Dehradun",
+        data.state || "Uttarakhand",
+        sanitizeText(data.village || ""),
+        data.postalCode || "248001",
+        data.latitude || 30.3165,
+        data.longitude || 78.0322,
+        data.deliveryPreference || "flexible",
+        sanitizeText(data.instructions || ""),
+        now,
+        now
+      ]
+    );
+    try {
+      SmartAlertService.matchRequirementAgainstNearbyFarmers(id);
+    } catch (e5) {
+      console.warn("Smart matching alert error:", e5.message);
+    }
+    return this.getRequirementById(id);
+  }
+  static getRequirementById(id, userLat, userLng) {
+    const row = Database.get(
+      `SELECT r.*, u.name as buyer_name, u.phone as buyer_phone,
+              (SELECT COUNT(*) FROM requirement_quotations q WHERE q.requirement_id = r.id) as quotations_count
+       FROM buyer_requirements r
+       JOIN users u ON r.buyer_id = u.id
+       WHERE r.id = ?`,
+      [id]
+    );
+    if (!row) throw AppError.notFound("Buyer requirement not found");
+    let distanceKm;
+    if (userLat !== void 0 && userLng !== void 0 && row.latitude && row.longitude) {
+      distanceKm = calculateHaversineDistanceKm(userLat, userLng, row.latitude, row.longitude);
+    }
+    return {
+      id: row.id,
+      requirementNumber: row.requirement_number,
+      buyerId: row.buyer_id,
+      buyerName: row.buyer_name,
+      buyerPhone: row.buyer_phone,
+      productName: row.product_name,
+      categoryId: row.category_id,
+      categoryName: row.category_name,
+      requiredQuantity: Number(row.required_quantity),
+      unit: row.unit,
+      targetPrice: row.target_price !== null ? Number(row.target_price) : void 0,
+      isNegotiable: Boolean(row.is_negotiable),
+      qualityGrade: row.quality_grade,
+      requiredDate: row.required_date,
+      location: row.location,
+      city: row.city,
+      state: row.state,
+      village: row.village,
+      postalCode: row.postal_code,
+      latitude: Number(row.latitude) || 30.3165,
+      longitude: Number(row.longitude) || 78.0322,
+      deliveryPreference: row.delivery_preference,
+      instructions: row.instructions,
+      status: row.status,
+      quotationsCount: Number(row.quotations_count) || 0,
+      distanceKm,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+  static listRequirements(params) {
+    let sql = `
+      SELECT r.*, u.name as buyer_name, u.phone as buyer_phone,
+             (SELECT COUNT(*) FROM requirement_quotations q WHERE q.requirement_id = r.id) as quotations_count
+      FROM buyer_requirements r
+      JOIN users u ON r.buyer_id = u.id
+      WHERE 1=1
+    `;
+    const sqlParams = [];
+    if (params.buyerId) {
+      sql += " AND r.buyer_id = ?";
+      sqlParams.push(params.buyerId);
+    } else {
+      if (params.status) {
+        sql += " AND r.status = ?";
+        sqlParams.push(params.status);
+      } else {
+        sql += " AND r.status IN ('active', 'receiving_offers', 'negotiating')";
+      }
+    }
+    if (params.category && params.category !== "All") {
+      sql += " AND r.category_name = ?";
+      sqlParams.push(params.category);
+    }
+    if (params.city && params.city !== "All India" && params.city !== "All") {
+      sql += " AND (r.city = ? OR r.location LIKE ?)";
+      sqlParams.push(params.city, `%${params.city}%`);
+    }
+    if (params.search && params.search.trim().length > 0) {
+      sql += " AND (r.product_name LIKE ? OR r.instructions LIKE ?)";
+      sqlParams.push(`%${params.search}%`, `%${params.search}%`);
+    }
+    sql += " ORDER BY r.created_at DESC LIMIT ?";
+    sqlParams.push(params.limit || 50);
+    const rows = Database.query(sql, sqlParams);
+    const results = rows.map((row) => {
+      let distanceKm;
+      if (params.userLat !== void 0 && params.userLng !== void 0 && row.latitude && row.longitude) {
+        distanceKm = calculateHaversineDistanceKm(params.userLat, params.userLng, row.latitude, row.longitude);
+      }
+      return {
+        id: row.id,
+        requirementNumber: row.requirement_number,
+        buyerId: row.buyer_id,
+        buyerName: row.buyer_name,
+        buyerPhone: row.buyer_phone,
+        productName: row.product_name,
+        categoryId: row.category_id,
+        categoryName: row.category_name,
+        requiredQuantity: Number(row.required_quantity),
+        unit: row.unit,
+        targetPrice: row.target_price !== null ? Number(row.target_price) : void 0,
+        isNegotiable: Boolean(row.is_negotiable),
+        qualityGrade: row.quality_grade,
+        requiredDate: row.required_date,
+        location: row.location,
+        city: row.city,
+        state: row.state,
+        village: row.village,
+        postalCode: row.postal_code,
+        latitude: Number(row.latitude) || 30.3165,
+        longitude: Number(row.longitude) || 78.0322,
+        deliveryPreference: row.delivery_preference,
+        instructions: row.instructions,
+        status: row.status,
+        quotationsCount: Number(row.quotations_count) || 0,
+        distanceKm,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      };
+    });
+    if (params.maxDistanceKm && params.userLat && params.userLng) {
+      return results.filter((r5) => r5.distanceKm === void 0 || r5.distanceKm <= params.maxDistanceKm);
+    }
+    return results;
+  }
+  static updateRequirementStatus(id, buyerId, status) {
+    const req = Database.get("SELECT * FROM buyer_requirements WHERE id = ?", [id]);
+    if (!req) throw AppError.notFound("Buyer requirement not found");
+    if (req.buyer_id !== buyerId) throw AppError.forbidden("Unauthorized access to buyer requirement");
+    Database.run(
+      "UPDATE buyer_requirements SET status = ?, updated_at = ? WHERE id = ?",
+      [status, (/* @__PURE__ */ new Date()).toISOString(), id]
+    );
+    return this.getRequirementById(id);
+  }
+  static deleteRequirement(id, buyerId) {
+    const req = Database.get("SELECT * FROM buyer_requirements WHERE id = ?", [id]);
+    if (!req) throw AppError.notFound("Buyer requirement not found");
+    if (req.buyer_id !== buyerId) throw AppError.forbidden("Unauthorized access to buyer requirement");
+    Database.run("DELETE FROM buyer_requirements WHERE id = ?", [id]);
+    return { success: true, message: "Requirement deleted" };
+  }
+  /**
+   * Farmer submits a quotation for a requirement
+   */
+  static submitQuotation(farmerUserId, requirementId, data) {
+    const farmer = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [farmerUserId]);
+    if (!farmer) throw AppError.forbidden("Only registered farmers can submit quotations");
+    const req = Database.get("SELECT * FROM buyer_requirements WHERE id = ?", [requirementId]);
+    if (!req) throw AppError.notFound("Buyer requirement not found");
+    if (req.status === "closed" || req.status === "fulfilled") {
+      throw AppError.badRequest("This requirement is no longer accepting quotations.");
+    }
+    if (!data.proposedPrice || data.proposedPrice <= 0) {
+      throw AppError.badRequest("Proposed price must be greater than zero.");
+    }
+    if (!data.availableQuantity || data.availableQuantity <= 0) {
+      throw AppError.badRequest("Available quantity must be greater than zero.");
+    }
+    const existing = Database.get(
+      "SELECT id FROM requirement_quotations WHERE requirement_id = ? AND farmer_id = ?",
+      [requirementId, farmer.id]
+    );
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    if (existing) {
+      Database.run(
+        `UPDATE requirement_quotations SET
+          available_quantity = ?, proposed_price = ?, unit = ?,
+          harvest_availability_date = ?, delivery_mode = ?,
+          message = ?, status = 'submitted', updated_at = ?
+         WHERE id = ?`,
+        [
+          data.availableQuantity,
+          data.proposedPrice,
+          data.unit || req.unit,
+          data.harvestAvailabilityDate || null,
+          data.deliveryMode || "pickup",
+          sanitizeText(data.message || ""),
+          now,
+          existing.id
+        ]
+      );
+      return this.getQuotationById(existing.id);
+    }
+    const quoteId = `quo-${v4_default()}`;
+    const quoteNumber = this.generateQuotationNumber();
+    Database.run(
+      `INSERT INTO requirement_quotations (
+        id, quotation_number, requirement_id, farmer_id, available_quantity,
+        proposed_price, unit, harvest_availability_date, delivery_mode,
+        message, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', ?, ?)`,
+      [
+        quoteId,
+        quoteNumber,
+        requirementId,
+        farmer.id,
+        data.availableQuantity,
+        data.proposedPrice,
+        data.unit || req.unit,
+        data.harvestAvailabilityDate || null,
+        data.deliveryMode || "pickup",
+        sanitizeText(data.message || ""),
+        now,
+        now
+      ]
+    );
+    if (req.status === "active") {
+      Database.run("UPDATE buyer_requirements SET status = 'receiving_offers', updated_at = ? WHERE id = ?", [
+        now,
+        requirementId
+      ]);
+    }
+    const farmerUser = Database.get("SELECT name FROM users WHERE id = ?", [farmerUserId]);
+    Database.run(
+      `INSERT INTO notifications (
+        id, user_id, recipient_role, type, title, message, is_read, created_at
+      ) VALUES (?, ?, 'customer', 'quotation', ?, ?, 0, ?)`,
+      [
+        `notif-${v4_default().slice(0, 8)}`,
+        req.buyer_id,
+        `New Quotation Received: ${req.product_name}`,
+        `Farmer ${farmerUser?.name || "Kisan"} submitted a quotation of \u20B9${data.proposedPrice}/${data.unit || req.unit} for your requirement (${quoteNumber}).`,
+        now
+      ]
+    );
+    return this.getQuotationById(quoteId);
+  }
+  static getQuotationById(id) {
+    const row = Database.get(
+      `SELECT q.*, f.farm_name, f.avatar, f.rating, f.verification_status,
+              u.name as farmer_name, u.phone as farmer_phone
+       FROM requirement_quotations q
+       JOIN farmer_profiles f ON q.farmer_id = f.id
+       JOIN users u ON f.user_id = u.id
+       WHERE q.id = ?`,
+      [id]
+    );
+    if (!row) throw AppError.notFound("Quotation not found");
+    return {
+      id: row.id,
+      quotationNumber: row.quotation_number,
+      requirementId: row.requirement_id,
+      farmerId: row.farmer_id,
+      farmerName: row.farmer_name,
+      farmName: row.farm_name,
+      farmerPhone: row.farmer_phone,
+      farmerAvatar: row.avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
+      farmerRating: Number(row.rating) || 4.8,
+      isVerified: row.verification_status === "verified",
+      availableQuantity: Number(row.available_quantity),
+      proposedPrice: Number(row.proposed_price),
+      unit: row.unit,
+      harvestAvailabilityDate: row.harvest_availability_date,
+      deliveryMode: row.delivery_mode,
+      message: row.message,
+      status: row.status,
+      counterPrice: row.counter_price ? Number(row.counter_price) : void 0,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+  static listQuotationsForRequirement(requirementId, currentUserId) {
+    const req = Database.get("SELECT * FROM buyer_requirements WHERE id = ?", [requirementId]);
+    if (!req) throw AppError.notFound("Requirement not found");
+    const farmerProfile = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [currentUserId]);
+    let sql = `
+      SELECT q.*, f.farm_name, f.avatar, f.rating, f.verification_status,
+             u.name as farmer_name, u.phone as farmer_phone
+      FROM requirement_quotations q
+      JOIN farmer_profiles f ON q.farmer_id = f.id
+      JOIN users u ON f.user_id = u.id
+      WHERE q.requirement_id = ?
+    `;
+    const sqlParams = [requirementId];
+    if (req.buyer_id !== currentUserId) {
+      if (!farmerProfile) {
+        throw AppError.forbidden("Unauthorized access to quotations");
+      }
+      sql += " AND q.farmer_id = ?";
+      sqlParams.push(farmerProfile.id);
+    }
+    sql += " ORDER BY q.proposed_price ASC";
+    const rows = Database.query(sql, sqlParams);
+    return rows.map((row) => ({
+      id: row.id,
+      quotationNumber: row.quotation_number,
+      requirementId: row.requirement_id,
+      farmerId: row.farmer_id,
+      farmerName: row.farmer_name,
+      farmName: row.farm_name,
+      farmerPhone: row.farmer_phone,
+      farmerAvatar: row.avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
+      farmerRating: Number(row.rating) || 4.8,
+      isVerified: row.verification_status === "verified",
+      availableQuantity: Number(row.available_quantity),
+      proposedPrice: Number(row.proposed_price),
+      unit: row.unit,
+      harvestAvailabilityDate: row.harvest_availability_date,
+      deliveryMode: row.delivery_mode,
+      message: row.message,
+      status: row.status,
+      counterPrice: row.counter_price ? Number(row.counter_price) : void 0,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  }
+  /**
+   * Buyer responds to quotation (accept, reject, counter) or Farmer withdraws
+   */
+  static respondToQuotation(quotationId, userId, action, counterPrice) {
+    const quote = Database.get(
+      `SELECT q.*, r.buyer_id, f.user_id as farmer_user_id
+       FROM requirement_quotations q
+       JOIN buyer_requirements r ON q.requirement_id = r.id
+       JOIN farmer_profiles f ON q.farmer_id = f.id
+       WHERE q.id = ?`,
+      [quotationId]
+    );
+    if (!quote) throw AppError.notFound("Quotation not found");
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    if (action === "withdraw") {
+      if (quote.farmer_user_id !== userId) {
+        throw AppError.forbidden("Only the submitting farmer can withdraw this quotation");
+      }
+      Database.run("UPDATE requirement_quotations SET status = 'withdrawn', updated_at = ? WHERE id = ?", [now, quotationId]);
+      return { success: true, status: "withdrawn" };
+    }
+    if (quote.buyer_id !== userId) {
+      throw AppError.forbidden("Only the buyer can accept, reject, or counter this quotation");
+    }
+    if (action === "accept") {
+      Database.transaction(() => {
+        Database.run("UPDATE requirement_quotations SET status = 'accepted', updated_at = ? WHERE id = ?", [now, quotationId]);
+        Database.run("UPDATE buyer_requirements SET status = 'offer_accepted', updated_at = ? WHERE id = ?", [now, quote.requirement_id]);
+        Database.run(
+          `INSERT INTO notifications (
+            id, user_id, recipient_role, type, title, message, is_read, created_at
+          ) VALUES (?, ?, 'farmer', 'offer', ?, ?, 0, ?)`,
+          [
+            `notif-${v4_default().slice(0, 8)}`,
+            quote.farmer_user_id,
+            "Quotation Accepted! \u{1F389}",
+            `Your quotation of \u20B9${quote.proposed_price}/${quote.unit} was accepted by the buyer! Tap to coordinate delivery or pickup.`,
+            now
+          ]
+        );
+      });
+      return { success: true, status: "accepted" };
+    }
+    if (action === "reject") {
+      Database.run("UPDATE requirement_quotations SET status = 'rejected', updated_at = ? WHERE id = ?", [now, quotationId]);
+      return { success: true, status: "rejected" };
+    }
+    if (action === "counter") {
+      if (!counterPrice || counterPrice <= 0) {
+        throw AppError.badRequest("Valid counter price is required.");
+      }
+      Database.transaction(() => {
+        Database.run(
+          "UPDATE requirement_quotations SET status = 'countered', counter_price = ?, updated_at = ? WHERE id = ?",
+          [counterPrice, now, quotationId]
+        );
+        Database.run("UPDATE buyer_requirements SET status = 'negotiating', updated_at = ? WHERE id = ?", [now, quote.requirement_id]);
+        Database.run(
+          `INSERT INTO notifications (
+            id, user_id, recipient_role, type, title, message, is_read, created_at
+          ) VALUES (?, ?, 'farmer', 'offer', ?, ?, 0, ?)`,
+          [
+            `notif-${v4_default().slice(0, 8)}`,
+            quote.farmer_user_id,
+            "Counter-Offer on Quotation",
+            `The buyer proposed a counter-price of \u20B9${counterPrice}/${quote.unit} on your quotation. Tap to review.`,
+            now
+          ]
+        );
+      });
+      return { success: true, status: "countered", counterPrice };
+    }
+    throw AppError.badRequest("Invalid action");
+  }
+};
+
+// server/src/controllers/requirementController.ts
+var RequirementController = class {
+  static async create(req, res, next) {
+    try {
+      const buyerId = req.user.id;
+      const reqDoc = RequirementService.createRequirement(buyerId, req.body);
+      res.status(201).json({ success: true, data: reqDoc });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async list(req, res, next) {
+    try {
+      const { category, city, search, status, maxDistanceKm, latitude, longitude, limit } = req.query;
+      const requirements = RequirementService.listRequirements({
+        category,
+        city,
+        search,
+        status,
+        maxDistanceKm: maxDistanceKm ? Number(maxDistanceKm) : void 0,
+        userLat: latitude ? Number(latitude) : void 0,
+        userLng: longitude ? Number(longitude) : void 0,
+        limit: limit ? Number(limit) : 50
+      });
+      res.json({ success: true, data: requirements });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listMy(req, res, next) {
+    try {
+      const buyerId = req.user.id;
+      const requirements = RequirementService.listRequirements({ buyerId });
+      res.json({ success: true, data: requirements });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getById(req, res, next) {
+    try {
+      const { latitude, longitude } = req.query;
+      const requirement = RequirementService.getRequirementById(
+        req.params.id,
+        latitude ? Number(latitude) : void 0,
+        longitude ? Number(longitude) : void 0
+      );
+      res.json({ success: true, data: requirement });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async updateStatus(req, res, next) {
+    try {
+      const buyerId = req.user.id;
+      const { status } = req.body;
+      const updated = RequirementService.updateRequirementStatus(req.params.id, buyerId, status);
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async delete(req, res, next) {
+    try {
+      const buyerId = req.user.id;
+      const result = RequirementService.deleteRequirement(req.params.id, buyerId);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async submitQuotation(req, res, next) {
+    try {
+      const farmerUserId = req.user.id;
+      const quote = RequirementService.submitQuotation(farmerUserId, req.params.id, req.body);
+      res.status(201).json({ success: true, data: quote });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listQuotations(req, res, next) {
+    try {
+      const currentUserId = req.user.id;
+      const quotes = RequirementService.listQuotationsForRequirement(req.params.id, currentUserId);
+      res.json({ success: true, data: quotes });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async respondToQuotation(req, res, next) {
+    try {
+      const currentUserId = req.user.id;
+      const { action, counterPrice } = req.body;
+      const result = RequirementService.respondToQuotation(req.params.quoteId, currentUserId, action, counterPrice);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+};
+
+// server/src/routes/requirementRoutes.ts
+init_zod();
+var router18 = (0, import_express20.Router)();
+var createRequirementSchema = external_exports.object({
+  productName: external_exports.string().min(2),
+  categoryName: external_exports.string().optional(),
+  requiredQuantity: external_exports.number().positive(),
+  unit: external_exports.string().optional(),
+  targetPrice: external_exports.number().nonnegative().optional(),
+  isNegotiable: external_exports.boolean().optional(),
+  qualityGrade: external_exports.string().optional(),
+  requiredDate: external_exports.string().min(2),
+  location: external_exports.string().min(2),
+  city: external_exports.string().optional(),
+  state: external_exports.string().optional(),
+  village: external_exports.string().optional(),
+  postalCode: external_exports.string().optional(),
+  latitude: external_exports.number().optional(),
+  longitude: external_exports.number().optional(),
+  deliveryPreference: external_exports.enum(["pickup", "farmer_delivery", "flexible"]).optional(),
+  instructions: external_exports.string().optional()
+});
+var quotationSchema = external_exports.object({
+  availableQuantity: external_exports.number().positive(),
+  proposedPrice: external_exports.number().positive(),
+  unit: external_exports.string().optional(),
+  harvestAvailabilityDate: external_exports.string().optional(),
+  deliveryMode: external_exports.enum(["pickup", "farmer_delivery"]).optional(),
+  message: external_exports.string().optional()
+});
+router18.get("/", searchLimiter, optionalAuth, RequirementController.list);
+router18.get("/my", authenticateUser, RequirementController.listMy);
+router18.get("/:id", optionalAuth, RequirementController.getById);
+router18.post("/", authenticateUser, validateBody(createRequirementSchema), RequirementController.create);
+router18.patch("/:id/status", authenticateUser, RequirementController.updateStatus);
+router18.delete("/:id", authenticateUser, RequirementController.delete);
+router18.post("/:id/quotations", authenticateUser, requireFarmer, validateBody(quotationSchema), RequirementController.submitQuotation);
+router18.get("/:id/quotations", authenticateUser, RequirementController.listQuotations);
+router18.patch("/quotations/:quoteId", authenticateUser, RequirementController.respondToQuotation);
+var requirementRoutes_default = router18;
+
+// server/src/routes/negotiationRoutes.ts
+var import_express21 = __toESM(require_express2(), 1);
+
+// server/src/services/negotiationService.ts
+init_database();
+init_errors2();
+init_esm();
+init_sanitize();
+var NegotiationService = class {
+  static generateDealReferenceId() {
+    const chars2 = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i5 = 0; i5 < 6; i5++) {
+      code += chars2.charAt(Math.floor(Math.random() * chars2.length));
+    }
+    return `DEAL-${code}`;
+  }
+  // --- Price Slabs Management ---
+  static setPriceSlabs(productId, slabs) {
+    Database.transaction(() => {
+      Database.run("DELETE FROM product_price_slabs WHERE product_id = ?", [productId]);
+      for (const slab of slabs) {
+        if (slab.minQuantity <= 0 || slab.pricePerUnit <= 0) continue;
+        Database.run(
+          "INSERT INTO product_price_slabs (id, product_id, min_quantity, max_quantity, price_per_unit, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          [
+            `slab-${v4_default()}`,
+            productId,
+            slab.minQuantity,
+            slab.maxQuantity !== void 0 ? slab.maxQuantity : null,
+            slab.pricePerUnit,
+            (/* @__PURE__ */ new Date()).toISOString()
+          ]
+        );
+      }
+    });
+  }
+  static getPriceSlabs(productId) {
+    const rows = Database.query(
+      "SELECT * FROM product_price_slabs WHERE product_id = ? ORDER BY min_quantity ASC",
+      [productId]
+    );
+    return rows.map((r5) => ({
+      id: r5.id,
+      productId: r5.product_id,
+      minQuantity: Number(r5.min_quantity),
+      maxQuantity: r5.max_quantity ? Number(r5.max_quantity) : void 0,
+      pricePerUnit: Number(r5.price_per_unit)
+    }));
+  }
+  // --- Negotiation & Offer Workflow ---
+  static createOffer(buyerId, data) {
+    const product = Database.get(
+      `SELECT p.*, f.id as farmer_profile_id, f.user_id as farmer_user_id, f.farm_name, u.name as farmer_name
+       FROM products p
+       JOIN farmer_profiles f ON p.farmer_id = f.id
+       JOIN users u ON f.user_id = u.id
+       WHERE p.id = ?`,
+      [data.productId]
+    );
+    if (!product) throw AppError.notFound("Product listing not found");
+    if (product.farmer_user_id === buyerId) {
+      throw AppError.badRequest("You cannot submit an offer on your own listing.");
+    }
+    if (data.proposedPrice <= 0) {
+      throw AppError.badRequest("Proposed price must be greater than zero.");
+    }
+    if (data.quantity <= 0) {
+      throw AppError.badRequest("Quantity must be greater than zero.");
+    }
+    if (data.quantity > product.available_quantity) {
+      throw AppError.badRequest(`Requested quantity exceeds available stock (${product.available_quantity} ${product.unit}).`);
+    }
+    const threadId = `neg-${v4_default()}`;
+    const dealRef = this.generateDealReferenceId();
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.transaction(() => {
+      Database.run(
+        `INSERT INTO negotiation_threads (
+          id, deal_reference_id, product_id, buyer_id, farmer_id,
+          original_asking_price, current_price, quantity, unit,
+          required_date, delivery_preference, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+        [
+          threadId,
+          dealRef,
+          data.productId,
+          buyerId,
+          product.farmer_profile_id,
+          product.price,
+          data.proposedPrice,
+          data.quantity,
+          product.unit,
+          data.requiredDate || null,
+          data.deliveryPreference || "pickup",
+          now,
+          now
+        ]
+      );
+      Database.run(
+        `INSERT INTO negotiation_messages (
+          id, negotiation_id, sender_id, sender_role, action,
+          proposed_price, quantity, message, created_at
+        ) VALUES (?, ?, ?, 'buyer', 'offer', ?, ?, ?, ?)`,
+        [
+          `msg-${v4_default()}`,
+          threadId,
+          buyerId,
+          data.proposedPrice,
+          data.quantity,
+          sanitizeText(data.message || `I would like to offer \u20B9${data.proposedPrice}/${product.unit} for ${data.quantity} ${product.unit}.`),
+          now
+        ]
+      );
+      const buyer = Database.get("SELECT name FROM users WHERE id = ?", [buyerId]);
+      Database.run(
+        `INSERT INTO notifications (
+          id, user_id, recipient_role, type, title, message, is_read, created_at
+        ) VALUES (?, ?, 'farmer', 'offer', ?, ?, 0, ?)`,
+        [
+          `notif-${v4_default().slice(0, 8)}`,
+          product.farmer_user_id,
+          `New Price Offer: ${dealRef}`,
+          `Buyer ${buyer?.name || "Customer"} offered \u20B9${data.proposedPrice}/${product.unit} for ${data.quantity} ${product.unit} of "${product.name}".`,
+          now
+        ]
+      );
+    });
+    return this.getNegotiationById(threadId, buyerId);
+  }
+  static getNegotiationById(id, currentUserId) {
+    const row = Database.get(
+      `SELECT n.*, p.name as product_name, p.image as product_image,
+              bu.name as buyer_name, bu.phone as buyer_phone,
+              fu.name as farmer_name, fu.phone as farmer_phone,
+              f.farm_name, f.avatar as farmer_avatar, f.user_id as farmer_user_id
+       FROM negotiation_threads n
+       JOIN products p ON n.product_id = p.id
+       JOIN users bu ON n.buyer_id = bu.id
+       JOIN farmer_profiles f ON n.farmer_id = f.id
+       JOIN users fu ON f.user_id = fu.id
+       WHERE n.id = ?`,
+      [id]
+    );
+    if (!row) throw AppError.notFound("Negotiation not found");
+    if (row.buyer_id !== currentUserId && row.farmer_user_id !== currentUserId) {
+      throw AppError.forbidden("Unauthorized access to negotiation");
+    }
+    const messages = Database.query(
+      `SELECT m.*, u.name as sender_name
+       FROM negotiation_messages m
+       JOIN users u ON m.sender_id = u.id
+       WHERE m.negotiation_id = ?
+       ORDER BY m.created_at ASC`,
+      [id]
+    );
+    return {
+      id: row.id,
+      dealReferenceId: row.deal_reference_id,
+      productId: row.product_id,
+      productName: row.product_name,
+      productImage: row.product_image,
+      originalAskingPrice: Number(row.original_asking_price),
+      currentPrice: Number(row.current_price),
+      quantity: Number(row.quantity),
+      unit: row.unit,
+      buyerId: row.buyer_id,
+      buyerName: row.buyer_name,
+      buyerPhone: row.buyer_phone,
+      farmerId: row.farmer_id,
+      farmerName: row.farmer_name,
+      farmName: row.farm_name,
+      farmerPhone: row.farmer_phone,
+      farmerAvatar: row.farmer_avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
+      requiredDate: row.required_date,
+      deliveryPreference: row.delivery_preference,
+      status: row.status,
+      finalAgreedPrice: row.final_agreed_price ? Number(row.final_agreed_price) : void 0,
+      finalTotalValue: row.final_total_value ? Number(row.final_total_value) : void 0,
+      agreedAt: row.agreed_at,
+      dealSummary: row.deal_summary_json ? JSON.parse(row.deal_summary_json) : void 0,
+      messages: messages.map((m3) => ({
+        id: m3.id,
+        negotiationId: m3.negotiation_id,
+        senderId: m3.sender_id,
+        senderName: m3.sender_name,
+        senderRole: m3.sender_role,
+        action: m3.action,
+        proposedPrice: Number(m3.proposed_price),
+        quantity: Number(m3.quantity),
+        message: m3.message,
+        createdAt: m3.created_at
+      })),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+  static listUserNegotiations(userId) {
+    const farmer = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [userId]);
+    const farmerId = farmer?.id;
+    let sql = `
+      SELECT n.*, p.name as product_name, p.image as product_image,
+             bu.name as buyer_name, bu.phone as buyer_phone,
+             fu.name as farmer_name, fu.phone as farmer_phone,
+             f.farm_name, f.avatar as farmer_avatar, f.user_id as farmer_user_id
+      FROM negotiation_threads n
+      JOIN products p ON n.product_id = p.id
+      JOIN users bu ON n.buyer_id = bu.id
+      JOIN farmer_profiles f ON n.farmer_id = f.id
+      JOIN users fu ON f.user_id = fu.id
+      WHERE n.buyer_id = ?
+    `;
+    const params = [userId];
+    if (farmerId) {
+      sql += " OR n.farmer_id = ?";
+      params.push(farmerId);
+    }
+    sql += " ORDER BY n.updated_at DESC";
+    const rows = Database.query(sql, params);
+    return rows.map((row) => ({
+      id: row.id,
+      dealReferenceId: row.deal_reference_id,
+      productId: row.product_id,
+      productName: row.product_name,
+      productImage: row.product_image,
+      originalAskingPrice: Number(row.original_asking_price),
+      currentPrice: Number(row.current_price),
+      quantity: Number(row.quantity),
+      unit: row.unit,
+      buyerId: row.buyer_id,
+      buyerName: row.buyer_name,
+      buyerPhone: row.buyer_phone,
+      farmerId: row.farmer_id,
+      farmerName: row.farmer_name,
+      farmName: row.farm_name,
+      farmerPhone: row.farmer_phone,
+      farmerAvatar: row.farmer_avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
+      requiredDate: row.required_date,
+      deliveryPreference: row.delivery_preference,
+      status: row.status,
+      finalAgreedPrice: row.final_agreed_price ? Number(row.final_agreed_price) : void 0,
+      finalTotalValue: row.final_total_value ? Number(row.final_total_value) : void 0,
+      agreedAt: row.agreed_at,
+      dealSummary: row.deal_summary_json ? JSON.parse(row.deal_summary_json) : void 0,
+      messages: [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  }
+  static counterOffer(negotiationId, senderUserId, data) {
+    const thread = Database.get(
+      `SELECT n.*, f.user_id as farmer_user_id
+       FROM negotiation_threads n
+       JOIN farmer_profiles f ON n.farmer_id = f.id
+       WHERE n.id = ?`,
+      [negotiationId]
+    );
+    if (!thread) throw AppError.notFound("Negotiation not found");
+    if (thread.status === "accepted" || thread.status === "rejected" || thread.status === "withdrawn") {
+      throw AppError.badRequest(`This negotiation is already ${thread.status}.`);
+    }
+    const isBuyer = thread.buyer_id === senderUserId;
+    const isFarmer = thread.farmer_user_id === senderUserId;
+    if (!isBuyer && !isFarmer) {
+      throw AppError.forbidden("Unauthorized access to negotiation");
+    }
+    if (data.proposedPrice <= 0) {
+      throw AppError.badRequest("Proposed price must be greater than zero.");
+    }
+    const senderRole = isBuyer ? "buyer" : "farmer";
+    const recipientUserId = isBuyer ? thread.farmer_user_id : thread.buyer_id;
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const newQty = data.quantity || thread.quantity;
+    Database.transaction(() => {
+      Database.run(
+        `UPDATE negotiation_threads SET
+          current_price = ?, quantity = ?, status = 'countered', updated_at = ?
+         WHERE id = ?`,
+        [data.proposedPrice, newQty, now, negotiationId]
+      );
+      Database.run(
+        `INSERT INTO negotiation_messages (
+          id, negotiation_id, sender_id, sender_role, action,
+          proposed_price, quantity, message, created_at
+        ) VALUES (?, ?, ?, ?, 'counter', ?, ?, ?, ?)`,
+        [
+          `msg-${v4_default()}`,
+          negotiationId,
+          senderUserId,
+          senderRole,
+          data.proposedPrice,
+          newQty,
+          sanitizeText(data.message || `Counter-offer: \u20B9${data.proposedPrice}/${thread.unit}`),
+          now
+        ]
+      );
+      const sender = Database.get("SELECT name FROM users WHERE id = ?", [senderUserId]);
+      Database.run(
+        `INSERT INTO notifications (
+          id, user_id, recipient_role, type, title, message, is_read, created_at
+        ) VALUES (?, ?, ?, 'offer', ?, ?, 0, ?)`,
+        [
+          `notif-${v4_default().slice(0, 8)}`,
+          recipientUserId,
+          isBuyer ? "farmer" : "customer",
+          `Counter-Offer: ${thread.deal_reference_id}`,
+          `${sender?.name || "Party"} sent a counter-offer of \u20B9${data.proposedPrice}/${thread.unit}.`,
+          now
+        ]
+      );
+    });
+    return this.getNegotiationById(negotiationId, senderUserId);
+  }
+  static acceptOffer(negotiationId, currentUserId) {
+    const thread = Database.get(
+      `SELECT n.*, f.user_id as farmer_user_id, p.name as product_name, p.available_quantity,
+              p.location, p.city, f.farm_name, bu.name as buyer_name, bu.phone as buyer_phone,
+              fu.name as farmer_name, fu.phone as farmer_phone
+       FROM negotiation_threads n
+       JOIN farmer_profiles f ON n.farmer_id = f.id
+       JOIN products p ON n.product_id = p.id
+       JOIN users bu ON n.buyer_id = bu.id
+       JOIN users fu ON f.user_id = fu.id
+       WHERE n.id = ?`,
+      [negotiationId]
+    );
+    if (!thread) throw AppError.notFound("Negotiation not found");
+    if (thread.status === "accepted") {
+      throw AppError.badRequest("This offer has already been accepted.");
+    }
+    if (thread.status === "rejected" || thread.status === "withdrawn") {
+      throw AppError.badRequest(`Cannot accept an offer that was ${thread.status}.`);
+    }
+    const isBuyer = thread.buyer_id === currentUserId;
+    const isFarmer = thread.farmer_user_id === currentUserId;
+    if (!isBuyer && !isFarmer) {
+      throw AppError.forbidden("Unauthorized access to negotiation");
+    }
+    if (thread.available_quantity < thread.quantity) {
+      throw AppError.badRequest(`Insufficient available stock (${thread.available_quantity} ${thread.unit} remaining).`);
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const finalPrice = thread.current_price;
+    const finalTotal = Math.round(finalPrice * thread.quantity * 100) / 100;
+    const recipientUserId = isBuyer ? thread.farmer_user_id : thread.buyer_id;
+    const senderRole = isBuyer ? "buyer" : "farmer";
+    const dealSummary = {
+      dealReferenceId: thread.deal_reference_id,
+      productId: thread.product_id,
+      productName: thread.product_name,
+      farmer: {
+        name: thread.farmer_name,
+        farmName: thread.farm_name,
+        phone: thread.farmer_phone,
+        location: thread.location,
+        city: thread.city
+      },
+      buyer: {
+        name: thread.buyer_name,
+        phone: thread.buyer_phone
+      },
+      quantity: thread.quantity,
+      unit: thread.unit,
+      agreedUnitPrice: finalPrice,
+      estimatedTotalValue: finalTotal,
+      deliveryArrangement: thread.delivery_preference,
+      agreedAt: now,
+      note: "Direct farm transaction agreed by both parties. Payment and pickup/delivery to be handled independently as negotiated."
+    };
+    Database.transaction(() => {
+      Database.run(
+        `UPDATE negotiation_threads SET
+          status = 'accepted', final_agreed_price = ?, final_total_value = ?,
+          agreed_at = ?, deal_summary_json = ?, updated_at = ?
+         WHERE id = ?`,
+        [finalPrice, finalTotal, now, JSON.stringify(dealSummary), now, negotiationId]
+      );
+      Database.run(
+        `INSERT INTO negotiation_messages (
+          id, negotiation_id, sender_id, sender_role, action,
+          proposed_price, quantity, message, created_at
+        ) VALUES (?, ?, ?, ?, 'accept', ?, ?, 'Terms accepted! Deal finalized.', ?)`,
+        [
+          `msg-${v4_default()}`,
+          negotiationId,
+          currentUserId,
+          senderRole,
+          finalPrice,
+          thread.quantity,
+          now
+        ]
+      );
+      Database.run(
+        `INSERT INTO notifications (
+          id, user_id, recipient_role, type, title, message, is_read, created_at
+        ) VALUES (?, ?, ?, 'offer', ?, ?, 0, ?)`,
+        [
+          `notif-${v4_default().slice(0, 8)}`,
+          recipientUserId,
+          isBuyer ? "farmer" : "customer",
+          `Deal Agreed: ${thread.deal_reference_id}! \u{1F91D}`,
+          `Offer accepted for ${thread.quantity} ${thread.unit} of "${thread.product_name}" at \u20B9${finalPrice}/${thread.unit}. View Deal Summary.`,
+          now
+        ]
+      );
+    });
+    return this.getNegotiationById(negotiationId, currentUserId);
+  }
+  static rejectOffer(negotiationId, currentUserId) {
+    const thread = Database.get(
+      `SELECT n.*, f.user_id as farmer_user_id
+       FROM negotiation_threads n
+       JOIN farmer_profiles f ON n.farmer_id = f.id
+       WHERE n.id = ?`,
+      [negotiationId]
+    );
+    if (!thread) throw AppError.notFound("Negotiation not found");
+    const isBuyer = thread.buyer_id === currentUserId;
+    const isFarmer = thread.farmer_user_id === currentUserId;
+    if (!isBuyer && !isFarmer) throw AppError.forbidden("Unauthorized");
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const senderRole = isBuyer ? "buyer" : "farmer";
+    Database.transaction(() => {
+      Database.run("UPDATE negotiation_threads SET status = 'rejected', updated_at = ? WHERE id = ?", [now, negotiationId]);
+      Database.run(
+        `INSERT INTO negotiation_messages (
+          id, negotiation_id, sender_id, sender_role, action, proposed_price, quantity, message, created_at
+        ) VALUES (?, ?, ?, ?, 'reject', ?, ?, 'Offer was declined.', ?)`,
+        [`msg-${v4_default()}`, negotiationId, currentUserId, senderRole, thread.current_price, thread.quantity, now]
+      );
+    });
+    return this.getNegotiationById(negotiationId, currentUserId);
+  }
+  static withdrawOffer(negotiationId, currentUserId) {
+    const thread = Database.get(
+      `SELECT n.*, f.user_id as farmer_user_id
+       FROM negotiation_threads n
+       JOIN farmer_profiles f ON n.farmer_id = f.id
+       WHERE n.id = ?`,
+      [negotiationId]
+    );
+    if (!thread) throw AppError.notFound("Negotiation not found");
+    const isBuyer = thread.buyer_id === currentUserId;
+    const isFarmer = thread.farmer_user_id === currentUserId;
+    if (!isBuyer && !isFarmer) throw AppError.forbidden("Unauthorized");
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const senderRole = isBuyer ? "buyer" : "farmer";
+    Database.transaction(() => {
+      Database.run("UPDATE negotiation_threads SET status = 'withdrawn', updated_at = ? WHERE id = ?", [now, negotiationId]);
+      Database.run(
+        `INSERT INTO negotiation_messages (
+          id, negotiation_id, sender_id, sender_role, action, proposed_price, quantity, message, created_at
+        ) VALUES (?, ?, ?, ?, 'withdraw', ?, ?, 'Offer withdrawn.', ?)`,
+        [`msg-${v4_default()}`, negotiationId, currentUserId, senderRole, thread.current_price, thread.quantity, now]
+      );
+    });
+    return this.getNegotiationById(negotiationId, currentUserId);
+  }
+};
+
+// server/src/controllers/negotiationController.ts
+var NegotiationController = class {
+  static async createOffer(req, res, next) {
+    try {
+      const buyerId = req.user.id;
+      const negotiation = NegotiationService.createOffer(buyerId, req.body);
+      res.status(201).json({ success: true, data: negotiation });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listUserNegotiations(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const negotiations = NegotiationService.listUserNegotiations(userId);
+      res.json({ success: true, data: negotiations });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getById(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const negotiation = NegotiationService.getNegotiationById(req.params.id, userId);
+      res.json({ success: true, data: negotiation });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async counterOffer(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const updated = NegotiationService.counterOffer(req.params.id, userId, req.body);
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async acceptOffer(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const accepted = NegotiationService.acceptOffer(req.params.id, userId);
+      res.json({ success: true, data: accepted });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async rejectOffer(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const rejected = NegotiationService.rejectOffer(req.params.id, userId);
+      res.json({ success: true, data: rejected });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async withdrawOffer(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const withdrawn = NegotiationService.withdrawOffer(req.params.id, userId);
+      res.json({ success: true, data: withdrawn });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getDealSummary(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const thread = NegotiationService.getNegotiationById(req.params.id, userId);
+      if (!thread.dealSummary) {
+        return res.status(400).json({
+          success: false,
+          error: { code: "DEAL_NOT_FINALIZED", message: "Deal summary is only available for accepted negotiations." }
+        });
+      }
+      res.json({ success: true, data: thread.dealSummary });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getPriceSlabs(req, res, next) {
+    try {
+      const slabs = NegotiationService.getPriceSlabs(req.params.productId);
+      res.json({ success: true, data: slabs });
+    } catch (err) {
+      next(err);
+    }
+  }
+};
+
+// server/src/routes/negotiationRoutes.ts
+init_zod();
+var router19 = (0, import_express21.Router)();
+var createOfferSchema = external_exports.object({
+  productId: external_exports.string(),
+  proposedPrice: external_exports.number().positive(),
+  quantity: external_exports.number().positive(),
+  requiredDate: external_exports.string().optional(),
+  deliveryPreference: external_exports.string().optional(),
+  message: external_exports.string().optional()
+});
+var counterOfferSchema = external_exports.object({
+  proposedPrice: external_exports.number().positive(),
+  quantity: external_exports.number().positive().optional(),
+  message: external_exports.string().optional()
+});
+router19.post("/", authenticateUser, validateBody(createOfferSchema), NegotiationController.createOffer);
+router19.get("/", authenticateUser, NegotiationController.listUserNegotiations);
+router19.get("/:id", authenticateUser, NegotiationController.getById);
+router19.post("/:id/counter", authenticateUser, validateBody(counterOfferSchema), NegotiationController.counterOffer);
+router19.post("/:id/accept", authenticateUser, NegotiationController.acceptOffer);
+router19.post("/:id/reject", authenticateUser, NegotiationController.rejectOffer);
+router19.post("/:id/withdraw", authenticateUser, NegotiationController.withdrawOffer);
+router19.get("/:id/deal-summary", authenticateUser, NegotiationController.getDealSummary);
+router19.get("/slabs/:productId", NegotiationController.getPriceSlabs);
+var negotiationRoutes_default = router19;
+
+// server/src/routes/mapRoutes.ts
+var import_express22 = __toESM(require_express2(), 1);
+
+// server/src/services/geoService.ts
+init_database();
+var GeoService = class {
+  /**
+   * Discovers farmers within a given radius in kilometers
+   */
+  static getNearbyFarmers(params) {
+    const radius = Math.min(300, Math.max(1, params.radiusKm || 25));
+    const limit = Math.min(100, Math.max(1, params.limit || 50));
+    let sql = `
+      SELECT f.id, f.user_id, f.farm_name, f.location, f.city,
+             f.latitude, f.longitude, f.rating, f.verification_status,
+             f.avatar, u.name as farmer_name, u.phone as farmer_phone
+      FROM farmer_profiles f
+      JOIN users u ON f.user_id = u.id
+      WHERE u.status = 'active'
+    `;
+    const sqlParams = [];
+    if (params.verifiedOnly) {
+      sql += ` AND f.verification_status = 'verified'`;
+    }
+    const rows = Database.query(sql, sqlParams);
+    const results = [];
+    for (const row of rows) {
+      const lat = Number(row.latitude) || 30.3165;
+      const lng = Number(row.longitude) || 78.0322;
+      const distance = calculateHaversineDistanceKm(params.latitude, params.longitude, lat, lng);
+      if (distance <= radius) {
+        let prodSql = `
+          SELECT p.id, p.name, p.price, p.unit, p.image, c.name as category
+          FROM products p
+          JOIN categories c ON p.category_id = c.id
+          WHERE p.farmer_id = ? AND p.status = 'active' AND p.moderation_status = 'approved'
+        `;
+        const prodParams = [row.id];
+        if (params.category && params.category !== "All") {
+          prodSql += ` AND (c.name = ? OR c.slug = ?)`;
+          prodParams.push(params.category, params.category.toLowerCase());
+        }
+        if (params.availableTodayOnly) {
+          prodSql += ` AND p.available_today = 1`;
+        }
+        prodSql += ` ORDER BY p.views_count DESC LIMIT 5`;
+        const products = Database.query(prodSql, prodParams);
+        if (params.category && params.category !== "All" && products.length === 0) {
+          continue;
+        }
+        const countRow = Database.get(
+          `SELECT COUNT(*) as count FROM products WHERE farmer_id = ? AND status = 'active'`,
+          [row.id]
+        );
+        results.push({
+          id: row.id,
+          userId: row.user_id,
+          farmName: row.farm_name,
+          farmerName: row.farmer_name,
+          avatar: row.avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
+          phone: row.farmer_phone,
+          location: row.location,
+          city: row.city,
+          latitude: lat,
+          longitude: lng,
+          rating: Number(row.rating) || 4.8,
+          verificationStatus: row.verification_status,
+          distanceKm: distance,
+          activeProductsCount: countRow?.count || 0,
+          topProducts: products.map((p3) => ({
+            id: p3.id,
+            name: p3.name,
+            price: Number(p3.price),
+            unit: p3.unit,
+            image: p3.image,
+            category: p3.category
+          }))
+        });
+      }
+    }
+    results.sort((a5, b5) => a5.distanceKm - b5.distanceKm);
+    return results.slice(0, limit);
+  }
+};
+
+// server/src/controllers/mapController.ts
+var MapController = class {
+  static async getNearbyFarmers(req, res, next) {
+    try {
+      const { latitude, longitude, radiusKm, category, verifiedOnly, availableTodayOnly, limit } = req.query;
+      const lat = latitude ? Number(latitude) : 30.3165;
+      const lng = longitude ? Number(longitude) : 78.0322;
+      const farmers = GeoService.getNearbyFarmers({
+        latitude: lat,
+        longitude: lng,
+        radiusKm: radiusKm ? Number(radiusKm) : 25,
+        category,
+        verifiedOnly: verifiedOnly === "true" || verifiedOnly === "1",
+        availableTodayOnly: availableTodayOnly === "true" || availableTodayOnly === "1",
+        limit: limit ? Number(limit) : 50
+      });
+      res.json({
+        success: true,
+        data: farmers
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+};
+
+// server/src/routes/mapRoutes.ts
+var router20 = (0, import_express22.Router)();
+router20.get("/nearby-farmers", searchLimiter, optionalAuth, MapController.getNearbyFarmers);
+var mapRoutes_default = router20;
+
+// server/src/routes/smartAlertRoutes.ts
+var import_express23 = __toESM(require_express2(), 1);
+
+// server/src/controllers/smartAlertController.ts
+var SmartAlertController = class {
+  static async createSavedSearch(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const search = SmartAlertService.createSavedSearch(userId, req.body);
+      res.status(201).json({ success: true, data: search });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listSavedSearches(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const searches = SmartAlertService.listSavedSearches(userId);
+      res.json({ success: true, data: searches });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async deleteSavedSearch(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const result = SmartAlertService.deleteSavedSearch(req.params.id, userId);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async toggleSavedSearch(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const result = SmartAlertService.toggleSavedSearch(req.params.id, userId);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+};
+
+// server/src/routes/smartAlertRoutes.ts
+init_zod();
+var router21 = (0, import_express23.Router)();
+var savedSearchSchema = external_exports.object({
+  searchName: external_exports.string().min(2),
+  productQuery: external_exports.string().optional(),
+  categoryName: external_exports.string().optional(),
+  city: external_exports.string().optional(),
+  maxDistanceKm: external_exports.number().positive().optional(),
+  minPrice: external_exports.number().nonnegative().optional(),
+  maxPrice: external_exports.number().positive().optional(),
+  notificationFrequency: external_exports.enum(["instant", "daily"]).optional()
+});
+router21.post("/saved-searches", authenticateUser, validateBody(savedSearchSchema), SmartAlertController.createSavedSearch);
+router21.get("/saved-searches", authenticateUser, SmartAlertController.listSavedSearches);
+router21.delete("/saved-searches/:id", authenticateUser, SmartAlertController.deleteSavedSearch);
+router21.patch("/saved-searches/:id/toggle", authenticateUser, SmartAlertController.toggleSavedSearch);
+var smartAlertRoutes_default = router21;
+
 // server/src/routes/index.ts
 init_database();
-var apiRouter = (0, import_express20.Router)();
+var apiRouter = (0, import_express24.Router)();
 apiRouter.get("/health", (req, res) => {
   res.json({
     status: "healthy",
@@ -91155,6 +93001,10 @@ apiRouter.use("/mandi", mandiRoutes_default);
 apiRouter.use("/logistics", logisticsRoutes_default);
 apiRouter.use("/finance", financeRoutes_default);
 apiRouter.use("/advanced", advancedRoutes_default);
+apiRouter.use("/requirements", requirementRoutes_default);
+apiRouter.use("/negotiations", negotiationRoutes_default);
+apiRouter.use("/map", mapRoutes_default);
+apiRouter.use("/alerts", smartAlertRoutes_default);
 var routes_default = apiRouter;
 
 // server/src/middleware/errorHandler.ts
@@ -91192,7 +93042,7 @@ function errorHandler(err, req, res, next) {
 }
 
 // server/src/app.ts
-var app = (0, import_express21.default)();
+var app = (0, import_express25.default)();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -91244,13 +93094,13 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express21.default.json({ limit: "10mb" }));
-app.use(import_express21.default.urlencoded({ extended: true, limit: "10mb" }));
+app.use(import_express25.default.json({ limit: "10mb" }));
+app.use(import_express25.default.urlencoded({ extended: true, limit: "10mb" }));
 app.use((0, import_cookie_parser.default)());
 app.use("/api", apiLimiter);
 app.use(
   "/uploads",
-  import_express21.default.static(env.UPLOAD_DIR, {
+  import_express25.default.static(env.UPLOAD_DIR, {
     setHeaders: (res) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("Content-Security-Policy", "default-src 'none'");

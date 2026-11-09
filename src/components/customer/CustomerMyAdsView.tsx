@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Zap,
   Sparkles,
+  Boxes,
 } from 'lucide-react';
 
 export const CustomerMyAdsView: React.FC = () => {
@@ -30,6 +31,7 @@ export const CustomerMyAdsView: React.FC = () => {
     updateProductPrice,
     toggleProductSold,
     boostProduct,
+    setStockControlProduct,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'active' | 'sold'>('active');
@@ -324,6 +326,16 @@ export const CustomerMyAdsView: React.FC = () => {
                     </button>
 
                     <div className="flex items-center gap-2">
+                      {/* Live Stock & Inventory Button */}
+                      <button
+                        onClick={() => setStockControlProduct(ad)}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold transition flex items-center gap-1 shadow-2xs hover:bg-emerald-100"
+                        title="Manage Stock & Audit Trail"
+                      >
+                        <Boxes className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Stock ({ad.availableQuantity})</span>
+                      </button>
+
                       {/* OLX Boost Ad button */}
                       {!isSold && (
                         <button
