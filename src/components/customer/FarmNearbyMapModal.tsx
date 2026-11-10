@@ -38,6 +38,9 @@ export const FarmNearbyMapModal: React.FC<FarmNearbyMapModalProps> = ({
   const [radiusKm, setRadiusKm] = useState<number>(25);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
+  const [availableTodayOnly, setAvailableTodayOnly] = useState<boolean>(false);
+  const [mapViewMode, setMapViewMode] = useState<'radar' | 'osm'>('radar');
+  const [locationSearchText, setLocationSearchText] = useState<string>('');
   const [nearbyFarmers, setNearbyFarmers] = useState<NearbyFarmer[]>([]);
   const [selectedFarmerItem, setSelectedFarmerItem] = useState<NearbyFarmer | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,6 +50,55 @@ export const FarmNearbyMapModal: React.FC<FarmNearbyMapModalProps> = ({
     lat: 28.9845,
     lng: 77.7064,
   });
+
+  const handleManualLocationSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = locationSearchText.trim().toLowerCase();
+    if (!query) return;
+
+    // Quick lookup table for major Indian agricultural districts & Mandis
+    const knownMandiCoords: Record<string, { lat: number; lng: number }> = {
+      meerut: { lat: 28.9845, lng: 77.7064 },
+      dehradun: { lat: 30.3165, lng: 78.0322 },
+      doiwala: { lat: 30.1772, lng: 78.1256 },
+      karnal: { lat: 29.6857, lng: 76.9905 },
+      hapur: { lat: 28.7306, lng: 77.7759 },
+      muzaffarnagar: { lat: 29.4727, lng: 77.7085 },
+      saharanpur: { lat: 29.9671, lng: 77.5510 },
+      aligarh: { lat: 27.8974, lng: 78.0880 },
+      delhi: { lat: 28.6139, lng: 77.2090 },
+      noida: { lat: 28.5355, lng: 77.3910 },
+      roorkee: { lat: 29.8543, lng: 77.8880 },
+      haridwar: { lat: 29.9457, lng: 78.1642 },
+    };
+
+    if (knownMandiCoords[query]) {
+      setUserLocation(knownMandiCoords[query]);
+      showToast(`Location set to ${locationSearchText}`);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Query OpenStreetMap Nominatim for Indian district / PIN code
+      const osmRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=in&q=${encodeURIComponent(query)}&limit=1`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const data = await osmRes.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const found = data[0];
+        setUserLocation({ lat: parseFloat(found.lat), lng: parseFloat(found.lon) });
+        showToast(`Centered on ${found.display_name.split(',')[0]}`);
+      } else {
+        showToast(`Location "${locationSearchText}" not found. Try district name or PIN.`);
+      }
+    } catch {
+      showToast('Could not geocode location', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchNearby = async () => {
     try {
@@ -157,8 +209,28 @@ export const FarmNearbyMapModal: React.FC<FarmNearbyMapModalProps> = ({
           </div>
         </div>
 
-        {/* Controls Bar: Radius & Category */}
+        {/* Controls Bar: Radius, Search, Category & Map Mode */}
         <div className="p-3 sm:p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-900/30 flex flex-wrap items-center justify-between gap-2.5">
+          {/* Location Manual Search */}
+          <form onSubmit={handleManualLocationSearch} className="flex items-center gap-1.5 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-48">
+              <input
+                type="text"
+                value={locationSearchText}
+                onChange={(e) => setLocationSearchText(e.target.value)}
+                placeholder="Village, district, PIN..."
+                className="w-full pl-7 pr-2.5 py-1 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-900 dark:text-white"
+              />
+              <MapPin className="w-3.5 h-3.5 text-zinc-400 absolute left-2 top-1/2 -translate-y-1/2" />
+            </div>
+            <button
+              type="submit"
+              className="px-2.5 py-1 bg-zinc-800 hover:bg-black text-white dark:bg-zinc-700 text-xs font-bold rounded-xl transition"
+            >
+              Set Location
+            </button>
+          </form>
+
           {/* Radius Selector */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">Radius:</span>
@@ -179,7 +251,7 @@ export const FarmNearbyMapModal: React.FC<FarmNearbyMapModalProps> = ({
             </div>
           </div>
 
-          {/* Category Pills & Verified Toggle */}
+          {/* Category Pills & Verified Toggle & Map View Switch */}
           <div className="flex items-center gap-2">
             <select
               value={selectedCategory}
@@ -198,83 +270,127 @@ export const FarmNearbyMapModal: React.FC<FarmNearbyMapModalProps> = ({
                 onChange={(e) => setVerifiedOnly(e.target.checked)}
                 className="w-3.5 h-3.5 text-emerald-600 rounded-sm focus:ring-emerald-500"
               />
-              <span>Verified Only</span>
+              <span>Verified</span>
             </label>
+
+            {/* Radar vs OSM Mode Switch */}
+            <div className="flex items-center bg-zinc-200/80 dark:bg-zinc-800 p-0.5 rounded-xl text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setMapViewMode('radar')}
+                className={`px-2 py-0.5 rounded-lg transition ${
+                  mapViewMode === 'radar'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                Radar
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapViewMode('osm')}
+                className={`px-2 py-0.5 rounded-lg transition ${
+                  mapViewMode === 'osm'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                Map
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Map Viewport & Farmer Preview (Split Layout) */}
         <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-          {/* Left: Interactive Visual Map / Radar Canvas */}
-          <div className="flex-1 relative bg-[#0B1E15] p-4 flex flex-col justify-between overflow-hidden min-h-[260px] md:min-h-[420px]">
-            {/* Radar Grid Circles */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-              <div className="w-[85%] aspect-square rounded-full border border-emerald-500/40" />
-              <div className="w-[60%] aspect-square rounded-full border border-emerald-500/50 absolute" />
-              <div className="w-[35%] aspect-square rounded-full border border-emerald-500/60 absolute" />
-              <div className="w-[10%] aspect-square rounded-full bg-emerald-500/20 border border-emerald-400 absolute" />
-              <div className="w-full h-px bg-emerald-500/30 absolute" />
-              <div className="h-full w-px bg-emerald-500/30 absolute" />
+          {/* Left: Viewport (Interactive OpenStreetMap OR Radar Canvas) */}
+          {mapViewMode === 'osm' ? (
+            <div className="flex-1 relative bg-zinc-900 overflow-hidden min-h-[260px] md:min-h-[420px]">
+              <iframe
+                title="OpenStreetMap Agricultural Topography"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                scrolling="no"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${(selectedFarmerItem?.longitude || userLocation.lng) - 0.12}%2C${(selectedFarmerItem?.latitude || userLocation.lat) - 0.08}%2C${(selectedFarmerItem?.longitude || userLocation.lng) + 0.12}%2C${(selectedFarmerItem?.latitude || userLocation.lat) + 0.08}&layer=mapnik&marker=${selectedFarmerItem?.latitude || userLocation.lat}%2C${selectedFarmerItem?.longitude || userLocation.lng}`}
+                className="w-full h-full border-0 filter contrast-105"
+              />
+              <div className="absolute top-3 left-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 shadow-md flex items-center gap-1.5">
+                <Navigation className="w-3 h-3 text-emerald-600" />
+                <span>OSM Farm Terrain: {selectedFarmerItem ? (selectedFarmerItem.farmName || selectedFarmerItem.farmerName) : 'Your Region'}</span>
+              </div>
             </div>
+          ) : (
+            <div className="flex-1 relative bg-[#0B1E15] p-4 flex flex-col justify-between overflow-hidden min-h-[260px] md:min-h-[420px]">
+              {/* Radar Grid Circles */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                <div className="w-[85%] aspect-square rounded-full border border-emerald-500/40" />
+                <div className="w-[60%] aspect-square rounded-full border border-emerald-500/50 absolute" />
+                <div className="w-[35%] aspect-square rounded-full border border-emerald-500/60 absolute" />
+                <div className="w-[10%] aspect-square rounded-full bg-emerald-500/20 border border-emerald-400 absolute" />
+                <div className="w-full h-px bg-emerald-500/30 absolute" />
+                <div className="h-full w-px bg-emerald-500/30 absolute" />
+              </div>
 
-            {/* User Center Pin */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center pointer-events-none">
-              <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-lg animate-ping absolute" />
-              <div className="w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-lg relative z-10" />
-              <span className="text-[10px] font-black text-white bg-blue-900/80 px-2 py-0.5 rounded-full mt-1 backdrop-blur-xs">
-                You
-              </span>
+              {/* User Center Pin */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center pointer-events-none">
+                <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-lg animate-ping absolute" />
+                <div className="w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-lg relative z-10" />
+                <span className="text-[10px] font-black text-white bg-blue-900/80 px-2 py-0.5 rounded-full mt-1 backdrop-blur-xs">
+                  You
+                </span>
+              </div>
+
+              {/* Floating Top Info */}
+              <div className="relative z-10 flex items-center justify-between text-white text-xs">
+                <span className="bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 border border-emerald-500/30">
+                  <Navigation className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Found {nearbyFarmers.length} farms within {radiusKm} km</span>
+                </span>
+              </div>
+
+              {/* Nearby Farm Pins Rendered Spatially */}
+              <div className="absolute inset-4 pointer-events-auto">
+                {nearbyFarmers.map((f, i) => {
+                  const isSelected = selectedFarmerItem?.id === f.id;
+                  // Compute deterministic visual offset based on index and distance
+                  const angle = (i * (360 / (nearbyFarmers.length || 1))) * (Math.PI / 180);
+                  const distanceFactor = Math.min(0.42, 0.15 + (f.distanceKm / (radiusKm || 25)) * 0.28);
+                  const posX = 50 + Math.cos(angle) * (distanceFactor * 100);
+                  const posY = 50 + Math.sin(angle) * (distanceFactor * 100);
+
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => setSelectedFarmerItem(f)}
+                      style={{ left: `${posX}%`, top: `${posY}%` }}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all group z-20 ${
+                        isSelected
+                          ? 'bg-amber-400 ring-4 ring-amber-400/50 scale-125'
+                          : 'bg-emerald-600 hover:bg-emerald-500 hover:scale-110 shadow-lg'
+                      }`}
+                      title={`${f.farmName || f.farmerName || f.name} (${f.distanceKm} km)`}
+                    >
+                      <Sprout className={`w-4 h-4 ${isSelected ? 'text-zinc-950' : 'text-white'}`} />
+                      <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold bg-black/80 text-white px-1.5 py-0.2 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                        {f.farmName || f.farmerName || f.name} • {f.distanceKm} km
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Map Legend */}
+              <div className="relative z-10 flex items-center gap-3 text-[11px] text-emerald-200/80 bg-black/40 backdrop-blur-md p-2 rounded-2xl border border-emerald-500/20 max-w-fit">
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Your Location
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Active Farm Gate
+                </span>
+              </div>
             </div>
-
-            {/* Floating Top Info */}
-            <div className="relative z-10 flex items-center justify-between text-white text-xs">
-              <span className="bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 border border-emerald-500/30">
-                <Navigation className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Found {nearbyFarmers.length} farms within {radiusKm} km</span>
-              </span>
-            </div>
-
-            {/* Nearby Farm Pins Rendered Spatially */}
-            <div className="absolute inset-4 pointer-events-auto">
-              {nearbyFarmers.map((f, i) => {
-                const isSelected = selectedFarmerItem?.id === f.id;
-                // Compute deterministic visual offset based on index and distance
-                const angle = (i * (360 / (nearbyFarmers.length || 1))) * (Math.PI / 180);
-                const distanceFactor = Math.min(0.42, 0.15 + (f.distanceKm / (radiusKm || 25)) * 0.28);
-                const posX = 50 + Math.cos(angle) * (distanceFactor * 100);
-                const posY = 50 + Math.sin(angle) * (distanceFactor * 100);
-
-                return (
-                  <button
-                    key={f.id}
-                    onClick={() => setSelectedFarmerItem(f)}
-                    style={{ left: `${posX}%`, top: `${posY}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all group z-20 ${
-                      isSelected
-                        ? 'bg-amber-400 ring-4 ring-amber-400/50 scale-125'
-                        : 'bg-emerald-600 hover:bg-emerald-500 hover:scale-110 shadow-lg'
-                    }`}
-                    title={`${f.farmName || f.farmerName || f.name} (${f.distanceKm} km)`}
-                  >
-                    <Sprout className={`w-4 h-4 ${isSelected ? 'text-zinc-950' : 'text-white'}`} />
-                    <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold bg-black/80 text-white px-1.5 py-0.2 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
-                      {f.farmName || f.farmerName || f.name} • {f.distanceKm} km
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Map Legend */}
-            <div className="relative z-10 flex items-center gap-3 text-[11px] text-emerald-200/80 bg-black/40 backdrop-blur-md p-2 rounded-2xl border border-emerald-500/20 max-w-fit">
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Your Location
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Active Farm Gate
-              </span>
-            </div>
-          </div>
+          )}
 
           {/* Right: Selected Farm Preview Card */}
           <div className="w-full md:w-80 border-t md:border-t-0 md:border-l border-zinc-100 dark:border-zinc-800 p-4 sm:p-5 overflow-y-auto flex flex-col justify-between space-y-4 bg-white dark:bg-[#1B201D]">

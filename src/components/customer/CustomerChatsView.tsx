@@ -281,14 +281,26 @@ export const CustomerChatsView: React.FC = () => {
                     {lastMsg}
                   </p>
 
-                  {/* Attached Produce Pill if available */}
-                  {attachedProduct && (
-                    <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px] text-zinc-600 dark:text-zinc-300 font-medium">
-                      <ShoppingBag className="w-3 h-3 text-emerald-600" />
-                      <span className="truncate max-w-[160px]">{attachedProduct.name}</span>
-                      <span className="font-bold text-emerald-600">?{attachedProduct.price}</span>
-                    </div>
-                  )}
+                  {/* Attached Produce Pill & Offer Status if available */}
+                  <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                    {attachedProduct && (
+                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px] text-zinc-600 dark:text-zinc-300 font-medium">
+                        <ShoppingBag className="w-3 h-3 text-emerald-600" />
+                        <span className="truncate max-w-[160px]">{attachedProduct.name}</span>
+                        <span className="font-bold text-emerald-600">₹{attachedProduct.price}</span>
+                      </div>
+                    )}
+                    {lastMsg.includes('OFFER') && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold text-[9px]">
+                        🤝 Active Offer
+                      </span>
+                    )}
+                    {lastMsg.includes('DEAL') && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-[9px]">
+                        ✅ Deal Agreed
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Unread count badge */}

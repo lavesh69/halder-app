@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { upload } from '../middleware/upload';
 import { authenticateUser } from '../middleware/auth';
 import { AppError } from '../utils/errors';
@@ -7,7 +7,7 @@ import { StorageService } from '../services/storageService';
 
 const router = Router();
 
-router.post('/images', authenticateUser, uploadLimiter, upload.array('photos', 5), async (req, res, next) => {
+router.post('/images', authenticateUser, uploadLimiter, upload.array('photos', 8), async (req, res, next) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ListingCard } from '../common/ListingCard';
+import { ApiClient } from '../../api/client';
 import {
   ArrowLeft,
   Search,
@@ -13,6 +14,7 @@ import {
   Mic,
   LayoutGrid,
   List,
+  Bell,
 } from 'lucide-react';
 
 const popularSuggestions = [
@@ -137,6 +139,22 @@ export const SearchScreen: React.FC = () => {
     return 0;
   });
 
+  const handleSaveThisSearch = async () => {
+    if (!inputVal.trim()) return;
+    try {
+      await ApiClient.createSavedSearch({
+        query: inputVal.trim(),
+        category: filterState.category !== 'All' ? filterState.category : undefined,
+        radiusKm: filterState.maxDistanceKm || 25,
+        minPrice: filterState.minPrice || undefined,
+        maxPrice: filterState.maxPrice || undefined,
+      });
+      showToast(`🔔 Crop alert saved for "${inputVal.trim()}". You'll receive instant alerts when matching produce is posted!`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save alert', 'error');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-[#F7F9F6] dark:bg-[#0F1411] flex flex-col max-w-5xl mx-auto overflow-hidden animate-fade-in">
       {/* Search Header Bar */}
@@ -242,6 +260,16 @@ export const SearchScreen: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleSaveThisSearch}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800/60 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/60 transition shadow-2xs"
+                  title="Notify me when new matching produce is posted"
+                >
+                  <Bell className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="hidden sm:inline">Set Alert</span>
+                </button>
+
                 <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-xl border border-zinc-200 dark:border-zinc-700">
                   <button
                     onClick={() => setSearchViewMode('grid')}

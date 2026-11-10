@@ -270,6 +270,17 @@ export const FarmerChatView: React.FC = () => {
                         <span className="truncate">{conv.product.name}</span>
                       </div>
                     )}
+
+                    {lastMsgText.includes('OFFER') && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold text-[9px] mt-1">
+                        🤝 Active Offer
+                      </span>
+                    )}
+                    {lastMsgText.includes('DEAL') && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-[9px] mt-1">
+                        ✅ Deal Finalized
+                      </span>
+                    )}
                   </div>
                 </div>
 

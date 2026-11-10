@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { useChatSocket, ChatWsMessage } from '../../hooks/useChatSocket';
 import { ApiClient } from '../../api/client';
+import { NegotiationThread } from '../../types';
 import {
   X,
   Send,
@@ -16,6 +17,10 @@ import {
   Wifi,
   WifiOff,
   ShoppingBag,
+  HandCoins,
+  FileText,
+  Loader2,
+  ArrowRight,
 } from 'lucide-react';
 
 const quickReplies = [
@@ -39,13 +44,42 @@ export const MarketplaceChatModal: React.FC = () => {
     showToast,
     currentLocation,
     setSelectedProduct,
+    setIsNegotiationsOpen,
   } = useApp();
 
   const { t } = useTranslation();
   const [inputMsg, setInputMsg] = useState('');
   const [showChatOfferModal, setShowChatOfferModal] = useState(false);
   const [chatOfferPrice, setChatOfferPrice] = useState<number | ''>('');
+  const [chatOfferQuantity, setChatOfferQuantity] = useState<number | ''>(5);
+  const [activeNegotiation, setActiveNegotiation] = useState<NegotiationThread | null>(null);
+  const [showCounterInput, setShowCounterInput] = useState(false);
+  const [counterPriceInput, setCounterPriceInput] = useState<number | ''>('');
+  const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const loadNegotiationContext = async () => {
+    try {
+      const res = await ApiClient.getNegotiationThreads();
+      const threads: NegotiationThread[] = Array.isArray(res) ? res : (res as any)?.data || [];
+      const matched = threads.find(
+        (t) =>
+          ((activeConversationProductId && t.productId === activeConversationProductId) ||
+           t.farmerId === chatFarmer?.id ||
+           t.buyerId === chatFarmer?.id) &&
+          t.status !== 'withdrawn'
+      );
+      setActiveNegotiation(matched || null);
+    } catch {
+      // Ignore if offline or unauthenticated
+    }
+  };
+
+  useEffect(() => {
+    if (isChatModalOpen && chatFarmer) {
+      loadNegotiationContext();
+    }
+  }, [isChatModalOpen, chatFarmer, activeConversationProductId]);
 
   // Hook for real-time WebSocket messaging, typing indicator, and read receipts
   const {
@@ -123,6 +157,85 @@ export const MarketplaceChatModal: React.FC = () => {
       scrollToBottom();
     } catch (err: any) {
       showToast(err.message || 'Failed to send message', 'error');
+    }
+  };
+
+  const handleCreateChatOffer = async () => {
+    if (!productContext) {
+      showToast('Please open chat with a specific product to make an offer.');
+      return;
+    }
+    if (!chatOfferPrice || Number(chatOfferPrice) <= 0) {
+      showToast('Please enter your proposed price per unit.');
+      return;
+    }
+    try {
+      setIsSubmittingOffer(true);
+      await ApiClient.createOffer({
+        productId: productContext.id,
+        proposedPrice: Number(chatOfferPrice),
+        quantity: Number(chatOfferQuantity) || 1,
+        message: `Proposed ₹${chatOfferPrice}/${productContext.unit} via Direct Chat.`,
+      });
+      showToast('Offer submitted to seller!');
+      setShowChatOfferModal(false);
+      setChatOfferPrice('');
+      await loadNegotiationContext();
+      await sendMessage(`🤝 OFFER: I have submitted a price offer of ₹${chatOfferPrice}/${productContext.unit} for ${chatOfferQuantity || 1} ${productContext.unit}.`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to submit offer', 'error');
+    } finally {
+      setIsSubmittingOffer(false);
+    }
+  };
+
+  const handleAcceptOffer = async () => {
+    if (!activeNegotiation) return;
+    try {
+      setIsSubmittingOffer(true);
+      await ApiClient.acceptOffer(activeNegotiation.id);
+      showToast('Deal agreed! 0% platform commission.');
+      await loadNegotiationContext();
+      await sendMessage(`🤝 DEAL AGREED: Terms accepted at ₹${activeNegotiation.currentPrice}/${activeNegotiation.unit}. Agreed trade terms confirmed.`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to accept offer', 'error');
+    } finally {
+      setIsSubmittingOffer(false);
+    }
+  };
+
+  const handleCounterOffer = async () => {
+    if (!activeNegotiation || !counterPriceInput || Number(counterPriceInput) <= 0) {
+      showToast('Please enter a valid counter price.');
+      return;
+    }
+    try {
+      setIsSubmittingOffer(true);
+      await ApiClient.counterOffer(activeNegotiation.id, Number(counterPriceInput), 'Counter-offer via chat');
+      showToast('Counter-offer sent!');
+      setShowCounterInput(false);
+      setCounterPriceInput('');
+      await loadNegotiationContext();
+      await sendMessage(`🤝 COUNTER-OFFER: Proposed revised price ₹${counterPriceInput}/${activeNegotiation.unit}.`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to send counter-offer', 'error');
+    } finally {
+      setIsSubmittingOffer(false);
+    }
+  };
+
+  const handleRejectOffer = async () => {
+    if (!activeNegotiation) return;
+    try {
+      setIsSubmittingOffer(true);
+      await ApiClient.rejectOffer(activeNegotiation.id, 'Declined terms');
+      showToast('Offer declined.');
+      await loadNegotiationContext();
+      await sendMessage(`❌ OFFER DECLINED: Proposed offer was declined.`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to decline offer', 'error');
+    } finally {
+      setIsSubmittingOffer(false);
     }
   };
 
@@ -263,6 +376,200 @@ export const MarketplaceChatModal: React.FC = () => {
           <ShieldCheck className="w-3 h-3 text-emerald-600" />
           <span>{t('chat.secure_encrypted')}</span>
         </div>
+
+        {/* Module 5: Embedded In-Chat Active Offer & Deal Agreement Banner */}
+        {activeNegotiation ? (
+          <div className="bg-amber-50/90 dark:bg-amber-950/40 border-b border-amber-200/80 dark:border-amber-800/60 p-3 shrink-0 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="p-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-lg">
+                  <HandCoins className="w-3.5 h-3.5" />
+                </span>
+                <span className="font-bold text-xs text-zinc-900 dark:text-white">
+                  Active Price Offer
+                </span>
+                <span
+                  className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                    activeNegotiation.status === 'accepted'
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                      : activeNegotiation.status === 'countered'
+                      ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300'
+                      : activeNegotiation.status === 'rejected'
+                      ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+                      : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                  }`}
+                >
+                  {activeNegotiation.status === 'accepted' ? 'Deal Finalized' : activeNegotiation.status}
+                </span>
+              </div>
+
+              <span className="text-xs font-black text-emerald-700 dark:text-emerald-400">
+                ₹{activeNegotiation.currentPrice}/{activeNegotiation.unit}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-300">
+              <span>
+                Quantity: <strong>{activeNegotiation.quantity} {activeNegotiation.unit}</strong> (Est. Total: ₹{activeNegotiation.currentPrice * activeNegotiation.quantity})
+              </span>
+              <span className="text-[10px] text-zinc-400">
+                Ref: {activeNegotiation.id.slice(-6).toUpperCase()}
+              </span>
+            </div>
+
+            {/* Quick Actions depending on status */}
+            {activeNegotiation.status === 'accepted' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsChatModalOpen(false);
+                  setIsNegotiationsOpen(true);
+                }}
+                className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>View Deal Summary & Receipt (₹0 Commission)</span>
+              </button>
+            ) : activeNegotiation.status !== 'rejected' && activeNegotiation.status !== 'withdrawn' ? (
+              <div className="space-y-1.5 pt-0.5">
+                {!showCounterInput ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isSubmittingOffer}
+                      onClick={handleAcceptOffer}
+                      className="flex-1 py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center justify-center gap-1"
+                    >
+                      {isSubmittingOffer ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                      <span>Accept (₹{activeNegotiation.currentPrice})</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSubmittingOffer}
+                      onClick={() => {
+                        setCounterPriceInput(activeNegotiation.currentPrice);
+                        setShowCounterInput(true);
+                      }}
+                      className="px-3 py-1 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 font-bold text-xs rounded-xl transition"
+                    >
+                      Counter
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSubmittingOffer}
+                      onClick={handleRejectOffer}
+                      className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition"
+                      title="Decline offer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-zinc-500">₹</span>
+                    <input
+                      type="number"
+                      value={counterPriceInput}
+                      onChange={(e) => setCounterPriceInput(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="Your price"
+                      className="w-24 px-2 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white"
+                    />
+                    <button
+                      type="button"
+                      disabled={isSubmittingOffer}
+                      onClick={handleCounterOffer}
+                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
+                    >
+                      Submit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowCounterInput(false)}
+                      className="p-1 text-zinc-400 hover:text-zinc-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        ) : productContext ? (
+          <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border-b border-emerald-100/60 dark:border-emerald-900/30 px-3.5 py-1.5 flex items-center justify-between text-xs shrink-0">
+            <span className="text-zinc-600 dark:text-zinc-300 text-[11px]">
+              Want bulk discount or negotiate price?
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setChatOfferPrice(Math.round(productContext.price * 0.9));
+                setShowChatOfferModal(true);
+              }}
+              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] rounded-lg shadow-2xs transition flex items-center gap-1"
+            >
+              <HandCoins className="w-3 h-3" />
+              <span>Make Offer</span>
+            </button>
+          </div>
+        ) : null}
+
+        {/* Modal for In-Chat Make an Offer */}
+        {showChatOfferModal && productContext && (
+          <div className="bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-800/80 p-3 shrink-0 space-y-2 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-zinc-900 dark:text-white">
+                Submit Price Offer for {productContext.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowChatOfferModal(false)}
+                className="text-zinc-400 hover:text-zinc-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="text-[10px] text-zinc-500 block mb-0.5">Offer Price (₹/{productContext.unit})</label>
+                <input
+                  type="number"
+                  value={chatOfferPrice}
+                  onChange={(e) => setChatOfferPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder={`Asking: ₹${productContext.price}`}
+                  className="w-full px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-bold"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-zinc-500 block mb-0.5">Quantity ({productContext.unit})</label>
+                <input
+                  type="number"
+                  value={chatOfferQuantity}
+                  onChange={(e) => setChatOfferQuantity(e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder="5"
+                  className="w-full px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-bold"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowChatOfferModal(false)}
+                className="px-2.5 py-1 text-xs text-zinc-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isSubmittingOffer}
+                onClick={handleCreateChatOffer}
+                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-1"
+              >
+                {isSubmittingOffer ? <Loader2 className="w-3 h-3 animate-spin" /> : <HandCoins className="w-3.5 h-3.5" />}
+                <span>Send Offer</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Messages Feed */}
         <div className="p-4 space-y-3 overflow-y-auto flex-1 text-xs">

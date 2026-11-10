@@ -88088,7 +88088,7 @@ var StorageService = class {
 
 // server/src/routes/uploadRoutes.ts
 var router10 = (0, import_express10.Router)();
-router10.post("/images", authenticateUser, uploadLimiter, upload.array("photos", 5), async (req, res, next) => {
+router10.post("/images", authenticateUser, uploadLimiter, upload.array("photos", 8), async (req, res, next) => {
   try {
     const files = req.files;
     if (!files || files.length === 0) {

@@ -1,12 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ProductCategory, PriceSlab } from '../../types';
+import { compressImageFile } from '../../utils/imageCompression';
 import {
   X,
   Camera,
   Check,
   ArrowRight,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
   MapPin,
   Upload,
@@ -19,6 +22,8 @@ import {
   Calendar,
   Layers,
   HelpCircle,
+  Star,
+  Loader2,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -108,10 +113,12 @@ export const FastSellModal: React.FC = () => {
   const [farmerDeliveryAvailable, setFarmerDeliveryAvailable] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   if (!isFastSellOpen) return null;
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const remainingSlots = 8 - uploadedPhotos.length;
       if (remainingSlots <= 0) {
@@ -120,10 +127,41 @@ export const FastSellModal: React.FC = () => {
       }
 
       const files = Array.from(e.target.files).slice(0, remainingSlots);
-      const newUrls = files.map((file) => URL.createObjectURL(file));
-      setUploadedPhotos((prev) => [...prev, ...newUrls].slice(0, 8));
-      showToast(`Added ${files.length} photo(s).`);
+      setIsCompressing(true);
+      try {
+        const compressedUrls = await Promise.all(
+          files.map(async (f) => {
+            try {
+              return await compressImageFile(f, 1200, 0.82);
+            } catch {
+              return URL.createObjectURL(f);
+            }
+          })
+        );
+        setUploadedPhotos((prev) => [...prev, ...compressedUrls].slice(0, 8));
+        showToast(`Added and compressed ${files.length} produce photo(s).`);
+      } catch (err: any) {
+        showToast('Failed to process photos', 'error');
+      } finally {
+        setIsCompressing(false);
+      }
     }
+  };
+
+  const movePhoto = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= uploadedPhotos.length) return;
+    setUploadedPhotos((prev) => {
+      const copy = [...prev];
+      const item = copy.splice(fromIdx, 1)[0];
+      copy.splice(toIdx, 0, item);
+      return copy;
+    });
+  };
+
+  const setAsCover = (index: number) => {
+    if (index === 0) return;
+    movePhoto(index, 0);
+    showToast('Cover photo updated.');
   };
 
   const removePhoto = (index: number) => {
@@ -258,48 +296,122 @@ export const FastSellModal: React.FC = () => {
               {/* Photo Upload Section */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
-                    Product Photos ({uploadedPhotos.length}/8)
-                  </label>
-                  <span className="text-[11px] text-zinc-400">First photo is main cover</span>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                      Product Photos ({uploadedPhotos.length}/8)
+                    </label>
+                    {isCompressing && (
+                      <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Compressing...</span>
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-zinc-400">#1 is main cover</span>
                 </div>
 
                 <div className="grid grid-cols-4 gap-2.5">
                   {uploadedPhotos.map((photoUrl, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-emerald-600/40 group">
+                    <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-emerald-600/40 group shadow-xs">
                       <img src={photoUrl} alt="Upload" className="w-full h-full object-cover" />
-                      {idx === 0 && (
-                        <span className="absolute bottom-1 left-1 right-1 bg-black/60 text-white text-[9px] font-bold py-0.5 text-center rounded-md">
-                          Cover
+                      
+                      {/* Cover Badge */}
+                      {idx === 0 ? (
+                        <span className="absolute bottom-1 left-1 right-1 bg-emerald-700/90 text-white text-[9px] font-bold py-0.5 text-center rounded-md flex items-center justify-center gap-0.5">
+                          <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
+                          <span>Cover</span>
                         </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setAsCover(idx)}
+                          className="absolute bottom-1 left-1 right-1 bg-black/70 hover:bg-emerald-600 text-white text-[8px] font-bold py-0.5 text-center rounded-md transition opacity-0 group-hover:opacity-100"
+                          title="Set as main cover"
+                        >
+                          Make Cover
+                        </button>
                       )}
-                      <button
-                        onClick={() => removePhoto(idx)}
-                        className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors opacity-90 group-hover:opacity-100"
-                        title="Remove photo"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
+
+                      {/* Reorder & Delete Overlay */}
+                      <div className="absolute top-1 inset-x-1 flex items-center justify-between">
+                        <div className="flex items-center gap-0.5">
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => movePhoto(idx, idx - 1)}
+                              className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
+                              title="Move left"
+                            >
+                              <ChevronLeft className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                          {idx < uploadedPhotos.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => movePhoto(idx, idx + 1)}
+                              className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
+                              title="Move right"
+                            >
+                              <ChevronRight className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(idx)}
+                          className="p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors opacity-90 group-hover:opacity-100"
+                          title="Remove photo"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   ))}
 
                   {uploadedPhotos.length < 8 && (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="aspect-square rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-emerald-600 transition-all cursor-pointer"
-                    >
-                      <Camera className="w-6 h-6" />
-                      <span className="text-[10px] font-bold">+ Add Photo</span>
-                    </button>
+                    <>
+                      {/* Add Gallery Photos */}
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="aspect-square rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-emerald-600 transition-all cursor-pointer"
+                        title="Upload from gallery"
+                      >
+                        <Upload className="w-5 h-5" />
+                        <span className="text-[10px] font-bold">+ Gallery</span>
+                      </button>
+
+                      {/* Snap Produce with Phone Camera */}
+                      <button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="aspect-square rounded-2xl border-2 border-dashed border-emerald-400 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 hover:border-emerald-600 flex flex-col items-center justify-center gap-1 text-emerald-700 dark:text-emerald-300 transition-all cursor-pointer"
+                        title="Snap with phone camera"
+                      >
+                        <Camera className="w-5 h-5" />
+                        <span className="text-[10px] font-bold">📷 Camera</span>
+                      </button>
+                    </>
                   )}
                 </div>
 
+                {/* Gallery File Input */}
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   multiple
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+
+                {/* Camera Direct Input */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
                   className="hidden"
                   onChange={handleImageUpload}
                 />

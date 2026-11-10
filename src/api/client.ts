@@ -1113,18 +1113,29 @@ export class ApiClient {
     return this.request('/negotiations');
   }
 
+  static async getNegotiationThreads(): Promise<any[]> {
+    return this.listUserNegotiations();
+  }
+
   static async getNegotiationById(id: string): Promise<any> {
     return this.request(`/negotiations/${id}`);
   }
 
-  static async counterOffer(negotiationId: string, data: {
-    proposedPrice: number;
-    quantity?: number;
-    message?: string;
-  }): Promise<any> {
+  static async counterOffer(
+    negotiationId: string,
+    dataOrPrice: number | {
+      proposedPrice: number;
+      quantity?: number;
+      message?: string;
+    },
+    optionalMsg?: string
+  ): Promise<any> {
+    const payload = typeof dataOrPrice === 'number'
+      ? { proposedPrice: dataOrPrice, message: optionalMsg }
+      : dataOrPrice;
     return this.request(`/negotiations/${negotiationId}/counter`, {
       method: 'POST',
-      body: data,
+      body: payload,
     });
   }
 
@@ -1134,9 +1145,10 @@ export class ApiClient {
     });
   }
 
-  static async rejectOffer(negotiationId: string): Promise<any> {
+  static async rejectOffer(negotiationId: string, reasonOrMsg?: string): Promise<any> {
     return this.request(`/negotiations/${negotiationId}/reject`, {
       method: 'POST',
+      body: reasonOrMsg ? { message: reasonOrMsg } : undefined,
     });
   }
 
@@ -1171,18 +1183,31 @@ export class ApiClient {
 
   // Smart Alerts & Saved Searches (Module 11)
   static async createSavedSearch(data: {
-    searchName: string;
+    searchName?: string;
     productQuery?: string;
+    query?: string;
     categoryName?: string;
+    category?: string;
     city?: string;
     maxDistanceKm?: number;
+    radiusKm?: number;
     minPrice?: number;
     maxPrice?: number;
     notificationFrequency?: 'instant' | 'daily';
   }): Promise<any> {
+    const payload = {
+      searchName: data.searchName || data.productQuery || data.query || 'Saved Search Alert',
+      productQuery: data.productQuery ?? data.query,
+      categoryName: data.categoryName ?? data.category,
+      city: data.city,
+      maxDistanceKm: data.maxDistanceKm ?? data.radiusKm,
+      minPrice: data.minPrice,
+      maxPrice: data.maxPrice,
+      notificationFrequency: data.notificationFrequency || 'instant',
+    };
     return this.request('/alerts/saved-searches', {
       method: 'POST',
-      body: data,
+      body: payload,
     });
   }
 
