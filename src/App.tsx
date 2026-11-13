@@ -31,7 +31,6 @@ import { RequirementsMarketplaceView } from './components/customer/RequirementsM
 import { NegotiationThreadModal } from './components/customer/NegotiationThreadModal';
 import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
 import { StockControlModal } from './components/farmer/StockControlModal';
-import { AdminAuthModal } from './components/common/AdminAuthModal';
 
 // Farmer screens & modals (Code-split for performance)
 const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
@@ -57,8 +56,6 @@ export const MainApp: React.FC = () => {
     isLoggedIn,
     isLoginModalOpen,
     setIsLoginModalOpen,
-    isAdminAuthModalOpen,
-    setIsAdminAuthModalOpen,
     isDeviceFrame,
     isSearchScreenOpen,
     buyNowProduct,
@@ -236,10 +233,6 @@ export const MainApp: React.FC = () => {
           onClose={() => setIsLoginModalOpen(false)}
         />
       )}
-      <AdminAuthModal
-        isOpen={isAdminAuthModalOpen}
-        onClose={() => setIsAdminAuthModalOpen(false)}
-      />
 
       {/* Bottom Navigation */}
       <BottomNav />

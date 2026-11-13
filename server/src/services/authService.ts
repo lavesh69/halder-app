@@ -135,16 +135,7 @@ export class AuthService {
       throw AppError.forbidden('Your account is currently suspended. Please contact admin.', 'ACCOUNT_SUSPENDED');
     }
 
-    // RBAC Security Check: Admin accounts strictly require password verification
-    if (user.role === 'admin') {
-      if (!password) {
-        throw AppError.unauthorized('Administrator password required.', 'ADMIN_PASSWORD_REQUIRED');
-      }
-      const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
-      if (!isMatch) {
-        throw AppError.unauthorized('Invalid admin credentials entered.', 'INVALID_CREDENTIALS');
-      }
-    } else if (password && user.password_hash) {
+    if (password && user.password_hash) {
       const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
       if (!isMatch) {
         throw AppError.unauthorized('Invalid password entered. Please check your credentials.', 'INVALID_CREDENTIALS');

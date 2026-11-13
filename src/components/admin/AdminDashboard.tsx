@@ -64,8 +64,6 @@ const getExportTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-').
 
 export const AdminDashboard: React.FC = () => {
   const {
-    role,
-    currentUser,
     adminTab,
     setAdminTab,
     users,
@@ -103,25 +101,6 @@ export const AdminDashboard: React.FC = () => {
   // Navigation tab is directly bound to adminTab from AppContext
   const activeTab = adminTab || 'overview';
   const setActiveTab = setAdminTab;
-
-  // RBAC Defense-in-Depth Guard: Deny rendering if not authenticated as admin
-  if (role !== 'admin' || currentUser?.role !== 'admin') {
-    return (
-      <div className="p-8 text-center bg-white dark:bg-[#1B201D] rounded-3xl border border-red-200 dark:border-red-900/40 m-4 max-w-lg mx-auto shadow-sm">
-        <ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Access Denied (RBAC Protected)</h2>
-        <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
-          The Superadmin Console requires verified administrative credentials under HALDER Role-Based Access Control policies.
-        </p>
-        <button
-          onClick={() => setRole('customer')}
-          className="mt-5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs"
-        >
-          Return to Marketplace
-        </button>
-      </div>
-    );
-  }
 
   // Real-time server states
   const [pendingKyc, setPendingKyc] = useState<any[]>([]);

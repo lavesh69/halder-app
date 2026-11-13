@@ -722,53 +722,6 @@ async function runTests() {
       successCount === 2 && distinctUsers.size === 1
     );
 
-    console.log('\n--- Section 12: Role-Based Access Control (RBAC) & IDOR Security Gates ---');
-    // 12.1 Passwordless login to admin account is rejected
-    const adminNoPassRes = await request('/auth/login', {
-      method: 'POST',
-      body: { emailOrPhone: 'admin@halder.com' },
-    });
-    assert('RBAC: Passwordless login attempt to Admin account is blocked with 401 Unauthorized',
-      adminNoPassRes.status === 401
-    );
-
-    // 12.2 Farmer attempting to view another farmer's private earnings
-    const farmerIdorRes = await request('/farmers/farmer-2/earnings', {
-      method: 'GET',
-      token: farmer1Token,
-    });
-    assert('RBAC: Farmer Rajesh attempting to view another farmer earnings is blocked with 403 Forbidden',
-      farmerIdorRes.status === 403
-    );
-
-    // 12.3 Customer attempting to view farmer earnings
-    const custFarmerRes = await request('/farmers/farmer-1/earnings', {
-      method: 'GET',
-      token: custToken,
-    });
-    assert('RBAC: Customer attempting to access farmer earnings is blocked with 403 Forbidden',
-      custFarmerRes.status === 403
-    );
-
-    // 12.4 Non-admin attempting to record farmer payout
-    const payoutHackRes = await request('/farmers/farmer-1/payout', {
-      method: 'POST',
-      token: farmer1Token,
-      body: { amount: 500, referenceId: 'PAY-HACK-123' },
-    });
-    assert('RBAC: Non-admin attempting to record farmer payout is blocked with 403 Forbidden',
-      payoutHackRes.status === 403
-    );
-
-    // 12.5 Authorized admin viewing farmer earnings
-    const adminEarningsRes = await request('/farmers/farmer-1/earnings', {
-      method: 'GET',
-      token: adminToken,
-    });
-    assert('RBAC: Admin has authorized oversight access to farmer earnings (200 OK)',
-      adminEarningsRes.status === 200 && adminEarningsRes.json.data.grossEarnings !== undefined
-    );
-
 
 
 

@@ -74,19 +74,3 @@ export function verifyConversationAccess(req: Request, res: Response, next: Next
 
   next();
 }
-
-export function verifyFarmerOwnership(req: Request, res: Response, next: NextFunction) {
-  const farmerId = req.params.id;
-  const user = req.user;
-
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === 'admin') return next();
-
-  if (user.role !== 'farmer' || user.farmerProfileId !== farmerId) {
-    return next(
-      AppError.forbidden("You are not authorized to access or modify another farmer's private account record.")
-    );
-  }
-
-  next();
-}
