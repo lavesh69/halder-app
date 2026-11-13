@@ -29,6 +29,7 @@ import {
   Calendar,
   Crown,
   FileSpreadsheet,
+  Megaphone,
 } from 'lucide-react';
 
 interface MandiRate {
@@ -183,6 +184,19 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setFarmerTab('my-ads')}
+          className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
+          title={t('nav.my_ads')}
+        >
+          <div className="w-7 h-7 rounded-full bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center group-hover:bg-[#EAF5EE] group-hover:text-[#176B45] transition">
+            <Megaphone className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
+          </div>
+          <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
+            {t('nav.my_ads')}
+          </span>
+        </button>
+
+        <button
           onClick={() => setIsCropModalOpen(true)}
           className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
         >
@@ -292,10 +306,11 @@ export const FarmerDashboard: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setFarmerTab('listings')}
-            className="min-h-[44px] px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs transition border border-white/20 flex items-center justify-center gap-1"
-            title="View my listed crops"
+            onClick={() => setFarmerTab('my-ads')}
+            className="min-h-[44px] px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs transition border border-white/20 flex items-center justify-center gap-1.5"
+            title="View my listed crop advertisements"
           >
+            <Megaphone className="w-4 h-4 text-white" />
             <span>{t('ads.my_ads')} ({myProducts.length})</span>
           </button>
         </div>

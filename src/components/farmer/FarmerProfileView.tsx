@@ -27,13 +27,19 @@ import {
   Sparkles,
   Plus,
   Megaphone,
+  ChevronRight,
 } from 'lucide-react';
 
 export const FarmerProfileView: React.FC = () => {
-  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing } = useApp();
+  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing, setFarmerTab, products } = useApp();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const farmerId = currentUser?.farmerProfileId || 'farmer-1';
+
+  const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
+  const myAdsCount = products.filter(
+    (p) => (p.farmerId === currentUserId || (currentUser?.name && p.farmerName === currentUser.name)) && p.isAvailable !== false
+  ).length;
 
   const [profile, setProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -212,6 +218,36 @@ export const FarmerProfileView: React.FC = () => {
           </div>
         </div>
         <Repeat className="w-5 h-5 text-emerald-200" />
+      </div>
+
+      {/* My Advertisements (OLX / Classifieds Style) */}
+      <div className="bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden shadow-soft">
+        <button
+          onClick={() => setFarmerTab('my-ads')}
+          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
+              <Megaphone className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-zinc-900 dark:text-white block">
+                  {t('my_ads.title')} ({t('nav.my_ads')})
+                </span>
+                {myAdsCount > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                    {myAdsCount} Active
+                  </span>
+                )}
+              </div>
+              <span className="text-[11px] text-zinc-500">
+                Manage, edit price, boost, and track views of your listed crop ads
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-zinc-400" />
+        </button>
       </div>
 
       {/* Farm Details Card */}

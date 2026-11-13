@@ -133,6 +133,9 @@ export const MainApp: React.FC = () => {
       case 'listings':
         content = <FarmerProductsView />;
         break;
+      case 'my-ads':
+        content = <CustomerMyAdsView />;
+        break;
       case 'orders':
         content = <FarmerOrdersView />;
         break;

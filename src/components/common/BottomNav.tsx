@@ -40,7 +40,13 @@ export const BottomNav: React.FC = () => {
     products,
     farmers,
     unreadChatCount,
+    currentUser,
   } = useApp();
+
+  const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
+  const farmerAdsCount = products.filter(
+    (p) => (p.farmerId === currentUserId || (currentUser?.name && p.farmerName === currentUser.name)) && p.isAvailable !== false
+  ).length;
 
   const pendingFarmerOrdersCount = orders.filter((o) => o.status === 'placed').length;
   const activeCustomerOrdersCount = orders.filter((o) => !['delivered', 'rejected', 'cancelled'].includes(o.status)).length;
@@ -335,6 +341,27 @@ export const BottomNav: React.FC = () => {
         >
           <Sprout className="w-5 h-5" />
           <span className="text-[10px] mt-0.5">{t('nav.crops')}</span>
+        </button>
+
+        {/* 3. My Ads (मेरे विज्ञापन) */}
+        <button
+          onClick={() => setFarmerTab('my-ads')}
+          className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
+            farmerTab === 'my-ads'
+              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+          }`}
+          title={t('nav.my_ads')}
+        >
+          <div className="relative">
+            <Megaphone className="w-5 h-5" />
+            {farmerAdsCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {farmerAdsCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] mt-0.5">{t('nav.my_ads')}</span>
         </button>
 
         {/* 3. Orders */}
