@@ -34,71 +34,7 @@ export const FarmerChatView: React.FC = () => {
     refreshChatConversations().finally(() => setIsLoading(false));
   }, []);
 
-  const sampleFarmerConversations = [
-    {
-      id: 'conv-sample-farmer-1',
-      customerId: 'cust-user-1',
-      customerName: 'Aman Sharma (Local Buyer)',
-      customerPhone: '+91 98765 43210',
-      productId: 'prod-1',
-      unreadCount: 1,
-      product: { name: 'Organic Hybrid Tomatoes', price: 40, unit: 'kg' },
-      otherParty: {
-        id: 'cust-user-1',
-        name: 'Aman Sharma',
-        phone: '+91 98765 43210',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200',
-        city: 'Dehradun',
-      },
-      lastMessage: {
-        message: 'Namaste Rajesh ji! Can I get 15 kg ripe tomatoes for tomorrow morning delivery?',
-        created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-      },
-    },
-    {
-      id: 'conv-sample-farmer-2',
-      customerId: 'cust-user-2',
-      customerName: 'Pooja Verma (Organic Kitchen)',
-      customerPhone: '+91 98112 33445',
-      productId: 'prod-2',
-      unreadCount: 0,
-      product: { name: 'Farm Spinach (पालक)', price: 30, unit: 'bunch' },
-      otherParty: {
-        id: 'cust-user-2',
-        name: 'Pooja Verma',
-        phone: '+91 98112 33445',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
-        city: 'Dehradun',
-      },
-      lastMessage: {
-        message: 'Thank you! The morning spinach was exceptionally fresh and crisp.',
-        created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-      },
-    },
-    {
-      id: 'conv-sample-farmer-3',
-      customerId: 'cust-user-3',
-      customerName: 'Sanjay Rawat (Hotel Aroma)',
-      customerPhone: '+91 94120 55667',
-      productId: 'prod-6',
-      unreadCount: 2,
-      product: { name: 'Mountain Honey (शहद)', price: 350, unit: 'bottle' },
-      otherParty: {
-        id: 'cust-user-3',
-        name: 'Sanjay Rawat',
-        phone: '+91 94120 55667',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200',
-        city: 'Rishikesh',
-      },
-      lastMessage: {
-        message: 'What is the bulk price if we order 10 bottles of raw mountain honey?',
-        created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-      },
-    },
-  ];
-
-  const effectiveConversations =
-    chatConversations.length > 0 ? chatConversations : sampleFarmerConversations;
+  const effectiveConversations = chatConversations;
 
   const filteredConversations = effectiveConversations.filter((c: any) => {
     const name = c.otherParty?.name || c.customerName || '';

@@ -59,4 +59,9 @@ export class NotificationService {
     ]);
     return { success: true };
   }
+
+  static delete(id: string, userId: string) {
+    Database.run('DELETE FROM notifications WHERE id = ? AND user_id = ?', [id, userId]);
+    return { success: true };
+  }
 }

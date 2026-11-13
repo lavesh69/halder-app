@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency } from '../../utils/formatters';
 import { ApiClient } from '../../api/client';
 import { StatusBadge } from '../common/StatusBadge';
@@ -60,11 +61,13 @@ const LIVE_MANDI_RATES: MandiRate[] = [
 ];
 
 export const FarmerDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const {
     products,
     orders,
     updateOrderStatus,
     setIsFastSellOpen,
+    setEditingListing,
     setFarmerTab,
     activeCity,
     currentUser,
@@ -137,11 +140,15 @@ export const FarmerDashboard: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsFastSellOpen(true)}
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
             className="btn-primary"
+            title={t('farmer.post_ad_hero_btn')}
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>+ Sell Harvest (फसल बेचें)</span>
+            <span>{t('farmer.post_ad_hero_btn')}</span>
           </button>
         </div>
       </div>
@@ -149,14 +156,17 @@ export const FarmerDashboard: React.FC = () => {
       {/* Kisan Quick Action Shortcuts */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
         <button
-          onClick={() => setIsFastSellOpen(true)}
+          onClick={() => {
+            setEditingListing(null);
+            setIsFastSellOpen(true);
+          }}
           className="min-h-[72px] p-2.5 bg-[#EAF5EE] dark:bg-[#182A20] rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 flex flex-col items-center justify-center gap-1 hover:bg-[#176B45]/15 transition shadow-soft group"
         >
           <div className="w-7 h-7 rounded-full bg-[#176B45] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition">
             <Plus className="w-4 h-4 stroke-[3]" />
           </div>
           <span className="text-[11px] font-bold text-[#124C36] dark:text-[#5FB383] mt-0.5">
-            + Post Ad
+            {t('nav.post_ad')}
           </span>
         </button>
 
@@ -168,7 +178,7 @@ export const FarmerDashboard: React.FC = () => {
             <Sprout className="w-4 h-4" />
           </div>
           <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            My Crops ({myProducts.length})
+            {t('nav.crops')} ({myProducts.length})
           </span>
         </button>
 
@@ -197,7 +207,7 @@ export const FarmerDashboard: React.FC = () => {
             </span>
           )}
           <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            Orders ({orders.length})
+            {t('nav.orders')} ({orders.length})
           </span>
         </button>
 
@@ -209,7 +219,7 @@ export const FarmerDashboard: React.FC = () => {
             <Activity className="w-4 h-4" />
           </div>
           <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            Mandi Bhav
+            {t('nav.mandi')}
           </span>
         </button>
 
@@ -245,9 +255,50 @@ export const FarmerDashboard: React.FC = () => {
             <TrendingUp className="w-4 h-4" />
           </div>
           <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            Payouts
+            {t('nav.earnings')}
           </span>
         </button>
+      </div>
+
+      {/* Kisan Direct Ad Posting Hero Banner */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#176B45] via-[#1F7A52] to-[#124C36] text-white shadow-soft-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-[#2E8B57]/40 animate-fade-in">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
+              🌾 Direct Mandi Ad Marketplace
+            </span>
+            <span className="text-[11px] text-emerald-200 font-bold">
+              0% Commission • Direct Calls & WhatsApp
+            </span>
+          </div>
+          <h3 className="text-base sm:text-lg font-black text-white">
+            {t('farmer.post_ad_hero_title')}
+          </h3>
+          <p className="text-xs text-white/85 max-w-xl">
+            {t('farmer.post_ad_hero_desc')}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <button
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
+            className="flex-1 sm:flex-initial min-h-[44px] px-5 py-2.5 bg-white text-[#124C36] hover:bg-[#F0F4F1] active:scale-95 rounded-xl font-black text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+          >
+            <Plus className="w-4 h-4 stroke-[3] text-[#176B45]" />
+            <span>{t('farmer.post_ad_hero_btn')}</span>
+          </button>
+
+          <button
+            onClick={() => setFarmerTab('listings')}
+            className="min-h-[44px] px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs transition border border-white/20 flex items-center justify-center gap-1"
+            title="View my listed crops"
+          >
+            <span>{t('ads.my_ads')} ({myProducts.length})</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Responsive Grid Layout */}
@@ -266,11 +317,11 @@ export const FarmerDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] flex items-center gap-1.5">
-                    Live APMC Mandi Bhav (आज के मंडी भाव)
+                    {t('farmer.mandi_bhav_title')}
                     <span className="w-2 h-2 rounded-full bg-[#2E8B57] animate-ping" />
                   </h3>
                   <span className="text-[10px] text-[#89948C]">
-                    Official benchmark rates across major agricultural markets
+                    {t('farmer.mandi_bhav_sub')}
                   </span>
                 </div>
               </div>

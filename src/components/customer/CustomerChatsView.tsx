@@ -36,53 +36,7 @@ export const CustomerChatsView: React.FC = () => {
     refreshChatConversations().finally(() => setIsLoading(false));
   }, []);
 
-  // Sample conversations fallback for realistic OLX feel
-  const sampleConvs = [
-    {
-      id: 'conv-sample-1',
-      farmerId: 'farmer-1',
-      farmerName: 'Rajesh Kumar',
-      farmerAvatar: 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
-      productId: 'prod-1',
-      product_id: 'prod-1',
-      type: 'buying',
-      unreadCount: 1,
-      lastMessage: {
-        message: 'Yes, fresh harvest is ready. You can inspect or order today.',
-        time: '10:45 AM',
-      },
-    },
-    {
-      id: 'conv-sample-2',
-      farmerId: 'farmer-2',
-      farmerName: 'Amit Singh',
-      farmerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-      productId: 'prod-live-1',
-      product_id: 'prod-live-1',
-      type: 'buying',
-      unreadCount: 0,
-      lastMessage: {
-        message: '🤝 OFFER: Price ₹42,000 accepted. Please visit between 3 PM to 6 PM.',
-        time: 'Yesterday',
-      },
-    },
-    {
-      id: 'conv-sample-3',
-      farmerId: 'user-cust-2',
-      farmerName: 'Vikram Joshi (Buyer)',
-      farmerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200',
-      productId: 'prod-equip-1',
-      product_id: 'prod-equip-1',
-      type: 'selling',
-      unreadCount: 1,
-      lastMessage: {
-        message: 'Is the tractor tiller still available for testing in Doiwala?',
-        time: 'Yesterday',
-      },
-    },
-  ];
-
-  const effectiveConversations = chatConversations.length > 0 ? chatConversations : sampleConvs;
+  const effectiveConversations = chatConversations;
 
   // Filter conversations by tab and search
   const filteredConversations = effectiveConversations.filter((c: any) => {

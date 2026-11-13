@@ -115,6 +115,7 @@ interface AppContextType {
   setIsNotificationModalOpen: (open: boolean) => void;
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
+  deleteNotification: (id: string) => void;
   sendNotification: (title: string, message: string, recipientRole: Role) => void;
 
   // Marketplace Data
@@ -160,12 +161,15 @@ interface AppContextType {
   // Fast 4-Step "+ Sell" Modal
   isFastSellOpen: boolean;
   setIsFastSellOpen: (open: boolean) => void;
+  editingListing: Product | null;
+  setEditingListing: (p: Product | null) => void;
   isMyAdsOpen: boolean;
   setIsMyAdsOpen: (open: boolean) => void;
   isAddProductOpen: boolean;
   setIsAddProductOpen: (open: boolean) => void;
   publishListing: (listingData: any) => void;
   addProduct: (listingData: any) => void;
+  updateProductStatusAction: (productId: string, action: 'pause' | 'resume' | 'mark_sold' | 'renew') => Promise<void>;
 
   // New Agricultural Modules State
   isFarmMapOpen: boolean;
@@ -480,6 +484,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [isFastSellOpen, setIsFastSellOpen] = useState<boolean>(false);
+  const [editingListing, setEditingListing] = useState<Product | null>(null);
   const [isMyAdsOpen, setIsMyAdsOpen] = useState<boolean>(false);
 
   // New Agricultural Modules State
@@ -552,6 +557,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [role]);
 
 
+  const mapBackendProduct = (p: any): Product => ({
+    id: p.id,
+    name: p.name,
+    category: p.category_name || 'Vegetables',
+    price: Number(p.price),
+    unit: p.unit,
+    availableQuantity: Number(p.available_quantity ?? 0),
+    totalQuantity: p.total_quantity !== undefined ? Number(p.total_quantity) : Number(p.available_quantity ?? 0),
+    reservedQuantity: Number(p.reserved_quantity ?? 0),
+    soldQuantity: Number(p.sold_quantity ?? 0),
+    minOrderQuantity: Number(p.min_order_quantity ?? 1),
+    min_order_quantity: Number(p.min_order_quantity ?? 1),
+    stockStatus: p.stock_status || 'available',
+    stock_status: p.stock_status || 'available',
+    isNegotiable: p.is_negotiable !== 0,
+    productGrade: p.product_grade || 'Grade A',
+    qualityDescription: p.quality_description || '',
+    organicCertificationBody: p.organic_certification_body || '',
+    storageInfo: p.storage_info || '',
+    packagingInfo: p.packaging_info || '',
+    harvestDate: p.harvest_date || '',
+    description: p.description || '',
+    farmerId: p.farmer_id,
+    farmerName: p.farmer_name,
+    farmerPhone: p.farmer_phone || undefined,
+    farmName: p.farm_name,
+    farmerAvatar: p.farmer_avatar || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
+    location: p.location,
+    city: p.city || 'Dehradun',
+    district: p.district || p.city || 'Dehradun',
+    state: p.state || 'Uttarakhand',
+    village: p.village || '',
+    postalCode: p.postal_code || '',
+    pickupAvailable: p.pickup_available !== 0,
+    farmerDeliveryAvailable: p.farmer_delivery_available !== 0,
+    distanceKm: typeof p.distance_km === 'number' ? p.distance_km : 2.1,
+    isOrganic: Boolean(p.is_organic),
+    availableToday: Boolean(p.available_today),
+    isAvailable: p.status === 'active' || p.status === undefined,
+    status: p.status || 'active',
+    freshnessTag: p.freshness_tag || 'Fresh Harvest',
+    image: p.image,
+    images: Array.isArray(p.images) ? p.images : p.image ? [p.image] : [],
+    priceSlabs: Array.isArray(p.price_slabs) ? p.price_slabs : undefined,
+    rating: p.rating || 5.0,
+    viewsCount: p.views_count || 12,
+    likesCount: p.likes_count || 4,
+    createdAtTime: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Today',
+  });
+
   // Live Server Backend Synchronization
   useEffect(() => {
     let isMounted = true;
@@ -564,29 +619,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           radiusKm: searchRadiusKm,
         });
         if (isMounted && prodRes?.products?.length > 0) {
-          const mappedProducts: Product[] = prodRes.products.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            category: p.category_name || 'Vegetables',
-            price: p.price,
-            unit: p.unit,
-            availableQuantity: p.available_quantity,
-            farmerId: p.farmer_id,
-            farmerName: p.farmer_name,
-            farmName: p.farm_name,
-            farmerAvatar: p.farmer_avatar || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
-            location: p.location,
-            city: p.city || 'Dehradun',
-            distanceKm: typeof p.distance_km === 'number' ? p.distance_km : 2.1,
-            isOrganic: Boolean(p.is_organic),
-            availableToday: Boolean(p.available_today),
-            freshnessTag: p.freshness_tag || 'Fresh Harvest',
-            image: p.image,
-            rating: p.rating || 5.0,
-            viewsCount: p.views_count || 12,
-            likesCount: p.likes_count || 4,
-            createdAtTime: 'Today',
-          }));
+          const mappedProducts: Product[] = prodRes.products.map(mapBackendProduct);
           setProducts(mappedProducts);
         }
       } catch (e) {
@@ -625,6 +658,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (isMounted && meRes?.user) {
           setCurrentUser(meRes.user);
           setIsLoggedInState(true);
+          if (meRes.user.farmerProfileId) {
+            ApiClient.getProducts({
+              farmerId: meRes.user.farmerProfileId,
+              includeAllStatuses: 'true',
+              limit: 50,
+            }).then((ownRes) => {
+              if (isMounted && ownRes?.products?.length > 0) {
+                const ownMapped = ownRes.products.map(mapBackendProduct);
+                setProducts((prev) => {
+                  const otherProds = prev.filter((p) => p.farmerId !== meRes.user.farmerProfileId);
+                  return [...ownMapped, ...otherProds];
+                });
+              }
+            }).catch(() => {});
+          }
         }
       } catch {
         ApiClient.clearToken();
@@ -990,6 +1038,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('All notifications marked as read.');
   };
 
+  const deleteNotification = (id: string) => {
+    ApiClient.deleteNotification(id).catch(() => {});
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    showToast('Notification deleted.');
+  };
+
   const sendNotification = (title: string, message: string, recipientRole: Role) => {
     const newNotif: AppNotification = {
       id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 3)}`,
@@ -1123,22 +1177,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return groups;
   }, [] as GroupedFarmerCart[]);
 
-  // Fast Posting / Sell
-  const publishListing = (listingData: any) => {
+  // Fast Posting / Sell (Supports create + edit + draft)
+  const publishListing = async (listingData: any) => {
     const ownerId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
     const ownerName = currentUser?.name || 'Local Seller';
     const ownerAvatar = currentUser?.profile_image || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200&auto=format&fit=crop&q=80';
     const ownerFarm = (currentUser as any)?.farm_name || (currentUser?.name ? `${currentUser.name}'s Produce` : 'Green Valley Farm');
 
+    const payload = {
+      categoryId: listingData.categoryId || listingData.category || 'Vegetables',
+      category: listingData.category || 'Vegetables',
+      name: listingData.name,
+      description: listingData.description || listingData.freshnessTag || 'Fresh harvest direct from farm',
+      price: Number(listingData.price),
+      unit: listingData.unit || 'kg',
+      availableQuantity: Number(listingData.availableQuantity ?? 20),
+      totalQuantity: Number(listingData.totalQuantity ?? listingData.availableQuantity ?? 20),
+      minOrderQuantity: Number(listingData.minOrderQuantity || 1),
+      isNegotiable: listingData.isNegotiable !== false,
+      productGrade: listingData.productGrade || 'Grade A',
+      qualityDescription: listingData.qualityDescription || '',
+      organicCertificationBody: listingData.organicCertificationBody || '',
+      storageInfo: listingData.storageInfo || '',
+      packagingInfo: listingData.packagingInfo || '',
+      village: listingData.village || '',
+      district: listingData.district || '',
+      state: listingData.state || 'Uttarakhand',
+      city: listingData.city || listingData.district || activeCity || 'Dehradun',
+      postalCode: listingData.postalCode || '',
+      pickupAvailable: listingData.pickupAvailable !== false,
+      farmerDeliveryAvailable: listingData.farmerDeliveryAvailable !== false,
+      isOrganic: Boolean(listingData.isOrganic),
+      availableToday: true,
+      harvestDate: listingData.harvestDate || 'Harvested today',
+      freshnessTag: listingData.freshnessTag || (listingData.isOrganic ? 'Organic Harvest' : 'Farm Fresh'),
+      location: listingData.location || currentLocation || 'Dehradun, Uttarakhand',
+      image: listingData.image,
+      images: Array.isArray(listingData.images) ? listingData.images.slice(0, 8) : [listingData.image],
+      priceSlabs: Array.isArray(listingData.priceSlabs) ? listingData.priceSlabs : [],
+      status: listingData.status === 'draft' ? 'draft' : 'active',
+    };
+
+    if (listingData.editingId) {
+      updateProduct(listingData.editingId, {
+        ...listingData,
+        isAvailable: listingData.status !== 'draft',
+      });
+      setEditingListing(null);
+      setIsFastSellOpen(false);
+      return;
+    }
+
+    const tempId = `prod-${Date.now()}`;
     const newListing: Product = {
       ...listingData,
-      id: `prod-${Date.now()}`,
+      id: tempId,
       farmerId: ownerId,
       farmerName: ownerName,
+      farmerPhone: currentUser?.phone,
       farmName: ownerFarm,
       farmerAvatar: ownerAvatar,
-      location: listingData.location || currentLocation,
-      city: activeCity,
+      location: payload.location,
+      city: payload.city,
+      isAvailable: payload.status === 'active',
+      status: payload.status,
       distanceKm: 0.8,
       rating: 5.0,
       viewsCount: 1,
@@ -1147,30 +1249,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setProducts((prev) => [newListing, ...prev]);
-    // Sync listing with backend
-    ApiClient.createProduct({
-      categoryId: listingData.categoryId || 'cat-veg',
-      name: newListing.name,
-      description: newListing.freshnessTag || 'Fresh harvest',
-      price: Number(newListing.price),
-      unit: newListing.unit || 'kg',
-      availableQuantity: Number(newListing.availableQuantity || 20),
-      isOrganic: newListing.isOrganic ? 1 : 0,
-      availableToday: 1,
-      location: newListing.location || 'Dehradun, Uttarakhand',
-      image: newListing.image,
-    }).catch((e) => console.warn('[HALDER Sync] Product queued locally:', e));
     setIsFastSellOpen(false);
-    showToast(`🎉 Listing "${newListing.name}" is now live on HALDER!`);
+    setEditingListing(null);
 
     try {
-      confetti({
-        particleCount: 60,
-        spread: 50,
-        origin: { y: 0.6 },
-        colors: ['#2FAF64', '#166534', '#74C69D'],
-      });
-    } catch {}
+      const created = await ApiClient.createProduct(payload);
+      if (created?.id) {
+        const mapped = mapBackendProduct(created);
+        setProducts((prev) => prev.map((p) => (p.id === tempId ? mapped : p)));
+      }
+      showToast(
+        payload.status === 'draft'
+          ? `📝 Listing "${newListing.name}" saved as Draft.`
+          : `🎉 Listing "${newListing.name}" is now live on HALDER!`
+      );
+    } catch (e: any) {
+      console.warn('[HALDER Sync] Product publish server notice:', e.message);
+      showToast(e.message || `Listing "${newListing.name}" saved locally`, 'info');
+    }
+
+    if (payload.status === 'active') {
+      try {
+        confetti({
+          particleCount: 60,
+          spread: 50,
+          origin: { y: 0.6 },
+          colors: ['#2FAF64', '#166534', '#74C69D'],
+        });
+      } catch {}
+    }
   };
 
   // Chat
@@ -1295,7 +1402,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       orderNumber: newOrderNum,
       customerId: currentUser?.id || 'cust-1',
       customerName: currentUser?.name || 'Aman Sharma',
-      customerPhone: currentUser?.phone || '+91 98765 43210',
+      customerPhone: currentUser?.phone || '',
       deliveryAddress: address,
       deliverySlot: slot,
       items: itemsToOrder,
@@ -1358,7 +1465,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ApiClient.createOrder({
       items: itemsToOrder.map((it) => ({ productId: it.product.id, quantity: it.quantity })),
       deliveryAddress: address,
-      customerPhone: currentUser?.phone || '+91 98765 43210',
+      customerPhone: currentUser?.phone || '',
       paymentMethod,
     }).then((res: any) => {
       if (res) {
@@ -1515,15 +1622,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Price updated to ₹${newPrice}`, 'success');
   };
 
-  const toggleProductSold = (productId: string) => {
+  const updateProductStatusAction = async (
+    productId: string,
+    action: 'pause' | 'resume' | 'mark_sold' | 'renew'
+  ) => {
+    const statusMap: Record<typeof action, string> = {
+      pause: 'paused',
+      resume: 'active',
+      mark_sold: 'sold',
+      renew: 'active',
+    };
+    const nextStatus = statusMap[action];
     setProducts((prev) =>
       prev.map((p) =>
-        p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p
+        p.id === productId
+          ? {
+              ...p,
+              status: nextStatus as any,
+              isAvailable: nextStatus === 'active',
+              availableQuantity: action === 'mark_sold' ? 0 : p.availableQuantity,
+              harvestDate: action === 'renew' ? 'Freshly reconfirmed today' : p.harvestDate,
+            }
+          : p
       )
     );
+    try {
+      const updated = await ApiClient.updateProductStatus(productId, action);
+      if (updated?.id) {
+        const mapped = mapBackendProduct(updated);
+        setProducts((prev) => prev.map((p) => (p.id === productId ? mapped : p)));
+      }
+      const actionLabels: Record<typeof action, string> = {
+        pause: 'Listing paused',
+        resume: 'Listing is now live again!',
+        mark_sold: 'Listing marked as Sold',
+        renew: 'Listing renewed with fresh stock confirmation!',
+      };
+      showToast(actionLabels[action], 'success');
+    } catch (e: any) {
+      showToast(e.message || 'Status updated locally', 'info');
+    }
+  };
+
+  const toggleProductSold = (productId: string) => {
     const prod = products.find((p) => p.id === productId);
-    const newStatus = prod?.isAvailable ? 'Marked as Sold / Inactive' : 'Marked as Active Live Ad';
-    showToast(`${prod?.name || 'Listing'}: ${newStatus}`, 'info');
+    const action = prod?.isAvailable ? 'mark_sold' : 'resume';
+    updateProductStatusAction(productId, action);
   };
 
   const boostProduct = (productId: string, plan: 'featured' | 'urgent' | 'combo') => {
@@ -1619,6 +1763,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsNotificationModalOpen,
         markNotificationAsRead,
         markAllNotificationsAsRead,
+        deleteNotification,
         sendNotification,
         products,
         farmers,
@@ -1654,12 +1799,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetFilters,
         isFastSellOpen,
         setIsFastSellOpen,
+        editingListing,
+        setEditingListing,
         isMyAdsOpen,
         setIsMyAdsOpen,
         isAddProductOpen: isFastSellOpen,
         setIsAddProductOpen: setIsFastSellOpen,
         publishListing,
         addProduct: publishListing,
+        updateProductStatusAction,
         isFarmMapOpen,
         setIsFarmMapOpen,
         isRequirementsOpen,

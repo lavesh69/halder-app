@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ProductCategory, PriceSlab } from '../../types';
 import { compressImageFile } from '../../utils/imageCompression';
 import {
@@ -64,6 +65,7 @@ const allowedUnits = [
 ];
 
 export const FastSellModal: React.FC = () => {
+  const { t } = useTranslation();
   const {
     isFastSellOpen,
     setIsFastSellOpen,
@@ -71,50 +73,120 @@ export const FastSellModal: React.FC = () => {
     currentLocation,
     activeCity,
     showToast,
+    editingListing,
+    setEditingListing,
+    currentUser,
+    role,
   } = useApp();
 
   const [step, setStep] = useState<number>(1);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([photoPresets[0].url]);
   
   // Step 1: Product Information
-  const [name, setName] = useState('Fresh Farm Tomatoes');
+  const [name, setName] = useState('');
   const [category, setCategory] = useState<ProductCategory>('Vegetables');
-  const [subcategory, setSubcategory] = useState('Desi Hybrid');
-  const [description, setDescription] = useState('Freshly harvested direct from our farm this morning. 100% natural, crisp and chemical-free.');
+  const [subcategory, setSubcategory] = useState('');
+  const [description, setDescription] = useState('');
 
   // Step 2: Price and Quantity
-  const [price, setPrice] = useState<number | ''>(40);
+  const [price, setPrice] = useState<number | ''>('');
   const [unit, setUnit] = useState<string>('kg');
-  const [availableQuantity, setAvailableQuantity] = useState<number | ''>(100);
-  const [minOrderQuantity, setMinOrderQuantity] = useState<number | ''>(5);
+  const [availableQuantity, setAvailableQuantity] = useState<number | ''>('');
+  const [minOrderQuantity, setMinOrderQuantity] = useState<number | ''>(1);
   const [isNegotiable, setIsNegotiable] = useState(true);
-  const [priceSlabs, setPriceSlabs] = useState<PriceSlab[]>([
-    { minQuantity: 20, maxQuantity: 50, pricePerUnit: 36 },
-    { minQuantity: 51, pricePerUnit: 32 },
-  ]);
+  const [priceSlabs, setPriceSlabs] = useState<PriceSlab[]>([]);
 
   // Step 3: Harvest and Quality
-  const [harvestDate, setHarvestDate] = useState('Harvested today at 5:30 AM');
+  const [harvestDate, setHarvestDate] = useState('Harvested today');
   const [expectedAvailabilityDate, setExpectedAvailabilityDate] = useState('Ready for immediate dispatch');
   const [productGrade, setProductGrade] = useState('Grade A (Premium)');
   const [qualityDescription, setQualityDescription] = useState('Direct farm grading, uniform size, naturally sun-ripened.');
-  const [isOrganic, setIsOrganic] = useState(true);
-  const [organicCertBody, setOrganicCertBody] = useState('Uttarakhand Organic Commodity Board');
-  const [packagingInfo, setPackagingInfo] = useState('Ventilated plastic farm crates (20 kg each)');
+  const [isOrganic, setIsOrganic] = useState(false);
+  const [organicCertBody, setOrganicCertBody] = useState('');
+  const [packagingInfo, setPackagingInfo] = useState('Standard crates/bags');
 
   // Step 4: Location & Delivery
   const [state, setState] = useState('Uttarakhand');
   const [district, setDistrict] = useState('Dehradun');
   const [city, setCity] = useState(activeCity || 'Dehradun');
-  const [village, setVillage] = useState('Doiwala');
-  const [postalCode, setPostalCode] = useState('248140');
-  const [farmLocation, setFarmLocation] = useState(currentLocation || 'Doiwala Mandi Road, Dehradun');
+  const [village, setVillage] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [farmLocation, setFarmLocation] = useState(currentLocation || 'Local Farm');
   const [pickupAvailable, setPickupAvailable] = useState(true);
   const [farmerDeliveryAvailable, setFarmerDeliveryAvailable] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // Sync state whenever modal opens or editingListing changes
+  useEffect(() => {
+    if (!isFastSellOpen) return;
+
+    if (editingListing) {
+      setName(editingListing.name || '');
+      setCategory((editingListing.category as ProductCategory) || 'Vegetables');
+      setSubcategory(editingListing.subcategory || '');
+      setDescription(editingListing.description || '');
+      setPrice(editingListing.price || '');
+      setUnit(editingListing.unit || 'kg');
+      setAvailableQuantity(editingListing.availableQuantity || '');
+      setMinOrderQuantity(editingListing.minOrderQuantity || 1);
+      setIsNegotiable(editingListing.isNegotiable ?? true);
+      setPriceSlabs(editingListing.priceSlabs || []);
+      setHarvestDate(editingListing.harvestDate || 'Harvested recently');
+      setExpectedAvailabilityDate(editingListing.expectedAvailabilityDate || 'Ready for immediate dispatch');
+      setProductGrade(editingListing.productGrade || 'Grade A (Premium)');
+      setQualityDescription(editingListing.qualityDescription || '');
+      setIsOrganic(!!editingListing.isOrganic);
+      setOrganicCertBody(editingListing.organicCertificationBody || '');
+      setPackagingInfo(editingListing.packagingInfo || '');
+      setState(editingListing.state || 'Uttarakhand');
+      setDistrict(editingListing.district || 'Dehradun');
+      setCity(editingListing.city || activeCity || 'Dehradun');
+      setVillage(editingListing.village || '');
+      setPostalCode(editingListing.postalCode || '');
+      setFarmLocation(editingListing.location || currentLocation || 'Farm Location');
+      setPickupAvailable(editingListing.pickupAvailable ?? true);
+      setFarmerDeliveryAvailable(editingListing.farmerDeliveryAvailable ?? true);
+      const existingPhotos =
+        editingListing.images && editingListing.images.length > 0
+          ? editingListing.images
+          : editingListing.image
+          ? [editingListing.image]
+          : [photoPresets[0].url];
+      setUploadedPhotos(existingPhotos);
+      setStep(1);
+    } else {
+      setName('');
+      setCategory('Vegetables');
+      setSubcategory('');
+      setDescription('');
+      setPrice('');
+      setUnit('kg');
+      setAvailableQuantity('');
+      setMinOrderQuantity(1);
+      setIsNegotiable(true);
+      setPriceSlabs([]);
+      setHarvestDate('Harvested today');
+      setExpectedAvailabilityDate('Ready for immediate dispatch');
+      setProductGrade('Grade A (Premium)');
+      setQualityDescription('Farm fresh produce directly graded at harvest.');
+      setIsOrganic(false);
+      setOrganicCertBody('');
+      setPackagingInfo('Standard crates/bags');
+      setState((currentUser as any)?.state || 'Uttarakhand');
+      setDistrict((currentUser as any)?.district || 'Dehradun');
+      setCity((currentUser as any)?.city || activeCity || 'Dehradun');
+      setVillage((currentUser as any)?.village || '');
+      setPostalCode((currentUser as any)?.postal_code || '');
+      setFarmLocation((currentUser as any)?.location || currentLocation || 'Local Farm');
+      setPickupAvailable(true);
+      setFarmerDeliveryAvailable(true);
+      setUploadedPhotos([photoPresets[0].url]);
+      setStep(1);
+    }
+  }, [isFastSellOpen, editingListing]);
 
   if (!isFastSellOpen) return null;
 
@@ -216,6 +288,7 @@ export const FastSellModal: React.FC = () => {
     }
 
     const listingPayload = {
+      ...(editingListing ? { editingId: editingListing.id } : {}),
       name: name.trim(),
       category,
       subcategory,
@@ -249,6 +322,7 @@ export const FastSellModal: React.FC = () => {
 
     publishListing(listingPayload);
     setIsFastSellOpen(false);
+    setEditingListing(null);
   };
 
   return (
@@ -262,18 +336,23 @@ export const FastSellModal: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-                OLX Kisan Classifieds
+                {editingListing ? t('common.edit') : role === 'farmer' ? 'Kisan Mandi Ad (0% Commission)' : 'OLX Kisan Classifieds'}
               </span>
               <span className="text-xs text-zinc-400 font-semibold">
                 Step {step} of 5
               </span>
             </div>
             <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white mt-1">
-              Post an Agricultural Ad
+              {editingListing
+                ? t('ads.edit_ad')
+                : t('post_ad.title')}
             </h2>
           </div>
           <button
-            onClick={() => setIsFastSellOpen(false)}
+            onClick={() => {
+              setIsFastSellOpen(false);
+              setEditingListing(null);
+            }}
             className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -930,15 +1009,18 @@ export const FastSellModal: React.FC = () => {
               className="px-4 py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition flex items-center gap-1.5"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
+              <span>{t('common.back')}</span>
             </button>
           ) : (
             <button
               type="button"
-              onClick={() => setIsFastSellOpen(false)}
+              onClick={() => {
+                setIsFastSellOpen(false);
+                setEditingListing(null);
+              }}
               className="px-4 py-2.5 text-xs font-bold text-zinc-500 hover:text-zinc-800 transition"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           )}
 
@@ -969,7 +1051,7 @@ export const FastSellModal: React.FC = () => {
                 className="px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-soft transition flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
-                <span>Publish Listing Live</span>
+                <span>{editingListing ? t('post_ad.update_btn') : t('post_ad.publish_btn')}</span>
               </button>
             )}
           </div>

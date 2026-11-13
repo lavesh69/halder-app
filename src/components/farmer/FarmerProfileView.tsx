@@ -25,10 +25,12 @@ import {
   Lock,
   LogOut,
   Sparkles,
+  Plus,
+  Megaphone,
 } from 'lucide-react';
 
 export const FarmerProfileView: React.FC = () => {
-  const { currentUser, setRole, resetDemoData, showToast } = useApp();
+  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing } = useApp();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const farmerId = currentUser?.farmerProfileId || 'farmer-1';
@@ -171,6 +173,28 @@ export const FarmerProfileView: React.FC = () => {
         >
           <Edit2 className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Post Agricultural Ad Banner */}
+      <div
+        onClick={() => {
+          setEditingListing(null);
+          setIsFastSellOpen(true);
+        }}
+        className="p-4 bg-gradient-to-r from-[#176B45] to-[#2E8B57] rounded-2xl text-white shadow-soft cursor-pointer hover:brightness-105 active:scale-98 transition-all flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+            📢
+          </div>
+          <div>
+            <h4 className="font-bold text-sm">Post Crop Advertisement (फसल का विज्ञापन दें)</h4>
+            <p className="text-xs text-emerald-100">
+              List fresh produce, set custom rates, and receive direct buyer calls
+            </p>
+          </div>
+        </div>
+        <Plus className="w-6 h-6 text-white stroke-[2.5]" />
       </div>
 
       {/* Switch to Customer Marketplace Button */}

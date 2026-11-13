@@ -612,4 +612,42 @@ export class RequirementService {
 
     throw AppError.badRequest('Invalid action');
   }
+
+  static listMyQuotations(farmerUserId: string) {
+    const farmer = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [farmerUserId]);
+    if (!farmer) return [];
+
+    const rows = Database.query<any>(
+      `SELECT q.*, r.product_name, r.requirement_number, r.required_quantity, r.unit as req_unit,
+              r.location as req_location, r.status as req_status, u.name as buyer_name, u.phone as buyer_phone
+       FROM requirement_quotations q
+       JOIN buyer_requirements r ON q.requirement_id = r.id
+       JOIN users u ON r.buyer_id = u.id
+       WHERE q.farmer_id = ?
+       ORDER BY q.created_at DESC LIMIT 50`,
+      [farmer.id]
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      quotationNumber: row.quotation_number,
+      requirementId: row.requirement_id,
+      requirementNumber: row.requirement_number,
+      productName: row.product_name,
+      buyerName: row.buyer_name,
+      buyerPhone: row.buyer_phone,
+      reqLocation: row.req_location,
+      reqStatus: row.req_status,
+      availableQuantity: Number(row.available_quantity),
+      proposedPrice: Number(row.proposed_price),
+      unit: row.unit,
+      harvestAvailabilityDate: row.harvest_availability_date,
+      deliveryMode: row.delivery_mode,
+      message: row.message,
+      status: row.status,
+      counterPrice: row.counter_price ? Number(row.counter_price) : undefined,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+  }
 }

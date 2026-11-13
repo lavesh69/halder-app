@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import {
   Home,
   Clock,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
+  const { t } = useTranslation();
   const {
     role,
     customerTab,
@@ -32,6 +34,7 @@ export const BottomNav: React.FC = () => {
     adminTab,
     setAdminTab,
     setIsFastSellOpen,
+    setEditingListing,
     setIsSearchScreenOpen,
     orders,
     products,
@@ -56,7 +59,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <BarChart3 className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Overview</span>
+            <span className="text-[10px] mt-0.5">{t('nav.overview')}</span>
           </button>
 
           <button
@@ -68,7 +71,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Users className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Users</span>
+            <span className="text-[10px] mt-0.5">{t('nav.users')}</span>
           </button>
 
           <button
@@ -87,7 +90,7 @@ export const BottomNav: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Farmers</span>
+            <span className="text-[10px] mt-0.5">{t('nav.farmer')}</span>
           </button>
 
           <button
@@ -106,7 +109,7 @@ export const BottomNav: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Listings</span>
+            <span className="text-[10px] mt-0.5">{t('nav.listings')}</span>
           </button>
 
           <button
@@ -118,7 +121,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Package className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Orders</span>
+            <span className="text-[10px] mt-0.5">{t('nav.orders')}</span>
           </button>
 
           <button
@@ -130,7 +133,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Truck className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Fleet</span>
+            <span className="text-[10px] mt-0.5">{t('nav.logistics')}</span>
           </button>
 
           <button
@@ -142,7 +145,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <CreditCard className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Finance</span>
+            <span className="text-[10px] mt-0.5">{t('nav.finance')}</span>
           </button>
 
           <button
@@ -154,7 +157,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Layers className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Categories</span>
+            <span className="text-[10px] mt-0.5">{t('nav.categories')}</span>
           </button>
 
           <button
@@ -166,7 +169,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Activity className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Logs</span>
+            <span className="text-[10px] mt-0.5">{t('nav.logs')}</span>
           </button>
 
           <button
@@ -178,7 +181,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Settings className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Settings</span>
+            <span className="text-[10px] mt-0.5">{t('nav.settings')}</span>
           </button>
         </div>
       </nav>
@@ -202,7 +205,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Home className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Home</span>
+            <span className="text-[10px] mt-0.5">{t('nav.home')}</span>
           </button>
 
           {/* 2. Orders */}
@@ -225,20 +228,23 @@ export const BottomNav: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Orders</span>
+            <span className="text-[10px] mt-0.5">{t('nav.orders')}</span>
           </button>
 
           {/* 3. Center Elevated + SELL Button */}
           <button
-            onClick={() => setIsFastSellOpen(true)}
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
             className="flex flex-col items-center justify-center -mt-5 group"
-            title="Post Advertisement"
+            title="Post Advertisement / विज्ञापन पोस्ट करें"
           >
             <div className="w-13 h-13 rounded-full bg-[#176B45] group-hover:bg-[#124C36] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
               <Plus className="w-6 h-6 stroke-[3]" />
             </div>
             <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5">
-              + SELL
+              {t('nav.sell')}
             </span>
           </button>
 
@@ -262,7 +268,7 @@ export const BottomNav: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Chats</span>
+            <span className="text-[10px] mt-0.5">{t('nav.chats')}</span>
           </button>
 
           {/* 5. My Ads */}
@@ -278,7 +284,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <Megaphone className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">My Ads</span>
+            <span className="text-[10px] mt-0.5">{t('nav.my_ads')}</span>
           </button>
 
           {/* 6. Account */}
@@ -294,7 +300,7 @@ export const BottomNav: React.FC = () => {
             }`}
           >
             <User className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Account</span>
+            <span className="text-[10px] mt-0.5">{t('nav.account')}</span>
           </button>
         </div>
       </nav>
@@ -315,7 +321,7 @@ export const BottomNav: React.FC = () => {
           }`}
         >
           <LayoutDashboard className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">Mandi</span>
+          <span className="text-[10px] mt-0.5">{t('nav.mandi')}</span>
         </button>
 
         {/* 2. Listings (Crops) */}
@@ -328,7 +334,7 @@ export const BottomNav: React.FC = () => {
           }`}
         >
           <Sprout className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">Crops</span>
+          <span className="text-[10px] mt-0.5">{t('nav.crops')}</span>
         </button>
 
         {/* 3. Orders */}
@@ -348,20 +354,23 @@ export const BottomNav: React.FC = () => {
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5">Orders</span>
+          <span className="text-[10px] mt-0.5">{t('nav.orders')}</span>
         </button>
 
-        {/* 4. Elevated + Sell Button */}
+        {/* 4. Elevated + Post Ad Button */}
         <button
-          onClick={() => setIsFastSellOpen(true)}
+          onClick={() => {
+            setEditingListing(null);
+            setIsFastSellOpen(true);
+          }}
           className="flex flex-col items-center justify-center -mt-5 group px-0.5"
-          title="Post new crop listing"
+          title="Post Crop Advertisement / फसल का नया विज्ञापन डालें"
         >
           <div className="w-13 h-13 rounded-full bg-[#176B45] group-hover:bg-[#124C36] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
             <Plus className="w-6 h-6 stroke-[3]" />
           </div>
-          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5">
-            + Sell
+          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5 whitespace-nowrap">
+            {t('nav.post_ad')}
           </span>
         </button>
 
@@ -375,7 +384,7 @@ export const BottomNav: React.FC = () => {
           }`}
         >
           <TrendingUp className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">Earnings</span>
+          <span className="text-[10px] mt-0.5">{t('nav.earnings')}</span>
         </button>
 
         {/* 6. Messages (Chat) */}
@@ -395,7 +404,7 @@ export const BottomNav: React.FC = () => {
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5">Chat</span>
+          <span className="text-[10px] mt-0.5">{t('nav.chats')}</span>
         </button>
 
         {/* 7. Profile */}
@@ -408,7 +417,7 @@ export const BottomNav: React.FC = () => {
           }`}
         >
           <User className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">Profile</span>
+          <span className="text-[10px] mt-0.5">{t('nav.profile')}</span>
         </button>
       </div>
     </nav>

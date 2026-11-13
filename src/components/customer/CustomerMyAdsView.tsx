@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency } from '../../utils/formatters';
 import { Product } from '../../types';
 import {
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 
 export const CustomerMyAdsView: React.FC = () => {
+  const { t } = useTranslation();
   const {
     products,
     currentUser,
@@ -76,14 +78,14 @@ export const CustomerMyAdsView: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-              My Ads (मेरे विज्ञापन)
+              {t('my_ads.title')}
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-              {allUserAds.length} Total
+              {t('ads.total_ads_count', { count: allUserAds.length })}
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            OLX-style classified ad manager & real-time controls
+            {t('my_ads.subtitle')}
           </p>
         </div>
 
@@ -92,27 +94,27 @@ export const CustomerMyAdsView: React.FC = () => {
           className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-soft transition active:scale-95"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
-          <span>+ Post Ad</span>
+          <span>{t('ads.post_ad')}</span>
         </button>
       </div>
 
       {/* Stats Summary Card */}
       <div className="grid grid-cols-3 gap-2 sm:gap-2.5 bg-white dark:bg-[#1B201D] p-3 sm:p-3.5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs">
         <div className="text-center border-r border-zinc-100 dark:border-zinc-800 min-w-0 px-1">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">Active Ads</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">{t('my_ads.active_tab')}</span>
           <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 block truncate">
             {activeAds.length}
           </span>
         </div>
         <div className="text-center border-r border-zinc-100 dark:border-zinc-800 min-w-0 px-1">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">Total Views</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">{t('my_ads.views')}</span>
           <span className="text-base sm:text-lg font-black text-zinc-900 dark:text-white flex items-center justify-center gap-1 truncate">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>{totalViews}</span>
           </span>
         </div>
         <div className="text-center min-w-0 px-1">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">Sold / Closed</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 block truncate">{t('my_ads.sold_tab')}</span>
           <span className="text-base sm:text-lg font-black text-zinc-600 dark:text-zinc-300 block truncate">
             {soldAds.length}
           </span>
@@ -129,7 +131,7 @@ export const CustomerMyAdsView: React.FC = () => {
               : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
           }`}
         >
-          <span>Active (लाइव)</span>
+          <span>{t('my_ads.active_tab')}</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
             {activeAds.length}
           </span>
@@ -143,7 +145,7 @@ export const CustomerMyAdsView: React.FC = () => {
               : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
           }`}
         >
-          <span>Sold / Inactive (बिके हुए)</span>
+          <span>{t('my_ads.sold_tab')}</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
             {soldAds.length}
           </span>

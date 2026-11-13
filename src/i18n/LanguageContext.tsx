@@ -1,13 +1,31 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { SupportedLanguage, LanguageOption, SUPPORTED_LANGUAGES, LanguageContextType } from './types';
 import { enTranslations, TranslationDictionary } from './translations/en';
 import { hiTranslations } from './translations/hi';
 import { paTranslations } from './translations/pa';
 import { mrTranslations } from './translations/mr';
 import { bnTranslations } from './translations/bn';
+import { guTranslations } from './translations/gu';
+import { taTranslations } from './translations/ta';
+import { knTranslations } from './translations/kn';
+import { mlTranslations } from './translations/ml';
+import { urTranslations } from './translations/ur';
 
 const STORAGE_KEY = 'halder-language';
 const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
+
+const VALID_LANGUAGES: SupportedLanguage[] = [
+  'en',
+  'hi',
+  'pa',
+  'mr',
+  'bn',
+  'ta',
+  'kn',
+  'ml',
+  'gu',
+  'ur',
+];
 
 export const translations: Record<SupportedLanguage, TranslationDictionary> = {
   en: enTranslations,
@@ -15,14 +33,19 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
   pa: paTranslations,
   mr: mrTranslations,
   bn: bnTranslations,
+  gu: guTranslations,
+  ta: taTranslations,
+  kn: knTranslations,
+  ml: mlTranslations,
+  ur: urTranslations,
 };
 
-// Global state broadcaster for cross-component and multi-tree synchronization
+// Global state broadcaster for cross-component and standalone usage
 let globalLanguage: SupportedLanguage = (() => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && (saved === 'en' || saved === 'hi' || saved === 'pa' || saved === 'mr' || saved === 'bn')) {
-      return saved as SupportedLanguage;
+    const saved = localStorage.getItem(STORAGE_KEY) as SupportedLanguage;
+    if (saved && VALID_LANGUAGES.includes(saved)) {
+      return saved;
     }
   } catch {}
   return DEFAULT_LANGUAGE;
@@ -35,15 +58,20 @@ export function getStoredLanguage(): SupportedLanguage {
 }
 
 export function setStoredLanguage(lang: SupportedLanguage): void {
-  if (globalLanguage === lang) return;
   globalLanguage = lang;
   try {
     localStorage.setItem(STORAGE_KEY, lang);
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
+      const opt = SUPPORTED_LANGUAGES.find((l) => l.code === lang);
+      document.documentElement.dir = opt?.direction || 'ltr';
     }
   } catch {}
-  listeners.forEach((listener) => listener(lang));
+  listeners.forEach((listener) => {
+    try {
+      listener(lang);
+    } catch {}
+  });
 }
 
 // Translate function helper
@@ -53,7 +81,7 @@ export function translate(
   params?: Record<string, string | number>
 ): string {
   const dict = translations[lang] || translations.en;
-  let text = (dict as any)[key] || (translations.en as any)[key] || key;
+  let text = (dict as any)?.[key] || (translations.en as any)?.[key] || key;
 
   if (params && typeof text === 'string') {
     Object.entries(params).forEach(([paramKey, paramValue]) => {
@@ -64,21 +92,24 @@ export function translate(
   return text;
 }
 
-export const LanguageContext = createContext<LanguageContextType>({
-  language: DEFAULT_LANGUAGE,
-  setLanguage: () => {},
-  t: (key: string, params?: Record<string, string | number>) => translate(DEFAULT_LANGUAGE, key, params),
-  languages: SUPPORTED_LANGUAGES,
-});
+export const LanguageContext = createContext<LanguageContextType | null>(null);
 
-export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?: SupportedLanguage }> = ({
-  children,
-  initialLanguage,
-}) => {
+export const LanguageProvider: React.FC<{
+  children: ReactNode;
+  initialLanguage?: SupportedLanguage;
+}> = ({ children, initialLanguage }) => {
   const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    if (initialLanguage) return initialLanguage;
+    if (initialLanguage && VALID_LANGUAGES.includes(initialLanguage)) {
+      return initialLanguage;
+    }
     return getStoredLanguage();
   });
+
+  const handleSetLanguage = useCallback((newLang: SupportedLanguage) => {
+    if (!VALID_LANGUAGES.includes(newLang)) return;
+    setLanguageState(newLang);
+    setStoredLanguage(newLang);
+  }, []);
 
   useEffect(() => {
     const handleGlobalChange = (newLang: SupportedLanguage) => {
@@ -91,10 +122,14 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
     };
   }, []);
 
-  const handleSetLanguage = useCallback((newLang: SupportedLanguage) => {
-    setLanguageState(newLang);
-    setStoredLanguage(newLang);
-  }, []);
+  // Sync HTML lang and dir attributes on mount and on language change (e.g., RTL for Urdu)
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+      const opt = SUPPORTED_LANGUAGES.find((l) => l.code === language);
+      document.documentElement.dir = opt?.direction || 'ltr';
+    }
+  }, [language]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
@@ -103,15 +138,18 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
     [language]
   );
 
+  const contextValue = useMemo<LanguageContextType>(
+    () => ({
+      language,
+      setLanguage: handleSetLanguage,
+      t,
+      languages: SUPPORTED_LANGUAGES,
+    }),
+    [language, handleSetLanguage, t]
+  );
+
   return (
-    <LanguageContext.Provider
-      value={{
-        language,
-        setLanguage: handleSetLanguage,
-        t,
-        languages: SUPPORTED_LANGUAGES,
-      }}
-    >
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
@@ -122,36 +160,27 @@ export const useTranslation = (): LanguageContextType => {
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
-    const handleUpdate = () => {
-      forceUpdate({});
-    };
-    listeners.add(handleUpdate);
-    return () => {
-      listeners.delete(handleUpdate);
-    };
-  }, []);
-
-  const currentLang = context?.language || globalLanguage;
-
-  const setLanguage = useCallback((lang: SupportedLanguage) => {
-    if (context?.setLanguage) {
-      context.setLanguage(lang);
-    } else {
-      setStoredLanguage(lang);
+    // If inside LanguageProvider, React handles re-renders automatically.
+    // If used outside, this listener updates the component when setStoredLanguage is called.
+    if (!context) {
+      const handleUpdate = () => forceUpdate({});
+      listeners.add(handleUpdate);
+      return () => {
+        listeners.delete(handleUpdate);
+      };
     }
   }, [context]);
 
-  const t = useCallback(
-    (key: string, params?: Record<string, string | number>) => {
-      return translate(currentLang, key, params);
-    },
-    [currentLang]
-  );
+  if (context) {
+    return context;
+  }
 
+  // Standalone fallback outside of Provider
   return {
-    language: currentLang,
-    setLanguage,
-    t,
+    language: globalLanguage,
+    setLanguage: setStoredLanguage,
+    t: (key: string, params?: Record<string, string | number>) =>
+      translate(globalLanguage, key, params),
     languages: SUPPORTED_LANGUAGES,
   };
 };

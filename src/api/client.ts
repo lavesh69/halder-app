@@ -269,6 +269,12 @@ export class ApiClient {
     });
   }
 
+  static deleteNotification(id: string) {
+    return this.request(`/notifications/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   static registerDeviceToken(token: string, platform: 'web' | 'android' | 'ios' = 'web', deviceName?: string) {
     return this.request('/notifications/device-token', {
       method: 'POST',
@@ -976,6 +982,8 @@ export class ApiClient {
     action: 'increase' | 'reduce' | 'set' | 'mark_sold_out' | 'restore';
     amount?: number;
     newQuantity?: number;
+    stockStatus?: string;
+    minOrderQuantity?: number;
     reason?: string;
     harvestDate?: string;
   }): Promise<any> {
@@ -1048,6 +1056,10 @@ export class ApiClient {
 
   static async listMyRequirements(): Promise<any[]> {
     return this.request('/requirements/my');
+  }
+
+  static async listMyQuotations(): Promise<any[]> {
+    return this.request('/requirements/quotations/my');
   }
 
   static async getRequirementById(id: string, coords?: { latitude?: number; longitude?: number }): Promise<any> {
@@ -1232,6 +1244,7 @@ export class ApiClient {
     return this.submitRequirementQuotation(requirementId, {
       availableQuantity: data.quantity ?? data.availableQuantity,
       proposedPrice: data.offeredPrice ?? data.proposedPrice,
+      harvestAvailabilityDate: data.expectedDate ?? data.harvestAvailabilityDate,
       message: data.notes ?? data.message,
       deliveryMode: data.deliveryMode,
     });
@@ -1247,11 +1260,15 @@ export class ApiClient {
   }
 
   static async updateStock(productId: string, data: any): Promise<any> {
-    return this.updateProductStock(productId, {
+    const product = await this.updateProductStock(productId, {
       action: 'set',
       newQuantity: data.quantity,
+      stockStatus: data.stockStatus,
+      minOrderQuantity: data.minOrderQuantity,
+      harvestDate: data.harvestDate,
       reason: data.reason,
     });
+    return { product };
   }
 
   static async getStockHistory(productId: string): Promise<any> {

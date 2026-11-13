@@ -105,8 +105,14 @@ export interface Product {
   isAvailable: boolean;
   status?: ProductStatus;
   moderationStatus?: ModerationStatus;
+  subcategory?: string;
+  expectedAvailabilityDate?: string;
+  stockStatus?: string;
   stock_status?: string;
+  totalQuantity?: number;
   total_quantity?: number;
+  reservedQuantity?: number;
+  soldQuantity?: number;
   productGrade?: string;
   product_grade?: string;
   qualityDescription?: string;
@@ -126,7 +132,9 @@ export interface Product {
   pickup_available?: boolean;
   farmerDeliveryAvailable?: boolean;
   farmer_delivery_available?: boolean;
+  priceSlabs?: PriceSlab[];
   price_slabs?: PriceSlab[];
+  availableToday?: boolean;
   createdAtTime?: string;
   createdAt?: string;
   updatedAt?: string;

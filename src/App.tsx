@@ -39,7 +39,6 @@ const FarmerOrdersView = React.lazy(() => import('./components/farmer/FarmerOrde
 const FarmerEarningsView = React.lazy(() => import('./components/farmer/FarmerEarningsView').then(m => ({ default: m.FarmerEarningsView })));
 const FarmerChatView = React.lazy(() => import('./components/farmer/FarmerChatView').then(m => ({ default: m.FarmerChatView })));
 const FarmerProfileView = React.lazy(() => import('./components/farmer/FarmerProfileView').then(m => ({ default: m.FarmerProfileView })));
-import { AddProductModal } from './components/farmer/AddProductModal';
 
 // Admin dashboard & Notifications
 const AdminDashboard = React.lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -198,7 +197,6 @@ export const MainApp: React.FC = () => {
       <OrderTrackingModal />
       <MarketplaceChatModal />
       <FastSellModal />
-      <AddProductModal />
       <MyAdsModal />
       <FilterBottomSheet />
       <LocationModal />
@@ -265,15 +263,18 @@ export const MainApp: React.FC = () => {
 
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider } from './context/AppContext';
+import { LanguageProvider } from './i18n';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AppProvider>
-          <MainApp />
-        </AppProvider>
+        <LanguageProvider>
+          <AppProvider>
+            <MainApp />
+          </AppProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

@@ -32,6 +32,15 @@ export class NotificationController {
     }
   }
 
+  static async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = NotificationService.delete(req.params.id, req.user!.id);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async registerDeviceToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { token, platform, deviceName } = req.body;

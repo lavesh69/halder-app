@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ExploreCategoriesModal } from './ExploreCategoriesModal';
 import { GroupBuyModal } from './GroupBuyModal';
@@ -40,11 +41,28 @@ const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
 ];
 
 export const MarketplaceHome: React.FC = () => {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isExploreCategoriesOpen, setIsExploreCategoriesOpen] = useState(false);
   const [isGroupBuyOpen, setIsGroupBuyOpen] = useState(false);
   const [isB2bOpen, setIsB2bOpen] = useState(false);
   const [isScheduledOpen, setIsScheduledOpen] = useState(false);
+
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'All': return t('home.all_categories');
+      case 'Vegetables': return t('home.vegetables');
+      case 'Fruits': return t('home.fruits');
+      case 'Grains': return t('home.grains');
+      case 'Dairy': return t('home.dairy');
+      case 'Farm Equipment': return t('home.equipment');
+      case 'Livestock': return t('home.livestock');
+      case 'Organic': return t('home.organic');
+      case 'Homemade': return t('home.homemade');
+      case 'Seeds': return t('home.seeds');
+      default: return t('home.other');
+    }
+  };
 
   const {
     products,
@@ -119,13 +137,13 @@ export const MarketplaceHome: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-[#66736B] dark:text-[#A6B3AA]">
             <MapPin className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
-            <span>Marketplace for: <strong className="text-[#202923] dark:text-[#F2F5F3] font-bold">{currentLocation}</strong></span>
+            <span>{t('home.marketplace_for')} <strong className="text-[#202923] dark:text-[#F2F5F3] font-bold">{currentLocation}</strong></span>
           </div>
           <button
             onClick={() => setIsLocationModalOpen(true)}
             className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] hover:underline min-h-[36px] flex items-center"
           >
-            Change
+            {t('common.edit')}
           </button>
         </div>
 
@@ -137,11 +155,11 @@ export const MarketplaceHome: React.FC = () => {
           <div className="flex items-center gap-3">
             <Search className="w-5 h-5 text-[#176B45] dark:text-[#5FB383]" />
             <span className="text-sm font-medium text-[#66736B] dark:text-[#A6B3AA]">
-              Search vegetables, fruits, grains, farmers...
+              {t('search.placeholder')}
             </span>
           </div>
           <span className="text-xs font-bold bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] px-3 py-1 rounded-xl">
-            Find
+            {t('home.find')}
           </span>
         </div>
 
@@ -156,9 +174,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                Farm Map
+                {t('home.farm_map')}
               </span>
-              <span className="text-[10px] text-zinc-500 block">खेत नक्शा</span>
+              <span className="text-[10px] text-zinc-500 block">{t('home.farm_map_sub')}</span>
             </div>
           </button>
 
@@ -171,9 +189,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                Post Demand
+                {t('home.post_demand')}
               </span>
-              <span className="text-[10px] text-zinc-500 block">फसल मांगें</span>
+              <span className="text-[10px] text-zinc-500 block">{t('home.post_demand_sub')}</span>
             </div>
           </button>
 
@@ -186,9 +204,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                Negotiations
+                {t('home.negotiations')}
               </span>
-              <span className="text-[10px] text-zinc-500 block">मोल-भाव</span>
+              <span className="text-[10px] text-zinc-500 block">{t('home.negotiations_sub')}</span>
             </div>
           </button>
 
@@ -201,9 +219,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                Crop Alerts
+                {t('home.crop_alerts')}
               </span>
-              <span className="text-[10px] text-zinc-500 block">स्मार्ट अलर्ट</span>
+              <span className="text-[10px] text-zinc-500 block">{t('home.crop_alerts_sub')}</span>
             </div>
           </button>
         </div>
@@ -221,10 +239,10 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                Community Group Buy (सामूहिक खरीद)
+                {t('home.group_buy')}
               </span>
               <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                Pool orders with neighbors & save 25%+
+                {t('home.group_buy_sub')}
               </span>
             </div>
           </div>
@@ -241,10 +259,10 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                B2B Wholesale (थोक मंडी)
+                {t('home.wholesale')}
               </span>
               <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                Bulk supply for restaurants & stores
+                {t('home.wholesale_sub')}
               </span>
             </div>
           </div>
@@ -261,10 +279,10 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                Daily Subscriptions (दैनिक आपूर्ति)
+                {t('home.subscriptions')}
               </span>
               <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                Fresh morning drops to your door
+                {t('home.subscriptions_sub')}
               </span>
             </div>
           </div>
@@ -276,13 +294,13 @@ export const MarketplaceHome: React.FC = () => {
       <div className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-bold text-[#66736B] dark:text-[#A6B3AA] uppercase tracking-wider">
-            Browse Categories
+            {t('home.browse_categories')}
           </span>
           <button
             onClick={() => setIsExploreCategoriesOpen(true)}
             className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] hover:underline flex items-center gap-0.5 min-h-[36px]"
           >
-            <span>See All (सभी)</span>
+            <span>{t('home.see_all')}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -300,7 +318,7 @@ export const MarketplaceHome: React.FC = () => {
                 }`}
               >
                 <span>{item.emoji}</span>
-                <span>{item.label}</span>
+                <span>{getCategoryLabel(item.cat)}</span>
               </button>
             );
           })}
@@ -311,7 +329,7 @@ export const MarketplaceHome: React.FC = () => {
       <div className="space-y-3.5">
         {/* Quick Distance Radius Filter Bar */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-[11px] font-bold text-[#89948C] shrink-0 mr-1">Radius:</span>
+          <span className="text-[11px] font-bold text-[#89948C] shrink-0 mr-1">{t('home.radius')}</span>
           {[5, 10, 20, 50].map((km) => (
             <button
               key={km}
@@ -333,7 +351,7 @@ export const MarketplaceHome: React.FC = () => {
                 : 'bg-white dark:bg-[#181F1A] text-[#66736B] dark:text-[#A6B3AA] border border-[#E5EBE6] dark:border-[#29352D] hover:bg-[#F0F4F1]'
             }`}
           >
-            All Areas
+            {t('home.all_areas')}
           </button>
         </div>
 
@@ -342,14 +360,14 @@ export const MarketplaceHome: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-[#202923] dark:text-[#F2F5F3]">
-                Fresh Recommendations
+                {t('home.fresh_recommendations')}
               </h2>
               <span className="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383]">
-                {sortedProducts.length} Ads
+                {t('ads.total_ads', { count: sortedProducts.length })}
               </span>
             </div>
             <p className="text-[11px] text-[#66736B] dark:text-[#A6B3AA]">
-              ताज़ा विज्ञापन • Direct from local sellers near you
+              {t('ads.fresh_ads_subtitle')}
             </p>
           </div>
 
@@ -388,7 +406,7 @@ export const MarketplaceHome: React.FC = () => {
               className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white dark:bg-[#181F1A] text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] text-xs font-bold hover:bg-[#F0F4F1] transition-colors shadow-soft min-h-[44px]"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383]" />
-              <span>Filter</span>
+              <span>{t('search.filter_title').split(' ')[0]}</span>
             </button>
 
             {/* Sort Dropdown Selector */}
@@ -397,9 +415,9 @@ export const MarketplaceHome: React.FC = () => {
               onChange={(e) => setFilterState((prev) => ({ ...prev, sortBy: e.target.value as any }))}
               className="px-2.5 py-2 rounded-xl bg-white dark:bg-[#181F1A] text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] text-xs font-bold focus:outline-none cursor-pointer shadow-soft min-h-[44px]"
             >
-              <option value="nearest">Nearest</option>
-              <option value="price_low">Price: Low</option>
-              <option value="price_high">Price: High</option>
+              <option value="nearest">{t('home.nearest')}</option>
+              <option value="price_low">{t('home.price_low')}</option>
+              <option value="price_high">{t('home.price_high')}</option>
             </select>
           </div>
         </div>
@@ -410,7 +428,7 @@ export const MarketplaceHome: React.FC = () => {
             <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383]">Active:</span>
             {selectedCategory !== 'All' && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
-                {selectedCategory}
+                {getCategoryLabel(selectedCategory)}
                 <button onClick={() => setSelectedCategory('All')} className="text-[#89948C] hover:text-[#202923]">×</button>
               </span>
             )}
@@ -422,13 +440,13 @@ export const MarketplaceHome: React.FC = () => {
             )}
             {filterState.organicOnly && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
-                🌿 Organic
+                🌿 {t('home.organic')}
                 <button onClick={() => setFilterState((prev) => ({ ...prev, organicOnly: false }))} className="text-[#89948C] hover:text-[#202923]">×</button>
               </span>
             )}
             {filterState.availableTodayOnly && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
-                ⚡ Fresh Today
+                ⚡ {t('catalog.in_stock')}
                 <button onClick={() => setFilterState((prev) => ({ ...prev, availableTodayOnly: false }))} className="text-[#89948C] hover:text-[#202923]">×</button>
               </span>
             )}
@@ -436,7 +454,7 @@ export const MarketplaceHome: React.FC = () => {
               onClick={resetAllFilters}
               className="ml-auto text-[11px] font-bold text-[#176B45] dark:text-[#5FB383] hover:underline px-2 py-0.5"
             >
-              Clear All (सभी हटाएं)
+              {t('home.clear_all')}
             </button>
           </div>
         )}
@@ -448,16 +466,16 @@ export const MarketplaceHome: React.FC = () => {
               <MapPin className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3]">
-              No advertisements in this range
+              {t('home.no_ads_range')}
             </h3>
             <p className="text-xs text-[#66736B] dark:text-[#A6B3AA] max-w-xs mx-auto">
-              Try increasing your radius or clearing category filters.
+              {t('home.no_ads_range_sub')}
             </p>
             <button
               onClick={() => setFilterState((prev) => ({ ...prev, maxDistanceKm: 50 }))}
               className="btn-primary"
             >
-              Expand Search Radius
+              {t('home.expand_radius')}
             </button>
           </div>
         ) : viewMode === 'grid' ? (
@@ -481,7 +499,7 @@ export const MarketplaceHome: React.FC = () => {
           <div className="flex items-center gap-1.5">
             <Users className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
             <h3 className="text-base font-bold text-[#202923] dark:text-[#F2F5F3]">
-              Farmers Near You
+              {t('home.farmers_near_you')}
             </h3>
           </div>
         </div>

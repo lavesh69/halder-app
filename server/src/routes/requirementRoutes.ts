@@ -39,6 +39,7 @@ const quotationSchema = z.object({
 
 router.get('/', searchLimiter, optionalAuth, RequirementController.list);
 router.get('/my', authenticateUser, RequirementController.listMy);
+router.get('/quotations/my', authenticateUser, RequirementController.listMyQuotations);
 router.get('/:id', optionalAuth, RequirementController.getById);
 router.post('/', authenticateUser, validateBody(createRequirementSchema), RequirementController.create);
 router.patch('/:id/status', authenticateUser, RequirementController.updateStatus);

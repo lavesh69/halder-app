@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency } from '../../utils/formatters';
 import { Product, ProductCategory } from '../../types';
 import {
@@ -57,9 +58,12 @@ const PRESET_IMAGES = [
 ];
 
 export const FarmerProductsView: React.FC = () => {
+  const { t } = useTranslation();
   const {
     products,
     setIsAddProductOpen,
+    setIsFastSellOpen,
+    setEditingListing,
     toggleProductAvailability,
     toggleProductFeatured,
     toggleProductUrgent,
@@ -216,7 +220,7 @@ export const FarmerProductsView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-            My Harvest & Produce Ads
+            {t('farmer.my_crop_listings')}
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             {myProducts.length} crop listings • {myProducts.filter((p) => p.isAvailable).length} active in Mandi
@@ -234,11 +238,15 @@ export const FarmerProductsView: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsAddProductOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-2xl shadow-soft transition-all"
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white text-xs font-bold rounded-2xl shadow-soft transition-all"
+            title={t('farmer.list_new_crop')}
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>+ List New Crop / Ad</span>
+            <span>{t('farmer.list_new_crop')}</span>
           </button>
         </div>
       </div>
@@ -410,10 +418,14 @@ export const FarmerProductsView: React.FC = () => {
             Try adjusting your search keywords or list a new harvest to start selling in the Mandi.
           </p>
           <button
-            onClick={() => setIsAddProductOpen(true)}
-            className="min-h-[44px] px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs inline-flex items-center justify-center"
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
+            className="min-h-[44px] px-5 py-2.5 bg-[#176B45] hover:bg-[#124C36] text-white text-xs font-bold rounded-xl shadow-soft inline-flex items-center justify-center gap-1.5 transition active:scale-95"
           >
-            + Add Produce Now
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>+ Post First Ad (पहला विज्ञापन डालें)</span>
           </button>
         </div>
       ) : (
@@ -625,11 +637,14 @@ export const FarmerProductsView: React.FC = () => {
                       <Eye className="w-3.5 h-3.5" />
                     </button>
 
-                    {/* Edit */}
+                    {/* Edit in Full Wizard */}
                     <button
-                      onClick={() => openEditModal(product)}
-                      className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
-                      title="Edit Produce Details"
+                      onClick={() => {
+                        setEditingListing(product);
+                        setIsFastSellOpen(true);
+                      }}
+                      className="p-1.5 text-zinc-400 hover:text-[#176B45] dark:hover:text-[#5FB383] rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                      title="Edit Ad in Post Wizard"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
@@ -656,11 +671,15 @@ export const FarmerProductsView: React.FC = () => {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setIsAddProductOpen(true)}
-        className="fixed bottom-20 right-6 z-30 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-soft-lg flex items-center gap-2 active:scale-95 transition-all font-bold text-xs"
+        onClick={() => {
+          setEditingListing(null);
+          setIsFastSellOpen(true);
+        }}
+        className="fixed bottom-20 right-6 z-30 px-5 py-3.5 bg-gradient-to-r from-[#176B45] to-[#2E8B57] hover:brightness-105 active:scale-95 text-white rounded-full shadow-soft-lg flex items-center gap-2 transition-all font-bold text-xs"
+        title="Post Crop Advertisement / नया फसल विज्ञापन दें"
       >
         <Plus className="w-5 h-5 stroke-[2.5]" />
-        <span>+ Add Harvest</span>
+        <span>+ Post Ad (विज्ञापन दें)</span>
       </button>
 
       {/* ========================================================================= */}

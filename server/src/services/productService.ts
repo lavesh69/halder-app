@@ -67,6 +67,7 @@ export class ProductService {
     page?: number;
     limit?: number;
     farmerId?: string;
+    includeAllStatuses?: boolean;
     latitude?: number;
     longitude?: number;
     radiusKm?: number;
@@ -84,12 +85,13 @@ export class ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
+             u.phone as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
       JOIN farmer_profiles f ON p.farmer_id = f.id
       JOIN users u ON f.user_id = u.id
-      WHERE p.status = 'active' AND p.moderation_status = 'approved'
+      WHERE ${params.includeAllStatuses && params.farmerId ? "p.status != 'unavailable'" : "p.status = 'active'"} AND p.moderation_status = 'approved'
     `;
     const sqlParams: any[] = [];
 
@@ -273,7 +275,8 @@ export class ProductService {
 
   static create(data: {
     farmerId: string;
-    categoryId: string;
+    categoryId?: string;
+    category?: string;
     name: string;
     description?: string;
     price: number;
@@ -303,7 +306,8 @@ export class ProductService {
     longitude?: number;
     image: string;
     images?: string[];
-    priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number; pricePerUnit: number }>;
+    status?: 'active' | 'draft';
+    priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number | null; pricePerUnit: number }>;
   }) {
     if (data.price <= 0) {
       throw AppError.badRequest('Product price must be greater than zero.');
@@ -312,9 +316,10 @@ export class ProductService {
       throw AppError.badRequest('Available quantity cannot be negative.');
     }
 
-    const category = Database.get<any>('SELECT id FROM categories WHERE id = ? OR name = ?', [
-      data.categoryId,
-      data.categoryId,
+    const catLookup = data.category || data.categoryId || 'Vegetables';
+    const category = Database.get<any>('SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?)', [
+      catLookup,
+      catLookup,
     ]);
 
     const actualCategoryId = category ? category.id : 'cat-veg';
@@ -322,6 +327,7 @@ export class ProductService {
     const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const now = new Date().toISOString();
     const totalQty = data.totalQuantity !== undefined ? data.totalQuantity : data.availableQuantity;
+    const listingStatus = data.status === 'draft' ? 'draft' : 'active';
 
     Database.transaction(() => {
       Database.run(
@@ -342,7 +348,7 @@ export class ProductService {
           ?, ?,
           ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          'active', 'approved', ?, ?
+          ?, 'approved', ?, ?
         )`,
         [
           id,
@@ -373,10 +379,11 @@ export class ProductService {
           data.harvestDate || 'Harvested today at 5:30 AM',
           data.freshnessTag || 'Crisp Morning Harvest',
           sanitizeText(data.location),
-          data.city || 'Dehradun',
+          data.city || data.district || 'Dehradun',
           data.latitude || 30.3165,
           data.longitude || 78.0322,
           data.image,
+          listingStatus,
           now,
           now,
         ]
@@ -407,21 +414,33 @@ export class ProductService {
       Database.run(
         `INSERT INTO inventory_audit_log (
           id, product_id, farmer_id, change_type, previous_quantity, change_amount, new_quantity, reason, created_at
-        ) VALUES (?, ?, ?, 'restock', 0, ?, ?, 'Initial listing stock published', ?)`,
-        [`inv-${uuidv4().slice(0, 8)}`, id, data.farmerId, data.availableQuantity, data.availableQuantity, now]
+        ) VALUES (?, ?, ?, 'restock', 0, ?, ?, ?, ?)`,
+        [
+          `inv-${uuidv4().slice(0, 8)}`,
+          id,
+          data.farmerId,
+          data.availableQuantity,
+          data.availableQuantity,
+          listingStatus === 'draft' ? 'Saved listing as draft' : 'Initial listing stock published',
+          now,
+        ]
       );
 
-      Database.run(
-        'UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?',
-        [data.farmerId]
-      );
+      if (listingStatus === 'active') {
+        Database.run(
+          'UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?',
+          [data.farmerId]
+        );
+      }
     });
 
-    // Trigger Smart Alerts matching engine
-    try {
-      SmartAlertService.matchListingAgainstSavedSearches(id);
-    } catch (e: any) {
-      console.warn('Smart alert matching notice:', e.message);
+    // Trigger Smart Alerts matching engine only for active listings
+    if (listingStatus === 'active') {
+      try {
+        SmartAlertService.matchListingAgainstSavedSearches(id);
+      } catch (e: any) {
+        console.warn('Smart alert matching notice:', e.message);
+      }
     }
 
     return ProductService.getById(id);
@@ -559,6 +578,8 @@ export class ProductService {
     action: 'increase' | 'reduce' | 'set' | 'mark_sold_out' | 'restore';
     amount?: number;
     newQuantity?: number;
+    stockStatus?: string;
+    minOrderQuantity?: number;
     reason?: string;
     harvestDate?: string;
   }) {
@@ -602,20 +623,26 @@ export class ProductService {
       changeType = 'restock';
     }
 
-    // Auto-calculate stock status
+    // Use explicit stock status if valid non-default, otherwise auto-calculate from stock level
+    const allowedCustomStatuses = ['seasonal', 'expected_harvest', 'temporarily_unavailable'];
     let stockStatus = 'available';
     if (finalQty <= 0) {
-      stockStatus = 'out_of_stock';
+      stockStatus = data.stockStatus === 'temporarily_unavailable' ? 'temporarily_unavailable' : 'out_of_stock';
+    } else if (data.stockStatus && allowedCustomStatuses.includes(data.stockStatus)) {
+      stockStatus = data.stockStatus;
     } else if (finalQty <= (product.stock_alert_threshold || 5)) {
       stockStatus = 'limited_stock';
     }
 
     const now = new Date().toISOString();
+    const updatedTotal = Math.max(Number(product.total_quantity || 0), finalQty);
 
     Database.transaction(() => {
       Database.run(
         `UPDATE products SET
           available_quantity = ?,
+          total_quantity = ?,
+          min_order_quantity = COALESCE(?, min_order_quantity),
           stock_status = ?,
           status = ?,
           harvest_date = COALESCE(?, harvest_date),
@@ -623,8 +650,10 @@ export class ProductService {
          WHERE id = ?`,
         [
           finalQty,
+          updatedTotal,
+          data.minOrderQuantity && data.minOrderQuantity >= 1 ? data.minOrderQuantity : null,
           stockStatus,
-          finalQty > 0 ? 'active' : 'unavailable',
+          finalQty > 0 && stockStatus !== 'temporarily_unavailable' ? 'active' : 'unavailable',
           data.harvestDate || null,
           now,
           productId,

@@ -33022,6 +33022,10 @@ var init_notificationService = __esm({
         ]);
         return { success: true };
       }
+      static delete(id, userId) {
+        Database.run("DELETE FROM notifications WHERE id = ? AND user_id = ?", [id, userId]);
+        return { success: true };
+      }
     };
   }
 });
@@ -84394,12 +84398,13 @@ var ProductService = class _ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
+             u.phone as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
       JOIN farmer_profiles f ON p.farmer_id = f.id
       JOIN users u ON f.user_id = u.id
-      WHERE p.status = 'active' AND p.moderation_status = 'approved'
+      WHERE ${params.includeAllStatuses && params.farmerId ? "p.status != 'unavailable'" : "p.status = 'active'"} AND p.moderation_status = 'approved'
     `;
     const sqlParams = [];
     if (params.category && params.category !== "All") {
@@ -84557,15 +84562,17 @@ var ProductService = class _ProductService {
     if (data.availableQuantity < 0) {
       throw AppError.badRequest("Available quantity cannot be negative.");
     }
-    const category = Database.get("SELECT id FROM categories WHERE id = ? OR name = ?", [
-      data.categoryId,
-      data.categoryId
+    const catLookup = data.category || data.categoryId || "Vegetables";
+    const category = Database.get("SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?)", [
+      catLookup,
+      catLookup
     ]);
     const actualCategoryId = category ? category.id : "cat-veg";
     const id = `prod-${v4_default()}`;
     const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const now = (/* @__PURE__ */ new Date()).toISOString();
     const totalQty = data.totalQuantity !== void 0 ? data.totalQuantity : data.availableQuantity;
+    const listingStatus = data.status === "draft" ? "draft" : "active";
     Database.transaction(() => {
       Database.run(
         `INSERT INTO products (
@@ -84585,7 +84592,7 @@ var ProductService = class _ProductService {
           ?, ?,
           ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          'active', 'approved', ?, ?
+          ?, 'approved', ?, ?
         )`,
         [
           id,
@@ -84616,10 +84623,11 @@ var ProductService = class _ProductService {
           data.harvestDate || "Harvested today at 5:30 AM",
           data.freshnessTag || "Crisp Morning Harvest",
           sanitizeText(data.location),
-          data.city || "Dehradun",
+          data.city || data.district || "Dehradun",
           data.latitude || 30.3165,
           data.longitude || 78.0322,
           data.image,
+          listingStatus,
           now,
           now
         ]
@@ -84644,18 +84652,30 @@ var ProductService = class _ProductService {
       Database.run(
         `INSERT INTO inventory_audit_log (
           id, product_id, farmer_id, change_type, previous_quantity, change_amount, new_quantity, reason, created_at
-        ) VALUES (?, ?, ?, 'restock', 0, ?, ?, 'Initial listing stock published', ?)`,
-        [`inv-${v4_default().slice(0, 8)}`, id, data.farmerId, data.availableQuantity, data.availableQuantity, now]
+        ) VALUES (?, ?, ?, 'restock', 0, ?, ?, ?, ?)`,
+        [
+          `inv-${v4_default().slice(0, 8)}`,
+          id,
+          data.farmerId,
+          data.availableQuantity,
+          data.availableQuantity,
+          listingStatus === "draft" ? "Saved listing as draft" : "Initial listing stock published",
+          now
+        ]
       );
-      Database.run(
-        "UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?",
-        [data.farmerId]
-      );
+      if (listingStatus === "active") {
+        Database.run(
+          "UPDATE farmer_profiles SET total_listings_count = total_listings_count + 1 WHERE id = ?",
+          [data.farmerId]
+        );
+      }
     });
-    try {
-      SmartAlertService.matchListingAgainstSavedSearches(id);
-    } catch (e5) {
-      console.warn("Smart alert matching notice:", e5.message);
+    if (listingStatus === "active") {
+      try {
+        SmartAlertService.matchListingAgainstSavedSearches(id);
+      } catch (e5) {
+        console.warn("Smart alert matching notice:", e5.message);
+      }
     }
     return _ProductService.getById(id);
   }
@@ -84814,17 +84834,23 @@ var ProductService = class _ProductService {
       finalQty = amt;
       changeType = "restock";
     }
+    const allowedCustomStatuses = ["seasonal", "expected_harvest", "temporarily_unavailable"];
     let stockStatus = "available";
     if (finalQty <= 0) {
-      stockStatus = "out_of_stock";
+      stockStatus = data.stockStatus === "temporarily_unavailable" ? "temporarily_unavailable" : "out_of_stock";
+    } else if (data.stockStatus && allowedCustomStatuses.includes(data.stockStatus)) {
+      stockStatus = data.stockStatus;
     } else if (finalQty <= (product.stock_alert_threshold || 5)) {
       stockStatus = "limited_stock";
     }
     const now = (/* @__PURE__ */ new Date()).toISOString();
+    const updatedTotal = Math.max(Number(product.total_quantity || 0), finalQty);
     Database.transaction(() => {
       Database.run(
         `UPDATE products SET
           available_quantity = ?,
+          total_quantity = ?,
+          min_order_quantity = COALESCE(?, min_order_quantity),
           stock_status = ?,
           status = ?,
           harvest_date = COALESCE(?, harvest_date),
@@ -84832,8 +84858,10 @@ var ProductService = class _ProductService {
          WHERE id = ?`,
         [
           finalQty,
+          updatedTotal,
+          data.minOrderQuantity && data.minOrderQuantity >= 1 ? data.minOrderQuantity : null,
           stockStatus,
-          finalQty > 0 ? "active" : "unavailable",
+          finalQty > 0 && stockStatus !== "temporarily_unavailable" ? "active" : "unavailable",
           data.harvestDate || null,
           now,
           productId
@@ -84915,10 +84943,12 @@ var ProductController = class {
         page,
         limit,
         farmerId,
+        includeAllStatuses,
         latitude,
         longitude,
         radiusKm
       } = req.query;
+      const isOwnerRequestingAll = (includeAllStatuses === "true" || includeAllStatuses === "1") && req.user?.farmerProfileId && farmerId === req.user.farmerProfileId;
       const result = ProductService.list({
         category,
         minPrice: minPrice ? Number(minPrice) : void 0,
@@ -84931,6 +84961,7 @@ var ProductController = class {
         page: page ? Number(page) : 1,
         limit: limit ? Number(limit) : 50,
         farmerId,
+        includeAllStatuses: Boolean(isOwnerRequestingAll),
         latitude: latitude ? Number(latitude) : void 0,
         longitude: longitude ? Number(longitude) : void 0,
         radiusKm: radiusKm ? Number(radiusKm) : void 0
@@ -85134,25 +85165,28 @@ function verifyConversationAccess(req, res, next) {
 // server/src/routes/productRoutes.ts
 init_zod();
 var router2 = (0, import_express2.Router)();
+var boolOrNum = external_exports.union([external_exports.boolean(), external_exports.number().transform((n3) => Boolean(n3))]);
 var createProductSchema = external_exports.object({
-  categoryId: external_exports.string(),
+  categoryId: external_exports.string().optional(),
+  category: external_exports.string().optional(),
   name: external_exports.string().min(2),
   description: external_exports.string().optional(),
   price: external_exports.number().positive("Price must be greater than 0"),
   unit: external_exports.enum(["kg", "gram", "litre", "bunch", "piece", "packet", "dozen", "box", "quintal", "ton", "bag", "L"]),
   availableQuantity: external_exports.number().min(0, "Quantity cannot be negative"),
-  isOrganic: external_exports.boolean().optional(),
-  availableToday: external_exports.boolean().optional(),
+  isOrganic: boolOrNum.optional(),
+  availableToday: boolOrNum.optional(),
   location: external_exports.string().min(2),
   city: external_exports.string().optional(),
-  image: external_exports.string().url().or(external_exports.string().min(5)),
-  images: external_exports.array(external_exports.string()).optional(),
+  image: external_exports.string().min(5),
+  images: external_exports.array(external_exports.string()).max(8).optional(),
+  status: external_exports.enum(["active", "draft"]).optional(),
   priceSlabs: external_exports.array(external_exports.object({
     minQuantity: external_exports.number().positive(),
-    maxQuantity: external_exports.number().optional(),
+    maxQuantity: external_exports.number().optional().nullable(),
     pricePerUnit: external_exports.number().positive()
   })).optional()
-});
+}).passthrough();
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
 router2.get("/:id", ProductController.getById);
 router2.post("/", authenticateUser, requireFarmer, validateBody(createProductSchema), ProductController.create);
@@ -87587,6 +87621,14 @@ var NotificationController = class {
       next(err);
     }
   }
+  static async delete(req, res, next) {
+    try {
+      const result = NotificationService.delete(req.params.id, req.user.id);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
   static async registerDeviceToken(req, res, next) {
     try {
       const { token, platform: platform2, deviceName } = req.body;
@@ -87630,6 +87672,7 @@ var router8 = (0, import_express8.Router)();
 router8.get("/", authenticateUser, NotificationController.list);
 router8.patch("/:id/read", authenticateUser, NotificationController.markRead);
 router8.post("/mark-all-read", authenticateUser, NotificationController.markAllRead);
+router8.delete("/:id", authenticateUser, NotificationController.delete);
 router8.post("/device-token", authenticateUser, NotificationController.registerDeviceToken);
 router8.post("/test-push", authenticateUser, NotificationController.sendTestPush);
 var notificationRoutes_default = router8;
@@ -92033,6 +92076,41 @@ var RequirementService = class {
     }
     throw AppError.badRequest("Invalid action");
   }
+  static listMyQuotations(farmerUserId) {
+    const farmer = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [farmerUserId]);
+    if (!farmer) return [];
+    const rows = Database.query(
+      `SELECT q.*, r.product_name, r.requirement_number, r.required_quantity, r.unit as req_unit,
+              r.location as req_location, r.status as req_status, u.name as buyer_name, u.phone as buyer_phone
+       FROM requirement_quotations q
+       JOIN buyer_requirements r ON q.requirement_id = r.id
+       JOIN users u ON r.buyer_id = u.id
+       WHERE q.farmer_id = ?
+       ORDER BY q.created_at DESC LIMIT 50`,
+      [farmer.id]
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      quotationNumber: row.quotation_number,
+      requirementId: row.requirement_id,
+      requirementNumber: row.requirement_number,
+      productName: row.product_name,
+      buyerName: row.buyer_name,
+      buyerPhone: row.buyer_phone,
+      reqLocation: row.req_location,
+      reqStatus: row.req_status,
+      availableQuantity: Number(row.available_quantity),
+      proposedPrice: Number(row.proposed_price),
+      unit: row.unit,
+      harvestAvailabilityDate: row.harvest_availability_date,
+      deliveryMode: row.delivery_mode,
+      message: row.message,
+      status: row.status,
+      counterPrice: row.counter_price ? Number(row.counter_price) : void 0,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  }
 };
 
 // server/src/controllers/requirementController.ts
@@ -92123,6 +92201,14 @@ var RequirementController = class {
       next(err);
     }
   }
+  static async listMyQuotations(req, res, next) {
+    try {
+      const quotes = RequirementService.listMyQuotations(req.user.id);
+      res.json({ success: true, data: quotes });
+    } catch (err) {
+      next(err);
+    }
+  }
   static async respondToQuotation(req, res, next) {
     try {
       const currentUserId = req.user.id;
@@ -92167,6 +92253,7 @@ var quotationSchema = external_exports.object({
 });
 router18.get("/", searchLimiter, optionalAuth, RequirementController.list);
 router18.get("/my", authenticateUser, RequirementController.listMy);
+router18.get("/quotations/my", authenticateUser, RequirementController.listMyQuotations);
 router18.get("/:id", optionalAuth, RequirementController.getById);
 router18.post("/", authenticateUser, validateBody(createRequirementSchema), RequirementController.create);
 router18.patch("/:id/status", authenticateUser, RequirementController.updateStatus);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency, formatDistance } from '../../utils/formatters';
 import { QuantitySelector } from '../common/QuantitySelector';
 import {
@@ -34,6 +35,7 @@ import {
 import { MakeOfferModal } from './MakeOfferModal';
 
 export const ListingDetailModal: React.FC = () => {
+  const { t } = useTranslation();
   const {
     selectedProduct,
     setSelectedProduct,
@@ -512,7 +514,7 @@ export const ListingDetailModal: React.FC = () => {
               className="py-2.5 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 text-amber-900 dark:text-amber-200 font-bold text-[11px] rounded-2xl border border-amber-200 dark:border-amber-800/60 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
             >
               <HandCoins className="w-4 h-4 text-amber-600" />
-              <span>Offer</span>
+              <span>{t('ads.make_offer')}</span>
             </button>
 
             <button
@@ -520,7 +522,7 @@ export const ListingDetailModal: React.FC = () => {
               className="py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-zinc-800 dark:text-zinc-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold text-[11px] rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
             >
               <MessageCircle className="w-4 h-4 text-emerald-600" />
-              <span>Chat</span>
+              <span>{t('ads.chat')}</span>
             </button>
 
             <button
@@ -528,19 +530,24 @@ export const ListingDetailModal: React.FC = () => {
               className="py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-900 dark:text-blue-200 font-bold text-[11px] rounded-2xl border border-blue-200 dark:border-blue-800/60 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
             >
               <Phone className="w-4 h-4 text-blue-600" />
-              <span>Call</span>
+              <span>{t('ads.call_farmer')}</span>
             </button>
 
             <button
               onClick={() => {
+                const rawPhone = selectedProduct.farmerPhone || farmer?.phone || '';
+                const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
+                if (!phoneDigits) {
+                  showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
+                  return;
+                }
                 const text = encodeURIComponent(`Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`);
-                const phoneDigits = (selectedProduct.farmerPhone || farmer?.phone || '919845012345').replace(/[^0-9]/g, '');
                 window.open(`https://wa.me/${phoneDigits}?text=${text}`, '_blank');
               }}
               className="py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] rounded-2xl border border-emerald-200 dark:border-emerald-800/50 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
             >
               <span className="text-sm">💬</span>
-              <span>WhatsApp</span>
+              <span>{t('ads.whatsapp')}</span>
             </button>
           </div>
 
@@ -738,10 +745,18 @@ export const ListingDetailModal: React.FC = () => {
 
               <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 text-center space-y-1">
                 <span className="text-xs text-zinc-500 block">{selectedProduct.farmerName}</span>
-                <span className="text-xl font-black text-zinc-900 dark:text-white tracking-wider block font-mono">
-                  {selectedProduct.farmerPhone || farmer?.phone || '+91 98450 12345'}
-                </span>
-                <span className="text-[10px] text-emerald-600 font-bold">✓ Phone Verified by HALDER</span>
+                {selectedProduct.farmerPhone || farmer?.phone ? (
+                  <>
+                    <span className="text-xl font-black text-zinc-900 dark:text-white tracking-wider block font-mono">
+                      {selectedProduct.farmerPhone || farmer?.phone}
+                    </span>
+                    <span className="text-[10px] text-emerald-600 font-bold">✓ Phone Verified by HALDER</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-bold text-amber-600 block py-1">
+                    Farmer prefers in-app Direct Chat for privacy
+                  </span>
+                )}
               </div>
 
               {/* Safety notice */}
@@ -751,27 +766,40 @@ export const ListingDetailModal: React.FC = () => {
               </div>
 
               {/* Action buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              {selectedProduct.farmerPhone || farmer?.phone ? (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      const num = selectedProduct.farmerPhone || farmer?.phone || '';
+                      navigator.clipboard.writeText(num);
+                      showToast('Phone number copied to clipboard!');
+                    }}
+                    className="py-2.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 flex items-center justify-center gap-1.5"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </button>
+
+                  <a
+                    href={`tel:${(selectedProduct.farmerPhone || farmer?.phone || '').replace(/\s+/g, '')}`}
+                    className="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-soft transition"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call Directly</span>
+                  </a>
+                </div>
+              ) : (
                 <button
                   onClick={() => {
-                    const num = selectedProduct.farmerPhone || farmer?.phone || '+91 98450 12345';
-                    navigator.clipboard.writeText(num);
-                    showToast('Phone number copied to clipboard!');
+                    setShowPhoneModal(false);
+                    handleOpenChat();
                   }}
-                  className="py-2.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-soft transition"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy</span>
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Open Direct Chat Instead</span>
                 </button>
-
-                <a
-                  href={`tel:${(selectedProduct.farmerPhone || farmer?.phone || '+919845012345').replace(/\s+/g, '')}`}
-                  className="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-soft transition"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Call Directly</span>
-                </a>
-              </div>
+              )}
             </div>
           </div>
         )}

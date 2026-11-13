@@ -96,6 +96,15 @@ export class RequirementController {
     }
   }
 
+  static async listMyQuotations(req: Request, res: Response, next: NextFunction) {
+    try {
+      const quotes = RequirementService.listMyQuotations(req.user!.id);
+      res.json({ success: true, data: quotes });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async respondToQuotation(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = req.user!.id;

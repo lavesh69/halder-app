@@ -20,6 +20,7 @@ import {
   Compass,
   Megaphone,
   HandCoins,
+  Plus,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -42,6 +43,8 @@ export const Header: React.FC = () => {
     setIsFarmMapOpen,
     setIsRequirementsOpen,
     setIsNegotiationsOpen,
+    setIsFastSellOpen,
+    setEditingListing,
   } = useApp();
 
   const { isDark, toggleTheme } = useTheme();
@@ -207,6 +210,21 @@ export const Header: React.FC = () => {
                 <span className="hidden sm:inline">{t('nav.admin')}</span>
               </button>
             </div>
+
+            {/* Quick + Post Ad Button for Farmers */}
+            {role === 'farmer' && (
+              <button
+                onClick={() => {
+                  setEditingListing(null);
+                  setIsFastSellOpen(true);
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] font-bold shadow-soft transition-all ml-0.5"
+                title="Post Crop Advertisement / फसल का विज्ञापन डालें"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                <span className="hidden xs:inline">+ Post Ad</span>
+              </button>
+            )}
 
             {/* Direct Login Button (Visible when not logged in) */}
             {!isLoggedIn && (

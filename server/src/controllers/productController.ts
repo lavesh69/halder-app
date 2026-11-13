@@ -16,10 +16,16 @@ export class ProductController {
         page,
         limit,
         farmerId,
+        includeAllStatuses,
         latitude,
         longitude,
         radiusKm,
       } = req.query as any;
+
+      const isOwnerRequestingAll =
+        (includeAllStatuses === 'true' || includeAllStatuses === '1') &&
+        req.user?.farmerProfileId &&
+        farmerId === req.user.farmerProfileId;
 
       const result = ProductService.list({
         category,
@@ -33,6 +39,7 @@ export class ProductController {
         page: page ? Number(page) : 1,
         limit: limit ? Number(limit) : 50,
         farmerId,
+        includeAllStatuses: Boolean(isOwnerRequestingAll),
         latitude: latitude ? Number(latitude) : undefined,
         longitude: longitude ? Number(longitude) : undefined,
         radiusKm: radiusKm ? Number(radiusKm) : undefined,
