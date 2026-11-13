@@ -20,11 +20,15 @@ import {
   Zap,
   Sparkles,
   Boxes,
+  ArrowLeft,
 } from 'lucide-react';
 
 export const CustomerMyAdsView: React.FC = () => {
   const { t } = useTranslation();
   const {
+    role,
+    setCustomerTab,
+    setFarmerTab,
     products,
     currentUser,
     deleteProduct,
@@ -35,6 +39,14 @@ export const CustomerMyAdsView: React.FC = () => {
     boostProduct,
     setStockControlProduct,
   } = useApp();
+
+  const handleBack = () => {
+    if (role === 'farmer') {
+      setFarmerTab('dashboard');
+    } else {
+      setCustomerTab('home');
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<'active' | 'sold'>('active');
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,18 +87,28 @@ export const CustomerMyAdsView: React.FC = () => {
     <div className="space-y-4 pb-24 animate-fade-in">
       {/* Top Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-              {t('my_ads.title')}
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-              {t('ads.total_ads_count', { count: allUserAds.length })}
-            </span>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleBack}
+            className="p-2 -ml-1 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
+            title="Go Back"
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
+                {t('my_ads.title')}
+              </h2>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                {t('ads.total_ads_count', { count: allUserAds.length })}
+              </span>
+            </div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+              {t('my_ads.subtitle')}
+            </p>
           </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {t('my_ads.subtitle')}
-          </p>
         </div>
 
         <button
