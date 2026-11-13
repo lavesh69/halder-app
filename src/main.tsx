@@ -10,6 +10,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .register('/sw.js')
       .then((reg) => {
         console.log('[HALDER PWA] Service Worker registered with scope:', reg.scope);
+        // Prompt immediate update check
+        reg.update().catch(() => {});
       })
       .catch((err) => {
         console.warn('[HALDER PWA] Service Worker registration failed:', err);

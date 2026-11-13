@@ -1308,8 +1308,8 @@ var require_node = __commonJS({
           }
           break;
         case "FILE":
-          var fs4 = __require("fs");
-          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
+          var fs5 = __require("fs");
+          stream2 = new fs5.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -14107,11 +14107,11 @@ var require_mime_types = __commonJS({
       }
       return exts[0];
     }
-    function lookup(path5) {
-      if (!path5 || typeof path5 !== "string") {
+    function lookup(path6) {
+      if (!path6 || typeof path6 !== "string") {
         return false;
       }
-      var extension3 = extname("x." + path5).toLowerCase().substr(1);
+      var extension3 = extname("x." + path6).toLowerCase().substr(1);
       if (!extension3) {
         return false;
       }
@@ -17895,7 +17895,7 @@ var require_path_to_regexp = __commonJS({
   "node_modules/path-to-regexp/index.js"(exports, module) {
     module.exports = pathToRegexp;
     var MATCHING_GROUP_REGEXP = /\\.|\((?:\?<(.*?)>)?(?!\?)/g;
-    function pathToRegexp(path5, keys, options) {
+    function pathToRegexp(path6, keys, options) {
       options = options || {};
       keys = keys || [];
       var strict = options.strict;
@@ -17909,8 +17909,8 @@ var require_path_to_regexp = __commonJS({
       var pos = 0;
       var backtrack = "";
       var m3;
-      if (path5 instanceof RegExp) {
-        while (m3 = MATCHING_GROUP_REGEXP.exec(path5.source)) {
+      if (path6 instanceof RegExp) {
+        while (m3 = MATCHING_GROUP_REGEXP.exec(path6.source)) {
           if (m3[0][0] === "\\") continue;
           keys.push({
             name: m3[1] || name++,
@@ -17918,18 +17918,18 @@ var require_path_to_regexp = __commonJS({
             offset: m3.index
           });
         }
-        return path5;
+        return path6;
       }
-      if (Array.isArray(path5)) {
-        path5 = path5.map(function(value) {
+      if (Array.isArray(path6)) {
+        path6 = path6.map(function(value) {
           return pathToRegexp(value, keys, options).source;
         });
-        return new RegExp(path5.join("|"), flags);
+        return new RegExp(path6.join("|"), flags);
       }
-      if (typeof path5 !== "string") {
+      if (typeof path6 !== "string") {
         throw new TypeError("path must be a string, array of strings, or regular expression");
       }
-      path5 = path5.replace(
+      path6 = path6.replace(
         /\\.|(\/)?(\.)?:(\w+)(\(.*?\))?(\*)?(\?)?|[.*]|\/\(/g,
         function(match, slash, format2, key, capture, star, optional, offset) {
           if (match[0] === "\\") {
@@ -17946,7 +17946,7 @@ var require_path_to_regexp = __commonJS({
           if (slash || format2) {
             backtrack = "";
           } else {
-            backtrack += path5.slice(pos, offset);
+            backtrack += path6.slice(pos, offset);
           }
           pos = offset + match.length;
           if (match === "*") {
@@ -17976,7 +17976,7 @@ var require_path_to_regexp = __commonJS({
           return result;
         }
       );
-      while (m3 = MATCHING_GROUP_REGEXP.exec(path5)) {
+      while (m3 = MATCHING_GROUP_REGEXP.exec(path6)) {
         if (m3[0][0] === "\\") continue;
         if (keysOffset + i5 === keys.length || keys[keysOffset + i5].offset > m3.index) {
           keys.splice(keysOffset + i5, 0, {
@@ -17988,13 +17988,13 @@ var require_path_to_regexp = __commonJS({
         }
         i5++;
       }
-      path5 += strict ? "" : path5[path5.length - 1] === "/" ? "?" : "/?";
+      path6 += strict ? "" : path6[path6.length - 1] === "/" ? "?" : "/?";
       if (end) {
-        path5 += "$";
-      } else if (path5[path5.length - 1] !== "/") {
-        path5 += lookahead ? "(?=/|$)" : "(?:/|$)";
+        path6 += "$";
+      } else if (path6[path6.length - 1] !== "/") {
+        path6 += lookahead ? "(?=/|$)" : "(?:/|$)";
       }
-      return new RegExp("^" + path5, flags);
+      return new RegExp("^" + path6, flags);
     }
   }
 });
@@ -18007,19 +18007,19 @@ var require_layer = __commonJS({
     var debug = require_src()("express:router:layer");
     var hasOwnProperty = Object.prototype.hasOwnProperty;
     module.exports = Layer;
-    function Layer(path5, options, fn) {
+    function Layer(path6, options, fn) {
       if (!(this instanceof Layer)) {
-        return new Layer(path5, options, fn);
+        return new Layer(path6, options, fn);
       }
-      debug("new %o", path5);
+      debug("new %o", path6);
       var opts = options || {};
       this.handle = fn;
       this.name = fn.name || "<anonymous>";
       this.params = void 0;
       this.path = void 0;
-      this.regexp = pathRegexp(path5, this.keys = [], opts);
-      this.regexp.fast_star = path5 === "*";
-      this.regexp.fast_slash = path5 === "/" && opts.end === false;
+      this.regexp = pathRegexp(path6, this.keys = [], opts);
+      this.regexp.fast_star = path6 === "*";
+      this.regexp.fast_slash = path6 === "/" && opts.end === false;
     }
     Layer.prototype.handle_error = function handle_error(error2, req, res, next) {
       var fn = this.handle;
@@ -18043,20 +18043,20 @@ var require_layer = __commonJS({
         next(err);
       }
     };
-    Layer.prototype.match = function match(path5) {
+    Layer.prototype.match = function match(path6) {
       var match2;
-      if (path5 != null) {
+      if (path6 != null) {
         if (this.regexp.fast_slash) {
           this.params = {};
           this.path = "";
           return true;
         }
         if (this.regexp.fast_star) {
-          this.params = { "0": decode_param(path5) };
-          this.path = path5;
+          this.params = { "0": decode_param(path6) };
+          this.path = path6;
           return true;
         }
-        match2 = this.regexp.exec(path5);
+        match2 = this.regexp.exec(path6);
       }
       if (!match2) {
         this.params = void 0;
@@ -18149,10 +18149,10 @@ var require_route = __commonJS({
     var slice = Array.prototype.slice;
     var toString = Object.prototype.toString;
     module.exports = Route;
-    function Route(path5) {
-      this.path = path5;
+    function Route(path6) {
+      this.path = path6;
       this.stack = [];
-      debug("new %o", path5);
+      debug("new %o", path6);
       this.methods = {};
     }
     Route.prototype._handles_method = function _handles_method(method) {
@@ -18364,8 +18364,8 @@ var require_router = __commonJS({
         if (++sync > 100) {
           return setImmediate(next, err);
         }
-        var path5 = getPathname(req);
-        if (path5 == null) {
+        var path6 = getPathname(req);
+        if (path6 == null) {
           return done(layerError);
         }
         var layer;
@@ -18373,7 +18373,7 @@ var require_router = __commonJS({
         var route;
         while (match !== true && idx < stack.length) {
           layer = stack[idx++];
-          match = matchLayer(layer, path5);
+          match = matchLayer(layer, path6);
           route = layer.route;
           if (typeof match !== "boolean") {
             layerError = layerError || match;
@@ -18411,18 +18411,18 @@ var require_router = __commonJS({
           } else if (route) {
             layer.handle_request(req, res, next);
           } else {
-            trim_prefix(layer, layerError, layerPath, path5);
+            trim_prefix(layer, layerError, layerPath, path6);
           }
           sync = 0;
         });
       }
-      function trim_prefix(layer, layerError, layerPath, path5) {
+      function trim_prefix(layer, layerError, layerPath, path6) {
         if (layerPath.length !== 0) {
-          if (layerPath !== path5.slice(0, layerPath.length)) {
+          if (layerPath !== path6.slice(0, layerPath.length)) {
             next(layerError);
             return;
           }
-          var c5 = path5[layerPath.length];
+          var c5 = path6[layerPath.length];
           if (c5 && c5 !== "/" && c5 !== ".") return next(layerError);
           debug("trim prefix (%s) from url %s", layerPath, req.url);
           removed = layerPath;
@@ -18500,7 +18500,7 @@ var require_router = __commonJS({
     };
     proto.use = function use(fn) {
       var offset = 0;
-      var path5 = "/";
+      var path6 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -18508,7 +18508,7 @@ var require_router = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path5 = fn;
+          path6 = fn;
         }
       }
       var callbacks = flatten(slice.call(arguments, offset));
@@ -18520,8 +18520,8 @@ var require_router = __commonJS({
         if (typeof fn !== "function") {
           throw new TypeError("Router.use() requires a middleware function but got a " + gettype(fn));
         }
-        debug("use %o %s", path5, fn.name || "<anonymous>");
-        var layer = new Layer(path5, {
+        debug("use %o %s", path6, fn.name || "<anonymous>");
+        var layer = new Layer(path6, {
           sensitive: this.caseSensitive,
           strict: false,
           end: false
@@ -18531,9 +18531,9 @@ var require_router = __commonJS({
       }
       return this;
     };
-    proto.route = function route(path5) {
-      var route2 = new Route(path5);
-      var layer = new Layer(path5, {
+    proto.route = function route(path6) {
+      var route2 = new Route(path6);
+      var layer = new Layer(path6, {
         sensitive: this.caseSensitive,
         strict: this.strict,
         end: true
@@ -18543,8 +18543,8 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      proto[method] = function(path5) {
-        var route = this.route(path5);
+      proto[method] = function(path6) {
+        var route = this.route(path6);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
@@ -18580,9 +18580,9 @@ var require_router = __commonJS({
       }
       return toString.call(obj).replace(objectRegExp, "$1");
     }
-    function matchLayer(layer, path5) {
+    function matchLayer(layer, path6) {
       try {
-        return layer.match(path5);
+        return layer.match(path6);
       } catch (err) {
         return err;
       }
@@ -19660,13 +19660,13 @@ var require_view = __commonJS({
   "node_modules/express/lib/view.js"(exports, module) {
     "use strict";
     var debug = require_src()("express:view");
-    var path5 = __require("path");
-    var fs4 = __require("fs");
-    var dirname = path5.dirname;
-    var basename = path5.basename;
-    var extname = path5.extname;
-    var join5 = path5.join;
-    var resolve = path5.resolve;
+    var path6 = __require("path");
+    var fs5 = __require("fs");
+    var dirname = path6.dirname;
+    var basename = path6.basename;
+    var extname = path6.extname;
+    var join5 = path6.join;
+    var resolve = path6.resolve;
     module.exports = View;
     function View(name, options) {
       var opts = options || {};
@@ -19695,17 +19695,17 @@ var require_view = __commonJS({
       this.path = this.lookup(fileName);
     }
     View.prototype.lookup = function lookup(name) {
-      var path6;
+      var path7;
       var roots = [].concat(this.root);
       debug('lookup "%s"', name);
-      for (var i5 = 0; i5 < roots.length && !path6; i5++) {
+      for (var i5 = 0; i5 < roots.length && !path7; i5++) {
         var root5 = roots[i5];
         var loc = resolve(root5, name);
         var dir = dirname(loc);
         var file = basename(loc);
-        path6 = this.resolve(dir, file);
+        path7 = this.resolve(dir, file);
       }
-      return path6;
+      return path7;
     };
     View.prototype.render = function render(options, callback) {
       debug('render "%s"', this.path);
@@ -19713,21 +19713,21 @@ var require_view = __commonJS({
     };
     View.prototype.resolve = function resolve2(dir, file) {
       var ext = this.ext;
-      var path6 = join5(dir, file);
-      var stat = tryStat(path6);
+      var path7 = join5(dir, file);
+      var stat = tryStat(path7);
       if (stat && stat.isFile()) {
-        return path6;
+        return path7;
       }
-      path6 = join5(dir, basename(file, ext), "index" + ext);
-      stat = tryStat(path6);
+      path7 = join5(dir, basename(file, ext), "index" + ext);
+      stat = tryStat(path7);
       if (stat && stat.isFile()) {
-        return path6;
+        return path7;
       }
     };
-    function tryStat(path6) {
-      debug('stat "%s"', path6);
+    function tryStat(path7) {
+      debug('stat "%s"', path7);
       try {
-        return fs4.statSync(path6);
+        return fs5.statSync(path7);
       } catch (e5) {
         return void 0;
       }
@@ -20081,8 +20081,8 @@ var require_types = __commonJS({
 // node_modules/mime/mime.js
 var require_mime = __commonJS({
   "node_modules/mime/mime.js"(exports, module) {
-    var path5 = __require("path");
-    var fs4 = __require("fs");
+    var path6 = __require("path");
+    var fs5 = __require("fs");
     function Mime() {
       this.types = /* @__PURE__ */ Object.create(null);
       this.extensions = /* @__PURE__ */ Object.create(null);
@@ -20103,7 +20103,7 @@ var require_mime = __commonJS({
     };
     Mime.prototype.load = function(file) {
       this._loading = file;
-      var map3 = {}, content = fs4.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
+      var map3 = {}, content = fs5.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
       lines.forEach(function(line) {
         var fields = line.replace(/\s*#.*|^\s*|\s*$/g, "").split(/\s+/);
         map3[fields.shift()] = fields;
@@ -20111,8 +20111,8 @@ var require_mime = __commonJS({
       this.define(map3);
       this._loading = null;
     };
-    Mime.prototype.lookup = function(path6, fallback2) {
-      var ext = path6.replace(/^.*[\.\/\\]/, "").toLowerCase();
+    Mime.prototype.lookup = function(path7, fallback2) {
+      var ext = path7.replace(/^.*[\.\/\\]/, "").toLowerCase();
       return this.types[ext] || fallback2 || this.default_type;
     };
     Mime.prototype.extension = function(mimeType) {
@@ -20341,33 +20341,33 @@ var require_send = __commonJS({
     var escapeHtml = require_escape_html();
     var etag = require_etag();
     var fresh = require_fresh();
-    var fs4 = __require("fs");
+    var fs5 = __require("fs");
     var mime = require_mime();
     var ms = require_ms2();
     var onFinished = require_on_finished();
     var parseRange = require_range_parser();
-    var path5 = __require("path");
+    var path6 = __require("path");
     var statuses = require_statuses();
     var Stream = __require("stream");
     var util2 = __require("util");
-    var extname = path5.extname;
-    var join5 = path5.join;
-    var normalize = path5.normalize;
-    var resolve = path5.resolve;
-    var sep2 = path5.sep;
+    var extname = path6.extname;
+    var join5 = path6.join;
+    var normalize = path6.normalize;
+    var resolve = path6.resolve;
+    var sep2 = path6.sep;
     var BYTES_RANGE_REGEXP = /^ *bytes=/;
     var MAX_MAXAGE = 60 * 60 * 24 * 365 * 1e3;
     var UP_PATH_REGEXP = /(?:^|[\\/])\.\.(?:[\\/]|$)/;
     module.exports = send;
     module.exports.mime = mime;
-    function send(req, path6, options) {
-      return new SendStream(req, path6, options);
+    function send(req, path7, options) {
+      return new SendStream(req, path7, options);
     }
-    function SendStream(req, path6, options) {
+    function SendStream(req, path7, options) {
       Stream.call(this);
       var opts = options || {};
       this.options = opts;
-      this.path = path6;
+      this.path = path7;
       this.req = req;
       this._acceptRanges = opts.acceptRanges !== void 0 ? Boolean(opts.acceptRanges) : true;
       this._cacheControl = opts.cacheControl !== void 0 ? Boolean(opts.cacheControl) : true;
@@ -20413,8 +20413,8 @@ var require_send = __commonJS({
       this._index = index2;
       return this;
     }, "send.index: pass index as option");
-    SendStream.prototype.root = function root5(path6) {
-      this._root = resolve(String(path6));
+    SendStream.prototype.root = function root5(path7) {
+      this._root = resolve(String(path7));
       debug("root %s", this._root);
       return this;
     };
@@ -20527,10 +20527,10 @@ var require_send = __commonJS({
       var lastModified = this.res.getHeader("Last-Modified");
       return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
     };
-    SendStream.prototype.redirect = function redirect(path6) {
+    SendStream.prototype.redirect = function redirect(path7) {
       var res = this.res;
       if (hasListeners(this, "directory")) {
-        this.emit("directory", res, path6);
+        this.emit("directory", res, path7);
         return;
       }
       if (this.hasTrailingSlash()) {
@@ -20550,42 +20550,42 @@ var require_send = __commonJS({
     SendStream.prototype.pipe = function pipe(res) {
       var root5 = this._root;
       this.res = res;
-      var path6 = decode(this.path);
-      if (path6 === -1) {
+      var path7 = decode(this.path);
+      if (path7 === -1) {
         this.error(400);
         return res;
       }
-      if (~path6.indexOf("\0")) {
+      if (~path7.indexOf("\0")) {
         this.error(400);
         return res;
       }
       var parts;
       if (root5 !== null) {
-        if (path6) {
-          path6 = normalize("." + sep2 + path6);
+        if (path7) {
+          path7 = normalize("." + sep2 + path7);
         }
-        if (UP_PATH_REGEXP.test(path6)) {
-          debug('malicious path "%s"', path6);
+        if (UP_PATH_REGEXP.test(path7)) {
+          debug('malicious path "%s"', path7);
           this.error(403);
           return res;
         }
-        parts = path6.split(sep2);
-        path6 = normalize(join5(root5, path6));
+        parts = path7.split(sep2);
+        path7 = normalize(join5(root5, path7));
       } else {
-        if (UP_PATH_REGEXP.test(path6)) {
-          debug('malicious path "%s"', path6);
+        if (UP_PATH_REGEXP.test(path7)) {
+          debug('malicious path "%s"', path7);
           this.error(403);
           return res;
         }
-        parts = normalize(path6).split(sep2);
-        path6 = resolve(path6);
+        parts = normalize(path7).split(sep2);
+        path7 = resolve(path7);
       }
       if (containsDotFile(parts)) {
         var access = this._dotfiles;
         if (access === void 0) {
           access = parts[parts.length - 1][0] === "." ? this._hidden ? "allow" : "ignore" : "allow";
         }
-        debug('%s dotfile "%s"', access, path6);
+        debug('%s dotfile "%s"', access, path7);
         switch (access) {
           case "allow":
             break;
@@ -20599,13 +20599,13 @@ var require_send = __commonJS({
         }
       }
       if (this._index.length && this.hasTrailingSlash()) {
-        this.sendIndex(path6);
+        this.sendIndex(path7);
         return res;
       }
-      this.sendFile(path6);
+      this.sendFile(path7);
       return res;
     };
-    SendStream.prototype.send = function send2(path6, stat) {
+    SendStream.prototype.send = function send2(path7, stat) {
       var len = stat.size;
       var options = this.options;
       var opts = {};
@@ -20617,9 +20617,9 @@ var require_send = __commonJS({
         this.headersAlreadySent();
         return;
       }
-      debug('pipe "%s"', path6);
-      this.setHeader(path6, stat);
-      this.type(path6);
+      debug('pipe "%s"', path7);
+      this.setHeader(path7, stat);
+      this.type(path7);
       if (this.isConditionalGET()) {
         if (this.isPreconditionFailure()) {
           this.error(412);
@@ -20668,28 +20668,28 @@ var require_send = __commonJS({
         res.end();
         return;
       }
-      this.stream(path6, opts);
+      this.stream(path7, opts);
     };
-    SendStream.prototype.sendFile = function sendFile(path6) {
+    SendStream.prototype.sendFile = function sendFile(path7) {
       var i5 = 0;
       var self2 = this;
-      debug('stat "%s"', path6);
-      fs4.stat(path6, function onstat(err, stat) {
-        if (err && err.code === "ENOENT" && !extname(path6) && path6[path6.length - 1] !== sep2) {
+      debug('stat "%s"', path7);
+      fs5.stat(path7, function onstat(err, stat) {
+        if (err && err.code === "ENOENT" && !extname(path7) && path7[path7.length - 1] !== sep2) {
           return next(err);
         }
         if (err) return self2.onStatError(err);
-        if (stat.isDirectory()) return self2.redirect(path6);
-        self2.emit("file", path6, stat);
-        self2.send(path6, stat);
+        if (stat.isDirectory()) return self2.redirect(path7);
+        self2.emit("file", path7, stat);
+        self2.send(path7, stat);
       });
       function next(err) {
         if (self2._extensions.length <= i5) {
           return err ? self2.onStatError(err) : self2.error(404);
         }
-        var p3 = path6 + "." + self2._extensions[i5++];
+        var p3 = path7 + "." + self2._extensions[i5++];
         debug('stat "%s"', p3);
-        fs4.stat(p3, function(err2, stat) {
+        fs5.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -20697,7 +20697,7 @@ var require_send = __commonJS({
         });
       }
     };
-    SendStream.prototype.sendIndex = function sendIndex(path6) {
+    SendStream.prototype.sendIndex = function sendIndex(path7) {
       var i5 = -1;
       var self2 = this;
       function next(err) {
@@ -20705,9 +20705,9 @@ var require_send = __commonJS({
           if (err) return self2.onStatError(err);
           return self2.error(404);
         }
-        var p3 = join5(path6, self2._index[i5]);
+        var p3 = join5(path7, self2._index[i5]);
         debug('stat "%s"', p3);
-        fs4.stat(p3, function(err2, stat) {
+        fs5.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -20716,10 +20716,10 @@ var require_send = __commonJS({
       }
       next();
     };
-    SendStream.prototype.stream = function stream(path6, options) {
+    SendStream.prototype.stream = function stream(path7, options) {
       var self2 = this;
       var res = this.res;
-      var stream2 = fs4.createReadStream(path6, options);
+      var stream2 = fs5.createReadStream(path7, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -20734,10 +20734,10 @@ var require_send = __commonJS({
         self2.emit("end");
       });
     };
-    SendStream.prototype.type = function type(path6) {
+    SendStream.prototype.type = function type(path7) {
       var res = this.res;
       if (res.getHeader("Content-Type")) return;
-      var type2 = mime.lookup(path6);
+      var type2 = mime.lookup(path7);
       if (!type2) {
         debug("no content-type");
         return;
@@ -20746,9 +20746,9 @@ var require_send = __commonJS({
       debug("content-type %s", type2);
       res.setHeader("Content-Type", type2 + (charset ? "; charset=" + charset : ""));
     };
-    SendStream.prototype.setHeader = function setHeader(path6, stat) {
+    SendStream.prototype.setHeader = function setHeader(path7, stat) {
       var res = this.res;
-      this.emit("headers", res, path6, stat);
+      this.emit("headers", res, path7, stat);
       if (this._acceptRanges && !res.getHeader("Accept-Ranges")) {
         debug("accept ranges");
         res.setHeader("Accept-Ranges", "bytes");
@@ -20807,9 +20807,9 @@ var require_send = __commonJS({
       }
       return err instanceof Error ? createError(status, err, { expose: false }) : createError(status, err);
     }
-    function decode(path6) {
+    function decode(path7) {
       try {
-        return decodeURIComponent(path6);
+        return decodeURIComponent(path7);
       } catch (err) {
         return -1;
       }
@@ -21734,10 +21734,10 @@ var require_utils3 = __commonJS({
     var querystring = __require("querystring");
     exports.etag = createETagGenerator({ weak: false });
     exports.wetag = createETagGenerator({ weak: true });
-    exports.isAbsolute = function(path5) {
-      if ("/" === path5[0]) return true;
-      if (":" === path5[1] && ("\\" === path5[2] || "/" === path5[2])) return true;
-      if ("\\\\" === path5.substring(0, 2)) return true;
+    exports.isAbsolute = function(path6) {
+      if ("/" === path6[0]) return true;
+      if (":" === path6[1] && ("\\" === path6[2] || "/" === path6[2])) return true;
+      if ("\\\\" === path6.substring(0, 2)) return true;
     };
     exports.flatten = deprecate.function(
       flatten,
@@ -21949,7 +21949,7 @@ var require_application = __commonJS({
     };
     app2.use = function use(fn) {
       var offset = 0;
-      var path5 = "/";
+      var path6 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -21957,7 +21957,7 @@ var require_application = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path5 = fn;
+          path6 = fn;
         }
       }
       var fns = flatten(slice.call(arguments, offset));
@@ -21968,12 +21968,12 @@ var require_application = __commonJS({
       var router22 = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router22.use(path5, fn2);
+          return router22.use(path6, fn2);
         }
-        debug(".use app under %s", path5);
-        fn2.mountpath = path5;
+        debug(".use app under %s", path6);
+        fn2.mountpath = path6;
         fn2.parent = this;
-        router22.use(path5, function mounted_app(req, res, next) {
+        router22.use(path6, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -21985,9 +21985,9 @@ var require_application = __commonJS({
       }, this);
       return this;
     };
-    app2.route = function route(path5) {
+    app2.route = function route(path6) {
       this.lazyrouter();
-      return this._router.route(path5);
+      return this._router.route(path6);
     };
     app2.engine = function engine(ext, fn) {
       if (typeof fn !== "function") {
@@ -22038,7 +22038,7 @@ var require_application = __commonJS({
       }
       return this;
     };
-    app2.path = function path5() {
+    app2.path = function path6() {
       return this.parent ? this.parent.path() + this.mountpath : "";
     };
     app2.enabled = function enabled(setting) {
@@ -22054,19 +22054,19 @@ var require_application = __commonJS({
       return this.set(setting, false);
     };
     methods.forEach(function(method) {
-      app2[method] = function(path5) {
+      app2[method] = function(path6) {
         if (method === "get" && arguments.length === 1) {
-          return this.set(path5);
+          return this.set(path6);
         }
         this.lazyrouter();
-        var route = this._router.route(path5);
+        var route = this._router.route(path6);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
     });
-    app2.all = function all(path5) {
+    app2.all = function all(path6) {
       this.lazyrouter();
-      var route = this._router.route(path5);
+      var route = this._router.route(path6);
       var args = slice.call(arguments, 1);
       for (var i5 = 0; i5 < methods.length; i5++) {
         route[methods[i5]].apply(route, args);
@@ -22825,7 +22825,7 @@ var require_request = __commonJS({
       var subdomains2 = !isIP2(hostname) ? hostname.split(".").reverse() : [hostname];
       return subdomains2.slice(offset);
     });
-    defineGetter(req, "path", function path5() {
+    defineGetter(req, "path", function path6() {
       return parse2(this).pathname;
     });
     defineGetter(req, "hostname", function hostname() {
@@ -23147,7 +23147,7 @@ var require_response = __commonJS({
     var http = __require("http");
     var isAbsolute = require_utils3().isAbsolute;
     var onFinished = require_on_finished();
-    var path5 = __require("path");
+    var path6 = __require("path");
     var statuses = require_statuses();
     var merge2 = require_utils_merge();
     var sign3 = require_cookie_signature().sign;
@@ -23156,9 +23156,9 @@ var require_response = __commonJS({
     var setCharset = require_utils3().setCharset;
     var cookie = require_cookie();
     var send = require_send();
-    var extname = path5.extname;
+    var extname = path6.extname;
     var mime = send.mime;
-    var resolve = path5.resolve;
+    var resolve = path6.resolve;
     var vary = require_vary();
     var res = Object.create(http.ServerResponse.prototype);
     module.exports = res;
@@ -23335,26 +23335,26 @@ var require_response = __commonJS({
       this.type("txt");
       return this.send(body);
     };
-    res.sendFile = function sendFile(path6, options, callback) {
+    res.sendFile = function sendFile(path7, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
       var next = req.next;
       var opts = options || {};
-      if (!path6) {
+      if (!path7) {
         throw new TypeError("path argument is required to res.sendFile");
       }
-      if (typeof path6 !== "string") {
+      if (typeof path7 !== "string") {
         throw new TypeError("path must be a string to res.sendFile");
       }
       if (typeof options === "function") {
         done = options;
         opts = {};
       }
-      if (!opts.root && !isAbsolute(path6)) {
+      if (!opts.root && !isAbsolute(path7)) {
         throw new TypeError("path must be absolute or specify root to res.sendFile");
       }
-      var pathname = encodeURI(path6);
+      var pathname = encodeURI(path7);
       var file = send(req, pathname, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
@@ -23364,7 +23364,7 @@ var require_response = __commonJS({
         }
       });
     };
-    res.sendfile = function(path6, options, callback) {
+    res.sendfile = function(path7, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
@@ -23374,7 +23374,7 @@ var require_response = __commonJS({
         done = options;
         opts = {};
       }
-      var file = send(req, path6, opts);
+      var file = send(req, path7, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
         if (err && err.code === "EISDIR") return next();
@@ -23387,7 +23387,7 @@ var require_response = __commonJS({
       res.sendfile,
       "res.sendfile: Use res.sendFile instead"
     );
-    res.download = function download(path6, filename, options, callback) {
+    res.download = function download(path7, filename, options, callback) {
       var done = callback;
       var name = filename;
       var opts = options || null;
@@ -23404,7 +23404,7 @@ var require_response = __commonJS({
         opts = filename;
       }
       var headers = {
-        "Content-Disposition": contentDisposition(name || path6)
+        "Content-Disposition": contentDisposition(name || path7)
       };
       if (opts && opts.headers) {
         var keys = Object.keys(opts.headers);
@@ -23417,7 +23417,7 @@ var require_response = __commonJS({
       }
       opts = Object.create(opts);
       opts.headers = headers;
-      var fullPath = !opts.root ? resolve(path6) : path6;
+      var fullPath = !opts.root ? resolve(path7) : path7;
       return this.sendFile(fullPath, opts, done);
     };
     res.contentType = res.type = function contentType(type) {
@@ -23718,11 +23718,11 @@ var require_serve_static = __commonJS({
         }
         var forwardError = !fallthrough;
         var originalUrl = parseUrl2.original(req);
-        var path5 = parseUrl2(req).pathname;
-        if (path5 === "/" && originalUrl.pathname.substr(-1) !== "/") {
-          path5 = "";
+        var path6 = parseUrl2(req).pathname;
+        if (path6 === "/" && originalUrl.pathname.substr(-1) !== "/") {
+          path6 = "";
         }
-        var stream = send(req, path5, opts);
+        var stream = send(req, path6, opts);
         stream.on("directory", onDirectory);
         if (setHeaders) {
           stream.on("headers", setHeaders);
@@ -24299,8 +24299,8 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs4 = __require("fs");
-    var path5 = __require("path");
+    var fs5 = __require("fs");
+    var path6 = __require("path");
     var os = __require("os");
     var crypto6 = __require("crypto");
     var packageJson = require_package();
@@ -24408,7 +24408,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs4.existsSync(filepath)) {
+            if (fs5.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -24416,15 +24416,15 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path5.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path6.resolve(process.cwd(), ".env.vault");
       }
-      if (fs4.existsSync(possibleVaultPath)) {
+      if (fs5.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path5.join(os.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path6.join(os.homedir(), envPath.slice(1)) : envPath;
     }
     function _configVault(options) {
       const debug = Boolean(options && options.debug);
@@ -24441,7 +24441,7 @@ var require_main = __commonJS({
       return { parsed: parsed2 };
     }
     function configDotenv(options) {
-      const dotenvPath = path5.resolve(process.cwd(), ".env");
+      const dotenvPath = path6.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -24465,13 +24465,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path6 of optionPaths) {
+      for (const path7 of optionPaths) {
         try {
-          const parsed2 = DotenvModule.parse(fs4.readFileSync(path6, { encoding }));
+          const parsed2 = DotenvModule.parse(fs5.readFileSync(path7, { encoding }));
           DotenvModule.populate(parsedAll, parsed2, options);
         } catch (e5) {
           if (debug) {
-            _debug(`Failed to load ${path6} ${e5.message}`);
+            _debug(`Failed to load ${path7} ${e5.message}`);
           }
           lastError = e5;
         }
@@ -24486,7 +24486,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path5.relative(process.cwd(), filePath);
+            const relative = path6.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e5) {
             if (debug) {
@@ -24998,8 +24998,8 @@ var init_parseUtil = __esm({
     init_errors();
     init_en();
     makeIssue = (params) => {
-      const { data, path: path5, errorMaps, issueData } = params;
-      const fullPath = [...path5, ...issueData.path || []];
+      const { data, path: path6, errorMaps, issueData } = params;
+      const fullPath = [...path6, ...issueData.path || []];
       const fullIssue = {
         ...issueData,
         path: fullPath
@@ -25307,11 +25307,11 @@ var init_types = __esm({
     init_parseUtil();
     init_util();
     ParseInputLazyPath = class {
-      constructor(parent, value, path5, key) {
+      constructor(parent, value, path6, key) {
         this._cachedPath = [];
         this.parent = parent;
         this.data = value;
-        this._path = path5;
+        this._path = path6;
         this._key = key;
       }
       get path() {
@@ -35175,9 +35175,9 @@ var require_event_target = __commonJS({
        *     the listener would be automatically removed when invoked.
        * @public
        */
-      addEventListener(type, handler, options = {}) {
+      addEventListener(type, handler2, options = {}) {
         for (const listener of this.listeners(type)) {
-          if (!options[kForOnEventAttribute] && listener[kListener] === handler && !listener[kForOnEventAttribute]) {
+          if (!options[kForOnEventAttribute] && listener[kListener] === handler2 && !listener[kForOnEventAttribute]) {
             return;
           }
         }
@@ -35188,7 +35188,7 @@ var require_event_target = __commonJS({
               data: isBinary ? data : data.toString()
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "close") {
           wrapper = function onClose(code, message) {
@@ -35198,7 +35198,7 @@ var require_event_target = __commonJS({
               wasClean: this._closeFrameReceived && this._closeFrameSent
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "error") {
           wrapper = function onError(error2) {
@@ -35207,19 +35207,19 @@ var require_event_target = __commonJS({
               message: error2.message
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "open") {
           wrapper = function onOpen() {
             const event = new Event("open");
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else {
           return;
         }
         wrapper[kForOnEventAttribute] = !!options[kForOnEventAttribute];
-        wrapper[kListener] = handler;
+        wrapper[kListener] = handler2;
         if (options.once) {
           this.once(type, wrapper);
         } else {
@@ -35233,9 +35233,9 @@ var require_event_target = __commonJS({
        * @param {(Function|Object)} handler The listener to remove
        * @public
        */
-      removeEventListener(type, handler) {
+      removeEventListener(type, handler2) {
         for (const listener of this.listeners(type)) {
-          if (listener[kListener] === handler && !listener[kForOnEventAttribute]) {
+          if (listener[kListener] === handler2 && !listener[kForOnEventAttribute]) {
             this.removeListener(type, listener);
             break;
           }
@@ -35876,15 +35876,15 @@ var require_websocket = __commonJS({
           }
           return null;
         },
-        set(handler) {
+        set(handler2) {
           for (const listener of this.listeners(method)) {
             if (listener[kForOnEventAttribute]) {
               this.removeListener(method, listener);
               break;
             }
           }
-          if (typeof handler !== "function") return;
-          this.addEventListener(method, handler, {
+          if (typeof handler2 !== "function") return;
+          this.addEventListener(method, handler2, {
             [kForOnEventAttribute]: true
           });
         }
@@ -37225,19 +37225,19 @@ var require_utils4 = __commonJS({
       if (decode)
         return decode(data, hint);
     }
-    function basename(path5) {
-      if (typeof path5 !== "string")
+    function basename(path6) {
+      if (typeof path6 !== "string")
         return "";
-      for (let i5 = path5.length - 1; i5 >= 0; --i5) {
-        switch (path5.charCodeAt(i5)) {
+      for (let i5 = path6.length - 1; i5 >= 0; --i5) {
+        switch (path6.charCodeAt(i5)) {
           case 47:
           // '/'
           case 92:
-            path5 = path5.slice(i5 + 1);
-            return path5 === ".." || path5 === "." ? "" : path5;
+            path6 = path6.slice(i5 + 1);
+            return path6 === ".." || path6 === "." ? "" : path6;
         }
       }
-      return path5 === ".." || path5 === "." ? "" : path5;
+      return path6 === ".." || path6 === "." ? "" : path6;
     }
     var TOKEN = [
       0,
@@ -41039,8 +41039,8 @@ var require_make_middleware = __commonJS({
 // node_modules/mkdirp/index.js
 var require_mkdirp = __commonJS({
   "node_modules/mkdirp/index.js"(exports, module) {
-    var path5 = __require("path");
-    var fs4 = __require("fs");
+    var path6 = __require("path");
+    var fs5 = __require("fs");
     var _0777 = parseInt("0777", 8);
     module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
     function mkdirP(p3, opts, f5, made) {
@@ -41051,7 +41051,7 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs4;
+      var xfs = opts.fs || fs5;
       if (mode === void 0) {
         mode = _0777;
       }
@@ -41059,7 +41059,7 @@ var require_mkdirp = __commonJS({
       var cb = f5 || /* istanbul ignore next */
       function() {
       };
-      p3 = path5.resolve(p3);
+      p3 = path6.resolve(p3);
       xfs.mkdir(p3, mode, function(er) {
         if (!er) {
           made = made || p3;
@@ -41067,8 +41067,8 @@ var require_mkdirp = __commonJS({
         }
         switch (er.code) {
           case "ENOENT":
-            if (path5.dirname(p3) === p3) return cb(er);
-            mkdirP(path5.dirname(p3), opts, function(er2, made2) {
+            if (path6.dirname(p3) === p3) return cb(er);
+            mkdirP(path6.dirname(p3), opts, function(er2, made2) {
               if (er2) cb(er2, made2);
               else mkdirP(p3, opts, cb, made2);
             });
@@ -41090,19 +41090,19 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs4;
+      var xfs = opts.fs || fs5;
       if (mode === void 0) {
         mode = _0777;
       }
       if (!made) made = null;
-      p3 = path5.resolve(p3);
+      p3 = path6.resolve(p3);
       try {
         xfs.mkdirSync(p3, mode);
         made = made || p3;
       } catch (err0) {
         switch (err0.code) {
           case "ENOENT":
-            made = sync(path5.dirname(p3), opts, made);
+            made = sync(path6.dirname(p3), opts, made);
             sync(p3, opts, made);
             break;
           // In the case of any other error, just see if there's a dir
@@ -41127,9 +41127,9 @@ var require_mkdirp = __commonJS({
 // node_modules/multer/storage/disk.js
 var require_disk = __commonJS({
   "node_modules/multer/storage/disk.js"(exports, module) {
-    var fs4 = __require("fs");
+    var fs5 = __require("fs");
     var os = __require("os");
-    var path5 = __require("path");
+    var path6 = __require("path");
     var crypto6 = __require("crypto");
     var mkdirp = require_mkdirp();
     function getFilename(req, file, cb) {
@@ -41157,8 +41157,8 @@ var require_disk = __commonJS({
         if (err) return cb(err);
         that.getFilename(req, file, function(err2, filename) {
           if (err2) return cb(err2);
-          var finalPath = path5.join(destination, filename);
-          var outStream = fs4.createWriteStream(finalPath);
+          var finalPath = path6.join(destination, filename);
+          var outStream = fs5.createWriteStream(finalPath);
           file.stream.pipe(outStream);
           outStream.on("error", cb);
           outStream.on("finish", function() {
@@ -41173,11 +41173,11 @@ var require_disk = __commonJS({
       });
     };
     DiskStorage.prototype._removeFile = function _removeFile(req, file, cb) {
-      var path6 = file.path;
+      var path7 = file.path;
       delete file.destination;
       delete file.filename;
       delete file.path;
-      fs4.unlink(path6, cb);
+      fs5.unlink(path7, cb);
     };
     module.exports = function(opts) {
       return new DiskStorage(opts);
@@ -44395,14 +44395,14 @@ var init_MiddlewareStack = __esm({
             identifyOnResolve = toggle;
           return identifyOnResolve;
         },
-        resolve: (handler, context) => {
+        resolve: (handler2, context) => {
           for (const middleware of getMiddlewareList().map((entry) => entry.middleware).reverse()) {
-            handler = middleware(handler, context);
+            handler2 = middleware(handler2, context);
           }
           if (identifyOnResolve) {
             console.log(stack.identify());
           }
-          return handler;
+          return handler2;
         }
       };
       return stack;
@@ -45033,27 +45033,27 @@ var init_client = __esm({
         const options = typeof optionsOrCb !== "function" ? optionsOrCb : void 0;
         const callback = typeof optionsOrCb === "function" ? optionsOrCb : cb;
         const useHandlerCache = options === void 0 && this.config.cacheMiddleware === true;
-        let handler;
+        let handler2;
         if (useHandlerCache) {
           if (!this.handlers) {
             this.handlers = /* @__PURE__ */ new WeakMap();
           }
           const handlers = this.handlers;
           if (handlers.has(command5.constructor)) {
-            handler = handlers.get(command5.constructor);
+            handler2 = handlers.get(command5.constructor);
           } else {
-            handler = command5.resolveMiddleware(this.middlewareStack, this.config, options);
-            handlers.set(command5.constructor, handler);
+            handler2 = command5.resolveMiddleware(this.middlewareStack, this.config, options);
+            handlers.set(command5.constructor, handler2);
           }
         } else {
           delete this.handlers;
-          handler = command5.resolveMiddleware(this.middlewareStack, this.config, options);
+          handler2 = command5.resolveMiddleware(this.middlewareStack, this.config, options);
         }
         if (callback) {
-          handler(command5).then((result) => callback(null, result.output), (err) => callback(err)).catch(() => {
+          handler2(command5).then((result) => callback(null, result.output), (err) => callback(err)).catch(() => {
           });
         } else {
-          return handler(command5).then((result) => result.output);
+          return handler2(command5).then((result) => result.output);
         }
       }
       destroy() {
@@ -48013,14 +48013,14 @@ var init_readFile = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/readFile.js"() {
     filePromises = {};
     fileIntercept = {};
-    readFile2 = (path5, options) => {
-      if (fileIntercept[path5] !== void 0) {
-        return fileIntercept[path5];
+    readFile2 = (path6, options) => {
+      if (fileIntercept[path6] !== void 0) {
+        return fileIntercept[path6];
       }
-      if (!filePromises[path5] || options?.ignoreCache) {
-        filePromises[path5] = fsReadFile(path5, "utf8");
+      if (!filePromises[path6] || options?.ignoreCache) {
+        filePromises[path6] = fsReadFile(path6, "utf8");
       }
-      return filePromises[path5];
+      return filePromises[path6];
     };
   }
 });
@@ -48132,8 +48132,8 @@ var init_externalDataInterceptor = __esm({
       getFileRecord() {
         return fileIntercept;
       },
-      interceptFile(path5, contents) {
-        fileIntercept[path5] = Promise.resolve(contents);
+      interceptFile(path6, contents) {
+        fileIntercept[path6] = Promise.resolve(contents);
       },
       getTokenRecord() {
         return tokenIntercept;
@@ -48931,8 +48931,8 @@ var init_createConfigValueProvider = __esm({
               return endpoint.url.href;
             }
             if ("hostname" in endpoint) {
-              const { protocol, hostname, port, path: path5 } = endpoint;
-              return `${protocol}//${hostname}${port ? ":" + port : ""}${path5}`;
+              const { protocol, hostname, port, path: path6 } = endpoint;
+              return `${protocol}//${hostname}${port ? ":" + port : ""}${path6}`;
             }
           }
           return endpoint;
@@ -49307,18 +49307,18 @@ var getAttrPathList;
 var init_getAttrPathList = __esm({
   "node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/lib/getAttrPathList.js"() {
     init_types3();
-    getAttrPathList = (path5) => {
-      const parts = path5.split(".");
+    getAttrPathList = (path6) => {
+      const parts = path6.split(".");
       const pathList = [];
       for (const part of parts) {
         const squareBracketIndex = part.indexOf("[");
         if (squareBracketIndex !== -1) {
           if (part.indexOf("]") !== part.length - 1) {
-            throw new EndpointError(`Path: '${path5}' does not end with ']'`);
+            throw new EndpointError(`Path: '${path6}' does not end with ']'`);
           }
           const arrayIndex = part.slice(squareBracketIndex + 1, -1);
           if (Number.isNaN(parseInt(arrayIndex))) {
-            throw new EndpointError(`Invalid array index: '${arrayIndex}' in path: '${path5}'`);
+            throw new EndpointError(`Invalid array index: '${arrayIndex}' in path: '${path6}'`);
           }
           if (squareBracketIndex !== 0) {
             pathList.push(part.slice(0, squareBracketIndex));
@@ -49339,9 +49339,9 @@ var init_getAttr = __esm({
   "node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/lib/getAttr.js"() {
     init_types3();
     init_getAttrPathList();
-    getAttr = (value, path5) => getAttrPathList(path5).reduce((acc, index) => {
+    getAttr = (value, path6) => getAttrPathList(path6).reduce((acc, index) => {
       if (typeof acc !== "object") {
-        throw new EndpointError(`Index '${index}' in '${path5}' not found in '${JSON.stringify(value)}'`);
+        throw new EndpointError(`Index '${index}' in '${path6}' not found in '${JSON.stringify(value)}'`);
       } else if (Array.isArray(acc)) {
         const i5 = parseInt(index);
         return acc[i5 < 0 ? acc.length + i5 : i5];
@@ -49402,8 +49402,8 @@ var init_parseURL = __esm({
             return value;
           }
           if (typeof value === "object" && "hostname" in value) {
-            const { hostname: hostname2, port, protocol: protocol2 = "", path: path5 = "", query = {} } = value;
-            const url = new URL(`${protocol2}//${hostname2}${port ? `:${port}` : ""}${path5}`);
+            const { hostname: hostname2, port, protocol: protocol2 = "", path: path6 = "", query = {} } = value;
+            const url = new URL(`${protocol2}//${hostname2}${port ? `:${port}` : ""}${path6}`);
             url.search = Object.entries(query).map(([k5, v]) => `${k5}=${v}`).join("&");
             return url;
           }
@@ -53044,11 +53044,11 @@ var init_HttpBindingProtocol = __esm({
           const opTraits = translateTraits(operationSchema.traits);
           if (opTraits.http) {
             request.method = opTraits.http[0];
-            const [path5, search] = opTraits.http[1].split("?");
+            const [path6, search] = opTraits.http[1].split("?");
             if (request.path == "/") {
-              request.path = path5;
+              request.path = path6;
             } else {
-              request.path += path5;
+              request.path += path6;
             }
             const traitSearchParams = new URLSearchParams(search ?? "");
             for (const [key, value] of traitSearchParams) {
@@ -53459,8 +53459,8 @@ var init_requestBuilder = __esm({
         return this;
       }
       p(memberName, labelValueProvider, uriLabel, isGreedyLabel) {
-        this.resolvePathStack.push((path5) => {
-          this.path = resolvedPath(path5, this.input, memberName, labelValueProvider, uriLabel, isGreedyLabel);
+        this.resolvePathStack.push((path6) => {
+          this.path = resolvedPath(path6, this.input, memberName, labelValueProvider, uriLabel, isGreedyLabel);
         });
         return this;
       }
@@ -53824,8 +53824,8 @@ var init_httpExtensionConfiguration = __esm({
         runtimeConfig.requestHandler?.updateHttpClientConfig?.(/* @__PURE__ */ Symbol.for("logger"), runtimeConfig.logger);
       }
       return {
-        setHttpHandler(handler) {
-          runtimeConfig.requestHandler = handler;
+        setHttpHandler(handler2) {
+          runtimeConfig.requestHandler = handler2;
         },
         httpHandler() {
           return runtimeConfig.requestHandler;
@@ -55577,9 +55577,9 @@ var init_createPaginator = __esm({
       command5 = withCommand(command5) ?? command5;
       return await client.send(command5, ...args);
     };
-    get = (fromObject, path5) => {
+    get = (fromObject, path6) => {
       let cursor = fromObject;
-      const pathComponents = path5.split(".");
+      const pathComponents = path6.split(".");
       for (const step of pathComponents) {
         if (!cursor || typeof cursor !== "object") {
           return void 0;
@@ -58838,10 +58838,10 @@ ${longDate}
 ${credentialScope}
 ${toHex2(hashedRequest)}`;
       }
-      getCanonicalPath({ path: path5 }) {
+      getCanonicalPath({ path: path6 }) {
         if (this.uriEscapePath) {
           const normalizedPathSegments = [];
-          for (const pathSegment of path5.split("/")) {
+          for (const pathSegment of path6.split("/")) {
             if (pathSegment?.length === 0)
               continue;
             if (pathSegment === ".")
@@ -58852,11 +58852,11 @@ ${toHex2(hashedRequest)}`;
               normalizedPathSegments.push(pathSegment);
             }
           }
-          const normalizedPath = `${path5?.startsWith("/") ? "/" : ""}${normalizedPathSegments.join("/")}${normalizedPathSegments.length > 0 && path5?.endsWith("/") ? "/" : ""}`;
+          const normalizedPath = `${path6?.startsWith("/") ? "/" : ""}${normalizedPathSegments.join("/")}${normalizedPathSegments.length > 0 && path6?.endsWith("/") ? "/" : ""}`;
           const doubleEncoded = escapeUri2(normalizedPath);
           return doubleEncoded.replace(/%2F/g, "/");
         }
-        return path5;
+        return path6;
       }
       validateResolvedCredentials(credentials) {
         if (typeof credentials !== "object" || typeof credentials.accessKeyId !== "string" || typeof credentials.secretAccessKey !== "string") {
@@ -59511,15 +59511,15 @@ var init_arn = __esm({
 // node_modules/@aws-sdk/core/dist-es/submodules/util/util-format-url/format-url.js
 function formatUrl(request) {
   const { port, query } = request;
-  let { protocol, path: path5, hostname } = request;
+  let { protocol, path: path6, hostname } = request;
   if (protocol && protocol.slice(-1) !== ":") {
     protocol += ":";
   }
   if (port) {
     hostname += `:${port}`;
   }
-  if (path5 && path5.charAt(0) !== "/") {
-    path5 = `/${path5}`;
+  if (path6 && path6.charAt(0) !== "/") {
+    path6 = `/${path6}`;
   }
   let queryString = query ? buildQueryString(query) : "";
   if (queryString && queryString[0] !== "?") {
@@ -59535,7 +59535,7 @@ function formatUrl(request) {
   if (request.fragment) {
     fragment = `#${request.fragment}`;
   }
-  return `${protocol}//${auth}${hostname}${path5}${queryString}${fragment}`;
+  return `${protocol}//${auth}${hostname}${path6}${queryString}${fragment}`;
 }
 var init_format_url = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/util/util-format-url/format-url.js"() {
@@ -64094,12 +64094,12 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             const password = request.password ?? "";
             auth = `${username}:${password}`;
           }
-          let path5 = request.path;
+          let path6 = request.path;
           if (queryString) {
-            path5 += `?${queryString}`;
+            path6 += `?${queryString}`;
           }
           if (request.fragment) {
-            path5 += `#${request.fragment}`;
+            path6 += `#${request.fragment}`;
           }
           let hostname = request.hostname ?? "";
           if (hostname[0] === "[" && hostname.endsWith("]")) {
@@ -64111,7 +64111,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             headers: request.headers,
             host: hostname,
             method: request.method,
-            path: path5,
+            path: path6,
             port: request.port,
             agent,
             auth
@@ -64519,16 +64519,16 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             reject(err);
           };
           const queryString = query ? buildQueryString2(query) : "";
-          let path5 = request.path;
+          let path6 = request.path;
           if (queryString) {
-            path5 += `?${queryString}`;
+            path6 += `?${queryString}`;
           }
           if (request.fragment) {
-            path5 += `#${request.fragment}`;
+            path6 += `#${request.fragment}`;
           }
           const clientHttp2Stream = session.request({
             ...request.headers,
-            [constants.HTTP2_HEADER_PATH]: path5,
+            [constants.HTTP2_HEADER_PATH]: path6,
             [constants.HTTP2_HEADER_METHOD]: method
           });
           if (effectiveRequestTimeout) {
@@ -64617,7 +64617,7 @@ var require_dist_cjs8 = __commonJS({
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2 } = (init_config2(), __toCommonJS(config_exports));
     var { NodeHttpHandler } = require_dist_cjs7();
-    var fs4 = __require("node:fs/promises");
+    var fs5 = __require("node:fs/promises");
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var { sdkStreamMixin: sdkStreamMixin3, parseRfc3339DateTime: parseRfc3339DateTime2 } = (init_serde(), __toCommonJS(serde_exports));
     var ECS_CONTAINER_HOST = "169.254.170.2";
@@ -64741,7 +64741,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       const provider = retryWrapper(async () => {
         const request = createGetRequest(url);
         if (tokenFile) {
-          request.headers.Authorization = validateToken((await fs4.readFile(tokenFile)).toString());
+          request.headers.Authorization = validateToken((await fs5.readFile(tokenFile)).toString());
         } else if (token) {
           request.headers.Authorization = validateToken(token);
         }
@@ -79890,8 +79890,8 @@ var require_dist_cjs17 = __commonJS({
         toMiddleware: "awsAuthMiddleware",
         override: true
       });
-      const handler = command5.resolveMiddleware(clientStack, client.config, {});
-      const { output } = await handler({ input: command5.input });
+      const handler2 = command5.resolveMiddleware(clientStack, client.config, {});
+      const { output } = await handler2({ input: command5.input });
       const { presigned } = output;
       return formatUrl2(presigned);
     };
@@ -93200,10 +93200,695 @@ app.get("/health", (req, res) => {
 app.use("/api/v1", routes_default);
 app.use(errorHandler);
 
+// server/src/db/migrate.ts
+init_database();
+import fs4 from "fs";
+import path5 from "path";
+function runMigrations() {
+  const schemaPath = path5.resolve(process.cwd(), "server", "src", "db", "schema.sql");
+  const schemaSql = fs4.readFileSync(schemaPath, "utf8");
+  const db = Database.getDB();
+  db.exec(schemaSql);
+  try {
+    const cols = db.prepare(`PRAGMA table_info(orders)`).all();
+    const colNames = cols.map((c5) => c5.name);
+    if (!colNames.includes("notes")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
+    }
+    if (!colNames.includes("phonepe_transaction_id")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN phonepe_transaction_id TEXT DEFAULT ''`);
+    }
+    if (!colNames.includes("cancellation_reason")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN cancellation_reason TEXT DEFAULT ''`);
+    }
+    if (!colNames.includes("refund_amount")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN refund_amount REAL DEFAULT 0`);
+    }
+    if (!colNames.includes("dispute_status")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN dispute_status TEXT DEFAULT 'none'`);
+    }
+    if (!colNames.includes("delivery_otp")) {
+      db.exec(`ALTER TABLE orders ADD COLUMN delivery_otp TEXT DEFAULT '1234'`);
+    }
+    const prodCols = db.prepare(`PRAGMA table_info(products)`).all();
+    const prodColNames = prodCols.map((c5) => c5.name);
+    if (!prodColNames.includes("wholesale_price")) {
+      db.exec(`ALTER TABLE products ADD COLUMN wholesale_price REAL DEFAULT NULL`);
+    }
+    if (!prodColNames.includes("moq")) {
+      db.exec(`ALTER TABLE products ADD COLUMN moq REAL DEFAULT 1`);
+    }
+    if (!prodColNames.includes("stock_alert_threshold")) {
+      db.exec(`ALTER TABLE products ADD COLUMN stock_alert_threshold REAL DEFAULT 5`);
+    }
+    if (!prodColNames.includes("total_quantity")) {
+      db.exec(`ALTER TABLE products ADD COLUMN total_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes("reserved_quantity")) {
+      db.exec(`ALTER TABLE products ADD COLUMN reserved_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes("sold_quantity")) {
+      db.exec(`ALTER TABLE products ADD COLUMN sold_quantity REAL DEFAULT 0`);
+    }
+    if (!prodColNames.includes("min_order_quantity")) {
+      db.exec(`ALTER TABLE products ADD COLUMN min_order_quantity REAL DEFAULT 1`);
+    }
+    if (!prodColNames.includes("is_negotiable")) {
+      db.exec(`ALTER TABLE products ADD COLUMN is_negotiable INTEGER DEFAULT 1`);
+    }
+    if (!prodColNames.includes("stock_status")) {
+      db.exec(`ALTER TABLE products ADD COLUMN stock_status TEXT DEFAULT 'available'`);
+    }
+    if (!prodColNames.includes("product_grade")) {
+      db.exec(`ALTER TABLE products ADD COLUMN product_grade TEXT DEFAULT 'Grade A'`);
+    }
+    if (!prodColNames.includes("quality_description")) {
+      db.exec(`ALTER TABLE products ADD COLUMN quality_description TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("organic_certification_body")) {
+      db.exec(`ALTER TABLE products ADD COLUMN organic_certification_body TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("storage_info")) {
+      db.exec(`ALTER TABLE products ADD COLUMN storage_info TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("packaging_info")) {
+      db.exec(`ALTER TABLE products ADD COLUMN packaging_info TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("village")) {
+      db.exec(`ALTER TABLE products ADD COLUMN village TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("district")) {
+      db.exec(`ALTER TABLE products ADD COLUMN district TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("state")) {
+      db.exec(`ALTER TABLE products ADD COLUMN state TEXT DEFAULT 'Uttarakhand'`);
+    }
+    if (!prodColNames.includes("postal_code")) {
+      db.exec(`ALTER TABLE products ADD COLUMN postal_code TEXT DEFAULT '248001'`);
+    }
+    if (!prodColNames.includes("farm_location_name")) {
+      db.exec(`ALTER TABLE products ADD COLUMN farm_location_name TEXT DEFAULT ''`);
+    }
+    if (!prodColNames.includes("pickup_available")) {
+      db.exec(`ALTER TABLE products ADD COLUMN pickup_available INTEGER DEFAULT 1`);
+    }
+    if (!prodColNames.includes("farmer_delivery_available")) {
+      db.exec(`ALTER TABLE products ADD COLUMN farmer_delivery_available INTEGER DEFAULT 1`);
+    }
+    try {
+      const prodSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='products'`).get();
+      if (prodSql && prodSql.sql && !prodSql.sql.includes("'paused'")) {
+        console.log("[Migration] Updating products table status constraint to include paused, sold, and expired...");
+        db.exec(`
+          PRAGMA foreign_keys=off;
+          CREATE TABLE products_new (
+            id TEXT PRIMARY KEY,
+            farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+            category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+            name TEXT NOT NULL,
+            slug TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            price REAL NOT NULL CHECK(price > 0),
+            unit TEXT NOT NULL,
+            available_quantity REAL NOT NULL CHECK(available_quantity >= 0),
+            total_quantity REAL DEFAULT 0,
+            reserved_quantity REAL DEFAULT 0,
+            sold_quantity REAL DEFAULT 0,
+            min_order_quantity REAL DEFAULT 1,
+            is_negotiable INTEGER DEFAULT 1,
+            stock_status TEXT DEFAULT 'available',
+            product_grade TEXT DEFAULT 'Grade A',
+            quality_description TEXT DEFAULT '',
+            organic_certification_body TEXT DEFAULT '',
+            storage_info TEXT DEFAULT '',
+            packaging_info TEXT DEFAULT '',
+            village TEXT DEFAULT '',
+            district TEXT DEFAULT '',
+            state TEXT DEFAULT 'Uttarakhand',
+            postal_code TEXT DEFAULT '248001',
+            farm_location_name TEXT DEFAULT '',
+            pickup_available INTEGER DEFAULT 1,
+            farmer_delivery_available INTEGER DEFAULT 1,
+            wholesale_price REAL DEFAULT NULL,
+            moq REAL DEFAULT 1,
+            stock_alert_threshold REAL DEFAULT 5,
+            is_organic INTEGER NOT NULL DEFAULT 0,
+            available_today INTEGER NOT NULL DEFAULT 1,
+            harvest_date TEXT,
+            freshness_tag TEXT,
+            location TEXT NOT NULL,
+            city TEXT NOT NULL DEFAULT 'Dehradun',
+            latitude REAL,
+            longitude REAL,
+            image TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'unavailable', 'draft', 'paused', 'sold', 'expired')),
+            moderation_status TEXT NOT NULL DEFAULT 'approved' CHECK(moderation_status IN ('approved', 'pending', 'flagged')),
+            views_count INTEGER NOT NULL DEFAULT 0,
+            likes_count INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+          );
+          INSERT INTO products_new (
+            id, farmer_id, category_id, name, slug, description, price, unit,
+            available_quantity, total_quantity, reserved_quantity, sold_quantity, min_order_quantity, is_negotiable,
+            stock_status, product_grade, quality_description, organic_certification_body, storage_info, packaging_info,
+            village, district, state, postal_code, farm_location_name, pickup_available, farmer_delivery_available,
+            wholesale_price, moq, stock_alert_threshold, is_organic, available_today, harvest_date, freshness_tag,
+            location, city, latitude, longitude, image, status, moderation_status, views_count, likes_count,
+            created_at, updated_at
+          ) SELECT
+            id, farmer_id, category_id, name, slug, description, price, unit,
+            available_quantity, total_quantity, reserved_quantity, sold_quantity, min_order_quantity, is_negotiable,
+            stock_status, product_grade, quality_description, organic_certification_body, storage_info, packaging_info,
+            village, district, state, postal_code, farm_location_name, pickup_available, farmer_delivery_available,
+            wholesale_price, moq, stock_alert_threshold, is_organic, available_today, harvest_date, freshness_tag,
+            location, city, latitude, longitude, image, status, moderation_status, views_count, likes_count,
+            created_at, updated_at
+          FROM products;
+          DROP TABLE products;
+          ALTER TABLE products_new RENAME TO products;
+          CREATE INDEX IF NOT EXISTS idx_products_farmer ON products(farmer_id);
+          CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+          CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+          CREATE INDEX IF NOT EXISTS idx_products_city ON products(city);
+          CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+          PRAGMA foreign_keys=on;
+        `);
+      }
+    } catch (e5) {
+      console.warn("[Migration] Notice on products constraint update:", e5.message);
+    }
+    try {
+      const notifSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='notifications'`).get();
+      if (notifSql && notifSql.sql && !notifSql.sql.includes("'offer'")) {
+        console.log("[Migration] Updating notifications table constraints for smart alerts and offers...");
+        db.exec(`
+          PRAGMA foreign_keys=off;
+          CREATE TABLE notifications_new (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            recipient_role TEXT NOT NULL CHECK(recipient_role IN ('customer', 'farmer', 'admin')),
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_read INTEGER NOT NULL DEFAULT 0,
+            read_at TEXT,
+            created_at TEXT NOT NULL
+          );
+          INSERT INTO notifications_new (id, user_id, recipient_role, type, title, message, is_read, read_at, created_at)
+          SELECT id, user_id, recipient_role, type, title, message, is_read, read_at, created_at FROM notifications;
+          DROP TABLE notifications;
+          ALTER TABLE notifications_new RENAME TO notifications;
+          CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+          CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(user_id, is_read);
+          PRAGMA foreign_keys=on;
+        `);
+      }
+    } catch (e5) {
+      console.warn("[Migration] Notice on notifications constraint update:", e5.message);
+    }
+    const reportCols = db.prepare(`PRAGMA table_info(reports)`).all();
+    const reportColNames = reportCols.map((c5) => c5.name);
+    if (!reportColNames.includes("order_id")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN order_id TEXT DEFAULT NULL`);
+    }
+    if (!reportColNames.includes("category")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN category TEXT DEFAULT 'general'`);
+    }
+    if (!reportColNames.includes("priority")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN priority TEXT DEFAULT 'medium'`);
+    }
+    if (!reportColNames.includes("assigned_admin_id")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN assigned_admin_id TEXT DEFAULT NULL`);
+    }
+    if (!reportColNames.includes("resolution_notes")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN resolution_notes TEXT DEFAULT ''`);
+    }
+    if (!reportColNames.includes("resolution_reason")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN resolution_reason TEXT DEFAULT ''`);
+    }
+    if (!reportColNames.includes("evidence_url")) {
+      db.exec(`ALTER TABLE reports ADD COLUMN evidence_url TEXT DEFAULT ''`);
+    }
+    const gbCols = db.prepare(`PRAGMA table_info(group_buys)`).all();
+    const gbColNames = gbCols.map((c5) => c5.name);
+    if (!gbColNames.includes("creator_id")) {
+      db.exec(`ALTER TABLE group_buys ADD COLUMN creator_id TEXT DEFAULT NULL`);
+    }
+    const spCols = db.prepare(`PRAGMA table_info(scheduled_procurements)`).all();
+    const spColNames = spCols.map((c5) => c5.name);
+    if (!spColNames.includes("last_executed_at")) {
+      db.exec(`ALTER TABLE scheduled_procurements ADD COLUMN last_executed_at TEXT DEFAULT NULL`);
+    }
+    const b2bCols = db.prepare(`PRAGMA table_info(b2b_profiles)`).all();
+    const b2bColNames = b2bCols.map((c5) => c5.name);
+    if (!b2bColNames.includes("verified_by")) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN verified_by TEXT DEFAULT NULL`);
+    }
+    if (!b2bColNames.includes("verified_at")) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN verified_at TEXT DEFAULT NULL`);
+    }
+    if (!b2bColNames.includes("rejection_reason")) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN rejection_reason TEXT DEFAULT ''`);
+    }
+    if (!b2bColNames.includes("status")) {
+      db.exec(`ALTER TABLE b2b_profiles ADD COLUMN status TEXT DEFAULT 'pending'`);
+    }
+    const dpCols = db.prepare(`PRAGMA table_info(delivery_partners)`).all();
+    const dpColNames = dpCols.map((c5) => c5.name);
+    if (!dpColNames.includes("speed_kmh")) {
+      db.exec(`ALTER TABLE delivery_partners ADD COLUMN speed_kmh REAL DEFAULT 0`);
+    }
+    if (!dpColNames.includes("heading_deg")) {
+      db.exec(`ALTER TABLE delivery_partners ADD COLUMN heading_deg REAL DEFAULT 0`);
+    }
+    const dtCols = db.prepare(`PRAGMA table_info(delivery_tasks)`).all();
+    const dtColNames = dtCols.map((c5) => c5.name);
+    if (!dtColNames.includes("estimated_delivery_time")) {
+      db.exec(`ALTER TABLE delivery_tasks ADD COLUMN estimated_delivery_time TEXT DEFAULT NULL`);
+    }
+  } catch (err) {
+    console.warn("[Migration] Notice on orders/products columns migration:", err.message);
+  }
+  try {
+    const wqSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='wholesale_quotations'`).get();
+    if (wqSql && wqSql.sql && (!wqSql.sql.includes("'counter_offered'") || !wqSql.sql.includes("'expired'"))) {
+      console.log("[Migration] Updating wholesale_quotations table constraint for counter_offered and expired...");
+      db.exec(`
+        PRAGMA foreign_keys=off;
+        CREATE TABLE wholesale_quotations_new (
+          id TEXT PRIMARY KEY,
+          quotation_number TEXT NOT NULL UNIQUE,
+          buyer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
+          product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+          requested_quantity REAL NOT NULL CHECK(requested_quantity > 0),
+          unit TEXT NOT NULL DEFAULT 'kg',
+          offered_price_per_unit REAL NOT NULL CHECK(offered_price_per_unit > 0),
+          farmer_counter_price REAL,
+          status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'countered', 'counter_offered', 'accepted', 'rejected', 'ordered', 'expired')),
+          notes TEXT DEFAULT '',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        INSERT INTO wholesale_quotations_new (
+          id, quotation_number, buyer_id, farmer_id, product_id,
+          requested_quantity, unit, offered_price_per_unit, farmer_counter_price,
+          status, notes, created_at, updated_at
+        ) SELECT 
+          id, quotation_number, buyer_id, farmer_id, product_id,
+          requested_quantity, unit, offered_price_per_unit, farmer_counter_price,
+          status, notes, created_at, updated_at
+        FROM wholesale_quotations;
+        DROP TABLE wholesale_quotations;
+        ALTER TABLE wholesale_quotations_new RENAME TO wholesale_quotations;
+        CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_buyer ON wholesale_quotations(buyer_id);
+        CREATE INDEX IF NOT EXISTS idx_wholesale_quotations_farmer ON wholesale_quotations(farmer_id);
+        PRAGMA foreign_keys=on;
+      `);
+      console.log("[Migration] wholesale_quotations table successfully updated with enhanced status constraints.");
+    }
+  } catch (err) {
+    console.warn("[Migration] Notice on wholesale_quotations CHECK constraint update:", err.message);
+  }
+  try {
+    const ordersSql = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='orders'`).get();
+    if (ordersSql && ordersSql.sql && (!ordersSql.sql.includes("'gpay'") || !ordersSql.sql.includes("'paytm')"))) {
+      console.log("[Migration] Updating orders table constraint for PhonePe, GPay, and Paytm...");
+      db.exec(`
+        PRAGMA foreign_keys=off;
+        CREATE TABLE orders_new (
+          id TEXT PRIMARY KEY,
+          order_number TEXT NOT NULL UNIQUE,
+          customer_id TEXT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+          farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE RESTRICT,
+          total_amount REAL NOT NULL CHECK(total_amount >= 0),
+          subtotal REAL NOT NULL CHECK(subtotal >= 0),
+          delivery_fee REAL NOT NULL DEFAULT 0 CHECK(delivery_fee >= 0),
+          farmer_tip REAL NOT NULL DEFAULT 0 CHECK(farmer_tip >= 0),
+          delivery_address TEXT NOT NULL,
+          city TEXT NOT NULL DEFAULT 'Dehradun',
+          postal_code TEXT DEFAULT '248001',
+          customer_phone TEXT NOT NULL,
+          customer_name TEXT NOT NULL,
+          farmer_name TEXT NOT NULL,
+          farm_name TEXT NOT NULL,
+          farmer_phone TEXT NOT NULL,
+          payment_method TEXT NOT NULL CHECK(payment_method IN ('upi', 'cod', 'card', 'wallet', 'phonepe', 'gpay', 'paytm')),
+          payment_status TEXT NOT NULL DEFAULT 'pending' CHECK(payment_status IN ('pending', 'paid', 'failed', 'refunded')),
+          order_status TEXT NOT NULL DEFAULT 'placed' CHECK(order_status IN ('placed', 'accepted', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'rejected', 'cancelled')),
+          estimated_delivery_time TEXT DEFAULT '40-50 mins',
+          delivery_mode TEXT DEFAULT 'farmer_direct',
+          delivery_distance_km REAL DEFAULT 5.0,
+          tracking_courier TEXT DEFAULT 'Farmer Self-Fleet',
+          tracking_number TEXT,
+          notes TEXT DEFAULT '',
+          phonepe_transaction_id TEXT DEFAULT '',
+          cancellation_reason TEXT DEFAULT '',
+          refund_amount REAL DEFAULT 0,
+          dispute_status TEXT DEFAULT 'none',
+          delivery_otp TEXT DEFAULT '1234',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        INSERT INTO orders_new (
+          id, order_number, customer_id, farmer_id, total_amount, subtotal, delivery_fee, farmer_tip,
+          delivery_address, city, postal_code, customer_phone, customer_name, farmer_name, farm_name, farmer_phone,
+          payment_method, payment_status, order_status, estimated_delivery_time, delivery_mode, delivery_distance_km,
+          tracking_courier, tracking_number, notes, phonepe_transaction_id, created_at, updated_at
+        ) SELECT 
+          id, order_number, customer_id, farmer_id, total_amount, subtotal, delivery_fee, farmer_tip,
+          delivery_address, city, postal_code, customer_phone, customer_name, farmer_name, farm_name, farmer_phone,
+          payment_method, payment_status, order_status, estimated_delivery_time, delivery_mode, delivery_distance_km,
+          tracking_courier, tracking_number, notes, phonepe_transaction_id, created_at, updated_at
+        FROM orders;
+
+        DROP TABLE orders;
+        ALTER TABLE orders_new RENAME TO orders;
+        CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
+        CREATE INDEX IF NOT EXISTS idx_orders_farmer ON orders(farmer_id);
+        CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(order_status);
+        PRAGMA foreign_keys=on;
+      `);
+      console.log("[Migration] orders table successfully updated with PhonePe check constraint.");
+    }
+  } catch (err) {
+    console.warn("[Migration] Notice on orders CHECK constraint update:", err.message);
+  }
+  console.log("[Migration] Database schema migrated successfully.");
+}
+if (process.argv[1] && process.argv[1].endsWith("migrate.ts")) {
+  runMigrations();
+}
+
+// server/src/db/seed.ts
+init_database();
+async function seedDatabase() {
+  runMigrations();
+  const existingUsers = Database.get("SELECT COUNT(*) as count FROM users");
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  if (!existingUsers || existingUsers.count === 0) {
+    console.log("[Seed] Seeding production database with initial realistic mandi data...");
+    const passwordHash = await bcryptjs_default.hash("halder123", 10);
+    Database.transaction(() => {
+      Database.run(
+        `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
+         ('user-cust-1', 'HAL-CUS-10000001', 'Aman Sharma', 'aman@halder.com', '+91 98765 43210', ?, 'customer', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-1', 'HAL-FRM-20000001', 'Rajesh Kumar', 'rajesh@greenvalley.in', '+91 98450 12345', ?, 'farmer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-2', 'HAL-FRM-20000002', 'Amit Singh', 'amit@sunrisefarms.in', '+91 98110 54321', ?, 'farmer', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-3', 'HAL-FRM-20000003', 'Pooja Devi', 'pooja@himalayanorganics.in', '+91 98330 98765', ?, 'farmer', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-admin-1', 'HAL-ADM-90000001', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-del-1', 'HAL-CUS-10000002', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
+        [passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now]
+      );
+      Database.run(
+        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, latitude, longitude, verification_status, rating, total_orders, total_listings_count, response_rate, joined_year, avatar, cover_image, created_at, updated_at) VALUES
+         ('farmer-1', 'user-farm-1', 'Green Valley Farm', 'Organic hill vegetables & A2 Badri cow dairy from Doon Valley.', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'verified', 4.9, 142, 4, 98, 2021, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80', ?, ?),
+         ('farmer-2', 'user-farm-2', 'Sunrise Farm', 'Naturally grown seasonal potatoes, onions, carrots and green peas.', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'verified', 4.8, 98, 3, 95, 2022, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&auto=format&fit=crop&q=80', ?, ?),
+         ('farmer-3', 'user-farm-3', 'Himalayan Organics', 'Certified mountain greens, chemical-free raw wild honey and organic cauliflower.', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'pending', 4.9, 175, 3, 99, 2020, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=800&auto=format&fit=crop&q=80', ?, ?)`,
+        [now, now, now, now, now, now]
+      );
+      Database.run(
+        `INSERT INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
+         ('cat-veg', 'Vegetables', 'vegetables', '\u{1F345}', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-fruits', 'Fruits', 'fruits', '\u{1F34E}', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-leafy', 'Leafy Greens', 'leafy-greens', '\u{1F96C}', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-grains', 'Grains & Pulses', 'grains', '\u{1F33E}', 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-dairy', 'Dairy', 'dairy', '\u{1F95B}', 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-organic', 'Organic Food', 'organic', '\u{1F36F}', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&auto=format&fit=crop&q=80', 1, ?),
+         ('cat-homemade', 'Homemade Pickles', 'homemade', '\u{1FAD9}', 'https://images.unsplash.com/photo-1589135233689-d49fa2b23419?w=400&auto=format&fit=crop&q=80', 1, ?)`,
+        [now, now, now, now, now, now, now]
+      );
+      Database.run(
+        `INSERT INTO products (
+          id, farmer_id, category_id, name, slug, description, price, unit,
+          available_quantity, is_organic, available_today, harvest_date,
+          freshness_tag, location, city, latitude, longitude, image,
+          wholesale_price, moq, stock_alert_threshold, status, moderation_status, created_at, updated_at
+        ) VALUES
+         ('prod-1', 'farmer-1', 'cat-veg', 'Fresh Farm Tomatoes (\u0926\u0947\u0938\u0940 \u091F\u092E\u093E\u091F\u0930)', 'fresh-farm-tomatoes', 'Vine-ripened juicy red tomatoes from Doon Valley farm.', 40.0, 'kg', 45.0, 1, 1, 'Today 6:00 AM', 'Harvested Today', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=600&auto=format&fit=crop&q=80', 32.0, 10.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-2', 'farmer-2', 'cat-veg', 'Pahari Potatoes (\u092A\u0939\u093E\u0921\u093C\u0940 \u0906\u0932\u0942)', 'pahari-potatoes', 'Mountain-grown red skin potatoes, firm and sweet in taste.', 35.0, 'kg', 80.0, 0, 1, 'Yesterday', 'Farm Fresh', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600&auto=format&fit=crop&q=80', 28.0, 20.0, 10.0, 'active', 'approved', ?, ?),
+         ('prod-3', 'farmer-2', 'cat-veg', 'Nashik Red Onions (\u0932\u093E\u0932 \u092A\u094D\u092F\u093E\u091C)', 'nashik-red-onions', 'Pungent, dry-skin farm onions with rich flavor.', 45.0, 'kg', 60.0, 0, 1, '2 days ago', 'Best Quality', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600&auto=format&fit=crop&q=80', 36.0, 15.0, 8.0, 'active', 'approved', ?, ?),
+         ('prod-4', 'farmer-3', 'cat-leafy', 'Organic Mountain Spinach (\u0926\u0947\u0938\u0940 \u092A\u093E\u0932\u0915)', 'organic-mountain-spinach', 'Tender dark-green chemical-free spinach leaves washed with clean stream water.', 25.0, 'bunch', 30.0, 1, 1, 'Today 5:30 AM', 'Morning Plucked', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=80', 20.0, 10.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-5', 'farmer-2', 'cat-veg', 'Sweet Hill Carrots (\u0917\u093E\u091C\u0930)', 'sweet-hill-carrots', 'Sweet, crunch red carrots directly harvested from sandy loam soil.', 50.0, 'kg', 40.0, 1, 1, 'Today 6:30 AM', 'Sweet & Crisp', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'https://images.unsplash.com/photo-1598170845058-32b9d6a5c317?w=600&auto=format&fit=crop&q=80', 40.0, 10.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-6', 'farmer-3', 'cat-veg', 'Farm Cauliflower (\u092B\u0942\u0932\u0917\u094B\u092D\u0940)', 'farm-cauliflower', 'Pure white, tight-curd cauliflower with outer protective leaves.', 40.0, 'piece', 25.0, 1, 1, 'Today 6:00 AM', 'Chemical-Free', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=600&auto=format&fit=crop&q=80', 30.0, 15.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-7', 'farmer-2', 'cat-veg', 'Sweet Green Peas (\u092E\u091F\u0930)', 'sweet-green-peas', 'Tender and sweet mountain green pea pods full of fresh seeds.', 80.0, 'kg', 35.0, 1, 1, 'Today 5:45 AM', 'Sugar Sweet', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=600&auto=format&fit=crop&q=80', 68.0, 10.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-8', 'farmer-1', 'cat-veg', 'Crisp Green Cucumber (\u0916\u0940\u0930\u093E)', 'crisp-green-cucumber', 'Hydrating, crunchy organic cucumbers grown in polyhouse beds.', 35.0, 'kg', 50.0, 1, 1, 'Today 6:15 AM', 'Polyhouse Fresh', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'https://images.unsplash.com/photo-1604977042946-1eecc30f269e?w=600&auto=format&fit=crop&q=80', 28.0, 10.0, 5.0, 'active', 'approved', ?, ?),
+         ('prod-9', 'farmer-1', 'cat-dairy', 'Desi Badri Cow Raw Milk (\u0917\u093E\u092F \u0915\u093E \u0926\u0942\u0927)', 'desi-badri-cow-raw-milk', 'Pure, unadulterated raw A2 milk from grass-fed Himalayan Badri cows.', 75.0, 'litre', 25.0, 1, 1, 'Today 5:00 AM', 'Morning Milked', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&auto=format&fit=crop&q=80', 70.0, 5.0, 3.0, 'active', 'approved', ?, ?),
+         ('prod-10', 'farmer-3', 'cat-organic', 'Wild Himalayan Forest Honey (\u091C\u0902\u0917\u0932\u0940 \u0936\u0939\u0926)', 'wild-himalayan-forest-honey', 'Raw, unprocessed multi-floral honey harvested from oak forests.', 350.0, 'packet', 18.0, 1, 1, 'Seasonal', '100% Pure Raw', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80', 310.0, 5.0, 2.0, 'active', 'approved', ?, ?)`,
+        [
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now,
+          now
+        ]
+      );
+      Database.run("INSERT INTO carts (id, user_id, created_at, updated_at) VALUES ('cart-cust-1', 'user-cust-1', ?, ?)", [now, now]);
+      Database.run(
+        `INSERT INTO orders (
+          id, order_number, customer_id, farmer_id, total_amount, subtotal,
+          delivery_fee, farmer_tip, delivery_address, city, postal_code,
+          customer_phone, customer_name, farmer_name, farm_name, farmer_phone,
+          payment_method, payment_status, order_status, estimated_delivery_time,
+          delivery_otp, created_at, updated_at
+        ) VALUES
+         ('order-101', '#HD8491', 'user-cust-1', 'farmer-1', 265.0, 230.0, 25.0, 10.0, '14, Rajpur Road, Dehradun', 'Dehradun', '248001', '+91 98765 43210', 'Aman Sharma', 'Rajesh Kumar', 'Green Valley Farm', '+91 98450 12345', 'upi', 'paid', 'preparing', '35-45 mins', '4829', ?, ?),
+         ('order-102', '#HD7823', 'user-cust-1', 'farmer-3', 190.0, 155.0, 25.0, 10.0, '14, Rajpur Road, Dehradun', 'Dehradun', '248001', '+91 98765 43210', 'Aman Sharma', 'Pooja Devi', 'Himalayan Organics', '+91 98330 98765', 'cod', 'pending', 'delivered', 'Delivered', '9103', ?, ?)`,
+        [now, now, now, now]
+      );
+      Database.run(
+        `INSERT INTO order_items (id, order_id, product_id, farmer_id, product_name_snapshot, unit_price_snapshot, unit_snapshot, quantity, subtotal) VALUES
+         ('item-1', 'order-101', 'prod-1', 'farmer-1', 'Fresh Farm Tomatoes', 40.0, 'kg', 2.0, 80.0),
+         ('item-2', 'order-101', 'prod-9', 'farmer-1', 'Desi Badri Cow Raw Milk', 75.0, 'litre', 2.0, 150.0),
+         ('item-3', 'order-102', 'prod-4', 'farmer-3', 'Organic Mountain Spinach', 25.0, 'bunch', 3.0, 75.0),
+         ('item-4', 'order-102', 'prod-6', 'farmer-3', 'Farm Cauliflower', 40.0, 'piece', 2.0, 80.0)`
+      );
+      Database.run(
+        `INSERT INTO order_timeline (id, order_id, status, title, description, time, completed, current, created_at) VALUES
+         ('tl-1', 'order-101', 'placed', 'Order Placed', 'Order placed with Rajesh Kumar', '7:00 AM', 1, 0, ?),
+         ('tl-2', 'order-101', 'accepted', 'Harvest Confirmed', 'Rajesh Kumar verified morning harvest', '7:05 AM', 1, 0, ?),
+         ('tl-3', 'order-101', 'preparing', 'Weighing & Packing', 'Eco-crate weighing and hygiene pack', '7:15 AM', 1, 1, ?),
+         ('tl-4', 'order-102', 'placed', 'Order Placed', 'Order placed with Pooja Devi', 'Yesterday', 1, 0, ?),
+         ('tl-5', 'order-102', 'delivered', 'Delivered', 'Delivered to Rajpur Road', 'Yesterday', 1, 1, ?)`,
+        [now, now, now, now, now]
+      );
+      Database.run(
+        `INSERT INTO reviews (id, order_id, customer_id, farmer_id, rating, review, created_at) VALUES
+         ('rev-1', 'order-102', 'user-cust-1', 'farmer-3', 5.0, 'The mountain spinach was super fresh and the cauliflower tasted sweet! Delivered right on time.', ?)`,
+        [now]
+      );
+      Database.run(
+        `INSERT INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at) VALUES
+         ('notif-1', 'user-cust-1', 'customer', 'order', 'Order Placed \u{1F9FA}', 'Your order #HD8491 from Green Valley Farm has been placed.', 1, ?),
+         ('notif-2', 'user-farm-1', 'farmer', 'order', 'New Order Received! \u{1F514}', 'New order #HD8491 received from Aman Sharma for \u20B9265.', 0, ?),
+         ('notif-3', 'user-farm-1', 'farmer', 'verification', 'Farmer Verified! \u{1F6E1}\uFE0F', 'Your farm verification credentials have been approved by Admin.', 1, ?)`,
+        [now, now, now]
+      );
+    });
+  }
+  seedExtendedEcosystem(now);
+  console.log("[Seed] Production database successfully initialized and seeded!");
+}
+function seedExtendedEcosystem(now) {
+  const mandiCount = Database.get("SELECT COUNT(*) as count FROM mandi_prices");
+  if (!mandiCount || mandiCount.count === 0) {
+    console.log("[Seed] Seeding verified Mandi price intelligence records...");
+    const mandiDate = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    const prices = [
+      ["mandi-1", "Tomato (\u091F\u092E\u093E\u091F\u0930)", "Tomato", "Hybrid Red", "Uttarakhand", "Dehradun", "Dehradun Mandi", 26, 36, 32, 18.5, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-2", "Pahari Potato (\u0906\u0932\u0942)", "Potato", "Jyoti / Red Mountain", "Uttarakhand", "Dehradun", "Dehradun Mandi", 20, 28, 24, 42, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-3", "Red Onion (\u092A\u094D\u092F\u093E\u091C)", "Onion", "Nashik Red", "Uttarakhand", "Dehradun", "Rishikesh Mandi", 32, 44, 38, 26, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-4", "Green Peas (\u092E\u091F\u0930)", "Peas", "Sweet Mountain Green", "Uttarakhand", "Dehradun", "Dehradun Mandi", 55, 75, 65, 14, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-5", "Cauliflower (\u092B\u0942\u0932\u0917\u094B\u092D\u0940)", "Cauliflower", "Snowball", "Uttarakhand", "Haridwar", "Roorkee Mandi", 20, 34, 28, 9.5, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-6", "Mountain Spinach (\u092A\u093E\u0932\u0915)", "Spinach", "Desi Broadleaf", "Uttarakhand", "Nainital", "Haldwani Mandi", 15, 26, 20, 6.2, mandiDate, "Agmarknet / UK Mandi Board", 1],
+      ["mandi-7", "Basmati Paddy (\u0927\u093E\u0928)", "Paddy (Dhan)", "Pusa 1121 Basmati", "Uttarakhand", "Haridwar", "Haridwar Mandi", 32, 38.5, 35.5, 85, mandiDate, "e-NAM National Portal", 1],
+      ["mandi-8", "Himachali Apple (\u0938\u0947\u092C)", "Apple", "Royal Delicious", "Uttarakhand", "Dehradun", "Dehradun Mandi", 85, 135, 110, 22, mandiDate, "Agmarknet / UK Mandi Board", 1]
+    ];
+    for (const p3 of prices) {
+      Database.run(
+        `INSERT OR IGNORE INTO mandi_prices (id, crop_name, commodity, variety, state, district, market_name, min_price, max_price, modal_price, arrival_quantity_tonnes, price_date, source, is_verified, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [...p3, now, now]
+      );
+    }
+  }
+  const demandCount = Database.get("SELECT COUNT(*) as count FROM crop_demand_indicators");
+  if (!demandCount || demandCount.count === 0) {
+    const indicators = [
+      ["Tomato", "Kharif", "high", "bullish", "Early Morning 06:00 - 09:00 AM", 32, 25, 88, "Strong local household & restaurant demand in Doon Valley. Direct farm deliveries command 20-25% premium over wholesale mandi rates."],
+      ["Pahari Potato", "Rabi", "moderate", "stable", "Bulk direct delivery on weekends", 24, 30, 82, "Storage crop with high steady consumption across residential kitchens and cloud kitchens."],
+      ["Green Peas", "Rabi", "high", "bullish", "Harvest fresh morning pods", 65, 23, 94, "Premium winter harvest with high margin potential. Freshness indicator drives instant consumer purchases."],
+      ["Mountain Spinach", "Rabi", "high", "stable", "Same-day sunrise dispatch", 20, 25, 90, "High consumer affinity for chemical-free Himalayan greens. Quick turnover avoids spoilage."],
+      ["A2 Badri Cow Milk", "Year-round", "high", "bullish", "Daily dawn delivery 06:00 - 08:00 AM", 60, 25, 96, "Consistent recurring subscription demand from health-conscious urban households. 0% middleman cut."]
+    ];
+    for (const ind of indicators) {
+      Database.run(
+        `INSERT OR IGNORE INTO crop_demand_indicators (id, crop_name, season, demand_level, price_outlook, recommended_selling_window, avg_mandi_modal_price, retail_mandi_spread_pct, profitability_score, insights_summary, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ["ind-" + ind[0].toLowerCase().replace(/\s+/g, "-"), ...ind, now]
+      );
+    }
+  }
+  const cropsCount = Database.get("SELECT COUNT(*) as count FROM farm_crops");
+  if (!cropsCount || cropsCount.count === 0) {
+    const crops = [
+      ["crop-1", "farmer-1", "Desi Hill Tomato", "Kharif", "2026-07-15", "2026-10-25", 2500, "Organic Certified", '["NPOP Organic", "Vedic Krishi"]', "harvesting"],
+      ["crop-2", "farmer-1", "Badri Cow Fodder (Barseem)", "Rabi", "2026-09-01", "2026-12-15", 5e3, "Natural/Zero Budget", "[]", "growing"],
+      ["crop-3", "farmer-2", "Pahari Red Potato", "Rabi", "2026-08-20", "2026-11-28", 4200, "Traditional", "[]", "growing"],
+      ["crop-4", "farmer-2", "Sweet Green Peas", "Rabi", "2026-09-10", "2026-12-05", 1800, "Traditional", "[]", "growing"],
+      ["crop-5", "farmer-3", "Organic Mountain Spinach", "Kharif", "2026-08-01", "2026-10-18", 950, "Organic Certified", '["Uttarakhand Organic Commodity Board"]', "harvested"]
+    ];
+    for (const c5 of crops) {
+      Database.run(
+        `INSERT OR IGNORE INTO farm_crops (id, farmer_id, crop_name, season, sowing_date, expected_harvest_date, estimated_yield_kg, farming_method, certifications, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [...c5, now, now]
+      );
+    }
+  }
+  const delCount = Database.get("SELECT COUNT(*) as count FROM delivery_partners");
+  if (!delCount || delCount.count === 0) {
+    const delUser = Database.get("SELECT id FROM users WHERE id = 'user-del-1'");
+    if (!delUser) {
+      const defaultPasswordHash = bcryptjs_default.hashSync("halder123", 10);
+      Database.run(
+        `INSERT OR IGNORE INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
+         VALUES ('user-del-1', 'HAL-CUS-10000002', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
+        [defaultPasswordHash, now, now]
+      );
+    }
+    Database.run(
+      `INSERT OR IGNORE INTO delivery_partners (id, user_id, vehicle_type, vehicle_number, license_number, service_zone, is_available, current_lat, current_lng, rating, total_deliveries, status, created_at, updated_at)
+       VALUES 
+       ('partner-1', 'user-del-1', 'bike', 'UK-07-AB-1234', 'DL-UK-2022-09412', 'Dehradun Urban (Rajpur, Jakhan, Clock Tower)', 1, 30.3250, 78.0400, 4.9, 214, 'active', ?, ?),
+       ('partner-2', 'user-admin-1', 'pickup_truck', 'UK-07-TA-5678', 'DL-UK-2020-88123', 'Vikasnagar & Peri-Urban Agro Belt', 1, 30.4350, 77.8100, 4.8, 342, 'active', ?, ?)`,
+      [now, now, now, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO delivery_tasks (id, order_id, partner_id, status, pickup_address, delivery_address, distance_km, delivery_fee, partner_payout, otp_code, notes, assigned_at, created_at, updated_at)
+       VALUES ('task-101', 'order-101', 'partner-1', 'out_for_delivery', 'Green Valley Farm, Doon Valley, Dehradun', '14, Rajpur Road, Dehradun', 5.2, 25.0, 20.0, '4829', 'Handle glass milk bottles with care', ?, ?, ?)`,
+      [now, now, now]
+    );
+  }
+  const b2bCount = Database.get("SELECT COUNT(*) as count FROM b2b_profiles");
+  if (!b2bCount || b2bCount.count === 0) {
+    Database.run(
+      `INSERT OR IGNORE INTO b2b_profiles (id, user_id, business_name, business_type, gstin, fssai_license, credit_limit, verified, created_at, updated_at)
+       VALUES ('b2b-1', 'user-cust-1', 'The Doon Bistro & Farm Table', 'restaurant', '05AAAAA0000A1Z5', '12622005000123', 50000.0, 1, ?, ?)`,
+      [now, now]
+    );
+  }
+  const subCount = Database.get("SELECT COUNT(*) as count FROM farmer_subscriptions");
+  if (!subCount || subCount.count === 0) {
+    const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1e3).toISOString();
+    Database.run(
+      `INSERT OR IGNORE INTO farmer_subscriptions (id, farmer_id, plan_id, plan_name, price_monthly, max_listings, features_json, status, start_date, end_date, payment_reference, created_at)
+       VALUES 
+       ('sub-1', 'farmer-1', 'kisan_samridhi', 'Kisan Samridhi (Pro)', 499.0, 50, '{"priority_placement":true,"sms_alerts":true,"wholesale_b2b":true,"custom_branding":true}', 'active', ?, ?, 'UPI-SUB-84912', ?),
+       ('sub-2', 'farmer-2', 'kisan_mitra', 'Kisan Mitra (Basic)', 199.0, 25, '{"priority_placement":false,"sms_alerts":true,"wholesale_b2b":true,"custom_branding":false}', 'active', ?, ?, 'UPI-SUB-10294', ?),
+       ('sub-3', 'farmer-3', 'free', 'Free Kisan Plan', 0.0, 10, '{"priority_placement":false,"sms_alerts":false,"wholesale_b2b":false,"custom_branding":false}', 'active', ?, ?, 'FREE', ?)`,
+      [now, endDate, now, now, endDate, now, now, endDate, now]
+    );
+  }
+  const gbCount = Database.get("SELECT COUNT(*) as count FROM group_buys");
+  if (!gbCount || gbCount.count === 0) {
+    const deadline = new Date(Date.now() + 3 * 24 * 60 * 60 * 1e3).toISOString();
+    Database.run(
+      `INSERT OR IGNORE INTO group_buys (id, product_id, farmer_id, title, target_quantity, current_quantity, unit, retail_price, discounted_price, discount_percent, min_buyers_count, current_buyers_count, deadline, status, created_at)
+       VALUES ('gb-1', 'prod-2', 'farmer-2', '\u{1F954} 50kg Community Pahari Potato Pool', 50.0, 35.0, 'kg', 35.0, 26.0, 25.7, 3, 3, ?, 'active', ?)`,
+      [deadline, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO group_buy_participants (id, group_buy_id, user_id, quantity, subtotal, created_at)
+       VALUES 
+       ('gbp-1', 'gb-1', 'user-cust-1', 15.0, 390.0, ?),
+       ('gbp-2', 'gb-1', 'user-farm-1', 10.0, 260.0, ?),
+       ('gbp-3', 'gb-1', 'user-del-1', 10.0, 260.0, ?)`,
+      [now, now, now]
+    );
+  }
+  const spCount = Database.get("SELECT COUNT(*) as count FROM scheduled_procurements");
+  if (!spCount || spCount.count === 0) {
+    const nextDate = new Date(Date.now() + 24 * 60 * 60 * 1e3).toISOString().split("T")[0];
+    Database.run(
+      `INSERT OR IGNORE INTO scheduled_procurements (id, user_id, product_id, farmer_id, quantity, unit, frequency, delivery_time_slot, delivery_address, next_delivery_date, status, created_at, updated_at)
+       VALUES ('sp-1', 'user-cust-1', 'prod-9', 'farmer-1', 2.0, 'litre', 'daily', 'Morning (06:00 - 08:30 AM)', '14, Rajpur Road, Dehradun', ?, 'active', ?, ?)`,
+      [nextDate, now, now]
+    );
+  }
+  const settingsCount = Database.get("SELECT COUNT(*) as count FROM platform_settings");
+  if (!settingsCount || settingsCount.count === 0) {
+    const defaultSettings = [
+      ["commission_rate_pct", "5.0", "Marketplace platform commission percentage taken on customer order subtotal."],
+      ["delivery_base_fee", "20.0", "Base delivery charge for first 3 km distance."],
+      ["delivery_per_km_rate", "5.0", "Additional charge per km past base distance."],
+      ["min_withdrawal_amount", "100.0", "Minimum settlement balance required for farmer bank withdrawal."],
+      ["settlement_cycle_days", "1", "Daily T+1 automatic settlement cycle for delivered orders."],
+      ["auto_assign_delivery", "true", "Enable automatic closest-partner delivery assignment on order ready."],
+      ["tax_gst_rate_pct", "0.0", "Fresh farm produce exempt from GST under Indian Agricultural Tax Code."]
+    ];
+    for (const [key, val, desc] of defaultSettings) {
+      Database.run(
+        `INSERT OR IGNORE INTO platform_settings (key, value, description, updated_at) VALUES (?, ?, ?, ?)`,
+        [key, val, desc, now]
+      );
+    }
+  }
+  const finCount = Database.get("SELECT COUNT(*) as count FROM financial_transactions");
+  if (!finCount || finCount.count === 0) {
+    Database.run(
+      `INSERT OR IGNORE INTO financial_transactions (id, transaction_ref, type, reference_id, user_id, farmer_id, debit_amount, credit_amount, balance_after, description, gst_rate, gst_amount, status, created_at)
+       VALUES 
+       ('fin-1', 'TXN-ORD-8491-PAY', 'order_payment', 'order-101', 'user-cust-1', 'farmer-1', 0, 265.0, 265.0, 'Payment received for Order #HD8491 via UPI', 0.0, 0.0, 'completed', ?),
+       ('fin-2', 'TXN-ORD-8491-COMM', 'platform_commission', 'order-101', NULL, 'farmer-1', 11.5, 0, 253.5, '5% Platform commission on Order #HD8491 subtotal \u20B9230', 0.0, 0.0, 'completed', ?),
+       ('fin-3', 'TXN-ORD-8491-DEL', 'delivery_charge', 'order-101', NULL, 'farmer-1', 25.0, 0, 228.5, 'Delivery partner fulfillment deduction for Order #HD8491', 0.0, 0.0, 'completed', ?)`,
+      [now, now, now]
+    );
+  }
+}
+if (process.argv[1] && process.argv[1].endsWith("seed.ts")) {
+  seedDatabase();
+}
+
 // api/server.ts
-var server_default = app;
+app.set("trust proxy", 1);
+var initialized = false;
+var initPromise = null;
+async function ensureInitialized() {
+  if (initialized) return;
+  if (!initPromise) {
+    initPromise = seedDatabase().then(() => {
+      initialized = true;
+    }).catch((err) => {
+      console.warn("[Vercel Serverless] Auto DB seed warning:", err);
+      initialized = true;
+    });
+  }
+  return initPromise;
+}
+async function handler(req, res) {
+  await ensureInitialized();
+  return app(req, res);
+}
 export {
-  server_default as default
+  handler as default
 };
 /*! Bundled license information:
 
