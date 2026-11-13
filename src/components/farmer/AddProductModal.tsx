@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ProductCategory } from '../../types';
+import { compressImageFile } from '../../utils/imageCompression';
 import {
   X,
   Upload,
@@ -123,19 +124,18 @@ export const AddProductModal: React.FC = () => {
     setImage(preset.url);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (result) {
-        setImage(result);
-        showToast('Photo uploaded from device!', 'success');
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      showToast('⚡ Compressing crop photo for village network...', 'info');
+      const res = await compressImageFile(file, { lowBandwidthMode: true });
+      setImage(res.dataUrl);
+      showToast(`Crop photo compressed! Saved ${res.savingsPercent}% data (${res.compressedFormatted})`, 'success');
+    } catch {
+      showToast('Failed to process image file', 'error');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

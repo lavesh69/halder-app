@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ApiClient } from '../../api/client';
+import { compressImageFile } from '../../utils/imageCompression';
 import { X, Camera, Loader2, Check, AlertCircle, Sparkles } from 'lucide-react';
 
 interface EditFarmerProfileModalProps {
@@ -32,7 +33,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -47,13 +48,15 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
     }
 
     setError(null);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setAvatarPreview(result);
-      setAvatarBase64(result);
-    };
-    reader.readAsDataURL(file);
+    try {
+      showToast('⚡ Compressing farm photo...', 'info');
+      const res = await compressImageFile(file, { lowBandwidthMode: true, maxDimension: 800 });
+      setAvatarPreview(res.dataUrl);
+      setAvatarBase64(res.dataUrl);
+      showToast(`Photo compressed! Saved ${res.savingsPercent}% data (${res.compressedFormatted})`, 'success');
+    } catch {
+      setError('Failed to process image. Please try again.');
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {

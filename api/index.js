@@ -82441,7 +82441,15 @@ var AuthService = class _AuthService {
     if (user.status === "suspended") {
       throw AppError.forbidden("Your account is currently suspended. Please contact admin.", "ACCOUNT_SUSPENDED");
     }
-    if (password && user.password_hash) {
+    if (user.role === "admin") {
+      if (!password) {
+        throw AppError.unauthorized("Administrator password required.", "ADMIN_PASSWORD_REQUIRED");
+      }
+      const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
+      if (!isMatch) {
+        throw AppError.unauthorized("Invalid admin credentials entered.", "INVALID_CREDENTIALS");
+      }
+    } else if (password && user.password_hash) {
       const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
       if (!isMatch) {
         throw AppError.unauthorized("Invalid password entered. Please check your credentials.", "INVALID_CREDENTIALS");
@@ -85161,6 +85169,18 @@ function verifyConversationAccess(req, res, next) {
   }
   next();
 }
+function verifyFarmerOwnership(req, res, next) {
+  const farmerId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  if (user.role !== "farmer" || user.farmerProfileId !== farmerId) {
+    return next(
+      AppError.forbidden("You are not authorized to access or modify another farmer's private account record.")
+    );
+  }
+  next();
+}
 
 // server/src/routes/productRoutes.ts
 init_zod();
@@ -86612,22 +86632,22 @@ router5.post("/me/avatar", authenticateUser, requireFarmer, FarmerController.upd
 router5.get("/:id/public", optionalAuth, FarmerController.getPublicProfile);
 router5.get("/", optionalAuth, FarmerController.list);
 router5.get("/:id", optionalAuth, FarmerController.getProfile);
-router5.patch("/:id", authenticateUser, requireFarmer, FarmerController.update);
-router5.get("/:id/earnings", authenticateUser, FarmerController.getEarnings);
-router5.put("/:id/payout-settings", authenticateUser, requireFarmer, FarmerController.updatePayoutSettings);
-router5.post("/:id/withdraw", authenticateUser, requireFarmer, FarmerController.requestWithdrawal);
-router5.post("/:id/kyc", authenticateUser, requireFarmer, FarmerController.submitKYC);
-router5.get("/:id/kyc", authenticateUser, FarmerController.getKYC);
-router5.post("/:id/payout", authenticateUser, FarmerController.recordPayout);
+router5.patch("/:id", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.update);
+router5.get("/:id/earnings", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.getEarnings);
+router5.put("/:id/payout-settings", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.updatePayoutSettings);
+router5.post("/:id/withdraw", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.requestWithdrawal);
+router5.post("/:id/kyc", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.submitKYC);
+router5.get("/:id/kyc", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.getKYC);
+router5.post("/:id/payout", authenticateUser, requireAdmin, FarmerController.recordPayout);
 router5.patch("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
 router5.put("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
 router5.delete("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
 router5.get("/:id/crops", optionalAuth, FarmerController.getCrops);
-router5.post("/:id/crops", authenticateUser, requireFarmer, FarmerController.addCrop);
-router5.patch("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.put("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.delete("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
-router5.get("/:id/business-insights", authenticateUser, FarmerController.getBusinessInsights);
+router5.post("/:id/crops", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.addCrop);
+router5.patch("/:id/crops/:cropId", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.updateCrop);
+router5.put("/:id/crops/:cropId", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.updateCrop);
+router5.delete("/:id/crops/:cropId", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.deleteCrop);
+router5.get("/:id/business-insights", authenticateUser, requireFarmer, verifyFarmerOwnership, FarmerController.getBusinessInsights);
 var farmerRoutes_default = router5;
 
 // server/src/routes/reviewRoutes.ts

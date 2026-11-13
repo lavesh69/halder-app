@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { compressImageFile } from '../../utils/imageCompression';
 import {
   X,
   ShieldCheck,
@@ -94,7 +95,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -109,13 +110,14 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
     }
 
     setError(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setDocUrl(result);
-      showToast('Document photo captured successfully!', 'success');
-    };
-    reader.readAsDataURL(file);
+    try {
+      showToast('⚡ Compressing KYC document for secure verification...', 'info');
+      const res = await compressImageFile(file, { lowBandwidthMode: true, maxDimension: 1400 });
+      setDocUrl(res.dataUrl);
+      showToast(`Document compressed! Saved ${res.savingsPercent}% data (${res.compressedFormatted})`, 'success');
+    } catch {
+      setError('Failed to process document image. Please try again.');
+    }
   };
 
   const handleApplyPreset = (preset: typeof DOCUMENT_PRESETS[0]) => {

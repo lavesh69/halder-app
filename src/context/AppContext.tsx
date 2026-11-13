@@ -26,6 +26,7 @@ import {
 } from '../data/mockData';
 import confetti from 'canvas-confetti';
 import { ApiClient } from '../api/client';
+import { Permission, hasPermission as checkHasPermission } from '../utils/rbac';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
@@ -81,6 +82,10 @@ interface AppContextType {
   setIsLoggedIn: (logged: boolean) => void;
   isLoginModalOpen: boolean;
   setIsLoginModalOpen: (open: boolean) => void;
+  isAdminAuthModalOpen: boolean;
+  setIsAdminAuthModalOpen: (open: boolean) => void;
+  verifyAndSwitchToAdmin: (password: string) => Promise<boolean>;
+  hasPermission: (permission: Permission) => boolean;
   loginUser: (role: Role, phone?: string) => void;
   loginWithGoogle: (idToken: string, role?: Role) => Promise<boolean>;
   currentUser: User | null;
@@ -378,6 +383,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem('halder-loggedin') === 'true';
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState<boolean>(false);
 
   // Data
   const [products, setProducts] = useState<Product[]>(() => {
@@ -783,17 +789,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 2800);
   };
 
-  const setRole = (newRole: Role) => {
-    setRoleState(newRole);
-    if (newRole === 'admin') {
-      ApiClient.login('admin@halder.com', 'halder123', 'admin')
-        .then((res) => {
-          if (res?.token) ApiClient.setToken(res.token);
-          if (res?.user) setCurrentUser(res.user);
-        })
-        .catch((e) => console.warn('[Admin Auth] auto-login:', e.message));
+  const hasPermission = (permission: Permission): boolean => {
+    return checkHasPermission(role, permission);
+  };
+
+  const verifyAndSwitchToAdmin = async (password: string): Promise<boolean> => {
+    try {
+      const res = await ApiClient.login('admin@halder.com', password, 'admin');
+      if (res?.token) ApiClient.setToken(res.token);
+      if (res?.user) {
+        setCurrentUser(res.user);
+        setRoleState('admin');
+        localStorage.setItem('halder-role', 'admin');
+        setIsLoggedIn(true);
+        showToast('Admin identity verified. Welcome to Superadmin Console!', 'success');
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      showToast(err.message || 'Invalid administrator password.', 'error');
+      return false;
     }
-    showToast(`Switched to ${newRole === 'farmer' ? '🌾 Farmer Mandi (Rajesh Kumar)' : newRole === 'admin' ? '🛡️ Superadmin Console' : '🛒 Local Marketplace'}`);
+  };
+
+  const setRole = (newRole: Role) => {
+    // RBAC Security Check: Switching to 'admin' requires verified admin credentials
+    if (newRole === 'admin') {
+      if (currentUser?.role === 'admin' && role === 'admin') {
+        return;
+      }
+      if (currentUser?.role === 'admin') {
+        setRoleState('admin');
+        localStorage.setItem('halder-role', 'admin');
+        showToast('Switched to 🛡️ Superadmin Console');
+        return;
+      }
+      // Trigger Admin RBAC Authentication Modal
+      setIsAdminAuthModalOpen(true);
+      showToast('Administrator verification required under RBAC policy.', 'info');
+      return;
+    }
+
+    setRoleState(newRole);
+    localStorage.setItem('halder-role', newRole);
+    showToast(`Switched to ${newRole === 'farmer' ? '🌾 Farmer Mandi (Rajesh Kumar)' : '🛒 Local Marketplace'}`);
   };
 
   const setHasSeenOnboarding = (seen: boolean) => {
@@ -1737,6 +1776,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoggedIn,
         isLoginModalOpen,
         setIsLoginModalOpen,
+        isAdminAuthModalOpen,
+        setIsAdminAuthModalOpen,
+        verifyAndSwitchToAdmin,
+        hasPermission,
         loginUser,
         loginWithGoogle,
         currentUser,

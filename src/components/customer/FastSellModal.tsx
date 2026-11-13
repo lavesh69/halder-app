@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ProductCategory, PriceSlab } from '../../types';
-import { compressImageFile } from '../../utils/imageCompression';
+import { compressImageFile, formatBytes } from '../../utils/imageCompression';
 import {
   X,
   Camera,
@@ -81,6 +81,12 @@ export const FastSellModal: React.FC = () => {
 
   const [step, setStep] = useState<number>(1);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([photoPresets[0].url]);
+  const [lowBandwidthMode, setLowBandwidthMode] = useState<boolean>(true);
+  const [compressionStats, setCompressionStats] = useState<{
+    originalTotal: number;
+    compressedTotal: number;
+    savingsPercent: number;
+  } | null>(null);
   
   // Step 1: Product Information
   const [name, setName] = useState('');
@@ -201,17 +207,31 @@ export const FastSellModal: React.FC = () => {
       const files = Array.from(e.target.files).slice(0, remainingSlots);
       setIsCompressing(true);
       try {
+        let origSum = 0;
+        let compSum = 0;
         const compressedUrls = await Promise.all(
           files.map(async (f) => {
             try {
-              return await compressImageFile(f, 1200, 0.82);
+              const res = await compressImageFile(f, { lowBandwidthMode });
+              origSum += res.originalSize;
+              compSum += res.compressedSize;
+              return res.dataUrl;
             } catch {
               return URL.createObjectURL(f);
             }
           })
         );
+        const savingsPercent = origSum > 0 ? Math.round(((origSum - compSum) / origSum) * 100) : 0;
+        setCompressionStats({
+          originalTotal: origSum,
+          compressedTotal: compSum,
+          savingsPercent,
+        });
         setUploadedPhotos((prev) => [...prev, ...compressedUrls].slice(0, 8));
-        showToast(`Added and compressed ${files.length} produce photo(s).`);
+        showToast(
+          `⚡ Fast Compressed ${files.length} photo(s)! Saved ${savingsPercent}% data (${formatBytes(compSum)})`,
+          'success'
+        );
       } catch (err: any) {
         showToast('Failed to process photos', 'error');
       } finally {
@@ -372,6 +392,42 @@ export const FastSellModal: React.FC = () => {
           {/* STEP 1: Product Information & Multi-Images */}
           {step === 1 && (
             <div className="space-y-5 animate-fade-in">
+              {/* 2G/3G Village Network Low-Bandwidth Mode Indicator */}
+              <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/60 flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                    ⚡
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 truncate">
+                        2G/3G Village Network Mode
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white shrink-0">
+                        Active
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-700/80 dark:text-emerald-400 block truncate">
+                      {compressionStats
+                        ? `Saved ${compressionStats.savingsPercent}% data (${formatBytes(compressionStats.originalTotal)} → ${formatBytes(compressionStats.compressedTotal)})`
+                        : 'Phone camera photos auto-compressed down to ~90KB for 1-second upload'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLowBandwidthMode(!lowBandwidthMode)}
+                  className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-colors shrink-0 cursor-pointer ${
+                    lowBandwidthMode
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                      : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
+                  }`}
+                  title="Toggle between Ultra-Fast village mode and Standard HD"
+                >
+                  {lowBandwidthMode ? '⚡ Fast (~90KB)' : '📸 HD (~200KB)'}
+                </button>
+              </div>
+
               {/* Photo Upload Section */}
               <div>
                 <div className="flex items-center justify-between mb-2">
