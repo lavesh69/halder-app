@@ -201,7 +201,7 @@ export const FastSellModal: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const remainingSlots = 8 - uploadedPhotos.length;
       if (remainingSlots <= 0) {
-        showToast('Maximum 8 photos allowed per listing.');
+        showToast(t('post_ad.err_max_photos'));
         return;
       }
 
@@ -230,7 +230,11 @@ export const FastSellModal: React.FC = () => {
         });
         setUploadedPhotos((prev) => [...prev, ...compressedUrls].slice(0, 8));
         showToast(
-          `⚡ Fast Compressed ${files.length} photo(s)! Saved ${savingsPercent}% data (${formatBytes(compSum)})`,
+          t('post_ad.photos_compressed', {
+            count: files.length,
+            percent: savingsPercent,
+            size: formatBytes(compSum),
+          }),
           'success'
         );
       } catch (err: any) {
@@ -254,12 +258,12 @@ export const FastSellModal: React.FC = () => {
   const setAsCover = (index: number) => {
     if (index === 0) return;
     movePhoto(index, 0);
-    showToast('Cover photo updated.');
+    showToast(t('post_ad.cover_updated'));
   };
 
   const removePhoto = (index: number) => {
     if (uploadedPhotos.length <= 1) {
-      showToast('At least one product photo is required.');
+      showToast(t('post_ad.err_min_photos'));
       return;
     }
     setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
@@ -293,17 +297,17 @@ export const FastSellModal: React.FC = () => {
 
   const handlePublish = (status: 'active' | 'draft' = 'active') => {
     if (!name.trim()) {
-      showToast('Please enter a product name');
+      showToast(t('post_ad.err_name'));
       setStep(1);
       return;
     }
     if (!price || Number(price) <= 0) {
-      showToast('Please enter a valid price');
+      showToast(t('post_ad.err_price'));
       setStep(2);
       return;
     }
     if (!availableQuantity || Number(availableQuantity) <= 0) {
-      showToast('Please enter available quantity');
+      showToast(t('post_ad.err_quantity'));
       setStep(2);
       return;
     }
@@ -358,10 +362,10 @@ export const FastSellModal: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-                {editingListing ? t('common.edit') : role === 'farmer' ? 'Kisan Mandi Ad (0% Commission)' : 'OLX Kisan Classifieds'}
+                {editingListing ? t('common.edit') : role === 'farmer' ? t('post_ad.kisan_mandi_badge') : t('post_ad.classifieds_badge')}
               </span>
               <span className="text-xs text-zinc-400 font-semibold">
-                Step {step} of 5
+                {t('post_ad.step_counter', { current: step, total: 5 })}
               </span>
             </div>
             <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white mt-1">
@@ -403,10 +407,10 @@ export const FastSellModal: React.FC = () => {
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 truncate">
-                        2G/3G Village Network Mode
+                        {t('post_ad.network_mode')}
                       </span>
                       <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white shrink-0">
-                        Active
+                        {t('post_ad.active')}
                       </span>
                     </div>
                     <span className="text-[10px] text-emerald-700/80 dark:text-emerald-400 block truncate">

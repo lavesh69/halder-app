@@ -21,7 +21,6 @@ import { FarmerSellerProfileModal } from './components/customer/FarmerSellerProf
 import { OrderTrackingModal } from './components/customer/OrderTrackingModal';
 import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal';
 import { FastSellModal } from './components/customer/FastSellModal';
-import { MyAdsModal } from './components/customer/MyAdsModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 
@@ -200,7 +199,6 @@ export const MainApp: React.FC = () => {
       <OrderTrackingModal />
       <MarketplaceChatModal />
       <FastSellModal />
-      <MyAdsModal />
       <FilterBottomSheet />
       <LocationModal />
       <NotificationModal

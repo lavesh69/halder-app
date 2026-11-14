@@ -23,13 +23,6 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-const quickReplies = [
-  'Is this produce available today?',
-  'Can I order 5 kg for morning delivery?',
-  'Where is your farm located in Dehradun?',
-  'Can you harvest and pack fresh early morning?',
-];
-
 export const MarketplaceChatModal: React.FC = () => {
   const {
     isChatModalOpen,
@@ -43,11 +36,19 @@ export const MarketplaceChatModal: React.FC = () => {
     role,
     showToast,
     currentLocation,
+    activeCity,
     setSelectedProduct,
     setIsNegotiationsOpen,
   } = useApp();
 
   const { t } = useTranslation();
+  const userCity = activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : '') || 'Local Mandi';
+  const quickReplies = [
+    t('chat.quick_available'),
+    t('chat.quick_order'),
+    t('chat.quick_location', { city: userCity }),
+    t('chat.quick_harvest'),
+  ];
   const [inputMsg, setInputMsg] = useState('');
   const [showChatOfferModal, setShowChatOfferModal] = useState(false);
   const [chatOfferPrice, setChatOfferPrice] = useState<number | ''>('');

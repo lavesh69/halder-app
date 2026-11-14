@@ -386,7 +386,30 @@ export const enTranslations = {
   'my_ads.mark_sold': 'Mark as Sold',
   'my_ads.boost': 'Boost Ad',
   'my_ads.delete_confirm': 'Are you sure you want to delete this ad?',
+
+  // OLX Classifieds & Fast Sell Extensions
+  'post_ad.step_counter': 'Step {current} of {total}',
+  'post_ad.kisan_mandi_badge': 'Kisan Mandi Ad (0% Commission)',
+  'post_ad.classifieds_badge': 'Kisan Classifieds',
+  'post_ad.network_mode': '2G/3G Village Network Mode',
+  'post_ad.active': 'Active',
+  'post_ad.err_name': 'Please enter a product name',
+  'post_ad.err_price': 'Please enter a valid price',
+  'post_ad.err_quantity': 'Please enter available quantity',
+  'post_ad.err_max_photos': 'Maximum 8 photos allowed per listing.',
+  'post_ad.err_min_photos': 'At least one product photo is required.',
+  'post_ad.cover_updated': 'Cover photo updated.',
+  'post_ad.photos_compressed': '⚡ Fast Compressed {count} photo(s)! Saved {percent}% data ({size})',
+  'chat.quick_available': 'Is this produce available today?',
+  'chat.quick_order': 'Can I order 5 kg for morning delivery?',
+  'chat.quick_location': 'Where is your farm located in {city}?',
+  'chat.quick_harvest': 'Can you harvest and pack fresh early morning?',
+  'chat.offer_heading': 'Make Price Offer',
+  'chat.direct_call': 'Direct Call',
+  'ads.chat_with_farmer': 'Chat with Seller',
+  'ads.instant_order': 'Instant Buy',
+  'ads.safety_tip': 'Never send advance payment before inspecting produce in person.',
 };
 
-export type TranslationKey = keyof typeof enTranslations;
-export type TranslationDictionary = Record<TranslationKey, string>;
+export type TranslationKey = string;
+export type TranslationDictionary = Record<string, string>;

@@ -647,22 +647,47 @@ export const ListingDetailModal: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="py-3.5 rounded-2xl font-bold text-xs border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span>Add to Cart</span>
-              </button>
+            <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={handleOpenChat}
+                  className="py-3 px-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white/20" />
+                  <span>{t('ads.chat')}</span>
+                </button>
 
-              <button
-                onClick={handleBuyNow}
-                className="py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
-              >
-                <Zap className="w-4 h-4 fill-white" />
-                <span>Buy Now • {formatCurrency(selectedProduct.price * quantity)}</span>
-              </button>
+                <button
+                  onClick={() => setShowOfferModal(true)}
+                  className="py-3 px-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                >
+                  <HandCoins className="w-4 h-4" />
+                  <span>{t('ads.make_offer')}</span>
+                </button>
+
+                <button
+                  onClick={() => setShowPhoneModal(true)}
+                  className="py-3 px-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>{t('ads.call_farmer')}</span>
+                </button>
+              </div>
+
+              {/* OLX Security Notice & Quick Direct Buy */}
+              <div className="flex items-center justify-between pt-1 px-1 text-[10px]">
+                <span className="text-zinc-500 dark:text-zinc-400 truncate max-w-[65%]">
+                  🛡️ {t('ads.safety_tip')}
+                </span>
+                <button
+                  onClick={handleBuyNow}
+                  className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 shrink-0"
+                  title="Direct buy without negotiation"
+                >
+                  <Zap className="w-3 h-3 fill-emerald-600" />
+                  <span>{t('ads.instant_order')} ({formatCurrency(selectedProduct.price * quantity)})</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
