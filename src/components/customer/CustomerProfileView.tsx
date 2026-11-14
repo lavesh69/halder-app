@@ -26,6 +26,7 @@ import {
   Mail,
   X,
   Sprout,
+  HandCoins,
 } from 'lucide-react';
 
 import { PrivacyPolicyModal } from '../common/PrivacyPolicyModal';
@@ -44,7 +45,7 @@ export const CustomerProfileView: React.FC = () => {
     showToast,
     logout,
     loginWithGoogle,
-    setIsMyAdsOpen,
+    setIsNegotiationsOpen,
     products,
     platformSettings,
   } = useApp();
@@ -269,6 +270,27 @@ export const CustomerProfileView: React.FC = () => {
               </div>
               <span className="text-[11px] text-zinc-500">
                 Manage, preview, and remove your posted marketplace ads
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-400" />
+        </button>
+
+        {/* My Offers & Price Negotiations (OLX Bargains) */}
+        <button
+          onClick={() => setIsNegotiationsOpen(true)}
+          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300">
+              <HandCoins className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-zinc-900 dark:text-white block">
+                My Offers & Price Negotiations (मेरे मोल-भाव)
+              </span>
+              <span className="text-[11px] text-zinc-500">
+                Track active counter-offers, bargains & direct farmer deals
               </span>
             </div>
           </div>

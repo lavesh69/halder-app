@@ -163,10 +163,6 @@ interface AppContextType {
   setIsFastSellOpen: (open: boolean) => void;
   editingListing: Product | null;
   setEditingListing: (p: Product | null) => void;
-  isMyAdsOpen: boolean;
-  setIsMyAdsOpen: (open: boolean) => void;
-  isAddProductOpen: boolean;
-  setIsAddProductOpen: (open: boolean) => void;
   publishListing: (listingData: any) => void;
   addProduct: (listingData: any) => void;
   updateProductStatusAction: (productId: string, action: 'pause' | 'resume' | 'mark_sold' | 'renew') => Promise<void>;
@@ -489,7 +485,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [isFastSellOpen, setIsFastSellOpen] = useState<boolean>(false);
   const [editingListing, setEditingListing] = useState<Product | null>(null);
-  const [isMyAdsOpen, setIsMyAdsOpen] = useState<boolean>(false);
 
   // New Agricultural Modules State
   const [isFarmMapOpen, setIsFarmMapOpen] = useState<boolean>(false);
@@ -1866,10 +1861,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsFastSellOpen,
         editingListing,
         setEditingListing,
-        isMyAdsOpen,
-        setIsMyAdsOpen,
-        isAddProductOpen: isFastSellOpen,
-        setIsAddProductOpen: setIsFastSellOpen,
         publishListing,
         addProduct: publishListing,
         updateProductStatusAction,

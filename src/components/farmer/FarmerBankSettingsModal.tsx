@@ -84,7 +84,10 @@ export const FarmerBankSettingsModal: React.FC<FarmerBankSettingsModalProps> = (
       };
 
       const res = await ApiClient.updateFarmerPayoutSettings(farmerId, payload);
-      showToast('? Settlement details saved successfully!', 'success');
+      try {
+        localStorage.setItem(`halder-farmer-bank-${farmerId}`, JSON.stringify(payload));
+      } catch {}
+      showToast('✅ Settlement details saved successfully!', 'success');
       onSuccess(res?.data || payload);
       onClose();
     } catch (err: any) {

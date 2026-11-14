@@ -451,91 +451,125 @@ export const FastSellModal: React.FC = () => {
                   <span className="text-[11px] text-zinc-400">#1 is main cover</span>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2.5">
-                  {uploadedPhotos.map((photoUrl, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-emerald-600/40 group shadow-xs">
-                      <img src={photoUrl} alt="Upload" className="w-full h-full object-cover" />
-                      
-                      {/* Cover Badge */}
-                      {idx === 0 ? (
-                        <span className="absolute bottom-1 left-1 right-1 bg-emerald-700/90 text-white text-[9px] font-bold py-0.5 text-center rounded-md flex items-center justify-center gap-0.5">
-                          <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
-                          <span>Cover</span>
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setAsCover(idx)}
-                          className="absolute bottom-1 left-1 right-1 bg-black/70 hover:bg-emerald-600 text-white text-[8px] font-bold py-0.5 text-center rounded-md transition opacity-0 group-hover:opacity-100"
-                          title="Set as main cover"
-                        >
-                          Make Cover
-                        </button>
-                      )}
-
-                      {/* Reorder & Delete Overlay */}
-                      <div className="absolute top-1 inset-x-1 flex items-center justify-between">
-                        <div className="flex items-center gap-0.5">
-                          {idx > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => movePhoto(idx, idx - 1)}
-                              className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
-                              title="Move left"
-                            >
-                              <ChevronLeft className="w-2.5 h-2.5" />
-                            </button>
-                          )}
-                          {idx < uploadedPhotos.length - 1 && (
-                            <button
-                              type="button"
-                              onClick={() => movePhoto(idx, idx + 1)}
-                              className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
-                              title="Move right"
-                            >
-                              <ChevronRight className="w-2.5 h-2.5" />
-                            </button>
-                          )}
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => removePhoto(idx)}
-                          className="p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors opacity-90 group-hover:opacity-100"
-                          title="Remove photo"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
+                {uploadedPhotos.length === 0 ? (
+                  <div className="p-5 border-2 border-dashed border-emerald-300 dark:border-emerald-800/80 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mx-auto shadow-2xs">
+                      <Camera className="w-6 h-6" />
                     </div>
-                  ))}
-
-                  {uploadedPhotos.length < 8 && (
-                    <>
-                      {/* Add Gallery Photos */}
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-emerald-600 transition-all cursor-pointer"
-                        title="Upload from gallery"
-                      >
-                        <Upload className="w-5 h-5" />
-                        <span className="text-[10px] font-bold">+ Gallery</span>
-                      </button>
-
-                      {/* Snap Produce with Phone Camera */}
+                    <div>
+                      <h4 className="text-xs font-bold text-zinc-900 dark:text-white">
+                        Add Real Photos of Your Crop (फसल की फोटो जोड़ें)
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Real harvest photos get 5x more buyer calls & direct WhatsApp offers
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-2.5 pt-1">
                       <button
                         type="button"
                         onClick={() => cameraInputRef.current?.click()}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-emerald-400 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 hover:border-emerald-600 flex flex-col items-center justify-center gap-1 text-emerald-700 dark:text-emerald-300 transition-all cursor-pointer"
-                        title="Snap with phone camera"
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-soft flex items-center gap-1.5 cursor-pointer transition"
                       >
-                        <Camera className="w-5 h-5" />
-                        <span className="text-[10px] font-bold">📷 Camera</span>
+                        <Camera className="w-4 h-4" />
+                        <span>📷 Open Camera (कैमरा)</span>
                       </button>
-                    </>
-                  )}
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 text-zinc-800 dark:text-zinc-200 font-bold text-xs rounded-xl shadow-2xs flex items-center gap-1.5 cursor-pointer transition"
+                      >
+                        <Upload className="w-4 h-4" />
+                        <span>🖼️ Gallery (गैलरी)</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2.5">
+                    {uploadedPhotos.map((photoUrl, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-emerald-600/40 group shadow-xs">
+                        <img src={photoUrl} alt="Upload" className="w-full h-full object-cover" />
+                        
+                        {/* Cover Badge */}
+                        {idx === 0 ? (
+                          <span className="absolute bottom-1 left-1 right-1 bg-emerald-700/90 text-white text-[9px] font-bold py-0.5 text-center rounded-md flex items-center justify-center gap-0.5">
+                            <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
+                            <span>Cover</span>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setAsCover(idx)}
+                            className="absolute bottom-1 left-1 right-1 bg-black/70 hover:bg-emerald-600 text-white text-[8px] font-bold py-0.5 text-center rounded-md transition opacity-0 group-hover:opacity-100"
+                            title="Set as main cover"
+                          >
+                            Make Cover
+                          </button>
+                        )}
+
+                        {/* Reorder & Delete Overlay */}
+                        <div className="absolute top-1 inset-x-1 flex items-center justify-between">
+                          <div className="flex items-center gap-0.5">
+                            {idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => movePhoto(idx, idx - 1)}
+                                className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
+                                title="Move left"
+                              >
+                                <ChevronLeft className="w-2.5 h-2.5" />
+                              </button>
+                            )}
+                            {idx < uploadedPhotos.length - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => movePhoto(idx, idx + 1)}
+                                className="p-1 bg-black/70 hover:bg-black text-white rounded-full transition opacity-0 group-hover:opacity-100"
+                                title="Move right"
+                              >
+                                <ChevronRight className="w-2.5 h-2.5" />
+                              </button>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(idx)}
+                            className="p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors opacity-90 group-hover:opacity-100"
+                            title="Remove photo"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {uploadedPhotos.length < 8 && (
+                      <>
+                        {/* Add Gallery Photos */}
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="aspect-square rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-emerald-600 transition-all cursor-pointer"
+                          title="Upload from gallery"
+                        >
+                          <Upload className="w-5 h-5" />
+                          <span className="text-[10px] font-bold">+ Gallery</span>
+                        </button>
+
+                        {/* Snap Produce with Phone Camera */}
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          className="aspect-square rounded-2xl border-2 border-dashed border-emerald-400 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 hover:border-emerald-600 flex flex-col items-center justify-center gap-1 text-emerald-700 dark:text-emerald-300 transition-all cursor-pointer"
+                          title="Snap with phone camera"
+                        >
+                          <Camera className="w-5 h-5" />
+                          <span className="text-[10px] font-bold">📷 Camera</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* Gallery File Input */}
                 <input

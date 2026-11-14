@@ -149,6 +149,16 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
         documentUrl: docUrl.trim(),
       });
 
+      try {
+        localStorage.setItem(`halder-farmer-kyc-${farmerId}`, JSON.stringify({
+          verificationStatus: 'pending',
+          documentType: docType,
+          documentNumber: docNumber.trim(),
+          documentUrl: docUrl.trim(),
+          submittedAt: new Date().toISOString(),
+        }));
+      } catch {}
+
       showToast('📄 KYC Documents submitted for verification!', 'success');
       loadStatus();
       if (onSuccess) onSuccess();

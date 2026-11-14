@@ -79,7 +79,12 @@ export const FarmerProfileView: React.FC = () => {
       const res = await ApiClient.getFarmerKYC(farmerId);
       if (res?.data) {
         setKycData(res.data);
+        return;
       }
+    } catch {}
+    try {
+      const cached = localStorage.getItem(`halder-farmer-kyc-${farmerId}`);
+      if (cached) setKycData(JSON.parse(cached));
     } catch {}
   };
 
@@ -88,9 +93,15 @@ export const FarmerProfileView: React.FC = () => {
       const res = await ApiClient.getFarmerEarnings(farmerId);
       if (res?.data?.bankDetails) {
         setBankSettings(res.data.bankDetails);
+        return;
       } else if (res?.bankDetails) {
         setBankSettings(res.bankDetails);
+        return;
       }
+    } catch {}
+    try {
+      const cached = localStorage.getItem(`halder-farmer-bank-${farmerId}`);
+      if (cached) setBankSettings(JSON.parse(cached));
     } catch {}
   };
 
@@ -398,7 +409,14 @@ export const FarmerProfileView: React.FC = () => {
         onClose={() => setIsBankModalOpen(false)}
         farmerId={farmerId}
         initialSettings={bankSettings}
-        onSuccess={() => loadBankInfo()}
+        onSuccess={(updated) => {
+          setBankSettings((prev) => ({
+            ...prev,
+            ...updated,
+            isConfigured: true,
+          }));
+          loadBankInfo();
+        }}
         showToast={showToast}
       />
 
@@ -499,7 +517,14 @@ export const FarmerProfileView: React.FC = () => {
         isOpen={isKycModalOpen}
         onClose={() => setIsKycModalOpen(false)}
         farmerId={farmerId}
-        onSuccess={() => loadKyc()}
+        onSuccess={() => {
+          setKycData((prev: any) => ({
+            ...prev,
+            verificationStatus: 'pending',
+            submittedAt: new Date().toISOString(),
+          }));
+          loadKyc();
+        }}
         showToast={showToast}
       />
 

@@ -74,6 +74,7 @@ export const FarmerDashboard: React.FC = () => {
     currentUser,
     unreadChatCount,
     showToast,
+    setIsRequirementsOpen,
   } = useApp();
 
   const currentFarmerId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -172,14 +173,15 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setFarmerTab('listings')}
+          onClick={() => setIsRequirementsOpen(true)}
           className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
+          title="Buyer Demands / खरीदार की जरूरतें"
         >
-          <div className="w-7 h-7 rounded-full bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center group-hover:bg-[#EAF5EE] group-hover:text-[#176B45] transition">
-            <Sprout className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-full bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] flex items-center justify-center group-hover:scale-105 transition">
+            <Megaphone className="w-4 h-4" />
           </div>
-          <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            {t('nav.crops')} ({myProducts.length})
+          <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383] mt-0.5">
+            Buyer Demands
           </span>
         </button>
 

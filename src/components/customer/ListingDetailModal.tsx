@@ -54,6 +54,7 @@ export const ListingDetailModal: React.FC = () => {
     setIsFastSellOpen,
     products,
     showToast,
+    setIsNegotiationsOpen,
   } = useApp();
 
   const [quantity, setQuantity] = useState(1);
@@ -765,6 +766,11 @@ export const ListingDetailModal: React.FC = () => {
             product={selectedProduct}
             isOpen={showOfferModal}
             onClose={() => setShowOfferModal(false)}
+            onOfferSubmitted={() => {
+              setShowOfferModal(false);
+              setSelectedProduct(null);
+              setIsNegotiationsOpen(true);
+            }}
           />
         )}
         {/* OLX Phone Call / Reveal Number Modal */}

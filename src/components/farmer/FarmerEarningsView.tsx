@@ -117,6 +117,22 @@ export const FarmerEarningsView: React.FC = () => {
         availableBalance: Number(gross.toFixed(2)),
       }));
     } finally {
+      try {
+        const cachedBankStr = localStorage.getItem(`halder-farmer-bank-${farmerId}`);
+        if (cachedBankStr) {
+          const cachedBank = JSON.parse(cachedBankStr);
+          if (cachedBank.upiId || cachedBank.bankAccountNumber) {
+            setEarnings((prev) => ({
+              ...prev,
+              bankDetails: {
+                ...prev.bankDetails,
+                ...cachedBank,
+                isConfigured: true,
+              },
+            }));
+          }
+        }
+      } catch {}
       setIsLoading(false);
     }
   };
@@ -201,7 +217,17 @@ export const FarmerEarningsView: React.FC = () => {
         onClose={() => setIsBankModalOpen(false)}
         farmerId={farmerId}
         initialSettings={earnings.bankDetails}
-        onSuccess={() => loadEarnings()}
+        onSuccess={(updated) => {
+          setEarnings((prev) => ({
+            ...prev,
+            bankDetails: {
+              ...prev.bankDetails,
+              ...updated,
+              isConfigured: true,
+            },
+          }));
+          loadEarnings();
+        }}
         showToast={showToast}
       />
 
