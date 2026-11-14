@@ -524,36 +524,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('halder-categories-v2', JSON.stringify(categories));
   }, [categories]);
 
+  const safeStorageSet = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (err: any) {
+      if (err?.name === 'QuotaExceededError' || err?.code === 22) {
+        console.warn(`[HALDER Storage] LocalStorage quota exceeded for ${key}. Pruning non-critical cache.`);
+        try {
+          localStorage.removeItem('halder_recent_searches');
+          localStorage.removeItem('halder_weather_cache');
+          localStorage.setItem(key, value);
+        } catch {
+          console.error('[HALDER Storage] LocalStorage is full. Skipping storage write.');
+        }
+      }
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('halder-farmers-v2', JSON.stringify(farmers));
+    safeStorageSet('halder-farmers-v2', JSON.stringify(farmers));
   }, [farmers]);
 
   useEffect(() => {
-    localStorage.setItem('halder-reviews-v2', JSON.stringify(reviews));
+    safeStorageSet('halder-reviews-v2', JSON.stringify(reviews));
   }, [reviews]);
 
   useEffect(() => {
-    localStorage.setItem('halder-notifications-v2', JSON.stringify(notifications));
+    safeStorageSet('halder-notifications-v2', JSON.stringify(notifications));
   }, [notifications]);
 
   useEffect(() => {
-    localStorage.setItem('halder-products-v2', JSON.stringify(products));
+    safeStorageSet('halder-products-v2', JSON.stringify(products));
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem('halder-orders-v2', JSON.stringify(orders));
+    safeStorageSet('halder-orders-v2', JSON.stringify(orders));
   }, [orders]);
 
   useEffect(() => {
-    localStorage.setItem('halder-cart-v2', JSON.stringify(cart));
+    safeStorageSet('halder-cart-v2', JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('halder-favorites', JSON.stringify(favorites));
+    safeStorageSet('halder-favorites', JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem('halder-role', role);
+    safeStorageSet('halder-role', role);
   }, [role]);
 
 

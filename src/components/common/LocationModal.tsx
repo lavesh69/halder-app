@@ -56,19 +56,35 @@ export const LocationModal: React.FC = () => {
     if ('geolocation' in navigator) {
       showToast('🛰️ Requesting device GPS coordinates...');
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude.toFixed(4);
-          const lng = pos.coords.longitude.toFixed(4);
-          handleSelect(`GPS (${lat}, ${lng}), Dehradun`, 'Dehradun');
-          showToast(`🛰️ GPS Location synced: ${lat}, ${lng}`);
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          try {
+            const res = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              const city = data.city || data.locality || data.principalSubdivision || 'Local Area';
+              const stateName = data.principalSubdivision ? `, ${data.principalSubdivision}` : '';
+              const fullArea = `${city}${stateName} (GPS)`;
+              handleSelect(fullArea, city);
+              showToast(`📍 GPS Location synced: ${city}`);
+              return;
+            }
+          } catch {
+            // Geocoding fallback if offline or request blocked
+          }
+          handleSelect(`GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`, 'Local Mandi');
+          showToast(`🛰️ GPS Coordinates synced: ${lat.toFixed(3)}, ${lng.toFixed(3)}`);
         },
         () => {
-          handleSelect('Rajpur Road (GPS Fallback), Dehradun', 'Dehradun');
+          showToast('GPS permission denied or unavailable. Please pick your city below.', 'info');
         },
-        { timeout: 5000 }
+        { timeout: 7000, enableHighAccuracy: true }
       );
     } else {
-      handleSelect('Rajpur Road, Dehradun', 'Dehradun');
+      showToast('Geolocation not supported by your device.', 'error');
     }
   };
 

@@ -65,6 +65,7 @@ export const ListingDetailModal: React.FC = () => {
   const [hasReported, setHasReported] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleShare = () => {
     if (!selectedProduct) return;
@@ -268,11 +269,7 @@ export const ListingDetailModal: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => {
-                  if (window.confirm(`Are you sure you want to remove "${selectedProduct.name}" from the marketplace?`)) {
-                    deleteProduct(selectedProduct.id);
-                  }
-                }}
+                onClick={() => setShowDeleteConfirm(true)}
                 className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition shrink-0"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -634,11 +631,7 @@ export const ListingDetailModal: React.FC = () => {
               </button>
 
               <button
-                onClick={() => {
-                  if (window.confirm(`Are you sure you want to remove "${selectedProduct.name}" from the marketplace?`)) {
-                    deleteProduct(selectedProduct.id);
-                  }
-                }}
+                onClick={() => setShowDeleteConfirm(true)}
                 className="py-3.5 px-4 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
                 title="Delete ad permanently"
               >
@@ -908,6 +901,42 @@ export const ListingDetailModal: React.FC = () => {
                   <img src={p} alt="thumb" className="w-full h-full object-cover" />
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* In-App Delete Ad Confirmation Dialog */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in" onClick={() => setShowDeleteConfirm(false)}>
+            <div className="w-full max-w-sm bg-white dark:bg-[#1E2420] rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-2xl space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>
+              <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-base font-black text-zinc-900 dark:text-white">
+                  Delete Advertisement?
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Are you sure you want to remove &ldquo;{selectedProduct.name}&rdquo; from the marketplace? This cannot be undone.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="py-2.5 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    deleteProduct(selectedProduct.id);
+                  }}
+                  className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 font-bold text-xs text-white shadow-soft transition"
+                >
+                  Delete Ad
+                </button>
+              </div>
             </div>
           </div>
         )}

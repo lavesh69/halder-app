@@ -49,6 +49,7 @@ export const FarmerProfileView: React.FC = () => {
   const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const [kycData, setKycData] = useState<any>(null);
   const [bankSettings, setBankSettings] = useState<{
@@ -99,14 +100,17 @@ export const FarmerProfileView: React.FC = () => {
     loadKyc();
   }, [farmerId]);
 
-  const handleLogout = async () => {
-    if (window.confirm('Are you sure you want to log out of your HALDER farmer account?')) {
-      await ApiClient.logout();
-      showToast('Logged out successfully', 'info');
-      setTimeout(() => {
-        window.location.reload();
-      }, 600);
-    }
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
+    setShowLogoutConfirm(false);
+    await ApiClient.logout();
+    showToast('Logged out successfully', 'info');
+    setTimeout(() => {
+      window.location.reload();
+    }, 400);
   };
 
   const displayName = profile?.name || currentUser?.name || 'Rajesh Kumar';
@@ -605,6 +609,39 @@ export const FarmerProfileView: React.FC = () => {
         isGoogleConnected={false}
         showToast={showToast}
       />
+
+      {/* In-App Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in" onClick={() => setShowLogoutConfirm(false)}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#1B201D] rounded-3xl p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+              <LogOut className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-base font-black text-zinc-900 dark:text-white">
+                Log Out of Farmer Account?
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Are you sure you want to end your farmer session on this device?
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="py-2.5 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 font-bold text-xs text-white shadow-soft transition"
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
