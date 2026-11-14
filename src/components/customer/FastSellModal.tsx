@@ -120,6 +120,7 @@ export const FastSellModal: React.FC = () => {
   const [farmLocation, setFarmLocation] = useState(currentLocation || 'Local Farm');
   const [pickupAvailable, setPickupAvailable] = useState(true);
   const [farmerDeliveryAvailable, setFarmerDeliveryAvailable] = useState(true);
+  const [showPhoneNumber, setShowPhoneNumber] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -965,6 +966,24 @@ export const FastSellModal: React.FC = () => {
                     <div>
                       <span className="text-xs font-bold text-zinc-900 dark:text-white block">Farmer Delivery</span>
                       <span className="text-[10px] text-zinc-400">Direct delivery arranged</span>
+                    </div>
+                  </label>
+
+                  {/* OLX Phone Privacy Toggle */}
+                  <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 cursor-pointer col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={showPhoneNumber}
+                      onChange={(e) => setShowPhoneNumber(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-600"
+                    />
+                    <div>
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white block">
+                        Show my phone number on this ad (विज्ञापन पर फोन नंबर दिखाएं)
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        If unchecked, buyers can only contact you via in-app Chat & Make an Offer to protect privacy
+                      </span>
                     </div>
                   </label>
                 </div>

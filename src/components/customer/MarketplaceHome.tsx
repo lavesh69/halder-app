@@ -305,12 +305,17 @@ export const MarketplaceHome: React.FC = () => {
         </button>
       </div>
 
-      {/* 2. Browse Categories Horizontal Scroll */}
+      {/* 2. OLX-Style Browse Categories Circular Story Carousel */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold text-[#66736B] dark:text-[#A6B3AA] uppercase tracking-wider">
-            {t('home.browse_categories')}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-black text-[#202923] dark:text-[#F2F5F3] uppercase tracking-wider">
+              {t('home.browse_categories')}
+            </span>
+            <span className="text-[10px] text-[#66736B] dark:text-[#A6B3AA] font-bold">
+              ({categories.length - 1} Categories)
+            </span>
+          </div>
           <button
             onClick={() => setIsExploreCategoriesOpen(true)}
             className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] hover:underline flex items-center gap-0.5 min-h-[36px]"
@@ -319,21 +324,44 @@ export const MarketplaceHome: React.FC = () => {
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+
+        {/* Circular Story-Style Category Cards */}
+        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1 px-1">
           {categories.map((item) => {
             const isSelected = selectedCategory === item.cat;
+            const categoryCount = item.cat === 'All' 
+              ? products.length 
+              : products.filter((p) => p.category === item.cat).length;
+
             return (
               <button
                 key={item.cat}
                 onClick={() => setSelectedCategory(item.cat)}
-                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
-                  isSelected
-                    ? 'bg-[#176B45] text-white shadow-soft'
-                    : 'bg-white dark:bg-[#181F1A] text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] hover:bg-[#F0F4F1] dark:hover:bg-[#222B25]'
-                }`}
+                className="shrink-0 flex flex-col items-center gap-1.5 group cursor-pointer w-16"
               >
-                <span>{item.emoji}</span>
-                <span>{getCategoryLabel(item.cat)}</span>
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl transition-all shadow-soft relative ${
+                    isSelected
+                      ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 text-white ring-2 ring-emerald-600 ring-offset-2 dark:ring-offset-[#0F1411] scale-105'
+                      : 'bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] text-[#202923] dark:text-[#F2F5F3] group-hover:border-emerald-500/50 group-hover:scale-105'
+                  }`}
+                >
+                  <span className="select-none">{item.emoji}</span>
+                  {categoryCount > 0 && item.cat !== 'All' && (
+                    <span className="absolute -top-1 -right-1 px-1 py-0.2 bg-emerald-600 text-white text-[9px] font-black rounded-full shadow-2xs">
+                      {categoryCount}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[11px] text-center font-bold line-clamp-1 leading-tight ${
+                    isSelected
+                      ? 'text-[#176B45] dark:text-[#5FB383]'
+                      : 'text-[#66736B] dark:text-[#A6B3AA] group-hover:text-[#202923]'
+                  }`}
+                >
+                  {getCategoryLabel(item.cat)}
+                </span>
               </button>
             );
           })}

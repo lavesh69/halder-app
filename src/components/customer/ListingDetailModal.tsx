@@ -296,6 +296,14 @@ export const ListingDetailModal: React.FC = () => {
               <h2 className="text-xl font-bold text-zinc-900 dark:text-white mt-1">
                 {selectedProduct.name}
               </h2>
+              {/* OLX Location Breadcrumb Path */}
+              <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                <span>📍 India</span>
+                <span>›</span>
+                <span>{selectedProduct.state || 'Uttarakhand'}</span>
+                <span>›</span>
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">{selectedProduct.location || 'Dehradun'}</span>
+              </div>
             </div>
 
             <div className="text-right">
