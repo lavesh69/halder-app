@@ -102,6 +102,7 @@ export interface Product {
   isFeatured?: boolean;
   isUrgent?: boolean;
   farmerPhone?: string;
+  showPhoneNumber?: boolean;
   isAvailable: boolean;
   status?: ProductStatus;
   moderationStatus?: ModerationStatus;

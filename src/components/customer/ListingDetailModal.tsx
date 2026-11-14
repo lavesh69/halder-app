@@ -753,7 +753,7 @@ export const ListingDetailModal: React.FC = () => {
 
               <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 text-center space-y-1">
                 <span className="text-xs text-zinc-500 block">{selectedProduct.farmerName}</span>
-                {selectedProduct.farmerPhone || farmer?.phone ? (
+                {selectedProduct.showPhoneNumber !== false && (selectedProduct.farmerPhone || farmer?.phone) ? (
                   <>
                     <span className="text-xl font-black text-zinc-900 dark:text-white tracking-wider block font-mono">
                       {selectedProduct.farmerPhone || farmer?.phone}
@@ -761,9 +761,14 @@ export const ListingDetailModal: React.FC = () => {
                     <span className="text-[10px] text-emerald-600 font-bold">✓ Phone Verified by HALDER</span>
                   </>
                 ) : (
-                  <span className="text-xs font-bold text-amber-600 block py-1">
-                    Farmer prefers in-app Direct Chat for privacy
-                  </span>
+                  <div className="py-1 space-y-1">
+                    <span className="text-xs font-bold text-amber-600 block">
+                      🔒 Farmer chose to hide phone number on this ad
+                    </span>
+                    <span className="text-[11px] text-zinc-500 block">
+                      Contact via Direct Chat or Make an Offer to protect seller privacy.
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -774,7 +779,7 @@ export const ListingDetailModal: React.FC = () => {
               </div>
 
               {/* Action buttons */}
-              {selectedProduct.farmerPhone || farmer?.phone ? (
+              {selectedProduct.showPhoneNumber !== false && (selectedProduct.farmerPhone || farmer?.phone) ? (
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <button
                     onClick={() => {

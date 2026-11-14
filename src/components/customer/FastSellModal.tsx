@@ -335,6 +335,7 @@ export const FastSellModal: React.FC = () => {
       postalCode,
       pickupAvailable,
       farmerDeliveryAvailable,
+      showPhoneNumber,
       image: uploadedPhotos[0] || photoPresets[0].url,
       images: uploadedPhotos,
       priceSlabs: priceSlabs.filter((s) => s.minQuantity > 0 && s.pricePerUnit > 0),
