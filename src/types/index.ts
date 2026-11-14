@@ -264,6 +264,10 @@ export interface FilterState {
   maxDistanceKm: number;
   availableTodayOnly: boolean;
   organicOnly: boolean;
+  urgentOnly?: boolean;
+  featuredOnly?: boolean;
+  negotiableOnly?: boolean;
+  verifiedOnly?: boolean;
   sortBy: 'nearest' | 'price_low' | 'price_high' | 'recent';
 }
 

@@ -87,17 +87,25 @@ export const MarketplaceHome: React.FC = () => {
     filterState.maxDistanceKm < 100 ||
     filterState.organicOnly ||
     filterState.availableTodayOnly ||
+    filterState.urgentOnly ||
+    filterState.featuredOnly ||
+    filterState.negotiableOnly ||
+    filterState.verifiedOnly ||
     filterState.minPrice > 0 ||
-    filterState.maxPrice < 1000;
+    filterState.maxPrice < 100000;
 
   const resetAllFilters = () => {
     setSelectedCategory('All');
     setFilterState((prev) => ({
       ...prev,
       minPrice: 0,
-      maxPrice: 1000,
+      maxPrice: 100000,
       organicOnly: false,
       availableTodayOnly: false,
+      urgentOnly: false,
+      featuredOnly: false,
+      negotiableOnly: false,
+      verifiedOnly: false,
       maxDistanceKm: 100,
     }));
   };
@@ -108,6 +116,13 @@ export const MarketplaceHome: React.FC = () => {
     if (p.price < filterState.minPrice || p.price > filterState.maxPrice) return false;
     if (filterState.organicOnly && !p.isOrganic) return false;
     if (filterState.availableTodayOnly && !p.isAvailableToday) return false;
+    if (filterState.urgentOnly && !p.isUrgent) return false;
+    if (filterState.featuredOnly && !p.isFeatured) return false;
+    if (filterState.negotiableOnly && !p.isNegotiable) return false;
+    if (filterState.verifiedOnly) {
+      const farmer = farmers.find((f) => f.id === p.farmerId);
+      if (!farmer?.verified && farmer?.verification_status !== 'verified') return false;
+    }
     if (p.distanceKm > filterState.maxDistanceKm) return false;
     return true;
   });
@@ -352,6 +367,76 @@ export const MarketplaceHome: React.FC = () => {
             }`}
           >
             {t('home.all_areas')}
+          </button>
+        </div>
+
+        {/* OLX Quick Filter Chips Bar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          <button
+            onClick={() => {
+              setFilterState((prev) => ({
+                ...prev,
+                urgentOnly: false,
+                featuredOnly: false,
+                negotiableOnly: false,
+                verifiedOnly: false,
+              }));
+            }}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] ${
+              !filterState.urgentOnly && !filterState.featuredOnly && !filterState.negotiableOnly && !filterState.verifiedOnly
+                ? 'bg-[#176B45] text-white shadow-soft'
+                : 'bg-white dark:bg-[#181F1A] text-[#66736B] dark:text-[#A6B3AA] border border-[#E5EBE6] dark:border-[#29352D]'
+            }`}
+          >
+            All Ads (सभी विज्ञापन)
+          </button>
+
+          <button
+            onClick={() => setFilterState((prev) => ({ ...prev, urgentOnly: !prev.urgentOnly }))}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] flex items-center gap-1 ${
+              filterState.urgentOnly
+                ? 'bg-red-600 text-white shadow-soft'
+                : 'bg-white dark:bg-[#181F1A] text-red-600 border border-red-200 dark:border-red-900/60'
+            }`}
+          >
+            <span>🔥</span>
+            <span>Urgent (जल्दी बेचना है)</span>
+          </button>
+
+          <button
+            onClick={() => setFilterState((prev) => ({ ...prev, featuredOnly: !prev.featuredOnly }))}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] flex items-center gap-1 ${
+              filterState.featuredOnly
+                ? 'bg-amber-500 text-white shadow-soft'
+                : 'bg-white dark:bg-[#181F1A] text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60'
+            }`}
+          >
+            <span>⚡</span>
+            <span>Featured (टॉप विज्ञापन)</span>
+          </button>
+
+          <button
+            onClick={() => setFilterState((prev) => ({ ...prev, negotiableOnly: !prev.negotiableOnly }))}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] flex items-center gap-1 ${
+              filterState.negotiableOnly
+                ? 'bg-emerald-600 text-white shadow-soft'
+                : 'bg-white dark:bg-[#181F1A] text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60'
+            }`}
+          >
+            <span>🤝</span>
+            <span>Negotiable (मोल-भाव)</span>
+          </button>
+
+          <button
+            onClick={() => setFilterState((prev) => ({ ...prev, verifiedOnly: !prev.verifiedOnly }))}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] flex items-center gap-1 ${
+              filterState.verifiedOnly
+                ? 'bg-blue-600 text-white shadow-soft'
+                : 'bg-white dark:bg-[#181F1A] text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/60'
+            }`}
+          >
+            <span>🛡️</span>
+            <span>Verified Farmers (सत्यापित)</span>
           </button>
         </div>
 

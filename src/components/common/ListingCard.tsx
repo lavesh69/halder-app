@@ -211,14 +211,19 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               {product.name}
             </h4>
 
-            <p className="text-[10px] text-[#66736B] dark:text-[#A6B3AA] truncate mt-1">
-              📍 {product.location || 'Local Farm'}
-            </p>
+            <div className="flex items-center justify-between mt-1 text-[11px] text-[#66736B] dark:text-[#A6B3AA]">
+              <span className="truncate max-w-[120px] font-medium">{product.farmerName}</span>
+              {product.isOrganic && (
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1 py-0.2 rounded">
+                  🌿 Pure
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#E5EBE6] dark:border-[#29352D] text-[10px]">
-            <span className="text-[#89948C]">{product.harvestDate || 'Fresh Harvest'}</span>
-            <span className="font-bold text-[#176B45] dark:text-[#5FB383]">Stock: {product.availableQuantity}</span>
+          <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-[#E5EBE6] dark:border-[#29352D] text-[9px] uppercase tracking-wide text-[#89948C] font-semibold">
+            <span className="truncate max-w-[90px]">{product.location ? product.location.split(',')[0] : 'LOCAL'}</span>
+            <span>{product.harvestDate ? (product.harvestDate.toLowerCase().includes('today') ? 'TODAY' : product.harvestDate.slice(0, 8)) : 'TODAY'}</span>
           </div>
         </div>
       </div>

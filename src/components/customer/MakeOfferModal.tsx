@@ -132,6 +132,37 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
             </div>
           )}
 
+          {/* Quick OLX-style Offer Suggestion Chips */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
+                Quick Bargain (त्वरित मोल-भाव)
+              </span>
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">1-Tap Set Price</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[5, 10, 15, 20].map((pct) => {
+                const discountedPrice = Math.max(1, Math.round(product.price * (1 - pct / 100)));
+                const isSelected = proposedPrice === discountedPrice;
+                return (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => setProposedPrice(discountedPrice)}
+                    className={`py-1.5 px-1 rounded-xl text-xs font-bold border transition text-center ${
+                      isSelected
+                        ? 'bg-amber-500 border-amber-600 text-white shadow-xs'
+                        : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-amber-400'
+                    }`}
+                  >
+                    <span className="block text-[10px] font-medium opacity-80">-{pct}%</span>
+                    <span className="block text-xs font-black">₹{discountedPrice}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Offer Price & Quantity */}
           <div className="grid grid-cols-2 gap-3">
             <div>
