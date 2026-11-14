@@ -34,6 +34,7 @@ export const CustomerMyAdsView: React.FC = () => {
     deleteProduct,
     setSelectedProduct,
     setIsFastSellOpen,
+    setEditingListing,
     updateProductPrice,
     toggleProductSold,
     boostProduct,
@@ -340,16 +341,30 @@ export const CustomerMyAdsView: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800 text-xs">
-                    <button
-                      onClick={() => setSelectedProduct(ad)}
-                      className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>View Live Ad</span>
-                    </button>
-
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800 text-xs gap-2">
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSelectedProduct(ad)}
+                        className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>View Live Ad</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setEditingListing(ad);
+                          setIsFastSellOpen(true);
+                        }}
+                        className="px-2 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold transition flex items-center gap-1 hover:bg-emerald-100 text-[11px]"
+                        title="Edit Full Advertisement Details"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>{t('common.edit')}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       {/* Live Stock & Inventory Button */}
                       <button
                         onClick={() => setStockControlProduct(ad)}

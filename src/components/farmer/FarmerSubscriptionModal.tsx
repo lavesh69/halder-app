@@ -73,7 +73,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div className="bg-white dark:bg-[#1B201D] border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-linear-to-r from-emerald-900 to-zinc-900 text-white">
+        <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-emerald-950 bg-gradient-to-r from-emerald-900 to-zinc-900 text-white">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-amber-400 text-zinc-950 flex items-center justify-center shadow-md">
               <Crown className="w-6 h-6 stroke-[2.5]" />

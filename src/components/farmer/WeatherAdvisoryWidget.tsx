@@ -28,7 +28,7 @@ export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Deh
   if (!weather) return null;
 
   return (
-    <div className="p-4 bg-linear-to-br from-emerald-900 to-zinc-900 text-white rounded-3xl shadow-soft space-y-3">
+    <div className="p-4 bg-zinc-900 bg-gradient-to-br from-emerald-950 via-emerald-900 to-zinc-900 text-white rounded-3xl shadow-soft space-y-3">
       {/* Top weather row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

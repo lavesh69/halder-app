@@ -102,7 +102,7 @@ export const OrderTrackingModal: React.FC = () => {
 
           {/* Secure Delivery OTP Card */}
           {trackingOrder.status !== 'delivered' && trackingOrder.status !== 'rejected' && (
-            <div className="p-4 bg-linear-to-r from-amber-500/10 to-orange-500/10 border-2 border-dashed border-amber-500/50 rounded-2xl flex items-center justify-between">
+            <div className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-dashed border-amber-500/50 rounded-2xl flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shrink-0">
                   <KeyRound className="w-5 h-5" />

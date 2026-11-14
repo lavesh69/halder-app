@@ -168,7 +168,7 @@ export const MandiIntelligenceModal: React.FC<Props> = ({ isOpen, onClose }) => 
         {/* Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
           {/* Revenue Calculator Widget */}
-          <div className="p-4 bg-linear-to-br from-emerald-900 to-teal-950 text-white rounded-3xl shadow-md space-y-4">
+          <div className="p-4 bg-emerald-950 bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl shadow-md space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Calculator className="w-5 h-5 text-emerald-300" />

@@ -31,6 +31,7 @@ import {
   Award,
   Boxes,
   FileCheck,
+  Edit3,
 } from 'lucide-react';
 import { MakeOfferModal } from './MakeOfferModal';
 
@@ -49,6 +50,8 @@ export const ListingDetailModal: React.FC = () => {
     setCustomerTab,
     currentUser,
     deleteProduct,
+    setEditingListing,
+    setIsFastSellOpen,
     products,
     showToast,
   } = useApp();
@@ -617,17 +620,30 @@ export const ListingDetailModal: React.FC = () => {
         {/* Sticky Fast Dual Action Buttons (Buy Now & Add to Cart or Owner Delete) */}
         <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D]">
           {isOwner ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => {
+                  setEditingListing(selectedProduct);
+                  setSelectedProduct(null);
+                  setIsFastSellOpen(true);
+                }}
+                className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-2"
+              >
+                <Edit3 className="w-4 h-4" />
+                <span>{t('ads.edit_ad')}</span>
+              </button>
+
               <button
                 onClick={() => {
                   if (window.confirm(`Are you sure you want to remove "${selectedProduct.name}" from the marketplace?`)) {
                     deleteProduct(selectedProduct.id);
                   }
                 }}
-                className="flex-1 py-3.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-2"
+                className="py-3.5 px-4 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+                title="Delete ad permanently"
               >
                 <Trash2 className="w-4 h-4" />
-                <span>Remove / Delete This Advertisement</span>
+                <span>Delete</span>
               </button>
             </div>
           ) : (

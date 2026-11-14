@@ -169,8 +169,8 @@ export const Header: React.FC = () => {
               </button>
             )}
 
-            {/* 3-Way Role Selector */}
-            <div className="flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
+            {/* 3-Way Role Selector (Desktop/Tablet) */}
+            <div className="hidden md:flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
               <button
                 onClick={() => setRole('customer')}
                 title={t('nav.buyer')}
@@ -211,18 +211,18 @@ export const Header: React.FC = () => {
               </button>
             </div>
 
-            {/* Quick + Post Ad Button for Farmers */}
+            {/* Quick + Post Ad Button for Farmers (Desktop/Tablet) */}
             {role === 'farmer' && (
               <button
                 onClick={() => {
                   setEditingListing(null);
                   setIsFastSellOpen(true);
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] font-bold shadow-soft transition-all ml-0.5"
+                className="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] font-bold shadow-soft transition-all ml-0.5"
                 title="Post Crop Advertisement / फसल का विज्ञापन डालें"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span className="hidden xs:inline">+ Post Ad</span>
+                <span>+ Post Ad</span>
               </button>
             )}
 

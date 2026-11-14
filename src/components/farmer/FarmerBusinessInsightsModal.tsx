@@ -202,7 +202,7 @@ export const FarmerBusinessInsightsModal: React.FC<Props> = ({ isOpen, onClose, 
               </div>
 
               {/* Monthly Business Recommendation Card */}
-              <div className="p-4 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl flex items-start gap-3">
+              <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                 <div className="space-y-1">
                   <h5 className="text-xs font-black text-emerald-950 dark:text-emerald-200">

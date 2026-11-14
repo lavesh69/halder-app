@@ -27,6 +27,7 @@ import {
   Sparkles,
   Plus,
   Megaphone,
+  TrendingUp,
   ChevronRight,
 } from 'lucide-react';
 
@@ -206,12 +207,12 @@ export const FarmerProfileView: React.FC = () => {
       {/* Switch to Customer Marketplace Button */}
       <div
         onClick={() => setRole('customer')}
-        className="p-4 bg-linear-to-r from-emerald-800 to-emerald-950 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
+        className="p-4 bg-emerald-900 bg-gradient-to-r from-emerald-800 to-emerald-950 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
           <div className="text-2xl">🛒</div>
           <div>
-            <h4 className="font-bold text-sm">Switch to Customer App</h4>
+            <h4 className="font-bold text-sm text-white">Switch to Customer App</h4>
             <p className="text-xs text-emerald-100">
               Browse the consumer marketplace & see how your products look
             </p>
@@ -220,8 +221,8 @@ export const FarmerProfileView: React.FC = () => {
         <Repeat className="w-5 h-5 text-emerald-200" />
       </div>
 
-      {/* My Advertisements (OLX / Classifieds Style) */}
-      <div className="bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden shadow-soft">
+      {/* Farmer Center Action Links: My Ads, Earnings, Orders */}
+      <div className="bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden shadow-soft divide-y divide-zinc-100 dark:divide-zinc-800/80">
         <button
           onClick={() => setFarmerTab('my-ads')}
           className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
@@ -233,7 +234,7 @@ export const FarmerProfileView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                  {t('my_ads.title')} ({t('nav.my_ads')})
+                  {t('nav.my_ads')}
                 </span>
                 {myAdsCount > 0 && (
                   <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
@@ -243,6 +244,46 @@ export const FarmerProfileView: React.FC = () => {
               </div>
               <span className="text-[11px] text-zinc-500">
                 Manage, edit price, boost, and track views of your listed crop ads
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-zinc-400" />
+        </button>
+
+        <button
+          onClick={() => setFarmerTab('earnings')}
+          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-zinc-900 dark:text-white block">
+                {t('nav.earnings')} (किसान आय व निकासी)
+              </span>
+              <span className="text-[11px] text-zinc-500">
+                View settlement balance, withdraw funds, and download statements
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-zinc-400" />
+        </button>
+
+        <button
+          onClick={() => setFarmerTab('orders')}
+          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-zinc-900 dark:text-white block">
+                {t('nav.orders')} (ग्राहक ऑर्डर)
+              </span>
+              <span className="text-[11px] text-zinc-500">
+                Manage incoming orders, dispatch schedules, and delivery OTPs
               </span>
             </div>
           </div>

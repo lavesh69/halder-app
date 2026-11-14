@@ -105,7 +105,7 @@ export const ScheduledProcurementModal: React.FC<Props> = ({ isOpen, onClose, de
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div className="bg-white dark:bg-[#1B201D] border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-linear-to-r from-emerald-800 to-teal-900 text-white">
+        <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-emerald-900 bg-gradient-to-r from-emerald-800 to-teal-900 text-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white text-emerald-800 flex items-center justify-center shadow-md">
               <CalendarClock className="w-5 h-5 stroke-[2.5]" />

@@ -230,7 +230,7 @@ export const CustomerProfileView: React.FC = () => {
       {/* Switch to Farmer Banner */}
       <div
         onClick={() => setRole('farmer')}
-        className="p-4 bg-linear-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
+        className="p-4 bg-emerald-800 bg-gradient-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-white/10 text-emerald-200">

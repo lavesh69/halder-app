@@ -106,7 +106,7 @@ export const CustomerHome: React.FC = () => {
 
       {/* Hero Farm Provenance Banner */}
       {!searchQuery && selectedCategory === 'All' && (
-        <div className="relative p-5 rounded-3xl overflow-hidden bg-linear-to-r from-emerald-800 to-emerald-950 text-white shadow-soft-lg">
+        <div className="relative p-5 rounded-3xl overflow-hidden bg-emerald-900 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white shadow-soft-lg">
           <div className="relative z-10 max-w-[70%] space-y-2">
             <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full">
               <Sparkles className="w-3 h-3 text-amber-300" />

@@ -304,14 +304,14 @@ export const BottomNav: React.FC = () => {
     );
   }
 
-  // Farmer Bottom Nav
+  // Farmer Bottom Nav (5 Signature OLX Tabs - Zero Overcrowding)
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="flex items-center justify-between sm:justify-around overflow-x-auto no-scrollbar px-1 sm:px-2 py-1 gap-0.5">
+      <div className="flex items-center justify-between px-2 sm:px-4 py-1">
         {/* 1. Dashboard (Mandi) */}
         <button
           onClick={() => setFarmerTab('dashboard')}
-          className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
             farmerTab === 'dashboard'
               ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
@@ -321,94 +321,10 @@ export const BottomNav: React.FC = () => {
           <span className="text-[10px] mt-0.5">{t('nav.mandi')}</span>
         </button>
 
-        {/* 2. Listings (Crops) */}
-        <button
-          onClick={() => setFarmerTab('listings')}
-          className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
-            farmerTab === 'listings'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
-              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-          }`}
-        >
-          <Sprout className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{t('nav.crops')}</span>
-        </button>
-
-        {/* 3. My Ads (मेरे विज्ञापन) */}
-        <button
-          onClick={() => setFarmerTab('my-ads')}
-          className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
-            farmerTab === 'my-ads'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
-              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-          }`}
-          title={t('nav.my_ads')}
-        >
-          <div className="relative">
-            <Megaphone className="w-5 h-5" />
-            {farmerAdsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {farmerAdsCount}
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] mt-0.5">{t('nav.my_ads')}</span>
-        </button>
-
-        {/* 3. Orders */}
-        <button
-          onClick={() => setFarmerTab('orders')}
-          className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
-            farmerTab === 'orders'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
-              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-          }`}
-        >
-          <div className="relative">
-            <Clock className="w-5 h-5" />
-            {pendingFarmerOrdersCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#D99A32] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                {pendingFarmerOrdersCount}
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] mt-0.5">{t('nav.orders')}</span>
-        </button>
-
-        {/* 4. Elevated + Post Ad Button */}
-        <button
-          onClick={() => {
-            setEditingListing(null);
-            setIsFastSellOpen(true);
-          }}
-          className="flex flex-col items-center justify-center -mt-5 group px-0.5"
-          title="Post Crop Advertisement / फसल का नया विज्ञापन डालें"
-        >
-          <div className="w-13 h-13 rounded-full bg-[#176B45] group-hover:bg-[#124C36] text-white flex items-center justify-center shadow-soft-lg border-4 border-white dark:border-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
-            <Plus className="w-6 h-6 stroke-[3]" />
-          </div>
-          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5 whitespace-nowrap">
-            {t('nav.post_ad')}
-          </span>
-        </button>
-
-        {/* 5. Earnings */}
-        <button
-          onClick={() => setFarmerTab('earnings')}
-          className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
-            farmerTab === 'earnings'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
-              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-          }`}
-        >
-          <TrendingUp className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{t('nav.earnings')}</span>
-        </button>
-
-        {/* 6. Messages (Chat) */}
+        {/* 2. Messages (Chats) */}
         <button
           onClick={() => setFarmerTab('chat')}
-          className={`min-h-[48px] min-w-[48px] relative flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
             farmerTab === 'chat'
               ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
@@ -425,17 +341,62 @@ export const BottomNav: React.FC = () => {
           <span className="text-[10px] mt-0.5">{t('nav.chats')}</span>
         </button>
 
-        {/* 7. Profile */}
+        {/* 3. Center Elevated + Post Ad Button (OLX Ring) */}
+        <button
+          onClick={() => {
+            setEditingListing(null);
+            setIsFastSellOpen(true);
+          }}
+          className="flex flex-col items-center justify-center -mt-5 group px-2"
+          title="Post Crop Advertisement / फसल का नया विज्ञापन डालें"
+        >
+          <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 group-hover:from-emerald-700 group-hover:to-teal-600 text-white flex items-center justify-center shadow-soft-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
+            <Plus className="w-6 h-6 stroke-[3]" />
+          </div>
+          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5 tracking-wide">
+            {t('nav.post_ad')}
+          </span>
+        </button>
+
+        {/* 4. My Ads (मेरे विज्ञापन) */}
+        <button
+          onClick={() => setFarmerTab('my-ads')}
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            farmerTab === 'my-ads' || farmerTab === 'listings'
+              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+          }`}
+          title={t('nav.my_ads')}
+        >
+          <div className="relative">
+            <Megaphone className="w-5 h-5" />
+            {farmerAdsCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {farmerAdsCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] mt-0.5">{t('nav.my_ads')}</span>
+        </button>
+
+        {/* 5. Account (Profile & Orders) */}
         <button
           onClick={() => setFarmerTab('profile')}
-          className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-1 sm:px-2 rounded-xl transition-all ${
-            farmerTab === 'profile'
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            farmerTab === 'profile' || farmerTab === 'earnings' || farmerTab === 'orders'
               ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{t('nav.profile')}</span>
+          <div className="relative">
+            <User className="w-5 h-5" />
+            {pendingFarmerOrdersCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-[#D99A32] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                {pendingFarmerOrdersCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] mt-0.5">{t('nav.account')}</span>
         </button>
       </div>
     </nav>

@@ -237,7 +237,7 @@ export const FarmerEarningsView: React.FC = () => {
       </div>
 
       {/* Main Earnings Summary Card */}
-      <div className="p-5 bg-linear-to-br from-emerald-800 to-emerald-950 text-white rounded-3xl shadow-soft-lg space-y-4">
+      <div className="p-5 bg-emerald-900 bg-gradient-to-br from-emerald-800 to-emerald-950 text-white rounded-3xl shadow-soft-lg space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" />
