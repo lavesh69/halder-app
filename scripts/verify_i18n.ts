@@ -3,10 +3,19 @@ import { hiTranslations } from '../src/i18n/translations/hi';
 import { paTranslations } from '../src/i18n/translations/pa';
 import { mrTranslations } from '../src/i18n/translations/mr';
 import { bnTranslations } from '../src/i18n/translations/bn';
+import { guTranslations } from '../src/i18n/translations/gu';
+import { taTranslations } from '../src/i18n/translations/ta';
+import { knTranslations } from '../src/i18n/translations/kn';
+import { mlTranslations } from '../src/i18n/translations/ml';
+import { urTranslations } from '../src/i18n/translations/ur';
+import { teTranslations } from '../src/i18n/translations/te';
+import { orTranslations } from '../src/i18n/translations/or';
+import { bhoTranslations } from '../src/i18n/translations/bho';
+import { asTranslations } from '../src/i18n/translations/as';
 import { translate, translations } from '../src/i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../src/i18n/types';
 
-console.log('=== HALDER i18n System Verification ===');
+console.log('=== HALDER i18n System Verification (All 14 Languages) ===');
 
 const enKeys = Object.keys(enTranslations).sort();
 const langDicts: Record<string, Record<string, string>> = {
@@ -14,6 +23,15 @@ const langDicts: Record<string, Record<string, string>> = {
   pa: paTranslations,
   mr: mrTranslations,
   bn: bnTranslations,
+  gu: guTranslations,
+  ta: taTranslations,
+  kn: knTranslations,
+  ml: mlTranslations,
+  ur: urTranslations,
+  te: teTranslations,
+  or: orTranslations,
+  bho: bhoTranslations,
+  as: asTranslations,
 };
 
 console.log(`Base English (en) dictionary keys: ${enKeys.length}`);

@@ -143,7 +143,7 @@ async function runAdversarialI18nSuite() {
     const untranslatedKeys: string[] = [];
 
     for (const [key, value] of Object.entries(dict)) {
-      if (exemptKeysFromScriptCheck.has(key)) continue;
+      if (key.startsWith('language.') || key === 'catalog.per_unit' || key === 'ads.price_per_unit') continue;
 
       // Check if value contains characters in the expected native script
       if (!regex.test(value)) {
@@ -162,15 +162,15 @@ async function runAdversarialI18nSuite() {
   // 2.2 Supported Languages Metadata Verification
   assertTest(
     'Language Metadata',
-    'SUPPORTED_LANGUAGES array contains all 5 languages with native labels and flags',
-    SUPPORTED_LANGUAGES.length === 5 &&
+    'SUPPORTED_LANGUAGES array contains all 14 languages with native labels and flags',
+    SUPPORTED_LANGUAGES.length === 14 &&
       SUPPORTED_LANGUAGES.every(
         (l) =>
-          ['en', 'hi', 'pa', 'mr', 'bn'].includes(l.code) &&
+          !!l.code &&
           !!l.label &&
           !!l.nativeLabel &&
           !!l.flag &&
-          l.direction === 'ltr'
+          (l.direction === 'ltr' || l.direction === 'rtl')
       )
   );
 
@@ -180,6 +180,15 @@ async function runAdversarialI18nSuite() {
     pa: 'ਪੰਜਾਬੀ',
     mr: 'मराठी',
     bn: 'বাংলা',
+    gu: 'ગુજરાતી',
+    ta: 'தமிழ்',
+    te: 'తెలుగు',
+    kn: 'ಕನ್ನಡ',
+    ml: 'മലയാളം',
+    or: 'ଓଡ଼ିଆ',
+    bho: 'भोजपुरी',
+    as: 'অসমীয়া',
+    ur: 'اردو',
   };
 
   for (const opt of SUPPORTED_LANGUAGES) {

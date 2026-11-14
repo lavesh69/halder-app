@@ -92,9 +92,16 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     {lang.shortCode}
                   </div>
                   <div>
-                    <span className="font-bold text-sm block leading-snug">
-                      {lang.nativeLabel}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm block leading-snug">
+                        {lang.nativeLabel}
+                      </span>
+                      {lang.isNew && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full shadow-2xs">
+                          NEW
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">
                       {lang.label}
                     </span>
@@ -169,41 +176,60 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-48 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 shadow-xl py-1.5 z-50 animate-scale-in origin-top-right">
-          <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/80 mb-1 sticky top-0 bg-white/95 dark:bg-[#1B201D]/95 backdrop-blur-xs">
-            {t('language.select_language')} ({SUPPORTED_LANGUAGES.length})
+        <div className="absolute right-0 mt-2 w-64 sm:w-72 max-h-[380px] overflow-y-auto rounded-2xl bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 animate-scale-in origin-top-right">
+          <div className="px-3.5 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 sticky top-0 bg-white/95 dark:bg-[#1B201D]/95 backdrop-blur-xs flex items-center justify-between z-10">
+            <span>{t('language.select_language')} ({SUPPORTED_LANGUAGES.length})</span>
+            <span className="text-emerald-700 dark:text-emerald-300 font-extrabold normal-case text-[10px] bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
+              Scroll ↓
+            </span>
           </div>
-          {SUPPORTED_LANGUAGES.map((lang) => {
-            const isSelected = language === lang.code;
-            return (
-              <button
-                key={lang.code}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSelectLanguage(lang);
-                  setIsOpen(false);
-                }}
-                type="button"
-                className={`w-full px-3 py-2 text-left flex items-center justify-between transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold'
-                    : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[10px] font-black flex items-center justify-center shrink-0">
-                    {lang.shortCode}
-                  </span>
-                  <div>
-                    <span className="text-xs font-bold block">{lang.nativeLabel}</span>
-                    <span className="text-[10px] text-zinc-400 block">{lang.label}</span>
+          <div className="py-1">
+            {SUPPORTED_LANGUAGES.map((lang) => {
+              const isSelected = language === lang.code;
+              return (
+                <button
+                  key={lang.code}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSelectLanguage(lang);
+                    setIsOpen(false);
+                  }}
+                  type="button"
+                  className={`w-full px-3.5 py-2 text-left flex items-center justify-between transition-colors cursor-pointer ${
+                    isSelected
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold'
+                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center shrink-0 ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                    }`}>
+                      {lang.shortCode}
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold block">{lang.nativeLabel}</span>
+                        {lang.isNew && (
+                          <span className="px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full shadow-2xs">
+                            NEW
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-zinc-400 block">{lang.label}</span>
+                    </div>
                   </div>
-                </div>
-                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
-              </button>
-            );
-          })}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+          <div className="px-3 py-1.5 text-[9px] font-semibold text-center text-zinc-400 dark:text-zinc-500 border-t border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/90 dark:bg-zinc-900/80 sticky bottom-0">
+            🌾 14 Regional Languages Active
+          </div>
         </div>
       )}
     </div>
