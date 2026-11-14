@@ -227,6 +227,10 @@ export const mrTranslations: TranslationDictionary = {
   'language.ml': 'മലയാളം (Malayalam)',
   'language.gu': 'ગુજરાતી (Gujarati)',
   'language.ur': 'اردو (Urdu)',
+  'language.te': 'తెలుగు (Telugu)',
+  'language.or': 'ଓଡ଼ିଆ (Odia)',
+  'language.bho': 'भोजपुरी (Bhojpuri)',
+  'language.as': 'অসমীয়া (Assamese)',
   'language.switched_toast': 'भाषा बदलून {lang} करण्यात आली आहे',
 
   // Expanded Navigation Tokens

@@ -225,6 +225,10 @@ export const enTranslations = {
   'language.ml': 'മലയാളം (Malayalam)',
   'language.gu': 'ગુજરાતી (Gujarati)',
   'language.ur': 'اردو (Urdu)',
+  'language.te': 'తెలుగు (Telugu)',
+  'language.or': 'ଓଡ଼ିଆ (Odia)',
+  'language.bho': 'भोजपुरी (Bhojpuri)',
+  'language.as': 'অসমীয়া (Assamese)',
   'language.switched_toast': 'Language changed to {lang}',
 
   // Expanded Navigation Tokens
@@ -385,4 +389,4 @@ export const enTranslations = {
 };
 
 export type TranslationKey = keyof typeof enTranslations;
-export type TranslationDictionary = Partial<Record<TranslationKey, string>>;
+export type TranslationDictionary = Record<TranslationKey, string>;

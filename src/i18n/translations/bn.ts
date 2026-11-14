@@ -227,6 +227,10 @@ export const bnTranslations: TranslationDictionary = {
   'language.ml': 'മലയാളം (Malayalam)',
   'language.gu': 'ગુજરાતી (Gujarati)',
   'language.ur': 'اردو (Urdu)',
+  'language.te': 'తెలుగు (Telugu)',
+  'language.or': 'ଓଡ଼ିଆ (Odia)',
+  'language.bho': 'भोजपुरी (Bhojpuri)',
+  'language.as': 'অসমীয়া (Assamese)',
   'language.switched_toast': 'ভাষা পরিবর্তন করে {lang} করা হয়েছে',
 
   // Expanded Navigation Tokens
