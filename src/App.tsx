@@ -23,6 +23,7 @@ import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal
 import { FastSellModal } from './components/customer/FastSellModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
+import { ReviewModal } from './components/common/ReviewModal';
 
 // Agricultural Classifieds & Reverse Marketplace Modals
 import { FarmNearbyMapModal } from './components/customer/FarmNearbyMapModal';
@@ -69,6 +70,8 @@ export const MainApp: React.FC = () => {
     setIsSavedSearchesOpen,
     stockControlProduct,
     setStockControlProduct,
+    reviewTarget,
+    setReviewTarget,
   } = useApp();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -220,6 +223,15 @@ export const MainApp: React.FC = () => {
         isOpen={isSavedSearchesOpen}
         onClose={() => setIsSavedSearchesOpen(false)}
       />
+
+      {reviewTarget && (
+        <ReviewModal
+          farmerId={reviewTarget.farmerId}
+          farmerName={reviewTarget.farmerName}
+          orderId={reviewTarget.orderId}
+          onClose={() => setReviewTarget(null)}
+        />
+      )}
       <StockControlModal
         product={stockControlProduct}
         isOpen={!!stockControlProduct}

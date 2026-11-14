@@ -56,70 +56,76 @@ export function useAndroidHardware() {
     };
   }, [showToast]);
 
-  // 2. Hardware Back Button & Modal Hierarchy
+  // 2. Hardware Back Button & Web Browser History Navigation
   useEffect(() => {
     let listenerHandle: any = null;
+
+    const closeTopModalOrStepBack = (): boolean => {
+      // Priority 1: Close active modals
+      if (isFastSellOpen) {
+        setIsFastSellOpen(false);
+        return true;
+      }
+      if (isChatModalOpen) {
+        setIsChatModalOpen(false);
+        return true;
+      }
+      if (trackingOrder) {
+        setTrackingOrder(null);
+        return true;
+      }
+      if (selectedFarmer) {
+        setSelectedFarmer(null);
+        return true;
+      }
+      if (selectedProduct) {
+        setSelectedProduct(null);
+        return true;
+      }
+      if (isFilterModalOpen) {
+        setIsFilterModalOpen(false);
+        return true;
+      }
+      if (isNotificationModalOpen) {
+        setIsNotificationModalOpen(false);
+        return true;
+      }
+      if (isSearchScreenOpen) {
+        setIsSearchScreenOpen(false);
+        return true;
+      }
+      if (buyNowProduct) {
+        setBuyNowProduct(null);
+        return true;
+      }
+
+      // Priority 2: Return to main marketplace tab if on sub-tab
+      if (role === 'customer' && customerTab !== 'home') {
+        setCustomerTab('home');
+        return true;
+      }
+      if (role === 'farmer' && farmerTab !== 'dashboard') {
+        setFarmerTab('dashboard');
+        return true;
+      }
+      return false;
+    };
 
     const setupBackButton = async () => {
       try {
         listenerHandle = await CapApp.addListener('backButton', () => {
-          // Priority 1: Close active modals
-          if (isFastSellOpen) {
-            setIsFastSellOpen(false);
-            return;
-          }
-          if (isChatModalOpen) {
-            setIsChatModalOpen(false);
-            return;
-          }
-          if (trackingOrder) {
-            setTrackingOrder(null);
-            return;
-          }
-          if (selectedFarmer) {
-            setSelectedFarmer(null);
-            return;
-          }
-          if (selectedProduct) {
-            setSelectedProduct(null);
-            return;
-          }
-          if (isFilterModalOpen) {
-            setIsFilterModalOpen(false);
-            return;
-          }
-          if (isNotificationModalOpen) {
-            setIsNotificationModalOpen(false);
-            return;
-          }
-          if (isSearchScreenOpen) {
-            setIsSearchScreenOpen(false);
-            return;
-          }
-          if (buyNowProduct) {
-            setBuyNowProduct(null);
-            return;
-          }
-
-          // Priority 2: Return to main marketplace tab if on sub-tab
-          if (role === 'customer' && customerTab !== 'home') {
-            setCustomerTab('home');
-            return;
-          }
-          if (role === 'farmer' && farmerTab !== 'dashboard') {
-            setFarmerTab('dashboard');
-            return;
-          }
-
-          // Priority 3: Double-tap back to exit on root screen
-          if (!backPressedOnce) {
-            setBackPressedOnce(true);
-            showToast('Press back again to exit HALDER', 'info');
-            setTimeout(() => {
-              setBackPressedOnce(false);
-            }, 2500);
-          } else {
-            CapApp.exitApp();
+          const handled = closeTopModalOrStepBack();
+          if (!handled) {
+            // Priority 3: Double-tap back to exit on root screen
+            if (!backPressedOnce) {
+              setBackPressedOnce(true);
+              showToast('Press back again to exit HALDER', 'info');
+              setTimeout(() => {
+                setBackPressedOnce(false);
+              }, 2500);
+            } else {
+              CapApp.exitApp();
+            }
           }
         });
       } catch {
@@ -127,12 +133,19 @@ export function useAndroidHardware() {
       }
     };
 
+    // Web Browser History PopState (Desktop & Mobile Browser Back Arrow)
+    const handleWebPopState = (e: PopStateEvent) => {
+      closeTopModalOrStepBack();
+    };
+
+    window.addEventListener('popstate', handleWebPopState);
     setupBackButton();
 
     return () => {
       if (listenerHandle) {
         listenerHandle.remove();
       }
+      window.removeEventListener('popstate', handleWebPopState);
     };
   }, [
     isFastSellOpen,
@@ -148,18 +161,34 @@ export function useAndroidHardware() {
     farmerTab,
     role,
     backPressedOnce,
-    setIsFastSellOpen,
-    setIsChatModalOpen,
-    setTrackingOrder,
-    setSelectedFarmer,
-    setSelectedProduct,
-    setIsFilterModalOpen,
-    setIsNotificationModalOpen,
-    setIsSearchScreenOpen,
-    setBuyNowProduct,
-    setCustomerTab,
-    setFarmerTab,
-    showToast,
+  ]);
+
+  // Push history state whenever any modal opens so Browser Back closes the modal
+  useEffect(() => {
+    const hasOpenModal =
+      isFastSellOpen ||
+      isChatModalOpen ||
+      !!selectedProduct ||
+      !!selectedFarmer ||
+      !!trackingOrder ||
+      isFilterModalOpen ||
+      isNotificationModalOpen ||
+      isSearchScreenOpen ||
+      !!buyNowProduct;
+
+    if (hasOpenModal && typeof window !== 'undefined') {
+      window.history.pushState({ modalOpen: true }, '');
+    }
+  }, [
+    isFastSellOpen,
+    isChatModalOpen,
+    selectedProduct,
+    selectedFarmer,
+    trackingOrder,
+    isFilterModalOpen,
+    isNotificationModalOpen,
+    isSearchScreenOpen,
+    buyNowProduct,
   ]);
 
   // 3. Deep Linking Intent Listener

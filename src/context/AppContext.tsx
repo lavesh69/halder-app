@@ -256,6 +256,10 @@ interface AppContextType {
   disputes: DisputeRecord[];
   raiseDispute: (disputeData: Omit<DisputeRecord, 'id' | 'status' | 'createdAt'>) => void;
   resolveDispute: (disputeId: string, action: 'refund' | 'dismiss', notes?: string) => void;
+
+  // Review & Rating Modal Target
+  reviewTarget: { farmerId: string; farmerName: string; orderId?: string } | null;
+  setReviewTarget: (target: { farmerId: string; farmerName: string; orderId?: string } | null) => void;
 }
 
 const initialFilterState: FilterState = {
@@ -497,6 +501,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Buy Now
   const [buyNowProduct, setBuyNowProduct] = useState<{ product: Product; quantity: number } | null>(null);
 
+  // Review & Rating Modal Target
+  const [reviewTarget, setReviewTarget] = useState<{ farmerId: string; farmerName: string; orderId?: string } | null>(null);
+
   // Chat
   const [isChatModalOpen, setIsChatModalOpen] = useState<boolean>(false);
   const [chatFarmer, setChatFarmer] = useState<Farmer | null>(null);
@@ -572,6 +579,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     safeStorageSet('halder-role', role);
   }, [role]);
+
+  // URL Deep-Linking for Direct Ad Sharing (?ad=<productId>)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (selectedProduct) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('ad', selectedProduct.id);
+        window.history.replaceState(null, '', url.toString());
+      } else {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('ad')) {
+          url.searchParams.delete('ad');
+          window.history.replaceState(null, '', url.pathname + (url.search ? url.search : ''));
+        }
+      }
+    } catch {}
+  }, [selectedProduct]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const adId = params.get('ad');
+      if (adId && products.length > 0 && !selectedProduct) {
+        const matched = products.find((p) => p.id === adId);
+        if (matched) {
+          setSelectedProduct(matched);
+        }
+      }
+    } catch {}
+  }, [products]);
 
 
   const mapBackendProduct = (p: any): Product => ({
@@ -1659,6 +1698,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               isAvailable: nextStatus === 'active',
               availableQuantity: action === 'mark_sold' ? 0 : p.availableQuantity,
               harvestDate: action === 'renew' ? 'Freshly reconfirmed today' : p.harvestDate,
+              createdAt: action === 'renew' ? new Date().toISOString() : p.createdAt,
             }
           : p
       )
@@ -1685,6 +1725,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const prod = products.find((p) => p.id === productId);
     const action = prod?.isAvailable ? 'mark_sold' : 'resume';
     updateProductStatusAction(productId, action);
+    if (action === 'mark_sold' && prod) {
+      setTimeout(() => {
+        setReviewTarget({
+          farmerId: prod.farmerId,
+          farmerName: prod.farmerName || 'Farmer',
+        });
+      }, 500);
+    }
   };
 
   const boostProduct = (productId: string, plan: 'featured' | 'urgent' | 'combo') => {
@@ -1880,6 +1928,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         disputes,
         raiseDispute,
         resolveDispute,
+        reviewTarget,
+        setReviewTarget,
       }}
     >
       {children}

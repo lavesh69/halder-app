@@ -69,16 +69,17 @@ export const ListingDetailModal: React.FC = () => {
 
   const handleShare = () => {
     if (!selectedProduct) return;
+    const directUrl = `${window.location.origin}/?ad=${selectedProduct.id}`;
     const shareText = `Check out "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) in ${selectedProduct.location} on HALDER!`;
     if (navigator.share) {
       navigator.share({
         title: selectedProduct.name,
-        text: shareText,
-        url: window.location.href,
+        text: `${shareText}\n${directUrl}`,
+        url: directUrl,
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
-      showToast('Link copied to clipboard! Share on WhatsApp.');
+      navigator.clipboard.writeText(`${shareText}\n${directUrl}`);
+      showToast('Direct ad link copied to clipboard! Share on WhatsApp.');
     }
   };
 

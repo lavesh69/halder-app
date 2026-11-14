@@ -21,6 +21,7 @@ import {
   Sparkles,
   Boxes,
   ArrowLeft,
+  RefreshCw,
 } from 'lucide-react';
 
 export const CustomerMyAdsView: React.FC = () => {
@@ -37,6 +38,7 @@ export const CustomerMyAdsView: React.FC = () => {
     setEditingListing,
     updateProductPrice,
     toggleProductSold,
+    updateProductStatusAction,
     boostProduct,
     setStockControlProduct,
   } = useApp();
@@ -82,6 +84,17 @@ export const CustomerMyAdsView: React.FC = () => {
       updateProductPrice(adId, Number(newPriceVal));
     }
     setEditingPriceId(null);
+  };
+
+  const isAdExpired = (ad: Product) => {
+    const created = new Date(ad.createdAt || (ad as any).created_at || '2024-01-01').getTime();
+    const diffDays = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24));
+    return diffDays >= 30;
+  };
+
+  const getAdAgeDays = (ad: Product) => {
+    const created = new Date(ad.createdAt || (ad as any).created_at || '2024-01-01').getTime();
+    return Math.max(1, Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)));
   };
 
   return (
@@ -222,6 +235,7 @@ export const CustomerMyAdsView: React.FC = () => {
             const isConfirming = confirmDeleteId === ad.id;
             const isEditingPrice = editingPriceId === ad.id;
             const isSold = ad.isAvailable === false;
+            const isExpired = !isSold && isAdExpired(ad);
 
             return (
               <div
@@ -252,11 +266,13 @@ export const CustomerMyAdsView: React.FC = () => {
                         className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                           isSold
                             ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
+                            : isExpired
+                            ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
                             : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
                         }`}
                       >
-                        {!isSold && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                        {isSold ? 'Sold' : 'Active'}
+                        {!isSold && !isExpired && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                        {isSold ? 'Sold' : isExpired ? 'Expired (30d+)' : 'Active'}
                       </span>
                     </div>
 
@@ -314,6 +330,24 @@ export const CustomerMyAdsView: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Expired Ad Renewal Warning Banner */}
+                {isExpired && (
+                  <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between gap-2 animate-fade-in">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-800 dark:text-amber-300 min-w-0">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                      <span className="truncate">{getAdAgeDays(ad)}d old • Renew ad for top Mandi rank</span>
+                    </div>
+                    <button
+                      onClick={() => updateProductStatusAction(ad.id, 'renew')}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1 shrink-0 active:scale-95"
+                      title="Renew free for another 30 days"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Renew Free</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Inline Confirmation or OLX Action Buttons */}
                 {isConfirming ? (
