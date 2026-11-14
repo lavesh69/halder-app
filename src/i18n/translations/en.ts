@@ -385,4 +385,4 @@ export const enTranslations = {
 };
 
 export type TranslationKey = keyof typeof enTranslations;
-export type TranslationDictionary = Record<TranslationKey, string>;
+export type TranslationDictionary = Partial<Record<TranslationKey, string>>;

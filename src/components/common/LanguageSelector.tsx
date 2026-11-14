@@ -171,7 +171,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       {isOpen && (
         <div className="absolute right-0 mt-1.5 w-48 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 shadow-xl py-1.5 z-50 animate-scale-in origin-top-right">
           <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-zinc-100 dark:border-zinc-800/80 mb-1 sticky top-0 bg-white/95 dark:bg-[#1B201D]/95 backdrop-blur-xs">
-            {t('language.select_language')} (10)
+            {t('language.select_language')} ({SUPPORTED_LANGUAGES.length})
           </div>
           {SUPPORTED_LANGUAGES.map((lang) => {
             const isSelected = language === lang.code;

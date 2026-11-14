@@ -10,6 +10,10 @@ import { taTranslations } from './translations/ta';
 import { knTranslations } from './translations/kn';
 import { mlTranslations } from './translations/ml';
 import { urTranslations } from './translations/ur';
+import { teTranslations } from './translations/te';
+import { orTranslations } from './translations/or';
+import { bhoTranslations } from './translations/bho';
+import { asTranslations } from './translations/as';
 
 const STORAGE_KEY = 'halder-language';
 const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
@@ -25,6 +29,10 @@ const VALID_LANGUAGES: SupportedLanguage[] = [
   'ml',
   'gu',
   'ur',
+  'te',
+  'or',
+  'bho',
+  'as',
 ];
 
 export const translations: Record<SupportedLanguage, TranslationDictionary> = {
@@ -38,6 +46,10 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
   kn: knTranslations,
   ml: mlTranslations,
   ur: urTranslations,
+  te: teTranslations,
+  or: orTranslations,
+  bho: bhoTranslations,
+  as: asTranslations,
 };
 
 // Global state broadcaster for cross-component and standalone usage

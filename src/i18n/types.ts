@@ -8,7 +8,11 @@ export type SupportedLanguage =
   | 'kn'
   | 'ml'
   | 'gu'
-  | 'ur';
+  | 'ur'
+  | 'te'
+  | 'or'
+  | 'bho'
+  | 'as';
 
 export interface LanguageOption {
   code: SupportedLanguage;
@@ -27,8 +31,12 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { code: 'bn', label: 'Bengali', nativeLabel: 'বাংলা', flag: '🇮🇳', shortCode: 'BN', direction: 'ltr' },
   { code: 'gu', label: 'Gujarati', nativeLabel: 'ગુજરાતી', flag: '🇮🇳', shortCode: 'GU', direction: 'ltr' },
   { code: 'ta', label: 'Tamil', nativeLabel: 'தமிழ்', flag: '🇮🇳', shortCode: 'TA', direction: 'ltr' },
+  { code: 'te', label: 'Telugu', nativeLabel: 'తెలుగు', flag: '🇮🇳', shortCode: 'TE', direction: 'ltr' },
   { code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ', flag: '🇮🇳', shortCode: 'KN', direction: 'ltr' },
   { code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം', flag: '🇮🇳', shortCode: 'ML', direction: 'ltr' },
+  { code: 'or', label: 'Odia', nativeLabel: 'ଓଡ଼ିଆ', flag: '🇮🇳', shortCode: 'OR', direction: 'ltr' },
+  { code: 'bho', label: 'Bhojpuri', nativeLabel: 'भोजपुरी', flag: '🇮🇳', shortCode: 'BHO', direction: 'ltr' },
+  { code: 'as', label: 'Assamese', nativeLabel: 'অসমীয়া', flag: '🇮🇳', shortCode: 'AS', direction: 'ltr' },
   { code: 'ur', label: 'Urdu', nativeLabel: 'اردو', flag: '🇮🇳', shortCode: 'UR', direction: 'rtl' },
 ];
 
