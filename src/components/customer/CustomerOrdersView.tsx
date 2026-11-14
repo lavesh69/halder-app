@@ -22,6 +22,7 @@ import {
   ShieldAlert,
   CheckCircle2,
   Truck,
+  ChevronLeft,
 } from 'lucide-react';
 
 export const CustomerOrdersView: React.FC = () => {
@@ -166,13 +167,23 @@ export const CustomerOrdersView: React.FC = () => {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-            My Mandi Orders (मेरे ऑर्डर)
-          </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Live GPS route tracking, direct farmer contact & official tax invoices
-          </p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setCustomerTab('profile')}
+            className="p-2 -ml-1 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+            title="Back to Account"
+            aria-label="Back to Account"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">
+              My Mandi Orders (मेरे ऑर्डर)
+            </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Live GPS route tracking, direct farmer contact & official tax invoices
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

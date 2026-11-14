@@ -349,8 +349,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
         {/* Bottom Fast Action Buttons */}
         <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#E5EBE6] dark:border-[#29352D]">
-          <span className="text-[11px] text-[#89948C] truncate">
-            📍 {product.location}
+          <span className="text-[10px] uppercase font-bold text-[#89948C] tracking-wide truncate">
+            📍 {product.location ? product.location.split(',')[0] : 'LOCAL'} • {product.harvestDate ? (product.harvestDate.toLowerCase().includes('today') ? 'TODAY' : product.harvestDate.slice(0, 10).toUpperCase()) : 'TODAY'}
           </span>
 
           <div className="flex items-center gap-2 shrink-0">
