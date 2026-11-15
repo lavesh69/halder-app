@@ -203,14 +203,14 @@ export const FarmerProfileView: React.FC = () => {
           setEditingListing(null);
           setIsFastSellOpen(true);
         }}
-        className="p-4 bg-gradient-to-r from-[#176B45] to-[#2E8B57] rounded-2xl text-white shadow-soft cursor-pointer hover:brightness-105 active:scale-98 transition-all flex items-center justify-between"
+        className="p-4 bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl text-white shadow-soft hover:shadow-soft-md cursor-pointer hover:brightness-105 active:scale-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center text-xl shrink-0 shadow-xs">
             📢
           </div>
           <div>
-            <h4 className="font-bold text-sm">Post Crop Advertisement (फसल का विज्ञापन दें)</h4>
+            <h4 className="font-heading font-black text-sm">Post Crop Advertisement (फसल का विज्ञापन दें)</h4>
             <p className="text-xs text-emerald-100">
               List fresh produce, set custom rates, and receive direct buyer calls
             </p>
@@ -222,18 +222,20 @@ export const FarmerProfileView: React.FC = () => {
       {/* Switch to Customer Marketplace Button */}
       <div
         onClick={() => setRole('customer')}
-        className="p-4 bg-emerald-900 bg-gradient-to-r from-emerald-800 to-emerald-950 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
+        className="p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-3xl text-white shadow-soft hover:shadow-soft-md cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="text-2xl">🛒</div>
+          <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-xl shrink-0">
+            🛒
+          </div>
           <div>
-            <h4 className="font-bold text-sm text-white">Switch to Customer App</h4>
-            <p className="text-xs text-emerald-100">
+            <h4 className="font-heading font-black text-sm text-white">Switch to Customer App</h4>
+            <p className="text-xs text-zinc-300">
               Browse the consumer marketplace & see how your products look
             </p>
           </div>
         </div>
-        <Repeat className="w-5 h-5 text-emerald-200" />
+        <Repeat className="w-5 h-5 text-emerald-400" />
       </div>
 
       {/* Farmer Center Action Links: My Ads, Earnings, Orders */}

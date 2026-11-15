@@ -803,7 +803,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Total Users</span>
                 <Users className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
+              <span className="text-2xl font-heading font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
                 {totalUsersCount}
               </span>
               <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-0.5 mt-0.5">
@@ -820,7 +820,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Verified Farmers</span>
                 <ShieldCheck className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
-              <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1.5 block tracking-tight">
+              <span className="text-2xl font-heading font-black text-emerald-700 dark:text-emerald-400 mt-1.5 block tracking-tight">
                 {verifiedFarmersCount}
               </span>
               <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold mt-0.5 block">
@@ -837,7 +837,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Active Listings</span>
                 <ShoppingBag className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
+              <span className="text-2xl font-heading font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
                 {activeListingsCount}
               </span>
               <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-0.5 block">
@@ -854,7 +854,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Orders Placed</span>
                 <Package className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
+              <span className="text-2xl font-heading font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
                 {totalOrdersCount}
               </span>
               <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold mt-0.5 block">
@@ -868,7 +868,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Gross GMV</span>
                 <ArrowUpRight className="w-4 h-4 text-emerald-600" />
               </div>
-              <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1.5 block tracking-tight">
+              <span className="text-2xl font-heading font-black text-emerald-700 dark:text-emerald-400 mt-1.5 block tracking-tight">
                 {formatCurrency(totalGMV)}
               </span>
               <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-0.5 block">

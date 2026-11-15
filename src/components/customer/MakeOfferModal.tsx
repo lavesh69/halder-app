@@ -232,11 +232,11 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
           </div>
 
           {/* Total Offer Calculation */}
-          <div className="p-3 bg-amber-50/60 dark:bg-amber-950/30 rounded-xl border border-amber-200/50 dark:border-amber-800/40 flex items-center justify-between text-xs">
+          <div className="p-3 bg-amber-50/60 dark:bg-amber-950/30 rounded-2xl border border-amber-200/50 dark:border-amber-800/40 flex items-center justify-between text-xs">
             <span className="text-zinc-600 dark:text-zinc-400 font-semibold">
               Total Proposed Value:
             </span>
-            <span className="text-base font-black text-amber-700 dark:text-amber-400">
+            <span className="text-lg font-heading font-black text-amber-800 dark:text-amber-400">
               {formatCurrency(totalValue)}
             </span>
           </div>
@@ -303,7 +303,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-2xl shadow-soft transition flex items-center justify-center gap-2"
+              className="min-h-[50px] w-full py-3 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 active:scale-98 text-white font-heading font-black text-sm rounded-2xl shadow-soft transition flex items-center justify-center gap-2"
             >
               <span>{isSubmitting ? 'Sending Offer...' : 'Send Offer to Farmer'}</span>
               <ArrowRight className="w-4 h-4" />

@@ -1120,7 +1120,7 @@ export const FastSellModal: React.FC = () => {
             <button
               type="button"
               onClick={() => setStep((s) => s - 1)}
-              className="px-4 py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition flex items-center gap-1.5"
+              className="min-h-[48px] px-4 py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-heading font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition flex items-center gap-1.5"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{t('common.back')}</span>
@@ -1132,7 +1132,7 @@ export const FastSellModal: React.FC = () => {
                 setIsFastSellOpen(false);
                 setEditingListing(null);
               }}
-              className="px-4 py-2.5 text-xs font-bold text-zinc-500 hover:text-zinc-800 transition"
+              className="min-h-[48px] px-4 py-2.5 text-xs font-heading font-bold text-zinc-500 hover:text-zinc-800 transition"
             >
               {t('common.cancel')}
             </button>
@@ -1143,7 +1143,7 @@ export const FastSellModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handlePublish('draft')}
-                className="px-4 py-2.5 rounded-2xl border border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                className="min-h-[48px] px-4 py-2.5 rounded-2xl border border-zinc-300 dark:border-zinc-700 text-xs font-heading font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
               >
                 Save Draft
               </button>
@@ -1153,7 +1153,7 @@ export const FastSellModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStep((s) => s + 1)}
-                className="px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-soft transition flex items-center gap-1.5"
+                className="min-h-[48px] px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white text-xs font-heading font-black shadow-soft transition flex items-center gap-1.5 active:scale-95"
               >
                 <span>Next</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1162,7 +1162,7 @@ export const FastSellModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handlePublish('active')}
-                className="px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-soft transition flex items-center gap-1.5"
+                className="min-h-[48px] px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white text-xs font-heading font-black shadow-soft transition flex items-center gap-1.5 active:scale-95"
               >
                 <Check className="w-4 h-4" />
                 <span>{editingListing ? t('post_ad.update_btn') : t('post_ad.publish_btn')}</span>

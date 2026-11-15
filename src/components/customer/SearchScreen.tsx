@@ -210,7 +210,7 @@ export const SearchScreen: React.FC = () => {
             value={inputVal}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="What are you looking for?"
-            className="w-full pl-10 pr-16 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            className="w-full min-h-[48px] pl-10 pr-16 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           />
 
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -310,7 +310,7 @@ export const SearchScreen: React.FC = () => {
           <div className="space-y-3.5">
             <div className="flex items-center justify-between px-1">
               <div>
-                <h3 className="font-black text-base text-zinc-900 dark:text-white">
+                <h3 className="font-heading font-black text-base text-zinc-900 dark:text-white">
                   "{inputVal}" near you
                 </h3>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">

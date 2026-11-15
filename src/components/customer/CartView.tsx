@@ -43,7 +43,7 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
           <ShoppingBag className="w-10 h-10" />
         </div>
         <div className="space-y-1 max-w-xs">
-          <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
+          <h3 className="text-xl font-heading font-black text-zinc-900 dark:text-white">
             {t('cart.empty_title')}
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -52,7 +52,7 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
         </div>
         <button
           onClick={() => setCustomerTab('home')}
-          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl shadow-soft transition-all active:scale-95"
+          className="min-h-[48px] px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white font-heading font-bold text-sm rounded-2xl shadow-soft transition-all active:scale-95"
         >
           {t('cart.browse_btn')}
         </button>
@@ -224,14 +224,14 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
       {/* Proceed Checkout Action */}
       <div className="p-4 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft-lg flex items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] text-zinc-400 block font-medium">Total</span>
-          <span className="text-xl font-black text-emerald-700 dark:text-emerald-400">
+          <span className="text-[11px] text-zinc-400 block font-bold uppercase tracking-wider">Total</span>
+          <span className="text-2xl font-heading font-black text-emerald-800 dark:text-emerald-400">
             {formatCurrency(finalTotal)}
           </span>
         </div>
         <button
           onClick={onProceedToCheckout}
-          className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-soft transition-all flex items-center justify-center gap-2"
+          className="min-h-[50px] flex-1 py-3.5 px-5 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 active:scale-95 text-white font-heading font-black text-sm rounded-2xl shadow-soft hover:shadow-soft-md transition-all flex items-center justify-center gap-2"
         >
           <span>{t('cart.proceed_to_checkout')}</span>
           <ArrowRight className="w-4 h-4" />

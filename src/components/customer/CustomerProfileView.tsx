@@ -177,7 +177,7 @@ export const CustomerProfileView: React.FC = () => {
       {profileData?.orderStats && (
         <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
           <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 block truncate">
+            <span className="text-base sm:text-lg font-heading font-black text-emerald-700 dark:text-emerald-400 block truncate">
               {profileData.orderStats.total || 0}
             </span>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
@@ -185,7 +185,7 @@ export const CustomerProfileView: React.FC = () => {
             </span>
           </div>
           <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-black text-blue-600 dark:text-blue-400 block truncate">
+            <span className="text-base sm:text-lg font-heading font-black text-blue-600 dark:text-blue-400 block truncate">
               {profileData.totalAddresses || 1}
             </span>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
@@ -193,7 +193,7 @@ export const CustomerProfileView: React.FC = () => {
             </span>
           </div>
           <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-black text-purple-600 dark:text-purple-400 block truncate">
+            <span className="text-base sm:text-lg font-heading font-black text-purple-600 dark:text-purple-400 block truncate">
               {profileData.favoritesCount || 0}
             </span>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
@@ -230,14 +230,14 @@ export const CustomerProfileView: React.FC = () => {
       {/* Switch to Farmer Banner */}
       <div
         onClick={() => setRole('farmer')}
-        className="p-4 bg-emerald-800 bg-gradient-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-soft cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
+        className="p-4 bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl text-white shadow-soft hover:shadow-soft-md cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-white/10 text-emerald-200">
+          <div className="p-2.5 rounded-2xl bg-white/15 text-white shadow-xs">
             <Sprout className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-bold text-sm">{t('profile.switch_to_farmer')}</h4>
+            <h4 className="font-heading font-black text-sm">{t('profile.switch_to_farmer')}</h4>
             <p className="text-xs text-emerald-100">
               {t('profile.switch_to_farmer_desc')}
             </p>
