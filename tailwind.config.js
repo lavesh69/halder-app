@@ -44,6 +44,25 @@ export default {
           900: '#0A2A1E',
           950: '#051610',
         },
+        agri: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          500: '#10b981',
+          600: '#059669',
+          700: '#15803d',
+          800: '#166534',
+          900: '#00652c',
+        },
+        harvest: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+        },
         primary: {
           light: '#EAF5EE',
           DEFAULT: '#176B45',
@@ -70,6 +89,7 @@ export default {
         }
       },
       fontFamily: {
+        heading: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       boxShadow: {

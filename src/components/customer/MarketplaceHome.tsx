@@ -6,6 +6,8 @@ import { ExploreCategoriesModal } from './ExploreCategoriesModal';
 import { GroupBuyModal } from './GroupBuyModal';
 import { B2BWholesaleModal } from './B2BWholesaleModal';
 import { ScheduledProcurementModal } from './ScheduledProcurementModal';
+import { MandiBhavTicker } from '../common/MandiBhavTicker';
+import { MandiIntelligenceModal } from '../farmer/MandiIntelligenceModal';
 import { ProductCategory } from '../../types';
 import {
   Search,
@@ -24,6 +26,9 @@ import {
   Megaphone,
   HandCoins,
   Bell,
+  Camera,
+  Mic,
+  Sprout,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -47,6 +52,7 @@ export const MarketplaceHome: React.FC = () => {
   const [isGroupBuyOpen, setIsGroupBuyOpen] = useState(false);
   const [isB2bOpen, setIsB2bOpen] = useState(false);
   const [isScheduledOpen, setIsScheduledOpen] = useState(false);
+  const [isMandiModalOpen, setIsMandiModalOpen] = useState(false);
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
@@ -80,6 +86,8 @@ export const MarketplaceHome: React.FC = () => {
     setIsRequirementsOpen,
     setIsNegotiationsOpen,
     setIsSavedSearchesOpen,
+    setIsFastSellOpen,
+    setEditingListing,
   } = useApp();
 
   const hasActiveFilters =
@@ -162,21 +170,39 @@ export const MarketplaceHome: React.FC = () => {
           </button>
         </div>
 
-        {/* Prominent Search Bar */}
+        {/* Prominent High-Utility Search Bar (Stitch Design Pattern) */}
         <div
           onClick={() => setIsSearchScreenOpen(true)}
-          className="w-full flex items-center justify-between p-3.5 bg-white dark:bg-[#181F1A] text-[#89948C] dark:text-[#728277] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft cursor-pointer hover:border-[#176B45]/50 transition-all min-h-[48px]"
+          className="w-full flex items-center justify-between p-2.5 sm:p-3 bg-white dark:bg-[#181F1A] text-[#89948C] dark:text-[#728277] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft cursor-pointer hover:border-[#176B45]/50 transition-all min-h-[50px]"
         >
-          <div className="flex items-center gap-3">
-            <Search className="w-5 h-5 text-[#176B45] dark:text-[#5FB383]" />
-            <span className="text-sm font-medium text-[#66736B] dark:text-[#A6B3AA]">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <Search className="w-5 h-5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-[#66736B] dark:text-[#A6B3AA] truncate">
               {t('search.placeholder')}
             </span>
           </div>
-          <span className="text-xs font-bold bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] px-3 py-1 rounded-xl">
-            {t('home.find')}
-          </span>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Visual Crop Scanner */}
+            <span
+              className="p-1.5 text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors rounded-lg"
+              title="Camera Crop Scanner / फोटो से खोजें"
+            >
+              <Camera className="w-4 h-4" />
+            </span>
+
+            {/* Vernacular Voice Search (Agri Green Pill) */}
+            <span
+              className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-transform active:scale-95"
+              title="Voice Search / बोलकर खोजें"
+            >
+              <Mic className="w-4 h-4" />
+            </span>
+          </div>
         </div>
+
+        {/* Live Mandi Bhav Ticker (Stitch Marquee Commodity Rates) */}
+        <MandiBhavTicker onOpenMandiDetails={() => setIsMandiModalOpen(true)} />
 
         {/* 1.2 Direct Agricultural Discovery Quick Action Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
@@ -365,6 +391,34 @@ export const MarketplaceHome: React.FC = () => {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* Stitch Hero: 0% Commission Direct Kisan Selling Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 text-white p-4 sm:p-5 shadow-soft-md border border-emerald-800/80">
+        <div className="relative z-10 max-w-[80%] space-y-1.5">
+          <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-400/30 text-[10px] font-bold text-emerald-200 uppercase tracking-wider">
+            0% Commission Direct Mandi
+          </span>
+          <h3 className="font-heading font-black text-base sm:text-lg leading-snug">
+            किसान भाई, अपनी फसल 30 सेकंड में बेचें!
+          </h3>
+          <p className="text-xs text-emerald-100/90 font-medium leading-relaxed">
+            Direct mandi buyers &amp; instant UPI payment at your farm gate.
+          </p>
+          <button
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
+            className="mt-2 flex items-center gap-1.5 bg-white text-emerald-800 px-3.5 py-2 rounded-xl font-heading font-black text-xs shadow-md hover:bg-emerald-50 active:scale-95 transition-transform cursor-pointer"
+          >
+            <Camera className="w-4 h-4 text-emerald-700" />
+            <span>Snap &amp; List Crop / फसल लिस्ट करें</span>
+          </button>
+        </div>
+        <div className="absolute -right-3 -bottom-5 opacity-20 pointer-events-none text-white">
+          <Sprout className="w-28 h-28" />
         </div>
       </div>
 
@@ -792,6 +846,11 @@ export const MarketplaceHome: React.FC = () => {
       <ScheduledProcurementModal
         isOpen={isScheduledOpen}
         onClose={() => setIsScheduledOpen(false)}
+      />
+
+      <MandiIntelligenceModal
+        isOpen={isMandiModalOpen}
+        onClose={() => setIsMandiModalOpen(false)}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import {
   Camera,
   Phone,
   MessageCircle,
+  Gavel,
 } from 'lucide-react';
 
 interface ListingCardProps {
@@ -299,7 +300,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </button>
 
         {/* Badges on Image */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 z-10 max-w-[85%]">
           {product.isFeatured && (
             <span className="text-[10px] font-black text-amber-950 bg-amber-400 px-2 py-0.5 rounded-md shadow-xs uppercase tracking-wider">
               ⚡ FEATURED
@@ -310,7 +311,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               🔥 URGENT
             </span>
           )}
-          {product.isOrganic && !product.isFeatured && !product.isUrgent && (
+          <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-50/95 dark:bg-emerald-950/85 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-md shadow-xs flex items-center gap-0.5">
+            <Check className="w-2.5 h-2.5 text-emerald-600" />
+            {product.productGrade || product.product_grade || 'Grade A+'}
+          </span>
+          {product.isOrganic && (
             <span className="text-[10px] font-bold text-[#124C36] bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
               <Sparkles className="w-2.5 h-2.5 text-[#176B45]" />
               Organic
@@ -339,56 +344,83 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {/* Listing Information */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         <div>
-          {/* Top Row: Price & Freshness Tag */}
-          <div className="flex items-baseline justify-between gap-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl sm:text-2xl font-black text-[#176B45] dark:text-[#5FB383]">
-                {formatCurrency(product.price)}
-              </span>
-              <span className="text-xs font-semibold text-[#66736B] dark:text-[#A6B3AA]">
-                / {product.unit}
-              </span>
+          {/* Stitch Price Strip with Direct Mandi Rate */}
+          <div className="bg-[#FAF9F6] dark:bg-[#151C17] p-2 sm:p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between mt-2">
+            <div>
+              <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase block">Offered Rate / भाव</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-heading font-black text-[#176B45] dark:text-[#5FB383]">
+                  {formatCurrency(product.price)}
+                </span>
+                <span className="text-xs font-semibold text-zinc-500">/ {product.unit}</span>
+              </div>
             </div>
-
-            <span className="text-[10px] font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] border border-[#176B45]/20 dark:border-[#2E8B57]/30 px-2 py-0.5 rounded-md">
-              {product.freshnessTag}
-            </span>
+            <div className="text-right">
+              <span className="inline-flex items-center text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200/80 dark:border-emerald-800/60">
+                Direct Mandi Rate
+              </span>
+              <span className="block text-[10px] text-zinc-400 mt-0.5">0% Middleman Cut</span>
+            </div>
           </div>
 
           {/* Product Title */}
-          <h3 className="font-bold text-base text-[#202923] dark:text-[#F2F5F3] mt-1 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors truncate">
+          <h3 className="font-bold text-base text-[#202923] dark:text-[#F2F5F3] mt-2 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors truncate">
             {product.name}
           </h3>
 
           {/* Farmer & Location Info */}
-          <div className="flex items-center gap-1.5 text-xs text-[#66736B] dark:text-[#A6B3AA] mt-1">
-            <button
-              onClick={handleFarmerClick}
-              className="font-bold text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] truncate flex items-center gap-1"
-            >
-              <span>{product.farmerName}</span>
-              <ShieldCheck className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
-            </button>
-            <span>•</span>
-            <span className="truncate">{product.farmName}</span>
+          <div className="flex items-center justify-between mt-1 text-xs text-[#66736B] dark:text-[#A6B3AA]">
+            <div className="flex items-center gap-1.5 truncate">
+              <button
+                onClick={handleFarmerClick}
+                className="font-bold text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] truncate flex items-center gap-1"
+              >
+                <span>{product.farmerName}</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383] shrink-0" />
+              </button>
+              <span>•</span>
+              <span className="truncate">{product.farmName}</span>
+            </div>
+            <span className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 shrink-0">
+              <ShieldCheck className="w-3 h-3 text-amber-600" /> Halder Safe
+            </span>
           </div>
 
-          {/* Available Quantity */}
-          <div className="flex items-center gap-2 mt-2">
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] px-2.5 py-1 rounded-lg">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2E8B57]" />
-              Available: {product.availableQuantity} {product.unit}
-            </span>
+          {/* Stock Availability Progress Bar */}
+          <div className="space-y-1 mt-2">
+            <div className="flex justify-between text-[11px] font-semibold">
+              <span className="text-zinc-500">Available Stock</span>
+              <span className="text-zinc-800 dark:text-zinc-200 font-bold">{product.availableQuantity} {product.unit} remaining</span>
+            </div>
+            <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-emerald-600 dark:bg-emerald-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(100, Math.max(25, (product.availableQuantity / 120) * 100))}%` }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Bottom Fast Action Buttons: Call, Chat, Cart & Buy Now */}
+        {/* Bottom Fast Action Buttons: Boli, Call, Chat, Cart & Buy Now */}
         <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#E5EBE6] dark:border-[#29352D] flex-wrap">
-          <span className="text-[10px] uppercase font-bold text-[#89948C] tracking-wide truncate max-w-[150px]">
+          <span className="text-[10px] uppercase font-bold text-[#89948C] tracking-wide truncate max-w-[140px]">
             📍 {product.location ? product.location.split(',')[0] : 'LOCAL'} • {product.harvestDate ? (product.harvestDate.toLowerCase().includes('today') ? 'TODAY' : product.harvestDate.slice(0, 10).toUpperCase()) : 'TODAY'}
           </span>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+            {/* 1-Tap Boli / Negotiation Action */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedProduct(product);
+              }}
+              className="min-h-[40px] px-2.5 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-bold rounded-xl border border-amber-300 dark:border-amber-700/60 transition-colors flex items-center gap-1 active:scale-95 shadow-2xs"
+              title="Place offer / बोली लगाएं"
+            >
+              <Gavel className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Boli</span>
+            </button>
+
             <button
               onClick={handleQuickCall}
               className="min-h-[40px] px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center gap-1 active:scale-95"
