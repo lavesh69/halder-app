@@ -4,7 +4,6 @@ import { Header } from './components/common/Header';
 import { BottomNav } from './components/common/BottomNav';
 import { Toast } from './components/common/Toast';
 import { LocationModal } from './components/common/LocationModal';
-import { AdminAuthModal } from './components/common/AdminAuthModal';
 
 // Customer screens & modals
 import { SplashScreen } from './components/customer/SplashScreen';
@@ -244,7 +243,6 @@ export const MainApp: React.FC = () => {
           onClose={() => setIsLoginModalOpen(false)}
         />
       )}
-      <AdminAuthModal />
 
       {/* Bottom Navigation */}
       <BottomNav />

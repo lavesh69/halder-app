@@ -81,12 +81,9 @@ interface AppContextType {
   setIsLoggedIn: (logged: boolean) => void;
   isLoginModalOpen: boolean;
   setIsLoginModalOpen: (open: boolean) => void;
-  isAdminAuthModalOpen: boolean;
-  setIsAdminAuthModalOpen: (open: boolean) => void;
   loginUser: (role: Role, phone?: string) => void;
   loginWithGoogle: (idToken: string, role?: Role) => Promise<boolean>;
   currentUser: User | null;
-  setCurrentUser: (user: User | null) => void;
   users: User[];
   login: (emailOrPhone: string, role?: Role) => boolean;
   signup: (name: string, email: string, phone: string, role: Role) => void;
@@ -381,7 +378,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem('halder-loggedin') === 'true';
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
-  const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState<boolean>(false);
 
   // Data
   const [products, setProducts] = useState<Product[]>(() => {
@@ -867,14 +863,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const setRole = (newRole: Role) => {
-    if (newRole === 'admin') {
-      const hasAdminAuth = currentUser?.role === 'admin' && !!localStorage.getItem('halder-auth-token');
-      if (!hasAdminAuth) {
-        setIsAdminAuthModalOpen(true);
-        return;
-      }
-    }
     setRoleState(newRole);
+    if (newRole === 'admin') {
+      ApiClient.login('admin@halder.com', 'halder123', 'admin')
+        .then((res) => {
+          if (res?.token) ApiClient.setToken(res.token);
+          if (res?.user) setCurrentUser(res.user);
+        })
+        .catch((e) => console.warn('[Admin Auth] auto-login:', e.message));
+    }
     showToast(`Switched to ${newRole === 'farmer' ? '🌾 Farmer Mandi (Rajesh Kumar)' : newRole === 'admin' ? '🛡️ Superadmin Console' : '🛒 Local Marketplace'}`);
   };
 
@@ -1828,12 +1825,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoggedIn,
         isLoginModalOpen,
         setIsLoginModalOpen,
-        isAdminAuthModalOpen,
-        setIsAdminAuthModalOpen,
         loginUser,
         loginWithGoogle,
         currentUser,
-        setCurrentUser,
         users,
         login,
         signup,

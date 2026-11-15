@@ -42,9 +42,6 @@ const envSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_PHONE_NUMBER: z.string().optional(),
-
-  // Tier-1 Admin Master Security PIN (Cybersecurity Safeguard)
-  ADMIN_MASTER_PIN: z.string().min(4).default('984501'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -52,16 +49,6 @@ const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error('Invalid environment variables:', parsed.error.format());
   process.exit(1);
-}
-
-// In production, warn if using insecure default secret
-if (
-  parsed.data.NODE_ENV === 'production' &&
-  parsed.data.JWT_SECRET === 'halder_super_secure_jwt_secret_production_2026_mandi'
-) {
-  console.warn(
-    '[CYBERSECURITY ADVISORY] Default hardcoded JWT_SECRET detected in production! Please define a cryptographically random secret in environment variables.'
-  );
 }
 
 export const env = parsed.data;

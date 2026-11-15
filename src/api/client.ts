@@ -89,13 +89,6 @@ export class ApiClient {
     });
   }
 
-  static verifyAdminPin(pin: string) {
-    return this.request('/auth/verify-admin-pin', {
-      method: 'POST',
-      body: { pin },
-    });
-  }
-
   static register(data: any) {
     return this.request('/auth/register', {
       method: 'POST',
