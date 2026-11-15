@@ -58,7 +58,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const farmerUpiId = `${primaryFarmerName.toLowerCase().replace(/[^a-z0-9]/g, '')}.farm@upi`;
 
   const [deliveryAddress, setDeliveryAddress] = useState(
-    currentLocation || 'House 14, 2nd Cross, Rajpur Road, Dehradun'
+    currentLocation || 'My Current Delivery Address'
   );
 
   React.useEffect(() => {

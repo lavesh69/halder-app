@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useApp } from '../../context/AppContext';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
 import { X, Camera, Loader2, Check, AlertCircle, Sparkles } from 'lucide-react';
@@ -18,10 +19,11 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
   onProfileUpdated,
   showToast,
 }) => {
+  const { activeCity } = useApp();
   const [farmName, setFarmName] = useState(currentProfile?.farmName || '');
   const [description, setDescription] = useState(currentProfile?.description || '');
   const [location, setLocation] = useState(currentProfile?.location || '');
-  const [city, setCity] = useState(currentProfile?.city || 'Dehradun');
+  const [city, setCity] = useState(currentProfile?.city || activeCity || 'Local Mandi');
   const [farmSizeAcres, setFarmSizeAcres] = useState(currentProfile?.farmSizeAcres || 5);
   const [waterSource, setWaterSource] = useState(currentProfile?.waterSource || 'Natural Rainwater & Deep Aquifer');
   const [experienceYears, setExperienceYears] = useState(currentProfile?.experienceYears || 10);

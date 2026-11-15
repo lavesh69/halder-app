@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency } from '../../utils/formatters';
 import { QuantitySelector } from '../common/QuantitySelector';
 import {
@@ -28,6 +29,7 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
     platformSettings,
   } = useApp();
 
+  const { t } = useTranslation();
   const [tip, setTip] = useState<number>(10);
   const deliveryThreshold = platformSettings?.freeDeliveryThreshold ?? 200;
   const standardFee = platformSettings?.standardDeliveryFee ?? 25;
@@ -42,17 +44,17 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
         </div>
         <div className="space-y-1 max-w-xs">
           <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
-            Your basket is empty
+            {t('cart.empty_title')}
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Explore fresh farm listings and support local growers directly.
+            {t('cart.empty_desc')}
           </p>
         </div>
         <button
           onClick={() => setCustomerTab('home')}
           className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl shadow-soft transition-all active:scale-95"
         >
-          Browse Marketplace
+          {t('cart.browse_btn')}
         </button>
       </div>
     );
@@ -67,8 +69,8 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
             <Truck className="w-4 h-4 text-emerald-600" />
             <span>
               {cartTotal >= deliveryThreshold
-                ? '🎉 You unlocked FREE Direct-Farm Delivery!'
-                : `Add ${formatCurrency(deliveryThreshold - cartTotal)} more for FREE Delivery`}
+                ? t('cart.free_delivery_unlocked')
+                : t('cart.add_more_for_free', { amount: formatCurrency(deliveryThreshold - cartTotal) })}
             </span>
           </div>
           <span>₹{deliveryThreshold} Free Delivery Threshold</span>
@@ -231,7 +233,7 @@ export const CartView: React.FC<CartViewProps> = ({ onProceedToCheckout }) => {
           onClick={onProceedToCheckout}
           className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-soft transition-all flex items-center justify-center gap-2"
         >
-          <span>Proceed to Checkout</span>
+          <span>{t('cart.proceed_to_checkout')}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

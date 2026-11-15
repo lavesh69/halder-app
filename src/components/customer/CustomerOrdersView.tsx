@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { StatusBadge } from '../common/StatusBadge';
@@ -39,7 +40,11 @@ export const CustomerOrdersView: React.FC = () => {
     updateOrderStatus,
     raiseDispute,
     disputes,
+    activeCity,
+    currentLocation,
   } = useApp();
+
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,10 +125,10 @@ export const CustomerOrdersView: React.FC = () => {
       name: order.farmerName || 'Rajesh Kumar',
       phone: order.farmerPhone || '+91 98450 12345',
       farm_name: order.farmName || 'Green Valley Farm',
-      location: 'Sarjapur Agro Belt',
-      city: 'Dehradun',
-      latitude: 30.3165,
-      longitude: 78.0322,
+      location: activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      city: activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      latitude: 28.6139,
+      longitude: 77.2090,
       description: 'Certified organic farmer',
       verification_status: 'verified' as const,
       rating: 4.9,
@@ -178,10 +183,10 @@ export const CustomerOrdersView: React.FC = () => {
           </button>
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">
-              My Mandi Orders (मेरे ऑर्डर)
+              {t('orders.customer_orders_title')}
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Live GPS route tracking, direct farmer contact & official tax invoices
+              {t('orders.customer_orders_sub')}
             </p>
           </div>
         </div>
@@ -200,7 +205,7 @@ export const CustomerOrdersView: React.FC = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by order ID, farmer name, or produce item..."
+          placeholder={t('orders.search_customer_placeholder')}
           className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
         />
       </div>
@@ -215,7 +220,7 @@ export const CustomerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
           }`}
         >
-          <span>Active In-Transit</span>
+          <span>{t('orders.tab_active_intransit')}</span>
           {activeOrders.length > 0 && (
             <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse">
               {activeOrders.length}
@@ -231,7 +236,7 @@ export const CustomerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
           }`}
         >
-          <span>Delivered & Completed</span>
+          <span>{t('orders.tab_past_delivered')}</span>
           <span className="text-[10px] text-zinc-400">({completedOrders.length})</span>
         </button>
       </div>
@@ -401,7 +406,7 @@ export const CustomerOrdersView: React.FC = () => {
                     className="inline-flex items-center gap-1 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-emerald-600"
                   >
                     <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>GST Receipt</span>
+                    <span>{t('orders.invoice')}</span>
                   </button>
 
                   <div className="flex items-center gap-2 flex-wrap">
@@ -411,7 +416,7 @@ export const CustomerOrdersView: React.FC = () => {
                         className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 font-bold text-xs rounded-xl border border-red-200 dark:border-red-900/50 hover:bg-red-100 transition-colors flex items-center gap-1"
                       >
                         <X className="w-3.5 h-3.5" />
-                        <span>Cancel Order</span>
+                        <span>{t('orders.cancel_order')}</span>
                       </button>
                     )}
 
@@ -467,16 +472,16 @@ export const CustomerOrdersView: React.FC = () => {
                         onClick={() => setTrackingOrder(order)}
                         className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1"
                       >
-                        <span>Track Live Route</span>
+                        <span>{t('orders.track_harvest')}</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     ) : (
                       <button
                         onClick={() => handleReorder(order)}
-                        className="px-3.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-emerald-50 dark:hover:bg-emerald-950 font-bold text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-1"
+                        className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1"
                       >
-                        <RotateCcw className="w-3 h-3 text-emerald-600" />
-                        <span>Reorder</span>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>{t('orders.reorder_harvest')}</span>
                       </button>
                     )}
                   </div>

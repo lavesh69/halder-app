@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { X, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -15,6 +16,8 @@ export const FilterBottomSheet: React.FC = () => {
     resetFilters,
     products,
   } = useApp();
+
+  const { t } = useTranslation();
 
   if (!isFilterModalOpen) return null;
 
@@ -39,7 +42,7 @@ export const FilterBottomSheet: React.FC = () => {
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-5 h-5 text-emerald-600" />
             <h3 className="font-black text-lg text-zinc-900 dark:text-white">
-              Filter Listings
+              {t('filter.title')}
             </h3>
           </div>
 
@@ -49,7 +52,7 @@ export const FilterBottomSheet: React.FC = () => {
               className="text-xs font-bold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 flex items-center gap-1 p-1.5"
             >
               <RotateCcw className="w-3 h-3" />
-              <span>Reset</span>
+              <span>{t('filter.reset')}</span>
             </button>
             <button
               onClick={() => setIsFilterModalOpen(false)}
@@ -65,7 +68,7 @@ export const FilterBottomSheet: React.FC = () => {
           {/* 1. Category */}
           <div className="space-y-2">
             <label className="font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
-              Category
+              {t('filter.category')}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => {
@@ -222,7 +225,7 @@ export const FilterBottomSheet: React.FC = () => {
             onClick={() => setIsFilterModalOpen(false)}
             className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-soft transition-all"
           >
-            Show {matchingCount} Results
+            {t('filter.apply', { count: matchingCount })}
           </button>
         </div>
       </div>

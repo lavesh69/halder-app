@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const ScheduledProcurementModal: React.FC<Props> = ({ isOpen, onClose, defaultProductId }) => {
-  const { products, currentUser, showToast } = useApp();
+  const { products, currentUser, showToast, currentLocation } = useApp();
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'create' | 'my_subscriptions'>('create');
@@ -30,7 +30,7 @@ export const ScheduledProcurementModal: React.FC<Props> = ({ isOpen, onClose, de
   const [quantity, setQuantity] = useState('2');
   const [frequency, setFrequency] = useState('daily');
   const [timeSlot, setTimeSlot] = useState('Morning (06:00 - 08:30 AM)');
-  const [address, setAddress] = useState('Flat 402, Green Meadows, Rajpur Road, Dehradun');
+  const [address, setAddress] = useState(currentLocation || 'Local Mandi Delivery Area');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedProduct = products.find((p) => p.id === selectedProductId) || products[0];

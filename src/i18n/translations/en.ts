@@ -409,6 +409,58 @@ export const enTranslations = {
   'ads.chat_with_farmer': 'Chat with Seller',
   'ads.instant_order': 'Instant Buy',
   'ads.safety_tip': 'Never send advance payment before inspecting produce in person.',
+
+  // Orders Management (Farmer & Customer)
+  'orders.farmer_fulfillment_title': 'Farmer Order Dispatch & Fulfillment',
+  'orders.farmer_fulfillment_sub': 'Accept incoming harvest orders, update packaging status & generate delivery gate passes',
+  'orders.search_placeholder': 'Search by order ID, customer name, phone, or crop item...',
+  'orders.tab_all': 'All Orders',
+  'orders.tab_new': 'New',
+  'orders.tab_packing': 'Packing',
+  'orders.tab_delivery': 'Out for Delivery',
+  'orders.tab_completed': 'Completed',
+  'orders.no_orders_stage': 'No orders found in this stage',
+  'orders.no_orders_sub': 'When buyers place orders for your crops, they will automatically appear here with real-time alerts.',
+  'orders.customer_orders_title': 'Orders & Procurements',
+  'orders.customer_orders_sub': 'Track fresh farm deliveries, review farmers, or download tax invoices',
+  'orders.tab_active_intransit': 'Active In-Transit',
+  'orders.tab_past_delivered': 'Past Delivered',
+  'orders.search_customer_placeholder': 'Search by order number, farmer name, crop...',
+  'orders.no_active_orders': 'No active harvest orders',
+  'orders.no_completed_orders': 'No past delivered orders',
+  'orders.track_harvest': 'Track Harvest',
+  'orders.live_chat': 'Live Chat',
+  'orders.reorder_harvest': 'Reorder Harvest',
+  'orders.invoice': 'Invoice',
+  'orders.raise_dispute': 'Raise Dispute',
+  'orders.cancel_order': 'Cancel Order',
+  'orders.dispatch_title': 'Dispatch & Handover to Kisan Logistics',
+  'orders.gate_pass_title': 'Kisan Mandi Delivery Gate Pass',
+  'orders.challan_print': 'Print Challan',
+
+  // Cart & Basket
+  'cart.empty_title': 'Your basket is empty',
+  'cart.empty_desc': 'Explore fresh farm listings and support local growers directly.',
+  'cart.browse_btn': 'Browse Marketplace',
+  'cart.free_delivery_unlocked': 'You unlocked FREE Direct-Farm Delivery!',
+  'cart.add_more_for_free': 'Add {amount} more for FREE Delivery',
+  'cart.order_summary': 'Order Summary',
+  'cart.proceed_to_checkout': 'Proceed to Delivery & Payment',
+  'cart.farmer_tip': 'Farmer Tip',
+
+  // Favorites
+  'favorites.title': 'Saved Listings',
+  'favorites.subtitle': '{count} products saved to your favorites',
+  'favorites.empty_title': 'Save products you like',
+  'favorites.empty_desc': 'Tap the heart icon on any vegetable or farm product to save it here for quick reordering.',
+
+  // Filter BottomSheet
+  'filter.title': 'Filter Listings',
+  'filter.reset': 'Reset',
+  'filter.category': 'Category',
+  'filter.distance': 'Distance Radius',
+  'filter.price_range': 'Price Range',
+  'filter.apply': 'Apply Filters ({count})',
 };
 
 export type TranslationKey = string;

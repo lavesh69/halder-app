@@ -22,6 +22,18 @@ export function useAndroidHardware() {
     setIsNotificationModalOpen,
     buyNowProduct,
     setBuyNowProduct,
+    isRequirementsOpen,
+    setIsRequirementsOpen,
+    isNegotiationsOpen,
+    setIsNegotiationsOpen,
+    isFarmMapOpen,
+    setIsFarmMapOpen,
+    isLocationModalOpen,
+    setIsLocationModalOpen,
+    isSavedSearchesOpen,
+    setIsSavedSearchesOpen,
+    stockControlProduct,
+    setStockControlProduct,
     customerTab,
     setCustomerTab,
     farmerTab,
@@ -62,6 +74,30 @@ export function useAndroidHardware() {
 
     const closeTopModalOrStepBack = (): boolean => {
       // Priority 1: Close active modals
+      if (isRequirementsOpen) {
+        setIsRequirementsOpen(false);
+        return true;
+      }
+      if (isNegotiationsOpen) {
+        setIsNegotiationsOpen(false);
+        return true;
+      }
+      if (isFarmMapOpen) {
+        setIsFarmMapOpen(false);
+        return true;
+      }
+      if (isLocationModalOpen) {
+        setIsLocationModalOpen(false);
+        return true;
+      }
+      if (isSavedSearchesOpen) {
+        setIsSavedSearchesOpen(false);
+        return true;
+      }
+      if (stockControlProduct) {
+        setStockControlProduct(null);
+        return true;
+      }
       if (isFastSellOpen) {
         setIsFastSellOpen(false);
         return true;

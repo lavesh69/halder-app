@@ -23,6 +23,8 @@ export const FarmerChatView: React.FC = () => {
     setIsChatModalOpen,
     unreadChatCount,
     showToast,
+    currentLocation,
+    activeCity,
   } = useApp();
 
   const { t } = useTranslation();
@@ -53,10 +55,10 @@ export const FarmerChatView: React.FC = () => {
       name: conv.otherParty?.name || 'Customer',
       phone: conv.otherParty?.phone || '+91 98765 43210',
       farm_name: conv.otherParty?.farmName || 'Direct Customer',
-      location: conv.otherParty?.city || 'Dehradun',
-      city: conv.otherParty?.city || 'Dehradun',
-      latitude: 30.3165,
-      longitude: 78.0322,
+      location: conv.otherParty?.city || activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      city: conv.otherParty?.city || activeCity || 'Local Mandi',
+      latitude: conv.otherParty?.latitude || 28.6139,
+      longitude: conv.otherParty?.longitude || 77.2090,
       description: 'Verified HALDER buyer',
       verification_status: 'verified' as const,
       rating: 5.0,

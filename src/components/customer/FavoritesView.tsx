@@ -1,10 +1,12 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { Heart, ArrowLeft, ShoppingBag } from 'lucide-react';
 
 export const FavoritesView: React.FC = () => {
   const { products, favorites, setCustomerTab } = useApp();
+  const { t } = useTranslation();
 
   const savedListings = products.filter((p) => favorites.includes(p.id));
 
@@ -23,10 +25,10 @@ export const FavoritesView: React.FC = () => {
           <div>
             <h2 className="text-2xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
               <Heart className="w-6 h-6 fill-red-500 text-red-500" />
-              <span>Saved Listings</span>
+              <span>{t('favorites.title')}</span>
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              {savedListings.length} products saved to your favorites
+              {t('favorites.subtitle', { count: savedListings.length })}
             </p>
           </div>
         </div>
@@ -38,16 +40,16 @@ export const FavoritesView: React.FC = () => {
             <Heart className="w-7 h-7" />
           </div>
           <h3 className="font-bold text-base text-zinc-900 dark:text-white">
-            Save products you like
+            {t('favorites.empty_title')}
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
-            Tap the heart icon on any vegetable or farm product to save it here for quick reordering.
+            {t('favorites.empty_desc')}
           </p>
           <button
             onClick={() => setCustomerTab('home')}
             className="min-h-[44px] px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors inline-flex items-center justify-center"
           >
-            Explore Marketplace
+            {t('cart.browse_btn')}
           </button>
         </div>
       ) : (

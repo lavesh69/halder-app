@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   Check,
   Camera,
+  Phone,
+  MessageCircle,
 } from 'lucide-react';
 
 interface ListingCardProps {
@@ -30,6 +32,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     isFavorite,
     addToCart,
     setBuyNowProduct,
+    openFarmerChat,
+    showToast,
   } = useApp();
 
   const favorite = isFavorite(product.id);
@@ -47,6 +51,22 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const handleHeartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavorite(product.id);
+  };
+
+  const handleQuickCall = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const phone = product.farmerPhone || farmer?.phone || '+91 98450 12345';
+    showToast(`Dialing ${product.farmerName} (${phone})`, 'info');
+    window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
+  };
+
+  const handleQuickChat = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (farmer) {
+      openFarmerChat(farmer, `Namaste ${product.farmerName} ji! I saw your "${product.name}" on HALDER.`);
+    } else {
+      setSelectedProduct(product);
+    }
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -222,8 +242,23 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-[#E5EBE6] dark:border-[#29352D] text-[9px] uppercase tracking-wide text-[#89948C] font-semibold">
-            <span className="truncate max-w-[90px]">{product.location ? product.location.split(',')[0] : 'LOCAL'}</span>
-            <span>{product.harvestDate ? (product.harvestDate.toLowerCase().includes('today') ? 'TODAY' : product.harvestDate.slice(0, 8)) : 'TODAY'}</span>
+            <span className="truncate max-w-[80px]">{product.location ? product.location.split(',')[0] : 'LOCAL'}</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleQuickCall}
+                className="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                title="Call seller"
+              >
+                <Phone className="w-3 h-3 text-emerald-600" />
+              </button>
+              <button
+                onClick={handleQuickChat}
+                className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 transition-colors"
+                title="Chat with seller"
+              >
+                <MessageCircle className="w-3 h-3 text-emerald-600" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -347,30 +382,49 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </div>
         </div>
 
-        {/* Bottom Fast Action Buttons */}
-        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#E5EBE6] dark:border-[#29352D]">
-          <span className="text-[10px] uppercase font-bold text-[#89948C] tracking-wide truncate">
+        {/* Bottom Fast Action Buttons: Call, Chat, Cart & Buy Now */}
+        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#E5EBE6] dark:border-[#29352D] flex-wrap">
+          <span className="text-[10px] uppercase font-bold text-[#89948C] tracking-wide truncate max-w-[150px]">
             📍 {product.location ? product.location.split(',')[0] : 'LOCAL'} • {product.harvestDate ? (product.harvestDate.toLowerCase().includes('today') ? 'TODAY' : product.harvestDate.slice(0, 10).toUpperCase()) : 'TODAY'}
           </span>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleQuickCall}
+              className="min-h-[40px] px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center gap-1 active:scale-95"
+              title="Call farmer directly"
+            >
+              <Phone className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Call</span>
+            </button>
+
+            <button
+              onClick={handleQuickChat}
+              className="min-h-[40px] px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 text-xs font-bold rounded-xl border border-zinc-200 dark:border-zinc-700 transition-colors flex items-center gap-1 active:scale-95"
+              title="Chat with farmer"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Chat</span>
+            </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 addToCart(product, 1);
               }}
-              className="min-h-[44px] px-3.5 py-2 bg-[#F0F4F1] dark:bg-[#222B25] hover:bg-[#E5EBE6] dark:hover:bg-[#29352D] text-[#202923] dark:text-[#F2F5F3] text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 active:scale-95"
+              className="min-h-[40px] px-2.5 py-1.5 bg-[#F0F4F1] dark:bg-[#222B25] hover:bg-[#E5EBE6] text-[#202923] dark:text-[#F2F5F3] text-xs font-bold rounded-xl transition-colors flex items-center gap-1 active:scale-95"
+              title="Add to cart"
             >
-              <ShoppingBag className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
+              <ShoppingBag className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383]" />
               <span>Cart</span>
             </button>
 
             <button
               onClick={handleBuyNow}
-              className="min-h-[44px] px-4 py-2 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white text-xs font-bold rounded-xl shadow-soft transition-all flex items-center gap-1.5"
+              className="min-h-[40px] px-3.5 py-1.5 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white text-xs font-bold rounded-xl shadow-soft transition-all flex items-center gap-1"
             >
-              <Zap className="w-4 h-4 fill-white" />
-              <span>Buy Now</span>
+              <Zap className="w-3.5 h-3.5 fill-white" />
+              <span>Buy</span>
             </button>
           </div>
         </div>

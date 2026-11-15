@@ -24,6 +24,8 @@ export const CustomerChatsView: React.FC = () => {
     setCustomerTab,
     farmers,
     products,
+    currentLocation,
+    activeCity,
   } = useApp();
 
   const { t } = useTranslation();
@@ -59,10 +61,10 @@ export const CustomerChatsView: React.FC = () => {
       name: conv.otherParty?.name || conv.farmerName || 'Local Seller',
       phone: conv.otherParty?.phone || '+91 98450 12345',
       farm_name: conv.otherParty?.farmName || 'Green Valley Farm',
-      location: conv.otherParty?.city || 'Dehradun',
-      city: conv.otherParty?.city || 'Dehradun',
-      latitude: 30.3165,
-      longitude: 78.0322,
+      location: conv.otherParty?.city || activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      city: conv.otherParty?.city || activeCity || 'Local Mandi',
+      latitude: conv.otherParty?.latitude || 28.6139,
+      longitude: conv.otherParty?.longitude || 77.2090,
       description: 'Verified seller on HALDER marketplace',
       verification_status: 'verified' as const,
       rating: 4.9,

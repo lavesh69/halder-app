@@ -458,14 +458,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // Location-first
-  const [currentLocation, setCurrentLocation] = useState<string>('Rajpur Road, Dehradun');
-  const [activeCity, setActiveCity] = useState<string>('Dehradun');
+  // Location-first with LocalStorage persistence
+  const [currentLocation, setCurrentLocation] = useState<string>(() => {
+    try {
+      return localStorage.getItem('halder-user-location') || 'Rajpur Road, Dehradun';
+    } catch {
+      return 'Rajpur Road, Dehradun';
+    }
+  });
+  const [activeCity, setActiveCity] = useState<string>(() => {
+    try {
+      return localStorage.getItem('halder-user-city') || 'Dehradun';
+    } catch {
+      return 'Dehradun';
+    }
+  });
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
   const [searchRadiusKm, setSearchRadiusKm] = useState<number>(() => {
     const saved = localStorage.getItem('halder-radius-km');
     return saved ? Number(saved) : 300;
   });
+
+  useEffect(() => {
+    try {
+      if (currentLocation) {
+        localStorage.setItem('halder-user-location', currentLocation);
+      }
+    } catch {}
+  }, [currentLocation]);
+
+  useEffect(() => {
+    try {
+      if (activeCity) {
+        localStorage.setItem('halder-user-city', activeCity);
+      }
+    } catch {}
+  }, [activeCity]);
 
   const handleSetSearchRadiusKm = (r: number) => {
     setSearchRadiusKm(r);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { StatusBadge } from '../common/StatusBadge';
 import { Order } from '../../types';
@@ -29,7 +30,11 @@ export const FarmerOrdersView: React.FC = () => {
     setChatFarmer,
     setActiveConversationId,
     setIsChatModalOpen,
+    activeCity,
+    currentLocation,
   } = useApp();
+
+  const { t } = useTranslation();
 
   const [orderTab, setOrderTab] = useState<'all' | 'new' | 'preparing' | 'delivery' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,10 +94,10 @@ export const FarmerOrdersView: React.FC = () => {
       name: order.customerName || 'Customer',
       phone: order.customerPhone || '+91 98765 43210',
       farm_name: 'Direct Buyer',
-      location: order.deliveryAddress?.split(',')[0] || 'Local Mandi',
-      city: 'Dehradun',
-      latitude: 30.3165,
-      longitude: 78.0322,
+      location: order.deliveryAddress?.split(',')[0] || activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      city: activeCity || (currentLocation ? currentLocation.split(',')[0].trim() : 'Local Mandi'),
+      latitude: 28.6139,
+      longitude: 77.2090,
       description: 'Verified HALDER buyer',
       verification_status: 'verified' as const,
       rating: 5.0,
@@ -120,10 +125,10 @@ export const FarmerOrdersView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-            Farmer Order Dispatch & Fulfillment
+            {t('orders.farmer_fulfillment_title')}
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Accept incoming harvest orders, update packaging status & generate delivery gate passes
+            {t('orders.farmer_fulfillment_sub')}
           </p>
         </div>
 
@@ -141,7 +146,7 @@ export const FarmerOrdersView: React.FC = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by order ID, customer name, phone, or crop item..."
+          placeholder={t('orders.search_placeholder')}
           className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
         />
       </div>
@@ -156,7 +161,7 @@ export const FarmerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
-          <span>All Orders</span>
+          <span>{t('orders.tab_all')}</span>
           <span className="text-[10px] text-zinc-400">({orders.length})</span>
         </button>
 
@@ -168,7 +173,7 @@ export const FarmerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
-          <span>New</span>
+          <span>{t('orders.tab_new')}</span>
           {newOrders.length > 0 && (
             <span className="bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black animate-pulse">
               {newOrders.length}
@@ -184,7 +189,7 @@ export const FarmerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
-          <span>Packing</span>
+          <span>{t('orders.tab_packing')}</span>
           <span className="text-[10px] text-zinc-400">({preparingOrders.length})</span>
         </button>
 
@@ -196,7 +201,7 @@ export const FarmerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
-          <span>Out for Delivery</span>
+          <span>{t('orders.tab_delivery')}</span>
           <span className="text-[10px] text-zinc-400">({deliveryOrders.length})</span>
         </button>
 
@@ -208,7 +213,7 @@ export const FarmerOrdersView: React.FC = () => {
               : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
-          <span>Completed</span>
+          <span>{t('orders.tab_completed')}</span>
           <span className="text-[10px] text-zinc-400">({completedOrders.length})</span>
         </button>
       </div>
@@ -217,9 +222,9 @@ export const FarmerOrdersView: React.FC = () => {
       {displayedOrders.length === 0 ? (
         <div className="p-10 text-center bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-2">
           <Package className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto" />
-          <h4 className="font-bold text-sm text-zinc-800 dark:text-zinc-200">No orders found in this stage</h4>
+          <h4 className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{t('orders.no_orders_stage')}</h4>
           <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-            When buyers place orders for your crops, they will automatically appear here with real-time alerts.
+            {t('orders.no_orders_sub')}
           </p>
         </div>
       ) : (
