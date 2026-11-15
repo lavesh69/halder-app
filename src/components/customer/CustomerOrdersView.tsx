@@ -182,7 +182,7 @@ export const CustomerOrdersView: React.FC = () => {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-heading font-black text-zinc-900 dark:text-white">
               {t('orders.customer_orders_title')}
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -279,7 +279,7 @@ export const CustomerOrdersView: React.FC = () => {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-black text-sm text-zinc-900 dark:text-white">
+                        <span className="font-heading font-black text-sm text-zinc-900 dark:text-white">
                           {order.orderNumber}
                         </span>
                         <StatusBadge status={order.status} size="sm" />
@@ -290,7 +290,7 @@ export const CustomerOrdersView: React.FC = () => {
                     </div>
 
                     <div className="text-right">
-                      <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
+                      <span className="text-base font-heading font-black text-emerald-800 dark:text-emerald-400">
                         {formatCurrency(order.total)}
                       </span>
                       <span className="text-[10px] text-zinc-400 block uppercase font-bold">

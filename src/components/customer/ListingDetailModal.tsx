@@ -283,19 +283,19 @@ export const ListingDetailModal: React.FC = () => {
           <div className="flex items-start justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
+                <span className="text-3xl font-heading font-black text-emerald-800 dark:text-emerald-400 tracking-tight">
                   {formatCurrency(selectedProduct.price)}
                 </span>
                 <span className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                   / {selectedProduct.unit}
                 </span>
                 {selectedProduct.isNegotiable !== false && (
-                  <span className="ml-2 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
+                  <span className="ml-2 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[11px] font-heading font-bold border border-amber-300/60 dark:border-amber-800/60">
                     🤝 Negotiable
                   </span>
                 )}
               </div>
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mt-1">
+              <h2 className="text-xl font-heading font-bold text-zinc-900 dark:text-white mt-1">
                 {selectedProduct.name}
               </h2>
               {/* OLX Location Breadcrumb Path */}
@@ -521,7 +521,7 @@ export const ListingDetailModal: React.FC = () => {
                 setCustomOffer(Math.round(selectedProduct.price * 0.9));
                 setShowOfferModal(true);
               }}
-              className="py-2.5 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 text-amber-900 dark:text-amber-200 font-bold text-[11px] rounded-2xl border border-amber-200 dark:border-amber-800/60 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
+              className="min-h-[50px] py-2.5 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 text-amber-900 dark:text-amber-200 font-heading font-bold text-[11px] rounded-2xl border border-amber-300 dark:border-amber-800/60 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
             >
               <HandCoins className="w-4 h-4 text-amber-600" />
               <span>{t('ads.make_offer')}</span>
@@ -529,7 +529,7 @@ export const ListingDetailModal: React.FC = () => {
 
             <button
               onClick={handleOpenChat}
-              className="py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-zinc-800 dark:text-zinc-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold text-[11px] rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
+              className="min-h-[50px] py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-zinc-800 dark:text-zinc-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-heading font-bold text-[11px] rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
             >
               <MessageCircle className="w-4 h-4 text-emerald-600" />
               <span>{t('ads.chat')}</span>
@@ -537,7 +537,7 @@ export const ListingDetailModal: React.FC = () => {
 
             <button
               onClick={() => setShowPhoneModal(true)}
-              className="py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-900 dark:text-blue-200 font-bold text-[11px] rounded-2xl border border-blue-200 dark:border-blue-800/60 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
+              className="min-h-[50px] py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-900 dark:text-blue-200 font-heading font-bold text-[11px] rounded-2xl border border-blue-200 dark:border-blue-800/60 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
             >
               <Phone className="w-4 h-4 text-blue-600" />
               <span>{t('ads.call_farmer')}</span>
@@ -554,7 +554,7 @@ export const ListingDetailModal: React.FC = () => {
                 const text = encodeURIComponent(`Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`);
                 window.open(`https://wa.me/${phoneDigits}?text=${text}`, '_blank');
               }}
-              className="py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] rounded-2xl border border-emerald-200 dark:border-emerald-800/50 transition-colors flex flex-col items-center justify-center gap-1 shadow-2xs"
+              className="min-h-[50px] py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-heading font-bold text-[11px] rounded-2xl border border-emerald-300 dark:border-emerald-800/50 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
             >
               <span className="text-sm">💬</span>
               <span>{t('ads.whatsapp')}</span>
@@ -643,10 +643,10 @@ export const ListingDetailModal: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2.5">
                 <button
                   onClick={handleOpenChat}
-                  className="py-3 px-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[48px] py-3 px-2 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
                 >
                   <MessageCircle className="w-4 h-4 fill-white/20" />
                   <span>{t('ads.chat')}</span>
@@ -654,7 +654,7 @@ export const ListingDetailModal: React.FC = () => {
 
                 <button
                   onClick={() => setShowOfferModal(true)}
-                  className="py-3 px-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[48px] py-3 px-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
                 >
                   <HandCoins className="w-4 h-4" />
                   <span>{t('ads.make_offer')}</span>
@@ -662,7 +662,7 @@ export const ListingDetailModal: React.FC = () => {
 
                 <button
                   onClick={() => setShowPhoneModal(true)}
-                  className="py-3 px-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[48px] py-3 px-2 bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{t('ads.call_farmer')}</span>

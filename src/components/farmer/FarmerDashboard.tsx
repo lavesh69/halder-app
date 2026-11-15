@@ -118,7 +118,7 @@ export const FarmerDashboard: React.FC = () => {
           <span className="text-xs font-semibold text-[#176B45] dark:text-[#5FB383]">
             Green Valley Organic Farm • {activeCity}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#202923] dark:text-[#F2F5F3]">
+          <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#202923] dark:text-[#F2F5F3]">
             Good morning, {currentFarmerName} 🌾
           </h2>
           <p className="text-xs text-[#66736B] dark:text-[#A6B3AA] mt-0.5">
@@ -507,11 +507,11 @@ export const FarmerDashboard: React.FC = () => {
                 Orders
               </span>
               <div className="flex items-baseline gap-1 mt-1 truncate">
-                <span className="text-lg sm:text-xl font-black text-[#202923] dark:text-[#F2F5F3]">
+                <span className="text-lg sm:text-xl font-heading font-black text-[#202923] dark:text-[#F2F5F3]">
                   {orders.length}
                 </span>
                 {newOrders.length > 0 && (
-                  <span className="text-[9px] font-bold bg-[#D99A32] text-white px-1 py-0.2 rounded-full">
+                  <span className="text-[9px] font-heading font-bold bg-[#D99A32] text-white px-1.5 py-0.5 rounded-full">
                     +{newOrders.length}
                   </span>
                 )}
@@ -524,7 +524,7 @@ export const FarmerDashboard: React.FC = () => {
                 Crops
               </span>
               <div className="flex items-baseline gap-1 mt-1 truncate">
-                <span className="text-lg sm:text-xl font-black text-[#202923] dark:text-[#F2F5F3]">
+                <span className="text-lg sm:text-xl font-heading font-black text-[#202923] dark:text-[#F2F5F3]">
                   {myProducts.length}
                 </span>
                 <span className="text-[10px] text-[#89948C]">
@@ -542,7 +542,7 @@ export const FarmerDashboard: React.FC = () => {
                 Today's Sale
               </span>
               <div className="mt-1">
-                <span className="text-xs sm:text-sm font-black text-[#176B45] dark:text-[#5FB383] truncate block">
+                <span className="text-xs sm:text-sm font-heading font-black text-[#176B45] dark:text-[#5FB383] truncate block">
                   {formatCurrency(todaySales)}
                 </span>
               </div>
@@ -562,7 +562,7 @@ export const FarmerDashboard: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-2xl font-black">
+              <h4 className="text-2xl font-heading font-black">
                 {formatCurrency(todaySales)}
               </h4>
               <p className="text-[11px] text-[#EAF5EE]/90 mt-0.5">

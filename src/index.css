@@ -5,10 +5,10 @@
 @layer base {
   :root {
     color-scheme: light;
-    --brand-primary: #176B45;
-    --brand-primary-hover: #124C36;
-    --brand-fresh: #2E8B57;
-    --brand-soft: #EAF5EE;
+    --brand-primary: #15803d;
+    --brand-primary-hover: #166534;
+    --brand-fresh: #10b981;
+    --brand-soft: #ecfdf5;
     --surface-bg: #F7F9F6;
     --surface-card: #FFFFFF;
     --surface-card-muted: #F0F4F1;
@@ -17,19 +17,19 @@
     --text-secondary: #66736B;
     --text-muted: #89948C;
 
-    /* Semantic tokens */
-    --semantic-success: #238653;
-    --semantic-warning: #D99A32;
+    /* Semantic tokens (Stitch Agritech Palette) */
+    --semantic-success: #15803d;
+    --semantic-warning: #d97706;
     --semantic-danger: #D9534F;
-    --semantic-info: #4285B8;
+    --semantic-info: #0284c7;
   }
 
   .dark {
     color-scheme: dark;
-    --brand-primary: #2E8B57;
-    --brand-primary-hover: #176B45;
-    --brand-fresh: #5FB383;
-    --brand-soft: #182A20;
+    --brand-primary: #10b981;
+    --brand-primary-hover: #059669;
+    --brand-fresh: #34d399;
+    --brand-soft: #064e3b;
     --surface-bg: #0F1411;
     --surface-card: #181F1A;
     --surface-card-muted: #222B25;
@@ -39,10 +39,10 @@
     --text-muted: #728277;
 
     /* Semantic tokens (dark tuned) */
-    --semantic-success: #2EA063;
-    --semantic-warning: #E8A838;
+    --semantic-success: #10b981;
+    --semantic-warning: #f59e0b;
     --semantic-danger: #E25E5A;
-    --semantic-info: #5097CD;
+    --semantic-info: #38bdf8;
   }
   
   html {
@@ -102,25 +102,25 @@
 
 /* Reusable Design System Component Utilities */
 @layer components {
-  /* Standard 44px interactive buttons */
+  /* Standard 48px interactive buttons (Stitch Touch Ergonomics) */
   .btn-primary {
-    @apply min-h-[44px] px-4 py-2.5 bg-[#176B45] hover:bg-[#124C36] active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-soft transition-all duration-150 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply min-h-[48px] px-5 py-2.5 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 active:scale-[0.98] text-white font-heading font-black text-sm rounded-2xl shadow-soft hover:shadow-soft-md transition-all duration-150 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply min-h-[44px] px-4 py-2.5 bg-white dark:bg-[#181F1A] hover:bg-[#F0F4F1] dark:hover:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] font-bold text-sm rounded-xl transition-all duration-150 inline-flex items-center justify-center gap-2;
+    @apply min-h-[48px] px-5 py-2.5 bg-white dark:bg-[#181F1A] hover:bg-[#F0F4F1] dark:hover:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] border border-[#cbd5e1] dark:border-[#29352D] font-bold text-sm rounded-2xl transition-all duration-150 inline-flex items-center justify-center gap-2;
   }
 
   .btn-outline {
-    @apply min-h-[44px] px-4 py-2.5 bg-transparent hover:bg-[#EAF5EE] dark:hover:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] border border-[#176B45]/40 dark:border-[#2E8B57]/40 font-bold text-sm rounded-xl transition-all duration-150 inline-flex items-center justify-center gap-2;
+    @apply min-h-[48px] px-5 py-2.5 bg-transparent hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-700/40 dark:border-emerald-500/40 font-bold text-sm rounded-2xl transition-all duration-150 inline-flex items-center justify-center gap-2;
   }
 
   .btn-ghost {
-    @apply min-h-[40px] px-3 py-2 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white font-semibold text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-1.5;
+    @apply min-h-[44px] px-3.5 py-2 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white font-semibold text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-1.5;
   }
 
   .btn-danger {
-    @apply min-h-[44px] px-4 py-2.5 bg-[#D9534F] hover:bg-[#C9302C] active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-soft transition-all duration-150 inline-flex items-center justify-center gap-2;
+    @apply min-h-[48px] px-5 py-2.5 bg-[#D9534F] hover:bg-[#C9302C] active:scale-[0.98] text-white font-bold text-sm rounded-2xl shadow-soft transition-all duration-150 inline-flex items-center justify-center gap-2;
   }
 
   /* Backward compatibility alias */
@@ -132,14 +132,14 @@
     @apply btn-secondary;
   }
 
-  /* Standard card surface */
+  /* Standard card surface (Stitch 20px rounded containers & soft elevation) */
   .card-surface {
-    @apply bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-2xl shadow-soft transition-all;
+    @apply bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-3xl shadow-soft hover:shadow-soft-md transition-all;
   }
 
-  /* Standard form inputs */
+  /* Standard form inputs (Stitch 52px Touch Ergonomics) */
   .form-input-responsive {
-    @apply min-h-[44px] w-full px-3.5 py-2.5 bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-xl text-sm text-[#202923] dark:text-[#F2F5F3] placeholder:text-[#89948C] focus:outline-none focus:ring-2 focus:ring-[#176B45] dark:focus:ring-[#2E8B57] transition-all;
+    @apply min-h-[48px] w-full px-4 py-2.5 bg-white dark:bg-[#181F1A] border border-[#cbd5e1] dark:border-[#29352D] rounded-2xl text-sm text-[#202923] dark:text-[#F2F5F3] placeholder:text-[#89948C] focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-50 dark:focus:ring-emerald-950 transition-all;
   }
 
   /* Responsive Modal Container */

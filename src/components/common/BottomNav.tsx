@@ -204,9 +204,9 @@ export const BottomNav: React.FC = () => {
               setCustomerTab('home');
               setIsSearchScreenOpen(false);
             }}
-            className={`min-h-[48px] flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            className={`min-h-[48px] flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
               customerTab === 'home'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -220,16 +220,16 @@ export const BottomNav: React.FC = () => {
               setCustomerTab('chats');
               setIsSearchScreenOpen(false);
             }}
-            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
               customerTab === 'chats'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
             <div className="relative">
               <MessageCircle className="w-5 h-5" />
               {unreadChatCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute -top-1 -right-2 bg-emerald-700 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
                   {unreadChatCount}
                 </span>
               )}
@@ -237,7 +237,7 @@ export const BottomNav: React.FC = () => {
             <span className="text-[10px] mt-0.5">{t('nav.chats')}</span>
           </button>
 
-          {/* 3. Center Elevated + SELL Button (Signature OLX Ring) */}
+          {/* 3. Center Elevated + SELL Button (Signature Stitch Agritech Ring) */}
           <button
             onClick={() => {
               setEditingListing(null);
@@ -246,10 +246,10 @@ export const BottomNav: React.FC = () => {
             className="flex flex-col items-center justify-center -mt-5 group px-2"
             title="Post Advertisement / विज्ञापन पोस्ट करें"
           >
-            <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 group-hover:from-emerald-700 group-hover:to-teal-600 text-white flex items-center justify-center shadow-soft-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
+            <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-900 via-emerald-700 to-emerald-600 group-hover:from-emerald-800 group-hover:to-emerald-500 text-white flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
               <Plus className="w-6 h-6 stroke-[3]" />
             </div>
-            <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5 tracking-wide">
+            <span className="text-[10px] font-black text-emerald-800 dark:text-emerald-400 mt-0.5 tracking-wide">
               {t('nav.sell')}
             </span>
           </button>
@@ -260,16 +260,16 @@ export const BottomNav: React.FC = () => {
               setCustomerTab('my-ads');
               setIsSearchScreenOpen(false);
             }}
-            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
               customerTab === 'my-ads'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
             <div className="relative">
               <Megaphone className="w-5 h-5" />
               {farmerAdsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-2 bg-emerald-700 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {farmerAdsCount}
                 </span>
               )}
@@ -283,9 +283,9 @@ export const BottomNav: React.FC = () => {
               setCustomerTab('profile');
               setIsSearchScreenOpen(false);
             }}
-            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+            className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
               customerTab === 'profile' || customerTab === 'orders' || customerTab === 'favorites'
-                ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
@@ -311,9 +311,9 @@ export const BottomNav: React.FC = () => {
         {/* 1. Dashboard (Mandi) */}
         <button
           onClick={() => setFarmerTab('dashboard')}
-          className={`min-h-[48px] flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
             farmerTab === 'dashboard'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
@@ -324,16 +324,16 @@ export const BottomNav: React.FC = () => {
         {/* 2. Messages (Chats) */}
         <button
           onClick={() => setFarmerTab('chat')}
-          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
             farmerTab === 'chat'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
           <div className="relative">
             <MessageCircle className="w-5 h-5" />
             {unreadChatCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+              <span className="absolute -top-1 -right-2 bg-emerald-700 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
                 {unreadChatCount}
               </span>
             )}
@@ -350,10 +350,10 @@ export const BottomNav: React.FC = () => {
           className="flex flex-col items-center justify-center -mt-5 group px-2"
           title="Post Crop Advertisement / फसल का नया विज्ञापन डालें"
         >
-          <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 group-hover:from-emerald-700 group-hover:to-teal-600 text-white flex items-center justify-center shadow-soft-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
+          <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-900 via-emerald-700 to-emerald-600 group-hover:from-emerald-800 group-hover:to-emerald-500 text-white flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
             <Plus className="w-6 h-6 stroke-[3]" />
           </div>
-          <span className="text-[10px] font-black text-[#176B45] dark:text-[#5FB383] mt-0.5 tracking-wide">
+          <span className="text-[10px] font-black text-emerald-800 dark:text-emerald-400 mt-0.5 tracking-wide">
             {t('nav.post_ad')}
           </span>
         </button>
@@ -361,9 +361,9 @@ export const BottomNav: React.FC = () => {
         {/* 4. My Ads (मेरे विज्ञापन) */}
         <button
           onClick={() => setFarmerTab('my-ads')}
-          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
             farmerTab === 'my-ads' || farmerTab === 'listings'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
           title={t('nav.my_ads')}
@@ -371,7 +371,7 @@ export const BottomNav: React.FC = () => {
           <div className="relative">
             <Megaphone className="w-5 h-5" />
             {farmerAdsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#176B45] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-2 bg-emerald-700 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {farmerAdsCount}
               </span>
             )}
@@ -382,9 +382,9 @@ export const BottomNav: React.FC = () => {
         {/* 5. Account (Profile & Orders) */}
         <button
           onClick={() => setFarmerTab('profile')}
-          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
             farmerTab === 'profile' || farmerTab === 'earnings' || farmerTab === 'orders'
-              ? 'text-[#176B45] dark:text-[#5FB383] font-bold'
+              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
