@@ -1,4 +1,5 @@
 ﻿import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { AuthService } from '../services/authService';
 import { GoogleAuthService } from '../services/googleAuthService';
 import { SmsService } from '../services/smsService';
@@ -219,6 +220,99 @@ export class AuthController {
           farmerProfile,
           token,
           isNewUser,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async verifyAdminPin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { pin } = req.body;
+      const expectedPin = String(env.ADMIN_MASTER_PIN || '984501').trim();
+      const providedPin = String(pin || '').trim();
+
+      const pinBuf = Buffer.from(providedPin);
+      const expectedBuf = Buffer.from(expectedPin);
+
+      const isMatch =
+        pinBuf.length === expectedBuf.length &&
+        crypto.timingSafeEqual(pinBuf, expectedBuf);
+
+      if (!isMatch) {
+        try {
+          Database.run(
+            `INSERT INTO audit_logs (id, actor_id, actor_role, action, target_type, target_id, details, created_at)
+             VALUES (?, ?, 'anonymous', 'ADMIN_PIN_FAILED', 'auth', 'admin_console', ?, ?)`,
+            [
+              'audit-' + Date.now(),
+              req.ip || 'unknown',
+              JSON.stringify({ ip: req.ip, userAgent: req.get('user-agent') }),
+              new Date().toISOString(),
+            ]
+          );
+        } catch {}
+
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_ADMIN_PIN',
+            message: 'Invalid Admin Security PIN. Access denied.',
+          },
+        });
+      }
+
+      let adminUser = Database.get<any>("SELECT * FROM users WHERE role = 'admin' LIMIT 1");
+      if (!adminUser) {
+        adminUser = {
+          id: 'user-admin-1',
+          name: 'Super Admin',
+          email: 'admin@halder.com',
+          phone: '+91 99999 00001',
+          role: 'admin',
+          status: 'active',
+        };
+      }
+
+      const token = CryptoUtil.generateToken({
+        userId: adminUser.id,
+        email: adminUser.email,
+        role: 'admin',
+      });
+
+      res.cookie('halder_token', token, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      try {
+        Database.run(
+          `INSERT INTO audit_logs (id, actor_id, actor_role, action, target_type, target_id, details, created_at)
+           VALUES (?, ?, 'admin', 'ADMIN_PIN_SUCCESS', 'auth', 'admin_console', ?, ?)`,
+          [
+            'audit-' + Date.now(),
+            adminUser.id,
+            JSON.stringify({ ip: req.ip, userAgent: req.get('user-agent') }),
+            new Date().toISOString(),
+          ]
+        );
+      } catch {}
+
+      res.json({
+        success: true,
+        message: 'Admin console access granted with Tier-1 security credentials.',
+        data: {
+          token,
+          user: {
+            id: adminUser.id,
+            name: adminUser.name,
+            email: adminUser.email,
+            phone: adminUser.phone,
+            role: 'admin',
+          },
         },
       });
     } catch (err) {

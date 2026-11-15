@@ -46,8 +46,23 @@ app.use(
     frameguard: { action: 'deny' },
     xContentTypeOptions: true,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
   })
 );
+
+// Permissions-Policy & Additional Security Defenses
+app.use((req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(self), microphone=(self), geolocation=(self), payment=(self), usb=(), magnetometer=()'
+  );
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  next();
+});
 
 // CORS Policy
 const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());

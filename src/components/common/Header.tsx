@@ -45,6 +45,7 @@ export const Header: React.FC = () => {
     setIsNegotiationsOpen,
     setIsFastSellOpen,
     setEditingListing,
+    setIsAdminAuthModalOpen,
   } = useApp();
 
   const { isDark, toggleTheme } = useTheme();
@@ -204,7 +205,13 @@ export const Header: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setRole('admin')}
+                onClick={() => {
+                  if (role === 'admin') {
+                    setRole('admin');
+                  } else {
+                    setIsAdminAuthModalOpen(true);
+                  }
+                }}
                 title={t('nav.admin')}
                 className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
                   role === 'admin'

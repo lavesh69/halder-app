@@ -39,11 +39,16 @@ const verifyOtpSchema = z.object({
   name: z.string().max(100).optional(),
 });
 
+const adminPinSchema = z.object({
+  pin: z.string().min(4).max(16),
+});
+
 router.post('/send-otp', authLimiter, validateBody(sendOtpSchema), AuthController.sendOtp);
 router.post('/verify-otp', authLimiter, validateBody(verifyOtpSchema), AuthController.verifyOtp);
 router.post('/register', authLimiter, validateBody(registerSchema), AuthController.register);
 router.post('/login', authLimiter, validateBody(loginSchema), AuthController.login);
 router.post('/google', authLimiter, validateBody(googleSchema), AuthController.googleLogin);
+router.post('/verify-admin-pin', authLimiter, validateBody(adminPinSchema), AuthController.verifyAdminPin);
 router.post('/logout', AuthController.logout);
 router.get('/me', authenticateUser, AuthController.getMe);
 router.post('/change-password', authenticateUser, AuthController.changePassword);
