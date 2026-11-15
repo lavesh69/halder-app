@@ -1,5 +1,5 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v8-i18n14';
+const CACHE_NAME = 'halder-cache-v9-no-pin';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { BottomNav } from './components/common/BottomNav';
@@ -74,6 +74,16 @@ export const MainApp: React.FC = () => {
   } = useApp();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Proactively clear any legacy lockout or PIN artifacts from client storage
+  useEffect(() => {
+    try {
+      localStorage.removeItem('halder_admin_lockout_until');
+      localStorage.removeItem('halder_admin_pin_fails');
+    } catch {
+      // Ignore in restricted environments
+    }
+  }, []);
 
   // Splash Screen
   if (showSplash) {
