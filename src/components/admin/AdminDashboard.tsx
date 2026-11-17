@@ -2071,34 +2071,37 @@ export const AdminDashboard: React.FC = () => {
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
-                      Free Direct-Delivery Cart Threshold (₹)
+                      Free Ad Listings per Farmer
                     </label>
-                    <span className="text-[10px] font-bold text-zinc-500">Currently ₹{freeDeliveryThreshold}</span>
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded">Unlimited Free</span>
                   </div>
                   <input
                     type="number"
-                    value={freeDeliveryThreshold}
-                    onChange={(e) => setFreeDeliveryThreshold(Number(e.target.value))}
-                    min="50"
-                    step="25"
-                    className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                    value={25}
+                    readOnly
+                    className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-500 dark:text-zinc-400"
                   />
                   <p className="text-[10px] text-zinc-400 mt-1">
-                    Orders at or above this value qualify for free door-step farm delivery.
+                    Farmers can list unlimited crop ads for free on the HALDER classifieds network.
                   </p>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
-                    Standard Distance Delivery Fee (₹)
-                  </label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
+                      Ad Validity Period (Days)
+                    </label>
+                    <span className="text-[10px] font-bold text-zinc-500">30 Days Active</span>
+                  </div>
                   <input
                     type="number"
-                    value={standardDeliveryFee}
-                    onChange={(e) => setStandardDeliveryFee(Number(e.target.value))}
-                    min="0"
-                    className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                    value={30}
+                    readOnly
+                    className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-500 dark:text-zinc-400"
                   />
+                  <p className="text-[10px] text-zinc-400 mt-1">
+                    Listings remain active for 30 days before requiring farmer re-confirmation.
+                  </p>
                 </div>
               </div>
             </div>

@@ -107,10 +107,10 @@ export const FarmerSellerProfileModal: React.FC = () => {
 
             <div className="border-x border-zinc-200 dark:border-zinc-700 min-w-0 px-1">
               <span className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 block truncate">
-                {selectedFarmer.totalOrdersCompleted || 186}
+                {selectedFarmer.totalOrdersCompleted || 186}+
               </span>
               <span className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-wider font-semibold block truncate">
-                Orders Done
+                Direct Deals
               </span>
             </div>
 

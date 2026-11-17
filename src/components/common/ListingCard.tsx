@@ -13,7 +13,6 @@ import {
   Camera,
   Phone,
   MessageCircle,
-  Gavel,
 } from 'lucide-react';
 
 interface ListingCardProps {
@@ -400,22 +399,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </span>
 
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-            {/* 1-Tap Boli / Offer Action */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedProduct(product);
-              }}
-              className="min-h-[40px] px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-bold rounded-xl border border-amber-300 dark:border-amber-700/60 transition-colors flex items-center justify-center gap-1 active:scale-95 shadow-2xs"
-              title="Place offer / बोली लगाएं"
-            >
-              <Gavel className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>Boli</span>
-            </button>
-
             <button
               onClick={handleQuickCall}
-              className="min-h-[40px] px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center justify-center gap-1 active:scale-95"
+              className="min-h-[40px] px-3.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center justify-center gap-1.5 active:scale-95"
               title="Call farmer directly"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
@@ -424,7 +410,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
             <button
               onClick={handleQuickChat}
-              className="min-h-[40px] px-3 py-1.5 bg-[#176B45] hover:bg-[#124C36] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1 active:scale-95 shadow-xs"
+              className="min-h-[40px] px-3.5 py-1.5 bg-[#176B45] hover:bg-[#124C36] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 active:scale-95 shadow-xs"
               title="Chat with farmer"
             >
               <MessageCircle className="w-3.5 h-3.5 text-white" />
