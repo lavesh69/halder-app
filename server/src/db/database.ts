@@ -60,16 +60,28 @@ export class Database {
     return stmt.run(...params);
   }
 
+  private static inTransaction = false;
+
   static transaction<T>(callback: () => T): T {
+    if (Database.inTransaction) {
+      return callback();
+    }
     const db = getDatabase();
+    Database.inTransaction = true;
     db.exec('BEGIN IMMEDIATE TRANSACTION;');
     try {
       const result = callback();
       db.exec('COMMIT;');
       return result;
     } catch (error) {
-      db.exec('ROLLBACK;');
+      try {
+        db.exec('ROLLBACK;');
+      } catch {
+        // Ignore rollback failure if already rolled back
+      }
       throw error;
+    } finally {
+      Database.inTransaction = false;
     }
   }
 }

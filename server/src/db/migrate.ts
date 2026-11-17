@@ -1,10 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import { Database } from './database';
+import { SCHEMA_SQL } from './schemaSql';
 
 export function runMigrations() {
-  const schemaPath = path.resolve(process.cwd(), 'server', 'src', 'db', 'schema.sql');
-  const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+  let schemaSql = SCHEMA_SQL;
+  try {
+    const schemaPath = path.resolve(process.cwd(), 'server', 'src', 'db', 'schema.sql');
+    if (fs.existsSync(schemaPath)) {
+      schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    }
+  } catch {
+    // Fall back to bundled SCHEMA_SQL
+  }
 
   const db = Database.getDB();
   db.exec(schemaSql);

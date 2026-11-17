@@ -23,7 +23,7 @@ export function errorHandler(
   }
 
   // Mask unexpected internal database/server error messages in production
-  const isClientSafe = err instanceof AppError || err.name === 'MulterError';
+  const isClientSafe = err instanceof AppError || err.name === 'MulterError' || (err && (err.isOperational || (err.statusCode && err.statusCode < 500)));
   if (!isClientSafe && env.NODE_ENV === 'production') {
     message = 'An unexpected internal error occurred. Please try again or contact support.';
     errorCode = 'INTERNAL_SERVER_ERROR';

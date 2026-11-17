@@ -74,13 +74,13 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     setLoading(true);
     const demoSub = `google_sub_${Math.floor(1000000000 + Math.random() * 9000000000)}`;
     const testEmail = role === 'farmer' ? 'rajesh.farmer@gmail.com' : 'aman.customer@gmail.com';
-    const testName = role === 'farmer' ? 'Rajesh Kumar (Google)' : 'Aman Sharma (Google)';
-    const testToken = `test_google_token_${demoSub}_${testEmail}_${testName.replace(/ /g, '-')}`;
+    const testName = role === 'farmer' ? 'Rajesh Kumar' : 'Aman Sharma';
+    const testToken = `test_google_token_${demoSub}:::${testEmail}:::${testName}`;
 
     setTimeout(() => {
       setLoading(false);
       onSuccess(testToken);
-    }, 600);
+    }, 400);
   };
 
   return (
