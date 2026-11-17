@@ -41,9 +41,6 @@ export const Header: React.FC = () => {
     isLoggedIn,
     setIsLoginModalOpen,
     platformSettings,
-    setIsFarmMapOpen,
-    setIsRequirementsOpen,
-    setIsNegotiationsOpen,
     setIsFastSellOpen,
     setEditingListing,
   } = useApp();
@@ -95,16 +92,6 @@ export const Header: React.FC = () => {
               aria-label="Search produce"
             >
               <Search className="w-4 h-4" />
-            </button>
-
-            {/* Buyer Requirements Reverse Marketplace */}
-            <button
-              onClick={() => setIsRequirementsOpen(true)}
-              className="hidden md:flex p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#176B45] dark:hover:text-[#5FB383] hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-              title="Buyer Demands & Quotations (मांग एवं कोटेशन)"
-              aria-label="Buyer Demands & Quotations"
-            >
-              <Megaphone className="w-4 h-4" />
             </button>
 
             {/* Notification Bell with Badge */}

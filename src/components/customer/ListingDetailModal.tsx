@@ -51,7 +51,6 @@ export const ListingDetailModal: React.FC = () => {
     setIsFastSellOpen,
     products,
     showToast,
-    setIsNegotiationsOpen,
   } = useApp();
 
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);

@@ -14,15 +14,9 @@ import {
   Tag,
 } from 'lucide-react';
 
-interface NotificationModalProps {
-  onOpenNegotiation?: (threadId?: string) => void;
-  onOpenRequirements?: () => void;
-}
+interface NotificationModalProps {}
 
-export const NotificationModal: React.FC<NotificationModalProps> = ({
-  onOpenNegotiation,
-  onOpenRequirements,
-}) => {
+export const NotificationModal: React.FC<NotificationModalProps> = () => {
   const {
     isNotificationModalOpen,
     setIsNotificationModalOpen,
@@ -32,7 +26,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     role,
   } = useApp();
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'offers' | 'requirements' | 'alerts'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'alerts'>('all');
 
   if (!isNotificationModalOpen) return null;
 
@@ -41,21 +35,12 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   );
 
   const filteredNotifications = relevantNotifications.filter((n) => {
-    if (activeFilter === 'offers') return n.type === 'offer' || n.type === 'negotiation' || n.type === 'deal';
-    if (activeFilter === 'requirements') return n.type === 'requirement' || n.type === 'quotation';
     if (activeFilter === 'alerts') return n.type === 'alert' || n.type === 'stock';
     return true;
   });
 
   const handleNotificationClick = (notif: any) => {
     markNotificationAsRead(notif.id);
-    if ((notif.type === 'offer' || notif.type === 'deal') && onOpenNegotiation) {
-      setIsNotificationModalOpen(false);
-      onOpenNegotiation();
-    } else if ((notif.type === 'requirement' || notif.type === 'quotation') && onOpenRequirements) {
-      setIsNotificationModalOpen(false);
-      onOpenRequirements();
-    }
   };
 
   return (
@@ -96,9 +81,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
         {/* Categorized Filter Tabs */}
         <div className="flex border-b border-zinc-100 dark:border-zinc-800 px-3 bg-zinc-50/50 dark:bg-zinc-900/30 overflow-x-auto no-scrollbar">
           {[
-            { id: 'all', label: 'All' },
-            { id: 'offers', label: 'Offers & Deals' },
-            { id: 'requirements', label: 'Demands' },
+            { id: 'all', label: 'All Updates' },
             { id: 'alerts', label: 'Crop Alerts' },
           ].map((tab) => (
             <button

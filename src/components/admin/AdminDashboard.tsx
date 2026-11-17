@@ -83,9 +83,6 @@ export const AdminDashboard: React.FC = () => {
     updateProductPrice,
     setSelectedProduct,
     setSelectedFarmer,
-    setTrackingOrder,
-    orders,
-    updateOrderStatus,
     categories,
     addCategory,
     deleteCategory,
@@ -172,9 +169,6 @@ export const AdminDashboard: React.FC = () => {
   const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('all');
-  const [orderSearch, setOrderSearch] = useState('');
-
   const [auditSearch, setAuditSearch] = useState('');
   const [auditActionFilter, setAuditActionFilter] = useState<string>('all');
 
@@ -200,12 +194,7 @@ export const AdminDashboard: React.FC = () => {
   const [editingProductPrice, setEditingProductPrice] = useState<{ id: string; name: string; price: number } | null>(null);
   const [newPriceValue, setNewPriceValue] = useState('');
 
-  const [viewingInvoiceOrder, setViewingInvoiceOrder] = useState<Order | null>(null);
-
   const [isKillSwitchModalOpen, setIsKillSwitchModalOpen] = useState(false);
-
-  // Orders Sub-tab & Disputes Management
-  const [ordersSubTab, setOrdersSubTab] = useState<'orders' | 'disputes'>('orders');
 
   const handleApproveDisputeRefund = async (disputeId: string) => {
     resolveDispute(disputeId, 'refund', 'Refund approved by Admin. Instant UPI credit processed.');
@@ -441,29 +430,6 @@ export const AdminDashboard: React.FC = () => {
     showToast(`Exported ${filteredUsers.length} user records to CSV!`, 'success');
   };
 
-  // Export Orders to CSV
-  const exportOrdersToCSV = () => {
-    const headers = ['Order_Number', 'Customer', 'Phone', 'Farmer', 'Total_Amount', 'Payment_Method', 'Status', 'Items_Count'];
-    const rows = filteredOrders.map((o) => [
-      o.orderNumber,
-      `"${o.customerName.replace(/"/g, '""')}"`,
-      o.customerPhone,
-      `"${o.farmerName.replace(/"/g, '""')}"`,
-      o.total,
-      o.paymentMethod || 'cod',
-      o.status,
-      o.items.length,
-    ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `halder_orders_${getExportTimestamp()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast(`Exported ${filteredOrders.length} order records to CSV!`, 'success');
-  };
   // Export Products / Listings to CSV
   const exportProductsToCSV = () => {
     const headers = ['ID', 'Title', 'Farmer', 'Category', 'Price', 'Unit', 'Stock', 'Location', 'Featured', 'Urgent', 'Organic', 'Available'];
@@ -553,21 +519,6 @@ export const AdminDashboard: React.FC = () => {
     });
   }, [products, productSearch, productCategoryFilter, productModerationFilter, productStockFilter]);
 
-  // Filtered Orders
-  const filteredOrders = useMemo(() => {
-    return orders.filter((o) => {
-      if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
-      if (!orderSearch.trim()) return true;
-      const q = orderSearch.toLowerCase().trim();
-      return (
-        o.orderNumber.toLowerCase().includes(q) ||
-        o.customerName.toLowerCase().includes(q) ||
-        o.farmerName.toLowerCase().includes(q) ||
-        o.customerPhone.includes(q)
-      );
-    });
-  }, [orders, orderSearch, orderStatusFilter]);
-
   // Filtered Audit Logs
   const filteredAuditLogs = useMemo(() => {
     return auditLogs.filter((log) => {
@@ -583,24 +534,11 @@ export const AdminDashboard: React.FC = () => {
     });
   }, [auditLogs, auditSearch, auditActionFilter]);
 
-  // Dynamic Orders & GMV based on Metrics Time Range
-  const dynamicOrders = useMemo(() => {
-    if (metricsTimeRange === 'today') {
-      return orders.slice(0, Math.max(1, Math.ceil(orders.length / 3)));
-    }
-    if (metricsTimeRange === 'week') {
-      return orders.slice(0, Math.max(2, Math.ceil((orders.length * 2) / 3)));
-    }
-    return orders;
-  }, [orders, metricsTimeRange]);
-
   // Key Totals
   const totalUsersCount = users.length;
   const verifiedFarmersCount = farmers.filter((f) => f.verification_status === 'verified').length;
   const pendingFarmersCount = farmers.filter((f) => f.verification_status === 'pending').length || pendingKyc.length;
   const activeListingsCount = products.filter((p) => p.isAvailable).length;
-  const totalOrdersCount = dynamicOrders.length;
-  const totalGMV = dynamicOrders.reduce((sum, o) => sum + o.total, 0);
 
   // Category volume summary
   const categoryStats = useMemo(() => {
@@ -2717,94 +2655,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL 7: OFFICIAL ORDER INVOICE / RECEIPT MODAL */}
-      {/* ========================================================================= */}
-      {viewingInvoiceOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-lg bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <div>
-                <h3 className="font-black text-base text-zinc-900 dark:text-white">
-                  HALDER Mandi Official Tax Receipt
-                </h3>
-                <span className="text-xs text-zinc-500 font-mono">Invoice #{viewingInvoiceOrder.orderNumber}</span>
-              </div>
-              <button onClick={() => setViewingInvoiceOrder(null)} className="text-zinc-400 hover:text-zinc-600">
-                ✕
-              </button>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs bg-zinc-50 dark:bg-zinc-800/40 p-3 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/60">
-              <div>
-                <span className="text-[10px] text-zinc-400 uppercase font-black block">Billed To (Buyer)</span>
-                <p className="font-bold text-zinc-900 dark:text-white">{viewingInvoiceOrder.customerName}</p>
-                <p className="text-zinc-500">{viewingInvoiceOrder.customerPhone}</p>
-                <p className="text-zinc-500 text-[11px] mt-0.5">{viewingInvoiceOrder.deliveryAddress}</p>
-              </div>
-
-              <div>
-                <span className="text-[10px] text-zinc-400 uppercase font-black block">Origin Farm (Seller)</span>
-                <p className="font-bold text-zinc-900 dark:text-white">{viewingInvoiceOrder.farmerName}</p>
-                <p className="text-emerald-600 font-semibold">{viewingInvoiceOrder.farmName}</p>
-                <p className="text-zinc-500 text-[11px] mt-0.5">Method: {viewingInvoiceOrder.paymentMethod?.toUpperCase()}</p>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
-              <div className="grid grid-cols-12 font-black text-[10px] uppercase text-zinc-400 pb-1.5">
-                <span className="col-span-6">Crop / Item</span>
-                <span className="col-span-3 text-right">Qty</span>
-                <span className="col-span-3 text-right">Subtotal</span>
-              </div>
-              {viewingInvoiceOrder.items.map((it, idx) => (
-                <div key={idx} className="grid grid-cols-12 py-2 text-zinc-800 dark:text-zinc-200">
-                  <span className="col-span-6 font-bold">{it.product.name}</span>
-                  <span className="col-span-3 text-right">{it.quantity} {it.product.unit}</span>
-                  <span className="col-span-3 text-right font-black">₹{it.subtotal}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Financial Totals */}
-            <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 space-y-1.5 text-xs">
-              <div className="flex justify-between text-zinc-500">
-                <span>Subtotal:</span>
-                <span>₹{viewingInvoiceOrder.subtotal}</span>
-              </div>
-              <div className="flex justify-between text-zinc-500">
-                <span>Direct Kisan Delivery Fee:</span>
-                <span>₹{viewingInvoiceOrder.deliveryFee}</span>
-              </div>
-              <div className="flex justify-between text-zinc-500">
-                <span>Farmer Tip:</span>
-                <span>₹{viewingInvoiceOrder.farmerTip || 0}</span>
-              </div>
-              <div className="flex justify-between font-black text-base text-zinc-900 dark:text-white pt-1.5 border-t border-zinc-200 dark:border-zinc-800">
-                <span>Total Paid:</span>
-                <span className="text-emerald-700 dark:text-emerald-400">{formatCurrency(viewingInvoiceOrder.total)}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Invoice</span>
-              </button>
-              <button
-                onClick={() => setViewingInvoiceOrder(null)}
-                className="flex-1 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 transition"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ========================================================================= */}
       {/* MODAL 8: USER PROFILE DETAILS DRAWER */}

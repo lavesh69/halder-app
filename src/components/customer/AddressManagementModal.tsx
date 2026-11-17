@@ -301,7 +301,7 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
                   <div className="text-3xl">🏡</div>
                   <h4 className="font-bold text-sm text-zinc-900 dark:text-white">No addresses saved yet</h4>
                   <p className="text-xs text-zinc-500 max-w-xs mx-auto">
-                    Add your home or workplace address for fast checkout and direct delivery from local farmers.
+                    Save your preferred village, mandi or meeting location for direct farmer deals and inspection.
                   </p>
                 </div>
               ) : (

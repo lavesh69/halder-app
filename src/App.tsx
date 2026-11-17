@@ -21,8 +21,7 @@ import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 import { ReviewModal } from './components/common/ReviewModal';
 
-// Agricultural Classifieds & Reverse Marketplace Modals
-import { RequirementsMarketplaceView } from './components/customer/RequirementsMarketplaceView';
+// Agricultural Classifieds Modals
 import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
 import { StockControlModal } from './components/farmer/StockControlModal';
 
@@ -51,12 +50,6 @@ export const MainApp: React.FC = () => {
     isSearchScreenOpen,
     buyNowProduct,
     setBuyNowProduct,
-    isFarmMapOpen,
-    setIsFarmMapOpen,
-    isRequirementsOpen,
-    setIsRequirementsOpen,
-    isNegotiationsOpen,
-    setIsNegotiationsOpen,
     isSavedSearchesOpen,
     setIsSavedSearchesOpen,
     stockControlProduct,
@@ -184,13 +177,7 @@ export const MainApp: React.FC = () => {
       <FastSellModal />
       <FilterBottomSheet />
       <LocationModal />
-      <NotificationModal
-        onOpenRequirements={() => setIsRequirementsOpen(true)}
-      />
-      <RequirementsMarketplaceView
-        isOpen={isRequirementsOpen}
-        onClose={() => setIsRequirementsOpen(false)}
-      />
+      <NotificationModal />
       <SavedSearchesModal
         isOpen={isSavedSearchesOpen}
         onClose={() => setIsSavedSearchesOpen(false)}

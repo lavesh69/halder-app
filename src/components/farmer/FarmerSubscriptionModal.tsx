@@ -38,10 +38,10 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
       // Fallback defaults
       setCurrentSub({ plan_id: 'free', plan_name: 'Free Kisan', max_listings: 10 });
       setPlans([
-        { id: 'free', name: 'Free Kisan', priceMonthly: 0, maxListings: 10, features: ['10 Active Produce Listings', 'Local Consumer Chat', 'Standard Mandi Bhav'] },
-        { id: 'kisan_mitra', name: 'Kisan Mitra (Basic)', priceMonthly: 199, maxListings: 25, features: ['25 Active Listings', 'SMS & WhatsApp Order Alerts', 'Direct Wholesale B2B', 'Zero Commission Boost'] },
-        { id: 'kisan_samridhi', name: 'Kisan Samridhi (Pro)', priceMonthly: 499, maxListings: 50, features: ['50 Active Listings', 'Top Placement on Customer Feed', 'B2B Wholesale Quotations', 'Dedicated Logistics Priority', 'Custom Farm Branding'] },
-        { id: 'fpo_business', name: 'FPO / Cooperative Enterprise', priceMonthly: 999, maxListings: 200, features: ['Unlimited / 200 Listings', 'Multi-farmer aggregate packing', 'Custom Mandi Intelligence reports', 'Direct corporate procurement contracts'] }
+        { id: 'free', name: 'Free Kisan', priceMonthly: 0, maxListings: 10, features: ['10 Active Produce Listings', 'Direct Buyer Chat & Call', 'Free Classifieds Ads'] },
+        { id: 'kisan_mitra', name: 'Kisan Mitra (Basic)', priceMonthly: 199, maxListings: 25, features: ['25 Active Listings', 'Direct WhatsApp Leads', 'Featured Ad Badge', 'Zero Commission Direct Deals'] },
+        { id: 'kisan_samridhi', name: 'Kisan Samridhi (Pro)', priceMonthly: 499, maxListings: 50, features: ['50 Active Listings', 'Top Placement on Buyer Feed', 'Verified Kisan Gold Badge', 'Boost to Top Daily'] },
+        { id: 'fpo_business', name: 'FPO / Cooperative Enterprise', priceMonthly: 999, maxListings: 200, features: ['Unlimited / 200 Listings', 'Multi-farmer produce showcase', 'Priority Buyer Direct Inquiries', 'Enterprise Verified Profile'] }
       ]);
     } finally {
       setIsLoading(false);

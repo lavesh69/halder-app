@@ -29,6 +29,7 @@ import {
   Crown,
   FileSpreadsheet,
   Megaphone,
+  Sparkles,
 } from 'lucide-react';
 
 interface MandiRate {
@@ -71,7 +72,6 @@ export const FarmerDashboard: React.FC = () => {
     currentUser,
     unreadChatCount,
     showToast,
-    setIsRequirementsOpen,
   } = useApp();
 
   const currentFarmerId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -144,7 +144,7 @@ export const FarmerDashboard: React.FC = () => {
       </div>
 
       {/* Kisan Quick Action Shortcuts */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         <button
           onClick={() => {
             setEditingListing(null);
@@ -157,19 +157,6 @@ export const FarmerDashboard: React.FC = () => {
           </div>
           <span className="text-[11px] font-bold text-[#124C36] dark:text-[#5FB383] mt-0.5">
             {t('nav.post_ad')}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setIsRequirementsOpen(true)}
-          className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
-          title="Buyer Demands / खरीदार की जरूरतें"
-        >
-          <div className="w-7 h-7 rounded-full bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] flex items-center justify-center group-hover:scale-105 transition">
-            <Megaphone className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383] mt-0.5">
-            Buyer Demands
           </span>
         </button>
 
@@ -404,30 +391,28 @@ export const FarmerDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Buyer Crop Demands & Direct Leads */}
+          {/* Pro Seller Tips */}
           <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Megaphone className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
-                <h4 className="text-sm font-bold text-[#202923] dark:text-[#F2F5F3]">
-                  Direct Buyer Demands
-                </h4>
-              </div>
-              <button
-                onClick={() => setIsRequirementsOpen(true)}
-                className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383] hover:underline min-h-[36px] flex items-center"
-              >
-                Explore Leads →
-              </button>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <h4 className="text-sm font-bold text-[#202923] dark:text-[#F2F5F3]">
+                Tips for Fast Selling (जल्दी फसल बेचने के नियम)
+              </h4>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Wholesalers and local buyers post requirement inquiries. Check demand in your mandi area and contact them directly.
-            </p>
+            <ul className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1.5 list-disc list-inside">
+              <li>Upload 2-3 clear photos in natural daylight.</li>
+              <li>Mention accurate harvest date and mandi fair price.</li>
+              <li>Respond quickly to buyer chats to close direct deals.</li>
+            </ul>
             <button
-              onClick={() => setIsRequirementsOpen(true)}
-              className="w-full py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-bold border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 transition"
+              onClick={() => {
+                setEditingListing(null);
+                setIsFastSellOpen(true);
+              }}
+              className="w-full py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-bold border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 transition flex items-center justify-center gap-1.5"
             >
-              View Buyer Demands
+              <Plus className="w-3.5 h-3.5" />
+              <span>Post New Crop Advertisement</span>
             </button>
           </div>
         </div>

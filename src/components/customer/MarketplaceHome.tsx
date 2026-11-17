@@ -24,6 +24,7 @@ import {
   Camera,
   Mic,
   Sprout,
+  Plus,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -73,9 +74,6 @@ export const MarketplaceHome: React.FC = () => {
     setSelectedFarmer,
     currentLocation,
     setIsLocationModalOpen,
-    setIsFarmMapOpen,
-    setIsRequirementsOpen,
-    setIsNegotiationsOpen,
     setIsSavedSearchesOpen,
     setIsFastSellOpen,
     setEditingListing,
@@ -195,17 +193,20 @@ export const MarketplaceHome: React.FC = () => {
         {/* Direct Agricultural Discovery Quick Actions */}
         <div className="grid grid-cols-2 gap-2 pt-1">
           <button
-            onClick={() => setIsRequirementsOpen(true)}
-            className="p-3 bg-white dark:bg-[#181F1A] border border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+            onClick={() => {
+              setEditingListing(null);
+              setIsFastSellOpen(true);
+            }}
+            className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
           >
-            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0 group-hover:scale-105 transition">
-              <Megaphone className="w-4 h-4" />
+            <div className="p-2 rounded-xl bg-emerald-600 text-white shrink-0 group-hover:scale-105 transition">
+              <Plus className="w-4 h-4 stroke-[3]" />
             </div>
             <div>
-              <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                {t('home.post_demand')}
+              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block">
+                + Post Crop Ad
               </span>
-              <span className="text-[10px] text-zinc-500 block">{t('home.post_demand_sub')}</span>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block">फसल विज्ञापन डालें (Free)</span>
             </div>
           </button>
 

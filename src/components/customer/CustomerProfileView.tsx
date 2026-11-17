@@ -45,7 +45,6 @@ export const CustomerProfileView: React.FC = () => {
     showToast,
     logout,
     loginWithGoogle,
-    setIsNegotiationsOpen,
     products,
     platformSettings,
   } = useApp();
