@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { formatCurrency, formatDistance } from '../../utils/formatters';
-import { QuantitySelector } from '../common/QuantitySelector';
 import {
   X,
   MapPin,
@@ -19,7 +18,6 @@ import {
   Check,
   Trash2,
   Megaphone,
-  HandCoins,
   Share2,
   Flag,
   ShieldAlert,
@@ -33,7 +31,6 @@ import {
   FileCheck,
   Edit3,
 } from 'lucide-react';
-import { MakeOfferModal } from './MakeOfferModal';
 
 export const ListingDetailModal: React.FC = () => {
   const { t } = useTranslation();
@@ -57,10 +54,7 @@ export const ListingDetailModal: React.FC = () => {
     setIsNegotiationsOpen,
   } = useApp();
 
-  const [quantity, setQuantity] = useState(1);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
-  const [showOfferModal, setShowOfferModal] = useState(false);
-  const [customOffer, setCustomOffer] = useState<number | ''>('');
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('Fraud or scam');
   const [hasReported, setHasReported] = useState(false);
@@ -116,11 +110,15 @@ export const ListingDetailModal: React.FC = () => {
     ? selectedProduct.images
     : [selectedProduct.image];
 
-  const handleSendOffer = (priceOffer: number) => {
-    if (!farmer) return;
-    const msg = `🤝 OFFER: Hello ${farmer.name}, I would like to offer ₹${priceOffer}/${selectedProduct.unit} for "${selectedProduct.name}". Would you accept this price?`;
-    setSelectedProduct(null);
-    openFarmerChat(farmer, msg);
+  const handleOpenWhatsApp = () => {
+    const rawPhone = selectedProduct.farmerPhone || farmer?.phone || '';
+    const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
+    if (!phoneDigits) {
+      showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
+      return;
+    }
+    const text = encodeURIComponent(`Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`);
+    window.open(`https://wa.me/${phoneDigits}?text=${text}`, '_blank');
   };
 
   const handleOpenChat = () => {
@@ -483,74 +481,6 @@ export const ListingDetailModal: React.FC = () => {
             </ul>
           </div>
 
-          {/* Quantity Stepper & Price Calculation */}
-          <div className="bg-zinc-50 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 block">
-                Select Quantity
-              </span>
-              <span className="text-sm font-bold text-zinc-900 dark:text-white">
-                Total: {formatCurrency(selectedProduct.price * quantity)}
-              </span>
-            </div>
-            <QuantitySelector
-              quantity={quantity}
-              unit={selectedProduct.unit}
-              min={1}
-              max={selectedProduct.availableQuantity}
-              onIncrease={() => setQuantity((q) => q + 1)}
-              onDecrease={() => setQuantity((q) => Math.max(1, q - 1))}
-              size="md"
-            />
-          </div>
-
-          {/* OLX-Style Contact & Make an Offer Bar (4-Column) */}
-          <div className="grid grid-cols-4 gap-2">
-            <button
-              onClick={() => {
-                setCustomOffer(Math.round(selectedProduct.price * 0.9));
-                setShowOfferModal(true);
-              }}
-              className="min-h-[50px] py-2.5 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 text-amber-900 dark:text-amber-200 font-heading font-bold text-[11px] rounded-2xl border border-amber-300 dark:border-amber-800/60 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
-            >
-              <HandCoins className="w-4 h-4 text-amber-600" />
-              <span>{t('ads.make_offer')}</span>
-            </button>
-
-            <button
-              onClick={handleOpenChat}
-              className="min-h-[50px] py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-zinc-800 dark:text-zinc-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-heading font-bold text-[11px] rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
-            >
-              <MessageCircle className="w-4 h-4 text-emerald-600" />
-              <span>{t('ads.chat')}</span>
-            </button>
-
-            <button
-              onClick={() => setShowPhoneModal(true)}
-              className="min-h-[50px] py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-900 dark:text-blue-200 font-heading font-bold text-[11px] rounded-2xl border border-blue-200 dark:border-blue-800/60 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
-            >
-              <Phone className="w-4 h-4 text-blue-600" />
-              <span>{t('ads.call_farmer')}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const rawPhone = selectedProduct.farmerPhone || farmer?.phone || '';
-                const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
-                if (!phoneDigits) {
-                  showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
-                  return;
-                }
-                const text = encodeURIComponent(`Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`);
-                window.open(`https://wa.me/${phoneDigits}?text=${text}`, '_blank');
-              }}
-              className="min-h-[50px] py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-heading font-bold text-[11px] rounded-2xl border border-emerald-300 dark:border-emerald-800/50 transition-all active:scale-95 flex flex-col items-center justify-center gap-1 shadow-xs"
-            >
-              <span className="text-sm">💬</span>
-              <span>{t('ads.whatsapp')}</span>
-            </button>
-          </div>
-
           {/* OLX Ad Metadata & Report Button */}
           <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800 text-[11px]">
             <span className="text-zinc-400 font-mono">
@@ -643,19 +573,19 @@ export const ListingDetailModal: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setShowOfferModal(true)}
-                  className="min-h-[48px] py-3 px-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
-                >
-                  <HandCoins className="w-4 h-4" />
-                  <span>{t('ads.make_offer')}</span>
-                </button>
-
-                <button
                   onClick={() => setShowPhoneModal(true)}
-                  className="min-h-[48px] py-3 px-2 bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[48px] py-3 px-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{t('ads.call_farmer')}</span>
+                </button>
+
+                <button
+                  onClick={handleOpenWhatsApp}
+                  className="min-h-[48px] py-3 px-2 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white rounded-2xl font-heading font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                >
+                  <span className="text-sm">💬</span>
+                  <span>{t('ads.whatsapp')}</span>
                 </button>
               </div>
 
@@ -740,19 +670,6 @@ export const ListingDetailModal: React.FC = () => {
           </div>
         )}
 
-        {/* Negotiation Engine: Make an Offer Modal */}
-        {showOfferModal && (
-          <MakeOfferModal
-            product={selectedProduct}
-            isOpen={showOfferModal}
-            onClose={() => setShowOfferModal(false)}
-            onOfferSubmitted={() => {
-              setShowOfferModal(false);
-              setSelectedProduct(null);
-              setIsNegotiationsOpen(true);
-            }}
-          />
-        )}
         {/* OLX Phone Call / Reveal Number Modal */}
         {showPhoneModal && (
           <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPhoneModal(false)}>
