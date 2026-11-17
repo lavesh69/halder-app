@@ -25,6 +25,7 @@ import {
   ExternalLink,
   AlertCircle,
   Phone,
+  MessageCircle,
   Mail,
   MapPin,
   Eye,
@@ -715,7 +716,7 @@ export const AdminDashboard: React.FC = () => {
           { id: 'users', label: 'Users & Roles', icon: Users, badge: totalUsersCount },
           { id: 'verification', label: 'Farmer KYC Review', icon: ShieldCheck, badge: pendingFarmersCount || undefined, alert: pendingFarmersCount > 0 },
           { id: 'products', label: 'Listings Moderation', icon: ShoppingBag, badge: products.length },
-          { id: 'orders', label: 'Deals & Inquiries Monitor', icon: Package, badge: totalOrdersCount },
+          
           { id: 'categories', label: 'Categories Taxonomy', icon: Layers, badge: categories.length },
           { id: 'audit', label: 'System Audit Logs', icon: Activity, badge: auditLogs.length || undefined },
           { id: 'settings', label: 'Platform Settings', icon: Settings },
@@ -843,34 +844,37 @@ export const AdminDashboard: React.FC = () => {
               </span>
             </div>
 
-            {/* 4. Orders Completed */}
+            {/* 4. Buyer Inquiries */}
             <div
-              onClick={() => setActiveTab('orders')}
+              onClick={() => setActiveTab('users')}
               className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Orders Placed</span>
-                <Package className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Buyer Inquiries</span>
+                <MessageCircle className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
               <span className="text-2xl font-heading font-black text-zinc-900 dark:text-white mt-1.5 block tracking-tight">
-                {totalOrdersCount}
+                {users.length} Leads
               </span>
               <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold mt-0.5 block">
-                {orders.filter((o) => o.status === 'delivered').length} Delivered
+                Direct Calls & Chats
               </span>
             </div>
 
-            {/* 5. Gross Marketplace GMV */}
-            <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
+            {/* 5. Crop Categories */}
+            <div
+              onClick={() => setActiveTab('categories')}
+              className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft hover:border-emerald-500/50 transition-all cursor-pointer group"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Gross GMV</span>
-                <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider">Categories</span>
+                <Layers className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               </div>
               <span className="text-2xl font-heading font-black text-emerald-700 dark:text-emerald-400 mt-1.5 block tracking-tight">
-                {formatCurrency(totalGMV)}
+                {categories.length} Taxonomies
               </span>
               <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-0.5 block">
-                100% Direct to Farmers
+                Grains, Fruits, Veggies
               </span>
             </div>
 
@@ -1011,54 +1015,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Live Orders Stream with 1-Tap Live GPS Track */}
-          <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-emerald-600" />
-                <h3 className="font-black text-sm text-zinc-900 dark:text-white">Live Marketplace Orders Stream</h3>
-              </div>
-              <button onClick={() => setActiveTab('orders')} className="text-xs font-bold text-emerald-600 hover:underline">
-                View All {orders.length} Orders →
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {orders.slice(0, 4).map((order) => (
-                <div
-                  key={order.id}
-                  className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200/70 dark:border-zinc-700/70 space-y-2.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-zinc-900 dark:text-white">{order.orderNumber}</span>
-                      <StatusBadge status={order.status} size="sm" />
-                    </div>
-                    <span className="font-black text-base text-emerald-700 dark:text-emerald-400">
-                      {formatCurrency(order.total)}
-                    </span>
-                  </div>
-
-                  <div className="text-[11px] text-zinc-600 dark:text-zinc-300">
-                    <span className="font-bold text-zinc-900 dark:text-white">Customer:</span> {order.customerName} ({order.customerPhone}) → <span className="font-bold text-zinc-900 dark:text-white">Farmer:</span> {order.farmerName}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1 border-t border-zinc-200/60 dark:border-zinc-700/60">
-                    <span className="text-[10px] text-zinc-400">
-                      {order.items.length} items • {order.paymentMethod?.toUpperCase()}
-                    </span>
-                    <button
-                      onClick={() => setTrackingOrder(order)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition"
-                    >
-                      <Navigation className="w-3 h-3" />
-                      <span>Track Live GPS</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          
         </div>
       )}
 
@@ -1839,286 +1796,6 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* ========================================================================= */}
-      {/* SECTION 5: ORDERS & DISPUTE MONITOR */}
-      {/* ========================================================================= */}
-      {activeTab === 'orders' && (
-        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                <Package className="w-5 h-5 text-emerald-600" />
-                <span>Orders & Dispatch Telemetry ({filteredOrders.length} of {orders.length})</span>
-              </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Inspect order statuses, payment gateways (PhonePe, Paytm, GPay, COD), customer details, and track live GPS route
-              </p>
-            </div>
-
-            <button
-              onClick={exportOrdersToCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs self-start sm:self-center"
-              title="Download orders report as CSV"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export CSV</span>
-            </button>
-          </div>
-
-          {/* Sub-Tab Selector: Orders vs Disputes */}
-          <div className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl w-fit border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
-            <button
-              onClick={() => setOrdersSubTab('orders')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-                ordersSubTab === 'orders'
-                  ? 'bg-white dark:bg-[#181F1A] text-emerald-800 dark:text-emerald-400 shadow-2xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
-              }`}
-            >
-              Order Registry & Telemetry ({orders.length})
-            </button>
-            <button
-              onClick={() => setOrdersSubTab('disputes')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
-                ordersSubTab === 'disputes'
-                  ? 'bg-white dark:bg-[#181F1A] text-purple-700 dark:text-purple-400 shadow-2xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Buyer Quality Claims & Disputes</span>
-              {disputes.filter((d) => d.status === 'UNDER_INVESTIGATION').length > 0 && (
-                <span className="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">
-                  {disputes.filter((d) => d.status === 'UNDER_INVESTIGATION').length}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {ordersSubTab === 'disputes' ? (
-            /* DISPUTES RESOLUTION VIEW */
-            <div className="space-y-4 animate-fade-in">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Total Claims Filed</span>
-                  <p className="text-xl font-black text-zinc-900 dark:text-white mt-0.5">{disputes.length}</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Pending Review</span>
-                  <p className="text-xl font-black text-amber-600 mt-0.5">
-                    {disputes.filter((d) => d.status === 'UNDER_INVESTIGATION').length}
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Refunds Processed</span>
-                  <p className="text-xl font-black text-emerald-600 mt-0.5">
-                    {disputes.filter((d) => d.status === 'REFUNDED').length}
-                  </p>
-                </div>
-              </div>
-
-              {disputes.length === 0 ? (
-                <div className="py-12 text-center text-zinc-400 bg-zinc-50/50 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
-                  <ShieldCheck className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-                  <p className="font-bold text-sm text-zinc-700 dark:text-zinc-300">Zero active dispute claims</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">All customer harvest deliveries meet HALDER Quality Standards.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {disputes.map((disp) => (
-                    <div
-                      key={disp.id}
-                      className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/80 space-y-3 shadow-2xs"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-xs font-bold text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-lg border border-purple-200/50">
-                            {disp.id}
-                          </span>
-                          <span className="font-bold text-sm text-zinc-900 dark:text-white">Order {disp.orderNumber}</span>
-                          <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              disp.status === 'REFUNDED'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : disp.status === 'RESOLVED_DISMISSED'
-                                ? 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 animate-pulse'
-                            }`}
-                          >
-                            {disp.status.replace('_', ' ')}
-                          </span>
-                        </div>
-                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                          Claim Amount: {formatCurrency(disp.amount)}
-                        </span>
-                      </div>
-
-                      <div className="text-xs space-y-1">
-                        <p className="font-semibold text-zinc-800 dark:text-zinc-200">
-                          <span className="text-zinc-400">Category: </span> {disp.category}
-                        </p>
-                        <p className="text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-900/60 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-700/50 text-[11px]">
-                          "{disp.details}"
-                        </p>
-                        <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-1">
-                          <span>Buyer: <strong>{disp.customerName}</strong> ({disp.customerPhone})</span>
-                          <span>Assigned Farmer: <strong>{disp.farmerName}</strong></span>
-                        </div>
-                      </div>
-
-                      {disp.status === 'UNDER_INVESTIGATION' && (
-                        <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleDismissDispute(disp.id)}
-                            className="px-3.5 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100"
-                          >
-                            Dismiss Claim
-                          </button>
-                          <button
-                            onClick={() => handleApproveDisputeRefund(disp.id)}
-                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
-                          >
-                            Approve {formatCurrency(disp.amount)} UPI Refund
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* REGULAR ORDERS LIST */
-            <div className="space-y-4">
-              {/* Order Search & Status Filter */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="sm:col-span-2 relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="Search by order # (e.g. HLD-), customer name, or farmer name..."
-                value={orderSearch}
-                onChange={(e) => setOrderSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-
-            <select
-              value={orderStatusFilter}
-              onChange={(e) => setOrderStatusFilter(e.target.value as any)}
-              className="px-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-800 dark:text-zinc-200"
-            >
-              <option value="all">All Statuses ({orders.length})</option>
-              <option value="placed">Placed (New)</option>
-              <option value="accepted">Accepted by Farmer</option>
-              <option value="preparing">Harvesting / Preparing</option>
-              <option value="out_for_delivery">Out for Delivery</option>
-              <option value="delivered">Delivered</option>
-              <option value="rejected">Cancelled</option>
-            </select>
-          </div>
-
-          {/* Orders Cards */}
-          <div className="space-y-3.5">
-            {filteredOrders.length === 0 ? (
-              <div className="py-12 text-center text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
-                <Package className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
-                <span className="font-bold text-sm block text-zinc-700 dark:text-zinc-300">No orders match criteria</span>
-                <span className="text-xs text-zinc-400">Modify your search query or status filter.</span>
-              </div>
-            ) : (
-              filteredOrders.map((o) => (
-                <div
-                  key={o.id}
-                  className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/80 space-y-3.5 shadow-2xs"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-black text-base text-zinc-900 dark:text-white">{o.orderNumber}</span>
-                      <StatusBadge status={o.status} size="sm" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300">
-                        {o.paymentMethod?.toUpperCase() || 'COD'}
-                      </span>
-                    </div>
-
-                    <span className="font-black text-lg text-emerald-700 dark:text-emerald-400 self-end sm:self-center">
-                      {formatCurrency(o.total)}
-                    </span>
-                  </div>
-
-                  {/* Customer vs Farmer Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60">
-                    <div className="p-3 bg-white dark:bg-zinc-800/60 rounded-xl border border-zinc-200/60 dark:border-zinc-700/60 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-zinc-400 block">Buyer Details</span>
-                      <p className="font-bold text-zinc-900 dark:text-white">{o.customerName}</p>
-                      <a href={`tel:${o.customerPhone}`} className="text-emerald-600 font-semibold block hover:underline">
-                        📞 {o.customerPhone}
-                      </a>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">📍 {o.deliveryAddress}</p>
-                    </div>
-
-                    <div className="p-3 bg-white dark:bg-zinc-800/60 rounded-xl border border-zinc-200/60 dark:border-zinc-700/60 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-zinc-400 block">Farmer / Seller Details</span>
-                      <p className="font-bold text-zinc-900 dark:text-white">{o.farmerName}</p>
-                      <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">{o.farmName}</p>
-                      <p className="text-[11px] text-zinc-500">Slot: {o.deliverySlot}</p>
-                    </div>
-                  </div>
-
-                  {/* Items summary */}
-                  <div className="text-[11px] text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-200/60 dark:border-zinc-700/60">
-                    <span className="font-bold text-zinc-900 dark:text-white">Items Ordered: </span>
-                    {o.items.map((it) => `${it.product.name} (${it.quantity} ${it.product.unit}) - ₹${it.subtotal}`).join(' • ')}
-                  </div>
-
-                  {/* Action Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-zinc-500">Change Status:</span>
-                      <select
-                        value={o.status}
-                        onChange={(e) => updateOrderStatus(o.id, e.target.value as OrderStatus)}
-                        className="px-2.5 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none"
-                      >
-                        <option value="placed">Placed</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="preparing">Harvesting / Preparing</option>
-                        <option value="out_for_delivery">Out for Delivery</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="rejected">Cancelled</option>
-                      </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* View Receipt / Invoice */}
-                      <button
-                        onClick={() => setViewingInvoiceOrder(o)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-bold transition"
-                        title="View Official Receipt"
-                      >
-                        <Printer className="w-3.5 h-3.5" />
-                        <span>Receipt</span>
-                      </button>
-
-                      {/* Track Live GPS */}
-                      <button
-                        onClick={() => setTrackingOrder(o)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition"
-                      >
-                        <Navigation className="w-3.5 h-3.5" />
-                        <span>Track Live GPS</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )}
 
       {/* ========================================================================= */}
       {/* SECTION 6: CATEGORIES & TAXONOMIES */}

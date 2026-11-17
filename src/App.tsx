@@ -12,11 +12,9 @@ import { MarketplaceHome } from './components/customer/MarketplaceHome';
 import { SearchScreen } from './components/customer/SearchScreen';
 import { FilterBottomSheet } from './components/customer/FilterBottomSheet';
 import { FavoritesView } from './components/customer/FavoritesView';
-import { CustomerOrdersView } from './components/customer/CustomerOrdersView';
 import { CustomerProfileView } from './components/customer/CustomerProfileView';
 import { ListingDetailModal } from './components/customer/ListingDetailModal';
 import { FarmerSellerProfileModal } from './components/customer/FarmerSellerProfileModal';
-import { OrderTrackingModal } from './components/customer/OrderTrackingModal';
 import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal';
 import { FastSellModal } from './components/customer/FastSellModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
@@ -30,7 +28,6 @@ import { StockControlModal } from './components/farmer/StockControlModal';
 
 // Farmer screens & modals (Code-split for performance)
 const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
-const FarmerOrdersView = React.lazy(() => import('./components/farmer/FarmerOrdersView').then(m => ({ default: m.FarmerOrdersView })));
 const FarmerChatView = React.lazy(() => import('./components/farmer/FarmerChatView').then(m => ({ default: m.FarmerChatView })));
 const FarmerProfileView = React.lazy(() => import('./components/farmer/FarmerProfileView').then(m => ({ default: m.FarmerProfileView })));
 
@@ -104,9 +101,8 @@ export const MainApp: React.FC = () => {
       case 'search':
         return <SearchScreen />;
       case 'cart':
-        return <MarketplaceHome />;
       case 'orders':
-        return <CustomerOrdersView />;
+        return <MarketplaceHome />;
       case 'profile':
         return <CustomerProfileView />;
       default:
@@ -127,7 +123,7 @@ export const MainApp: React.FC = () => {
         content = <CustomerMyAdsView />;
         break;
       case 'orders':
-        content = <FarmerOrdersView />;
+        content = <FarmerDashboard />;
         break;
       case 'chat':
         content = <FarmerChatView />;
@@ -184,7 +180,6 @@ export const MainApp: React.FC = () => {
       {/* Modals & Overlays */}
       <ListingDetailModal />
       <FarmerSellerProfileModal />
-      <OrderTrackingModal />
       <MarketplaceChatModal />
       <FastSellModal />
       <FilterBottomSheet />

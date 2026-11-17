@@ -174,34 +174,32 @@ export const CustomerProfileView: React.FC = () => {
       </div>
 
       {/* Real Live Stats Bar */}
-      {profileData?.orderStats && (
-        <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-          <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-heading font-black text-emerald-700 dark:text-emerald-400 block truncate">
-              {profileData.orderStats.total || 0}
-            </span>
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
-              Total Orders
-            </span>
-          </div>
-          <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-heading font-black text-blue-600 dark:text-blue-400 block truncate">
-              {profileData.totalAddresses || 1}
-            </span>
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
-              Addresses
-            </span>
-          </div>
-          <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
-            <span className="text-base sm:text-lg font-heading font-black text-purple-600 dark:text-purple-400 block truncate">
-              {profileData.favoritesCount || 0}
-            </span>
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
-              Favorites
-            </span>
-          </div>
+      <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+        <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
+          <span className="text-base sm:text-lg font-heading font-black text-emerald-700 dark:text-emerald-400 block truncate">
+            {myAdsCount}
+          </span>
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
+            Active Ads
+          </span>
         </div>
-      )}
+        <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
+          <span className="text-base sm:text-lg font-heading font-black text-blue-600 dark:text-blue-400 block truncate">
+            {profileData?.totalAddresses || 1}
+          </span>
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
+            Addresses
+          </span>
+        </div>
+        <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 text-center min-w-0">
+          <span className="text-base sm:text-lg font-heading font-black text-purple-600 dark:text-purple-400 block truncate">
+            {profileData?.favoritesCount || 0}
+          </span>
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 tracking-wider truncate block">
+            Favorites
+          </span>
+        </div>
+      </div>
 
       {/* Google Account Authentication Card */}
       <div className="p-4 bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-soft space-y-3">
@@ -271,25 +269,6 @@ export const CustomerProfileView: React.FC = () => {
               <span className="text-[11px] text-zinc-500">
                 Manage, preview, and remove your posted marketplace ads
               </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-zinc-400" />
-        </button>
-
-        {/* My Orders */}
-        <button
-          onClick={() => setCustomerTab('orders')}
-          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
-              <ShoppingBag className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                {t('profile.my_orders')}
-              </span>
-              <span className="text-[11px] text-zinc-500">{t('profile.my_orders_desc')}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-400" />
@@ -372,7 +351,7 @@ export const CustomerProfileView: React.FC = () => {
                 Notification Preferences
               </span>
               <span className="text-[11px] text-zinc-500">
-                Manage alerts for order updates, delivery & farmer chat
+                Manage alerts for ad inquiries & farmer chat
               </span>
             </div>
           </div>
@@ -629,16 +608,16 @@ export const CustomerProfileView: React.FC = () => {
                     How does Zero-Commission direct farmer delivery work?
                   </span>
                   <p className="text-[11px] text-zinc-500 leading-relaxed">
-                    HALDER charges 0% commission from farmers. 100% of the produce price goes directly into the farmer's bank account via instant UPI.
+                    HALDER charges 0% commission. You connect directly with verified farmers via direct call or chat and pay them directly upon inspection.
                   </p>
                 </div>
 
                 <div className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700/60">
                   <span className="font-bold text-zinc-900 dark:text-white block mb-0.5">
-                    What if my delivered produce is underweight or damaged?
+                    How do deals work on HALDER?
                   </span>
                   <p className="text-[11px] text-zinc-500 leading-relaxed">
-                    Open your "My Orders" tab, click "Report Issue / Raise Dispute", select the issue type, and submit. Our admin team will investigate and issue an instant UPI refund.
+                    HALDER works like direct classifieds. Browse crops, call or chat with the farmer directly, inspect the harvest, and settle the deal with complete transparency.
                   </p>
                 </div>
               </div>

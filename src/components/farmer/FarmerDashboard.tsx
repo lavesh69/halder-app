@@ -64,8 +64,6 @@ export const FarmerDashboard: React.FC = () => {
   const { t } = useTranslation();
   const {
     products,
-    orders,
-    updateOrderStatus,
     setIsFastSellOpen,
     setEditingListing,
     setFarmerTab,
@@ -83,16 +81,7 @@ export const FarmerDashboard: React.FC = () => {
   const myProducts = products.filter((p) => p.farmerId === currentFarmerId || p.farmerId === 'farmer-1');
   const availableProductsCount = myProducts.filter((p) => p.isAvailable).length;
 
-  // Incoming new orders
-  const newOrders = orders.filter((o) => o.status === 'placed');
-  const activePreparingOrders = orders.filter(
-    (o) => o.status === 'accepted' || o.status === 'preparing'
-  );
 
-  // Today's total sales
-  const todaySales = orders
-    .filter((o) => o.status !== 'rejected')
-    .reduce((sum, o) => sum + o.total, 0);
 
   // Modals for Ecosystem Modules
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
@@ -210,19 +199,19 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setFarmerTab('orders')}
+          onClick={() => setFarmerTab('chat')}
           className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group relative"
         >
           <div className="w-7 h-7 rounded-full bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center group-hover:bg-[#EAF5EE] group-hover:text-[#176B45] transition">
-            <Clock className="w-4 h-4" />
+            <MessageCircle className="w-4 h-4 text-emerald-600" />
           </div>
-          {newOrders.length > 0 && (
-            <span className="absolute top-2 right-2 bg-[#D99A32] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full animate-pulse">
-              {newOrders.length}
+          {unreadChatCount > 0 && (
+            <span className="absolute top-2 right-2 bg-emerald-700 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full animate-pulse">
+              {unreadChatCount}
             </span>
           )}
           <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            {t('nav.orders')} ({orders.length})
+            {t('nav.chats')}
           </span>
         </button>
 
@@ -300,98 +289,76 @@ export const FarmerDashboard: React.FC = () => {
           {/* Live Agro-Weather & AI Advisory Widget */}
           <WeatherAdvisoryWidget city={activeCity} />
 
-          {/* Incoming Orders Section */}
+          {/* Active Crop Advertisements Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#D99A32]" />
+                <Megaphone className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 <h3 className="text-base font-bold text-[#202923] dark:text-[#F2F5F3]">
-                  Incoming Orders ({newOrders.length})
+                  My Active Crop Ads ({myProducts.length})
                 </h3>
               </div>
               <button
-                onClick={() => setFarmerTab('orders')}
+                onClick={() => setFarmerTab('my-ads')}
                 className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] hover:underline flex items-center min-h-[36px]"
               >
-                <span>View All Orders</span>
+                <span>Manage All Ads</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
               </button>
             </div>
 
-            {newOrders.length === 0 ? (
-              <div className="p-6 text-center bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] text-xs text-[#66736B] dark:text-[#A6B3AA] space-y-1 shadow-soft">
-                <p className="font-bold text-[#202923] dark:text-[#F2F5F3]">No pending orders right now.</p>
-                <p>New harvest orders from buyers will appear here in real-time.</p>
+            {myProducts.length === 0 ? (
+              <div className="p-6 text-center bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] text-xs text-[#66736B] dark:text-[#A6B3AA] space-y-2 shadow-soft">
+                <p className="font-bold text-[#202923] dark:text-[#F2F5F3]">No crops listed yet.</p>
+                <p>Post your first harvest advertisement to start receiving direct buyer inquiries!</p>
+                <button
+                  onClick={() => {
+                    setEditingListing(null);
+                    setIsFastSellOpen(true);
+                  }}
+                  className="px-4 py-2 bg-[#176B45] text-white rounded-xl font-bold text-xs shadow-soft hover:bg-[#124C36] transition inline-flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Post First Ad</span>
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
-                {newOrders.map((order) => (
+                {myProducts.slice(0, 3).map((crop) => (
                   <div
-                    key={order.id}
-                    className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border-2 border-[#D99A32]/40 shadow-soft space-y-3"
+                    key={crop.id}
+                    className="p-3.5 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft flex items-center justify-between gap-3"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-[#202923] dark:text-[#F2F5F3]">
-                            {order.orderNumber}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img
+                        src={crop.image}
+                        alt={crop.name}
+                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-zinc-200 dark:border-zinc-700"
+                      />
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-xs sm:text-sm text-zinc-900 dark:text-white truncate">
+                          {crop.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="font-black text-xs text-emerald-700 dark:text-emerald-400">
+                            {formatCurrency(crop.price)} / {crop.unit}
                           </span>
-                          <span className="text-[10px] font-bold bg-[#D99A32] text-white px-2 py-0.5 rounded-full">
-                            New Order
+                          <span className="text-[10px] text-zinc-400">
+                            • {crop.availableQuantity} {crop.unit} available
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-[#202923] dark:text-[#F2F5F3] font-bold">
-                            {order.customerName}
-                          </span>
-                          <a
-                            href={`tel:${order.customerPhone}`}
-                            className="flex items-center gap-1 text-[11px] text-[#176B45] dark:text-[#5FB383] font-semibold hover:underline"
-                          >
-                            <Phone className="w-3 h-3" />
-                            <span>{order.customerPhone}</span>
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
-                          {formatCurrency(order.total)}
-                        </span>
-                        <span className="text-[10px] text-[#89948C] block">
-                          {order.items.length} produce items
-                        </span>
                       </div>
                     </div>
 
-                    {/* Produce items preview */}
-                    <div className="bg-[#F0F4F1] dark:bg-[#222B25] p-3 rounded-xl border border-[#E5EBE6] dark:border-[#29352D] text-xs space-y-1">
-                      {order.items.map((it, idx) => (
-                        <div key={idx} className="flex justify-between text-[#202923] dark:text-[#F2F5F3]">
-                          <span>
-                            • <strong>{it.product.name}</strong> ({it.quantity} {it.product.unit})
-                          </span>
-                          <span className="font-semibold">{formatCurrency(it.subtotal)}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
-                        onClick={() => updateOrderStatus(order.id, 'rejected')}
-                        className="btn-danger"
+                        onClick={() => {
+                          setEditingListing(crop);
+                          setIsFastSellOpen(true);
+                        }}
+                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-xl text-xs font-bold hover:bg-zinc-200 transition"
                       >
-                        <XCircle className="w-4 h-4" />
-                        <span>Reject</span>
-                      </button>
-
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'accepted')}
-                        className="btn-primary"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Accept & Harvest</span>
+                        Edit Price
                       </button>
                     </div>
                   </div>
@@ -405,20 +372,19 @@ export const FarmerDashboard: React.FC = () => {
         <div className="space-y-6">
           {/* Summary Metrics Cards */}
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-            {/* Today's Orders */}
-            <div className="p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft min-w-0">
+            {/* Buyer Inquiries */}
+            <div
+              onClick={() => setFarmerTab('chat')}
+              className="p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft min-w-0 cursor-pointer hover:border-emerald-500/50 transition"
+            >
               <span className="text-[10px] font-bold text-[#66736B] dark:text-[#A6B3AA] uppercase block truncate">
-                Orders
+                Inquiries
               </span>
               <div className="flex items-baseline gap-1 mt-1 truncate">
-                <span className="text-lg sm:text-xl font-heading font-black text-[#202923] dark:text-[#F2F5F3]">
-                  {orders.length}
+                <span className="text-lg sm:text-xl font-heading font-black text-emerald-700 dark:text-emerald-400">
+                  {unreadChatCount || 0}
                 </span>
-                {newOrders.length > 0 && (
-                  <span className="text-[9px] font-heading font-bold bg-[#D99A32] text-white px-1.5 py-0.5 rounded-full">
-                    +{newOrders.length}
-                  </span>
-                )}
+                <span className="text-[9px] font-bold text-zinc-400">Leads</span>
               </div>
             </div>
 
@@ -438,59 +404,31 @@ export const FarmerDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Active Packing & Handover Queue */}
+          {/* Buyer Crop Demands & Direct Leads */}
           <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
+                <Megaphone className="w-4 h-4 text-[#176B45] dark:text-[#5FB383]" />
                 <h4 className="text-sm font-bold text-[#202923] dark:text-[#F2F5F3]">
-                  Packing & Delivery ({activePreparingOrders.length})
+                  Direct Buyer Demands
                 </h4>
               </div>
               <button
-                onClick={() => setFarmerTab('orders')}
+                onClick={() => setIsRequirementsOpen(true)}
                 className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383] hover:underline min-h-[36px] flex items-center"
               >
-                View
+                Explore Leads →
               </button>
             </div>
-
-            {activePreparingOrders.length === 0 ? (
-              <div className="p-4 text-center bg-[#F0F4F1] dark:bg-[#222B25] rounded-xl text-xs text-[#66736B] dark:text-[#A6B3AA]">
-                No orders currently in packing phase.
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {activePreparingOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="p-3 bg-[#F0F4F1] dark:bg-[#222B25] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex items-center justify-between gap-2"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs text-[#202923] dark:text-[#F2F5F3]">
-                          {order.orderNumber}
-                        </span>
-                        <StatusBadge status={order.status} size="sm" />
-                      </div>
-                      <span className="text-[10px] text-[#89948C] block truncate mt-0.5">
-                        {order.customerName} • {formatCurrency(order.total)}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        if (order.status === 'accepted') updateOrderStatus(order.id, 'preparing');
-                        else if (order.status === 'preparing') updateOrderStatus(order.id, 'out_for_delivery');
-                      }}
-                      className="min-h-[38px] px-3 py-1.5 bg-[#176B45] hover:bg-[#124C36] text-white font-bold text-[11px] rounded-lg shadow-soft transition-colors shrink-0"
-                    >
-                      {order.status === 'accepted' ? 'Pack Crop' : 'Handover Rider'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              Wholesalers and local buyers post requirement inquiries. Check demand in your mandi area and contact them directly.
+            </p>
+            <button
+              onClick={() => setIsRequirementsOpen(true)}
+              className="w-full py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-bold border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 transition"
+            >
+              View Buyer Demands
+            </button>
           </div>
         </div>
       </div>

@@ -48,8 +48,6 @@ export const BottomNav: React.FC = () => {
     (p) => (p.farmerId === currentUserId || (currentUser?.name && p.farmerName === currentUser.name)) && p.isAvailable !== false
   ).length;
 
-  const pendingFarmerOrdersCount = orders.filter((o) => o.status === 'placed').length;
-  const activeCustomerOrdersCount = orders.filter((o) => !['delivered', 'rejected', 'cancelled'].includes(o.status)).length;
   const pendingFarmerVerifications = farmers.filter((f) => f.verification_status === 'pending').length;
 
   if (role === 'admin') {
@@ -116,18 +114,6 @@ export const BottomNav: React.FC = () => {
               )}
             </div>
             <span className="text-[10px] mt-0.5">{t('nav.listings')}</span>
-          </button>
-
-          <button
-            onClick={() => setAdminTab('orders')}
-            className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
-              adminTab === 'orders'
-                ? 'text-purple-600 dark:text-purple-400 font-bold'
-                : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-            }`}
-          >
-            <Package className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{t('nav.orders')}</span>
           </button>
 
           <button
@@ -260,19 +246,12 @@ export const BottomNav: React.FC = () => {
               setIsSearchScreenOpen(false);
             }}
             className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
-              customerTab === 'profile' || customerTab === 'orders' || customerTab === 'favorites'
+              customerTab === 'profile' || customerTab === 'favorites'
                 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
                 : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
             }`}
           >
-            <div className="relative">
-              <User className="w-5 h-5" />
-              {activeCustomerOrdersCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#D99A32] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                  {activeCustomerOrdersCount}
-                </span>
-              )}
-            </div>
+            <User className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('nav.account')}</span>
           </button>
         </div>
@@ -355,23 +334,16 @@ export const BottomNav: React.FC = () => {
           <span className="text-[10px] mt-0.5">{t('nav.my_ads')}</span>
         </button>
 
-        {/* 5. Account (Profile & Orders) */}
+        {/* 5. Account (Profile) */}
         <button
           onClick={() => setFarmerTab('profile')}
           className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${
-            farmerTab === 'profile' || farmerTab === 'earnings' || farmerTab === 'orders'
+            farmerTab === 'profile'
               ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black shadow-xs'
               : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
           }`}
         >
-          <div className="relative">
-            <User className="w-5 h-5" />
-            {pendingFarmerOrdersCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#D99A32] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                {pendingFarmerOrdersCount}
-              </span>
-            )}
-          </div>
+          <User className="w-5 h-5" />
           <span className="text-[10px] mt-0.5">{t('nav.account')}</span>
         </button>
       </div>
