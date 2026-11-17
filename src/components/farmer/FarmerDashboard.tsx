@@ -228,18 +228,6 @@ export const FarmerDashboard: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setIsMandiModalOpen(true)}
-          className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
-        >
-          <div className="w-7 h-7 rounded-full bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center group-hover:bg-[#EAF5EE] group-hover:text-[#176B45] transition">
-            <Activity className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            {t('nav.mandi')}
-          </span>
-        </button>
-
-        <button
           onClick={() => setIsInsightsModalOpen(true)}
           className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
         >
@@ -324,77 +312,6 @@ export const FarmerDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Live Agro-Weather & AI Advisory Widget */}
           <WeatherAdvisoryWidget city={activeCity} />
-
-          {/* Live Mandi Bhav Ticker */}
-          <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E5EBE6] dark:border-[#29352D]">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383]">
-                  <Activity className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] flex items-center gap-1.5">
-                    {t('farmer.mandi_bhav_title')}
-                    <span className="w-2 h-2 rounded-full bg-[#2E8B57] animate-ping" />
-                  </h3>
-                  <span className="text-[10px] text-[#89948C]">
-                    {t('farmer.mandi_bhav_sub')}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => showToast('Mandi Bhav rates refreshed with latest APMC data', 'info')}
-                className="p-1.5 text-[#89948C] hover:text-[#176B45] rounded-lg transition"
-                title="Refresh Rates"
-                aria-label="Refresh rates"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Horizontal Scrollable Bhav Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-              {LIVE_MANDI_RATES.map((item, idx) => {
-                const isPositive = item.change >= 0;
-                return (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-xl bg-[#F0F4F1] dark:bg-[#222B25] border border-[#E5EBE6] dark:border-[#29352D] text-left hover:border-[#176B45]/50 transition-colors"
-                  >
-                    <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] block truncate">
-                      {item.hindiName}
-                    </span>
-                    <span className="text-[9px] text-[#89948C] block truncate">
-                      {item.mandi}
-                    </span>
-                    <div className="flex items-baseline justify-between mt-1.5">
-                      <span className="text-xs font-black text-[#176B45] dark:text-[#5FB383]">
-                        ₹{item.modalPrice}/{item.unit}
-                      </span>
-                      <span
-                        className={`text-[9px] font-bold flex items-center ${
-                          isPositive ? 'text-[#238653]' : 'text-[#D9534F]'
-                        }`}
-                      >
-                        {isPositive ? <ArrowUp className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDown className="w-2.5 h-2.5 mr-0.5" />}
-                        ₹{Math.abs(item.change)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => setIsMandiModalOpen(true)}
-              className="w-full mt-1 min-h-[44px] py-2 px-3 bg-[#F0F4F1] dark:bg-[#222B25] hover:bg-[#EAF5EE] dark:hover:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] border border-[#E5EBE6] dark:border-[#29352D] hover:border-[#176B45]/50 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition"
-            >
-              <Calculator className="w-4 h-4" />
-              <span>Open Mandi Intelligence & Profit Estimator</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
           {/* Incoming Orders Section */}
           <div className="space-y-3">
@@ -653,11 +570,6 @@ export const FarmerDashboard: React.FC = () => {
         isOpen={isInsightsModalOpen}
         onClose={() => setIsInsightsModalOpen(false)}
         farmerId={currentFarmerId}
-      />
-
-      <MandiIntelligenceModal
-        isOpen={isMandiModalOpen}
-        onClose={() => setIsMandiModalOpen(false)}
       />
     </div>
   );

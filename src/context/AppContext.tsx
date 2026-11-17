@@ -1218,9 +1218,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isFavorite = (productId: string) => favorites.includes(productId);
 
-  // Direct Purchase (Replaces Multi-Item Basket)
-  const addToCart = (product: Product, quantity = 1) => {
-    setBuyNowProduct({ product, quantity });
+  // Direct Classifieds: Opens listing details for direct Call/Chat/Boli
+  const addToCart = (product: Product, _quantity = 1) => {
+    setSelectedProduct(product);
   };
 
   const updateCartQuantity = (productId: string, quantity: number) => {

@@ -97,16 +97,6 @@ export const Header: React.FC = () => {
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Farm Nearby Map Button */}
-            <button
-              onClick={() => setIsFarmMapOpen(true)}
-              className="hidden md:flex p-2 text-[#176B45] dark:text-[#5FB383] hover:bg-[#EAF5EE] dark:hover:bg-[#182A20] rounded-full transition-colors"
-              title="Farm Nearby Map (खेत नक्शा)"
-              aria-label="Farm Nearby Map"
-            >
-              <Compass className="w-4 h-4" />
-            </button>
-
             {/* Buyer Requirements Reverse Marketplace */}
             <button
               onClick={() => setIsRequirementsOpen(true)}
@@ -115,16 +105,6 @@ export const Header: React.FC = () => {
               aria-label="Buyer Demands & Quotations"
             >
               <Megaphone className="w-4 h-4" />
-            </button>
-
-            {/* Price Negotiations & Offers */}
-            <button
-              onClick={() => setIsNegotiationsOpen(true)}
-              className="hidden md:flex p-2 text-[#D99A32] hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-full transition-colors"
-              title="Price Negotiations & Offers (मोल-भाव)"
-              aria-label="Price Negotiations & Offers"
-            >
-              <HandCoins className="w-4 h-4" />
             </button>
 
             {/* Notification Bell with Badge */}

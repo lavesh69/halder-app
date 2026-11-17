@@ -3,11 +3,6 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ExploreCategoriesModal } from './ExploreCategoriesModal';
-import { GroupBuyModal } from './GroupBuyModal';
-import { B2BWholesaleModal } from './B2BWholesaleModal';
-import { ScheduledProcurementModal } from './ScheduledProcurementModal';
-import { MandiBhavTicker } from '../common/MandiBhavTicker';
-import { MandiIntelligenceModal } from '../farmer/MandiIntelligenceModal';
 import { ProductCategory } from '../../types';
 import {
   Search,
@@ -49,10 +44,6 @@ export const MarketplaceHome: React.FC = () => {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isExploreCategoriesOpen, setIsExploreCategoriesOpen] = useState(false);
-  const [isGroupBuyOpen, setIsGroupBuyOpen] = useState(false);
-  const [isB2bOpen, setIsB2bOpen] = useState(false);
-  const [isScheduledOpen, setIsScheduledOpen] = useState(false);
-  const [isMandiModalOpen, setIsMandiModalOpen] = useState(false);
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
@@ -201,26 +192,8 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Live Mandi Bhav Ticker (Stitch Marquee Commodity Rates) */}
-        <MandiBhavTicker onOpenMandiDetails={() => setIsMandiModalOpen(true)} />
-
-        {/* 1.2 Direct Agricultural Discovery Quick Action Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-          <button
-            onClick={() => setIsFarmMapOpen(true)}
-            className="p-3 bg-white dark:bg-[#181F1A] border border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
-          >
-            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0 group-hover:scale-105 transition">
-              <Compass className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                {t('home.farm_map')}
-              </span>
-              <span className="text-[10px] text-zinc-500 block">{t('home.farm_map_sub')}</span>
-            </div>
-          </button>
-
+        {/* Direct Agricultural Discovery Quick Actions */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
           <button
             onClick={() => setIsRequirementsOpen(true)}
             className="p-3 bg-white dark:bg-[#181F1A] border border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
@@ -233,21 +206,6 @@ export const MarketplaceHome: React.FC = () => {
                 {t('home.post_demand')}
               </span>
               <span className="text-[10px] text-zinc-500 block">{t('home.post_demand_sub')}</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setIsNegotiationsOpen(true)}
-            className="p-3 bg-white dark:bg-[#181F1A] border border-amber-200 dark:border-amber-900/60 hover:border-amber-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
-          >
-            <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 shrink-0 group-hover:scale-105 transition">
-              <HandCoins className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs font-black text-zinc-900 dark:text-white block">
-                {t('home.negotiations')}
-              </span>
-              <span className="text-[10px] text-zinc-500 block">{t('home.negotiations_sub')}</span>
             </div>
           </button>
 
@@ -266,69 +224,6 @@ export const MarketplaceHome: React.FC = () => {
             </div>
           </button>
         </div>
-      </div>
-
-      {/* 1.5 Special Marketplace Modes & Programs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button
-          onClick={() => setIsGroupBuyOpen(true)}
-          className="p-3.5 bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-2xl flex items-center justify-between text-left hover:border-[#176B45]/60 transition shadow-soft group cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
-              <Users className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                {t('home.group_buy')}
-              </span>
-              <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                {t('home.group_buy_sub')}
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[#89948C] group-hover:text-[#176B45] shrink-0 transition-colors" />
-        </button>
-
-        <button
-          onClick={() => setIsB2bOpen(true)}
-          className="p-3.5 bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-2xl flex items-center justify-between text-left hover:border-[#176B45]/60 transition shadow-soft group cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
-              <Building2 className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                {t('home.wholesale')}
-              </span>
-              <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                {t('home.wholesale_sub')}
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[#89948C] group-hover:text-[#176B45] shrink-0 transition-colors" />
-        </button>
-
-        <button
-          onClick={() => setIsScheduledOpen(true)}
-          className="p-3.5 bg-white dark:bg-[#181F1A] border border-[#E5EBE6] dark:border-[#29352D] rounded-2xl flex items-center justify-between text-left hover:border-[#176B45]/60 transition shadow-soft group cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#EAF5EE] dark:bg-[#182A20] text-[#176B45] dark:text-[#5FB383] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition">
-              <CalendarClock className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-[#202923] dark:text-[#F2F5F3] block">
-                {t('home.subscriptions')}
-              </span>
-              <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA] block">
-                {t('home.subscriptions_sub')}
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[#89948C] group-hover:text-[#176B45] shrink-0 transition-colors" />
-        </button>
       </div>
 
       {/* 2. OLX-Style Browse Categories Circular Story Carousel */}
@@ -495,18 +390,6 @@ export const MarketplaceHome: React.FC = () => {
           >
             <span>⚡</span>
             <span>Featured (टॉप विज्ञापन)</span>
-          </button>
-
-          <button
-            onClick={() => setFilterState((prev) => ({ ...prev, negotiableOnly: !prev.negotiableOnly }))}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition min-h-[36px] flex items-center gap-1 ${
-              filterState.negotiableOnly
-                ? 'bg-emerald-600 text-white shadow-soft'
-                : 'bg-white dark:bg-[#181F1A] text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60'
-            }`}
-          >
-            <span>🤝</span>
-            <span>Negotiable (मोल-भाव)</span>
           </button>
 
           <button
@@ -831,26 +714,6 @@ export const MarketplaceHome: React.FC = () => {
       <ExploreCategoriesModal
         isOpen={isExploreCategoriesOpen}
         onClose={() => setIsExploreCategoriesOpen(false)}
-      />
-
-      <GroupBuyModal
-        isOpen={isGroupBuyOpen}
-        onClose={() => setIsGroupBuyOpen(false)}
-      />
-
-      <B2BWholesaleModal
-        isOpen={isB2bOpen}
-        onClose={() => setIsB2bOpen(false)}
-      />
-
-      <ScheduledProcurementModal
-        isOpen={isScheduledOpen}
-        onClose={() => setIsScheduledOpen(false)}
-      />
-
-      <MandiIntelligenceModal
-        isOpen={isMandiModalOpen}
-        onClose={() => setIsMandiModalOpen(false)}
       />
     </div>
   );

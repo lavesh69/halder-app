@@ -70,12 +70,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     }
   };
 
-  const handleBuyNow = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setBuyNowProduct({ product, quantity: 1 });
-    setSelectedProduct(product);
-  };
-
   // 1. Horizontal variant (Carousels & Horizontal lists)
   if (variant === 'horizontal') {
     return (
@@ -128,11 +122,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             🟢 {product.availableQuantity} {product.unit} left
           </span>
           <button
-            onClick={handleBuyNow}
+            onClick={handleQuickChat}
             className="text-xs font-bold text-white bg-[#176B45] hover:bg-[#124C36] px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 active:scale-95 shadow-xs"
+            title="Chat with farmer"
           >
-            <Zap className="w-3 h-3 fill-white" />
-            Buy Now
+            <MessageCircle className="w-3 h-3" />
+            Chat
           </button>
         </div>
       </div>
@@ -405,13 +400,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </span>
 
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-            {/* 1-Tap Boli / Negotiation Action */}
+            {/* 1-Tap Boli / Offer Action */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedProduct(product);
               }}
-              className="min-h-[40px] px-2.5 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-bold rounded-xl border border-amber-300 dark:border-amber-700/60 transition-colors flex items-center gap-1 active:scale-95 shadow-2xs"
+              className="min-h-[40px] px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-bold rounded-xl border border-amber-300 dark:border-amber-700/60 transition-colors flex items-center justify-center gap-1 active:scale-95 shadow-2xs"
               title="Place offer / बोली लगाएं"
             >
               <Gavel className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
@@ -420,7 +415,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
             <button
               onClick={handleQuickCall}
-              className="min-h-[40px] px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center gap-1 active:scale-95"
+              className="min-h-[40px] px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center justify-center gap-1 active:scale-95"
               title="Call farmer directly"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
@@ -429,19 +424,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
             <button
               onClick={handleQuickChat}
-              className="min-h-[40px] px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 text-xs font-bold rounded-xl border border-zinc-200 dark:border-zinc-700 transition-colors flex items-center gap-1 active:scale-95"
+              className="min-h-[40px] px-3 py-1.5 bg-[#176B45] hover:bg-[#124C36] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1 active:scale-95 shadow-xs"
               title="Chat with farmer"
             >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <MessageCircle className="w-3.5 h-3.5 text-white" />
               <span>Chat</span>
-            </button>
-
-            <button
-              onClick={handleBuyNow}
-              className="min-h-[40px] px-3.5 py-1.5 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white text-xs font-bold rounded-xl shadow-soft transition-all flex items-center gap-1"
-            >
-              <Zap className="w-3.5 h-3.5 fill-white" />
-              <span>Buy Now</span>
             </button>
           </div>
         </div>

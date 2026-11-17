@@ -116,11 +116,6 @@ export const ListingDetailModal: React.FC = () => {
     ? selectedProduct.images
     : [selectedProduct.image];
 
-  const handleBuyNow = () => {
-    setBuyNowProduct({ product: selectedProduct, quantity });
-    setSelectedProduct(null);
-  };
-
   const handleSendOffer = (priceOffer: number) => {
     if (!farmer) return;
     const msg = `🤝 OFFER: Hello ${farmer.name}, I would like to offer ₹${priceOffer}/${selectedProduct.unit} for "${selectedProduct.name}". Would you accept this price?`;
@@ -664,19 +659,9 @@ export const ListingDetailModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* OLX Security Notice & Quick Direct Buy */}
-              <div className="flex items-center justify-between pt-1 px-1 text-[10px]">
-                <span className="text-zinc-500 dark:text-zinc-400 truncate max-w-[65%]">
-                  🛡️ {t('ads.safety_tip')}
-                </span>
-                <button
-                  onClick={handleBuyNow}
-                  className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 shrink-0"
-                  title="Direct buy without negotiation"
-                >
-                  <Zap className="w-3 h-3 fill-emerald-600" />
-                  <span>{t('ads.instant_order')} ({formatCurrency(selectedProduct.price * quantity)})</span>
-                </button>
+              {/* OLX Direct Classifieds Safety Tip */}
+              <div className="flex items-center justify-center pt-1 px-1 text-[11px] text-zinc-500 dark:text-zinc-400 text-center font-medium">
+                <span>🛡️ {t('ads.safety_tip')}</span>
               </div>
             </div>
           )}

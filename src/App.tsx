@@ -12,7 +12,6 @@ import { MarketplaceHome } from './components/customer/MarketplaceHome';
 import { SearchScreen } from './components/customer/SearchScreen';
 import { FilterBottomSheet } from './components/customer/FilterBottomSheet';
 import { FavoritesView } from './components/customer/FavoritesView';
-import { CheckoutView } from './components/customer/CheckoutView';
 import { CustomerOrdersView } from './components/customer/CustomerOrdersView';
 import { CustomerProfileView } from './components/customer/CustomerProfileView';
 import { ListingDetailModal } from './components/customer/ListingDetailModal';
@@ -25,9 +24,7 @@ import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 import { ReviewModal } from './components/common/ReviewModal';
 
 // Agricultural Classifieds & Reverse Marketplace Modals
-import { FarmNearbyMapModal } from './components/customer/FarmNearbyMapModal';
 import { RequirementsMarketplaceView } from './components/customer/RequirementsMarketplaceView';
-import { NegotiationThreadModal } from './components/customer/NegotiationThreadModal';
 import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
 import { StockControlModal } from './components/farmer/StockControlModal';
 
@@ -72,8 +69,6 @@ export const MainApp: React.FC = () => {
     setReviewTarget,
   } = useApp();
 
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-
   // Proactively clear any legacy lockout or PIN artifacts from client storage
   useEffect(() => {
     try {
@@ -96,18 +91,6 @@ export const MainApp: React.FC = () => {
 
   // Customer Screen Router
   const renderCustomerScreen = () => {
-    // If user clicked "Buy Now", immediately show checkout with single item
-    if (buyNowProduct || isCheckingOut) {
-      return (
-        <CheckoutView
-          onBack={() => {
-            setIsCheckingOut(false);
-            setBuyNowProduct(null);
-          }}
-        />
-      );
-    }
-
     if (customerTab === 'favorites') {
       return <FavoritesView />;
     }
@@ -211,21 +194,11 @@ export const MainApp: React.FC = () => {
       <FilterBottomSheet />
       <LocationModal />
       <NotificationModal
-        onOpenNegotiation={() => setIsNegotiationsOpen(true)}
         onOpenRequirements={() => setIsRequirementsOpen(true)}
-      />
-      <FarmNearbyMapModal
-        isOpen={isFarmMapOpen}
-        onClose={() => setIsFarmMapOpen(false)}
       />
       <RequirementsMarketplaceView
         isOpen={isRequirementsOpen}
         onClose={() => setIsRequirementsOpen(false)}
-      />
-      <NegotiationThreadModal
-        isOpen={isNegotiationsOpen}
-        onClose={() => setIsNegotiationsOpen(false)}
-        roleMode={role === 'farmer' ? 'farmer' : 'buyer'}
       />
       <SavedSearchesModal
         isOpen={isSavedSearchesOpen}
