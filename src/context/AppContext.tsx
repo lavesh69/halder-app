@@ -391,8 +391,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('halder-cart-v2');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      localStorage.removeItem('halder-cart-v2');
+    } catch {
+      // Ignore in restricted environments
+    }
+    return [];
   });
 
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -1214,20 +1218,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isFavorite = (productId: string) => favorites.includes(productId);
 
-  // Cart
+  // Direct Purchase (Replaces Multi-Item Basket)
   const addToCart = (product: Product, quantity = 1) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [...prev, { product, quantity, selectedUnit: product.unit }];
-    });
-    showToast(`Added ${product.name} to basket`);
+    setBuyNowProduct({ product, quantity });
   };
 
   const updateCartQuantity = (productId: string, quantity: number) => {

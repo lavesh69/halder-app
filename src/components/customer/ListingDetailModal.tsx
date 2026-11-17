@@ -119,11 +119,6 @@ export const ListingDetailModal: React.FC = () => {
   const handleBuyNow = () => {
     setBuyNowProduct({ product: selectedProduct, quantity });
     setSelectedProduct(null);
-    setCustomerTab('cart');
-  };
-
-  const handleAddToCart = () => {
-    addToCart(selectedProduct, quantity);
   };
 
   const handleSendOffer = (priceOffer: number) => {

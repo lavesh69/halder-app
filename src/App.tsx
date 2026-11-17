@@ -12,7 +12,6 @@ import { MarketplaceHome } from './components/customer/MarketplaceHome';
 import { SearchScreen } from './components/customer/SearchScreen';
 import { FilterBottomSheet } from './components/customer/FilterBottomSheet';
 import { FavoritesView } from './components/customer/FavoritesView';
-import { CartView } from './components/customer/CartView';
 import { CheckoutView } from './components/customer/CheckoutView';
 import { CustomerOrdersView } from './components/customer/CustomerOrdersView';
 import { CustomerProfileView } from './components/customer/CustomerProfileView';
@@ -123,7 +122,7 @@ export const MainApp: React.FC = () => {
       case 'search':
         return <SearchScreen />;
       case 'cart':
-        return <CartView onProceedToCheckout={() => setIsCheckingOut(true)} />;
+        return <MarketplaceHome />;
       case 'orders':
         return <CustomerOrdersView />;
       case 'profile':

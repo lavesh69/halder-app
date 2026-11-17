@@ -128,14 +128,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             🟢 {product.availableQuantity} {product.unit} left
           </span>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product, 1);
-            }}
-            className="text-xs font-bold text-[#176B45] dark:text-[#5FB383] bg-[#EAF5EE] dark:bg-[#182A20] px-3 py-1.5 rounded-lg hover:bg-[#176B45] hover:text-white transition-colors flex items-center gap-1 active:scale-95"
+            onClick={handleBuyNow}
+            className="text-xs font-bold text-white bg-[#176B45] hover:bg-[#124C36] px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 active:scale-95 shadow-xs"
           >
-            <ShoppingBag className="w-3 h-3" />
-            + Add
+            <Zap className="w-3 h-3 fill-white" />
+            Buy Now
           </button>
         </div>
       </div>
@@ -440,23 +437,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(product, 1);
-              }}
-              className="min-h-[40px] px-2.5 py-1.5 bg-[#F0F4F1] dark:bg-[#222B25] hover:bg-[#E5EBE6] text-[#202923] dark:text-[#F2F5F3] text-xs font-bold rounded-xl transition-colors flex items-center gap-1 active:scale-95"
-              title="Add to cart"
-            >
-              <ShoppingBag className="w-3.5 h-3.5 text-[#176B45] dark:text-[#5FB383]" />
-              <span>Cart</span>
-            </button>
-
-            <button
               onClick={handleBuyNow}
               className="min-h-[40px] px-3.5 py-1.5 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white text-xs font-bold rounded-xl shadow-soft transition-all flex items-center gap-1"
             >
               <Zap className="w-3.5 h-3.5 fill-white" />
-              <span>Buy</span>
+              <span>Buy Now</span>
             </button>
           </div>
         </div>

@@ -21,6 +21,7 @@ import {
   Megaphone,
   HandCoins,
   Plus,
+  User,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -158,23 +159,6 @@ export const Header: React.FC = () => {
               </button>
             )}
 
-            {/* Cart Shopping Bag Badge (Customer role) */}
-            {role === 'customer' && (
-              <button
-                onClick={() => setCustomerTab('cart')}
-                className="relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-                title="View Basket / Cart"
-                aria-label="View shopping cart"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                {cart.length > 0 && (
-                  <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#176B45] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
-            )}
-
             {/* 3-Way Role Selector (Desktop/Tablet) */}
             <div className="hidden md:flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
               <button
@@ -186,7 +170,7 @@ export const Header: React.FC = () => {
                     : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
                 }`}
               >
-                <ShoppingBag className="w-3 h-3" />
+                <User className="w-3 h-3" />
                 <span className="hidden sm:inline">{t('nav.buyer')}</span>
               </button>
 
