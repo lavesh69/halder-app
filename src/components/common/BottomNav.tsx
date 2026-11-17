@@ -131,30 +131,6 @@ export const BottomNav: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setAdminTab('logistics')}
-            className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
-              adminTab === 'logistics'
-                ? 'text-purple-600 dark:text-purple-400 font-bold'
-                : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-            }`}
-          >
-            <Truck className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{t('nav.logistics')}</span>
-          </button>
-
-          <button
-            onClick={() => setAdminTab('finance')}
-            className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
-              adminTab === 'finance'
-                ? 'text-purple-600 dark:text-purple-400 font-bold'
-                : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-            }`}
-          >
-            <CreditCard className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{t('nav.finance')}</span>
-          </button>
-
-          <button
             onClick={() => setAdminTab('categories')}
             className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
               adminTab === 'categories'

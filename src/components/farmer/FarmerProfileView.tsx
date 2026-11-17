@@ -4,7 +4,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
 import { LanguageSelector } from '../common/LanguageSelector';
-import { FarmerBankSettingsModal } from './FarmerBankSettingsModal';
 import { FarmerKycModal } from './FarmerKycModal';
 import { EditFarmerProfileModal } from './EditFarmerProfileModal';
 import { CustomerSecurityModal } from '../customer/CustomerSecurityModal';
@@ -45,21 +44,12 @@ export const FarmerProfileView: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
   const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const [kycData, setKycData] = useState<any>(null);
-  const [bankSettings, setBankSettings] = useState<{
-    bankAccountName?: string;
-    bankAccountNumber?: string;
-    bankIfsc?: string;
-    bankName?: string;
-    upiId?: string;
-    isConfigured?: boolean;
-  }>({});
 
   const loadProfile = async () => {
     setIsLoadingProfile(true);
@@ -67,7 +57,6 @@ export const FarmerProfileView: React.FC = () => {
       const data = await ApiClient.getFarmerPrivateProfile();
       if (data) {
         setProfile(data);
-        if (data.bankDetails) setBankSettings(data.bankDetails);
         if (data.kyc) setKycData(data.kyc);
       }
     } catch {}
@@ -88,26 +77,8 @@ export const FarmerProfileView: React.FC = () => {
     } catch {}
   };
 
-  const loadBankInfo = async () => {
-    try {
-      const res = await ApiClient.getFarmerEarnings(farmerId);
-      if (res?.data?.bankDetails) {
-        setBankSettings(res.data.bankDetails);
-        return;
-      } else if (res?.bankDetails) {
-        setBankSettings(res.bankDetails);
-        return;
-      }
-    } catch {}
-    try {
-      const cached = localStorage.getItem(`halder-farmer-bank-${farmerId}`);
-      if (cached) setBankSettings(JSON.parse(cached));
-    } catch {}
-  };
-
   useEffect(() => {
     loadProfile();
-    loadBankInfo();
     loadKyc();
   }, [farmerId]);
 
@@ -268,26 +239,6 @@ export const FarmerProfileView: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setFarmerTab('earnings')}
-          className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                {t('nav.earnings')} (किसान आय व निकासी)
-              </span>
-              <span className="text-[11px] text-zinc-500">
-                View settlement balance, withdraw funds, and download statements
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-zinc-400" />
-        </button>
-
-        <button
           onClick={() => setFarmerTab('orders')}
           className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
         >
@@ -348,79 +299,6 @@ export const FarmerProfileView: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Bank & UPI Settlement Setup */}
-      <div className="p-4 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-600" />
-            <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-              Payout Bank & UPI Account (भुगतान खाता)
-            </h4>
-          </div>
-          <button
-            onClick={() => setIsBankModalOpen(true)}
-            className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg transition"
-          >
-            {bankSettings.isConfigured ? 'Edit Details (बदलें)' : '+ Setup Account'}
-          </button>
-        </div>
-
-        {bankSettings.isConfigured ? (
-          <div className="p-3 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200/60 dark:border-emerald-800/40 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              {bankSettings.upiId ? (
-                <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
-              ) : (
-                <Building2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              )}
-              <div>
-                <span className="font-bold text-zinc-900 dark:text-white block">
-                  {bankSettings.upiId
-                    ? `UPI: ${bankSettings.upiId}`
-                    : `${bankSettings.bankName || 'Direct Bank'} (${bankSettings.bankAccountName})`}
-                </span>
-                <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
-                  {bankSettings.bankAccountNumber
-                    ? `A/C: ••••••${bankSettings.bankAccountNumber.slice(-4)} • IFSC: ${bankSettings.bankIfsc}`
-                    : 'Instant direct payouts activated'}
-                </span>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-700 shrink-0">
-              ✓ Active
-            </span>
-          </div>
-        ) : (
-          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/60 dark:border-zinc-700/60 text-xs flex items-center justify-between">
-            <span className="text-zinc-500 text-[11px]">
-              No settlement account configured. Configure your UPI ID or Bank account to withdraw sale proceeds.
-            </span>
-            <button
-              onClick={() => setIsBankModalOpen(true)}
-              className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-[11px] shrink-0 ml-2"
-            >
-              Add Now
-            </button>
-          </div>
-        )}
-      </div>
-
-      <FarmerBankSettingsModal
-        isOpen={isBankModalOpen}
-        onClose={() => setIsBankModalOpen(false)}
-        farmerId={farmerId}
-        initialSettings={bankSettings}
-        onSuccess={(updated) => {
-          setBankSettings((prev) => ({
-            ...prev,
-            ...updated,
-            isConfigured: true,
-          }));
-          loadBankInfo();
-        }}
-        showToast={showToast}
-      />
 
       {/* Farmer Government KYC & Mandi Certification */}
       <div className="p-4 bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">

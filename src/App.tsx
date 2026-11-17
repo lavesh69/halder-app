@@ -31,7 +31,6 @@ import { StockControlModal } from './components/farmer/StockControlModal';
 // Farmer screens & modals (Code-split for performance)
 const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
 const FarmerOrdersView = React.lazy(() => import('./components/farmer/FarmerOrdersView').then(m => ({ default: m.FarmerOrdersView })));
-const FarmerEarningsView = React.lazy(() => import('./components/farmer/FarmerEarningsView').then(m => ({ default: m.FarmerEarningsView })));
 const FarmerChatView = React.lazy(() => import('./components/farmer/FarmerChatView').then(m => ({ default: m.FarmerChatView })));
 const FarmerProfileView = React.lazy(() => import('./components/farmer/FarmerProfileView').then(m => ({ default: m.FarmerProfileView })));
 
@@ -129,9 +128,6 @@ export const MainApp: React.FC = () => {
         break;
       case 'orders':
         content = <FarmerOrdersView />;
-        break;
-      case 'earnings':
-        content = <FarmerEarningsView />;
         break;
       case 'chat':
         content = <FarmerChatView />;

@@ -8,7 +8,6 @@ import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';
 import { FarmCropCalendarModal } from './FarmCropCalendarModal';
 import { FarmerSubscriptionModal } from './FarmerSubscriptionModal';
 import { FarmerBusinessInsightsModal } from './FarmerBusinessInsightsModal';
-import { MandiIntelligenceModal } from './MandiIntelligenceModal';
 import {
   Sprout,
   TrendingUp,
@@ -250,18 +249,6 @@ export const FarmerDashboard: React.FC = () => {
             Kisan Plan
           </span>
         </button>
-
-        <button
-          onClick={() => setFarmerTab('earnings')}
-          className="min-h-[72px] p-2.5 bg-white dark:bg-[#181F1A] rounded-xl border border-[#E5EBE6] dark:border-[#29352D] flex flex-col items-center justify-center gap-1 hover:border-[#176B45]/50 transition shadow-soft group"
-        >
-          <div className="w-7 h-7 rounded-full bg-[#F0F4F1] dark:bg-[#222B25] text-[#202923] dark:text-[#F2F5F3] flex items-center justify-center group-hover:bg-[#EAF5EE] group-hover:text-[#176B45] transition">
-            <TrendingUp className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-bold text-[#202923] dark:text-[#F2F5F3] mt-0.5">
-            {t('nav.earnings')}
-          </span>
-        </button>
       </div>
 
       {/* Kisan Direct Ad Posting Hero Banner */}
@@ -449,51 +436,6 @@ export const FarmerDashboard: React.FC = () => {
                 </span>
               </div>
             </div>
-
-            {/* Today's Sales */}
-            <div
-              onClick={() => setFarmerTab('earnings')}
-              className="p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft cursor-pointer hover:border-[#176B45]/50 transition-all min-w-0"
-            >
-              <span className="text-[10px] font-bold text-[#66736B] dark:text-[#A6B3AA] uppercase block truncate">
-                Today's Sale
-              </span>
-              <div className="mt-1">
-                <span className="text-xs sm:text-sm font-heading font-black text-[#176B45] dark:text-[#5FB383] truncate block">
-                  {formatCurrency(todaySales)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Payout / Bank Card */}
-          <div className="p-4 bg-[#176B45] text-white rounded-2xl shadow-soft space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#EAF5EE] flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Settlement Balance
-              </span>
-              <span className="text-[10px] bg-[#124C36] px-2 py-0.5 rounded-full font-bold">
-                Direct UPI
-              </span>
-            </div>
-
-            <div>
-              <h4 className="text-2xl font-heading font-black">
-                {formatCurrency(todaySales)}
-              </h4>
-              <p className="text-[11px] text-[#EAF5EE]/90 mt-0.5">
-                Direct payments from buyers with 0% platform commission
-              </p>
-            </div>
-
-            <button
-              onClick={() => setFarmerTab('earnings')}
-              className="w-full min-h-[44px] py-2.5 bg-white text-[#124C36] rounded-xl font-bold text-xs hover:bg-[#F0F4F1] transition-colors shadow-soft flex items-center justify-center gap-1.5"
-            >
-              <ArrowUpRight className="w-4 h-4 text-[#176B45]" />
-              <span>Withdraw to Bank / UPI (निकासी)</span>
-            </button>
           </div>
 
           {/* Active Packing & Handover Queue */}
