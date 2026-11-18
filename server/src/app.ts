@@ -52,12 +52,33 @@ app.use(
   })
 );
 
-// CORS Policy
-const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+// CORS Policy (supports Vercel production/previews, Capacitor Android/iOS, and local dev)
+const allowedOrigins = new Set(
+  [
+    ...env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean),
+    'https://halder-app.vercel.app',
+    'https://localhost',
+    'http://localhost',
+    'capacitor://localhost',
+    'ionic://localhost',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '',
+  ].filter(Boolean)
+);
+
+function isAllowedOrigin(origin: string): boolean {
+  if (allowedOrigins.has(origin)) return true;
+  // Allow Vercel preview deployments for this HALDER project
+  if (/^https:\/\/halder-[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
+  // Allow localhost/127.0.0.1 on any port during development
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return true;
+  return false;
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === 'development') {
+      if (!origin || isAllowedOrigin(origin) || env.NODE_ENV === 'development') {
         callback(null, true);
       } else {
         callback(new Error('CORS request blocked from origin: ' + origin));

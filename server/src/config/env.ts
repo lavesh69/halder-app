@@ -17,7 +17,11 @@ const envSchema = z.object({
   // Turso Cloud SQLite (libSQL) — optional alternative persistent cloud database
   TURSO_DATABASE_URL: z.string().optional(),
   TURSO_AUTH_TOKEN: z.string().optional(),
-  CORS_ORIGIN: z.string().default('http://localhost:5173,http://localhost:4173,http://localhost:3000'),
+  CORS_ORIGIN: z
+    .string()
+    .default(
+      'https://halder-app.vercel.app,http://localhost:5173,http://localhost:4173,http://localhost:3000,https://localhost,capacitor://localhost'
+    ),
   UPLOAD_DIR: z.string().default(path.resolve(process.cwd(), 'server', 'uploads')),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(300),

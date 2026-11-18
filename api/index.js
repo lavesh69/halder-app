@@ -28713,7 +28713,9 @@ var init_env = __esm({
       // Turso Cloud SQLite (libSQL) — optional alternative persistent cloud database
       TURSO_DATABASE_URL: external_exports.string().optional(),
       TURSO_AUTH_TOKEN: external_exports.string().optional(),
-      CORS_ORIGIN: external_exports.string().default("http://localhost:5173,http://localhost:4173,http://localhost:3000"),
+      CORS_ORIGIN: external_exports.string().default(
+        "https://halder-app.vercel.app,http://localhost:5173,http://localhost:4173,http://localhost:3000,https://localhost,capacitor://localhost"
+      ),
       UPLOAD_DIR: external_exports.string().default(path.resolve(process.cwd(), "server", "uploads")),
       RATE_LIMIT_WINDOW_MS: external_exports.coerce.number().default(15 * 60 * 1e3),
       RATE_LIMIT_MAX_REQUESTS: external_exports.coerce.number().default(300),
@@ -87497,7 +87499,7 @@ var AuthController = class {
       res.cookie("halder_token", result.token, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1e3
       });
       res.status(201).json({
@@ -87515,7 +87517,7 @@ var AuthController = class {
       res.cookie("halder_token", result.token, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1e3
       });
       res.json({
@@ -87533,7 +87535,7 @@ var AuthController = class {
       res.cookie("halder_token", result.token, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1e3
       });
       res.status(result.isNewUser ? 201 : 200).json({
@@ -87666,7 +87668,7 @@ var AuthController = class {
       res.cookie("halder_token", token, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1e3
       });
       res.status(isNewUser ? 201 : 200).json({
@@ -97757,11 +97759,28 @@ app.use(
     referrerPolicy: { policy: "strict-origin-when-cross-origin" }
   })
 );
-var allowedOrigins = env.CORS_ORIGIN.split(",").map((o3) => o3.trim());
+var allowedOrigins = new Set(
+  [
+    ...env.CORS_ORIGIN.split(",").map((o3) => o3.trim()).filter(Boolean),
+    "https://halder-app.vercel.app",
+    "https://localhost",
+    "http://localhost",
+    "capacitor://localhost",
+    "ionic://localhost",
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : ""
+  ].filter(Boolean)
+);
+function isAllowedOrigin(origin) {
+  if (allowedOrigins.has(origin)) return true;
+  if (/^https:\/\/halder-[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return true;
+  return false;
+}
 app.use(
   (0, import_cors.default)({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === "development") {
+      if (!origin || isAllowedOrigin(origin) || env.NODE_ENV === "development") {
         callback(null, true);
       } else {
         callback(new Error("CORS request blocked from origin: " + origin));
