@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
 import { getDatabase } from './db/database';
 import { createTursoMiddleware } from './db/turso';
+import { createSupabaseMiddleware } from './db/supabaseSync';
 
 export const app = express();
 
@@ -90,7 +91,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', app: 'HALDER Backend API' });
 });
 
-// Sync & Write-Through Middleware for Turso Cloud SQLite (no-op when running local SQLite)
+// Sync & Write-Through Middleware for Cloud DBs (Supabase Postgres / Turso SQLite; no-op on local SQLite)
+app.use('/api/v1', createSupabaseMiddleware(getDatabase));
 app.use('/api/v1', createTursoMiddleware(getDatabase));
 
 // Mount Versioned API

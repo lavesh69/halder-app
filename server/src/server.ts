@@ -4,7 +4,8 @@ import { env } from './config/env';
 import { getDatabase } from './db/database';
 import { runMigrations } from './db/migrate';
 import { seedDatabase } from './db/seed';
-import { initTursoCloud, getTursoStatus } from './db/turso';
+import { initTursoCloud, getTursoStatus, isTursoEnabled } from './db/turso';
+import { initSupabaseCloud, getSupabaseStatus, isSupabaseEnabled } from './db/supabaseSync';
 import { initChatSocket } from './websocket/chatSocket';
 
 export const server = http.createServer(app);
@@ -15,8 +16,20 @@ export const wss = initChatSocket(server);
 async function bootstrap() {
   try {
     console.log('[Bootstrap] Initializing HALDER production backend...');
-    await initTursoCloud(getDatabase(), runMigrations, seedDatabase);
-    const dbStatus = getTursoStatus();
+    if (isSupabaseEnabled()) {
+      await initSupabaseCloud(getDatabase(), runMigrations, seedDatabase);
+    } else if (isTursoEnabled()) {
+      await initTursoCloud(getDatabase(), runMigrations, seedDatabase);
+    } else {
+      await seedDatabase();
+    }
+    const sb = getSupabaseStatus();
+    const turso = getTursoStatus();
+    const dbLabel = sb.enabled
+      ? `${sb.mode} (v${sb.syncedVersion})`
+      : turso.enabled
+      ? `${turso.mode} (v${turso.syncedVersion})`
+      : 'local-sqlite';
 
     server.listen(env.PORT, '0.0.0.0', () => {
       console.log(`
@@ -24,7 +37,7 @@ async function bootstrap() {
 🌾 HALDER Backend API Server Live!
 🌍 URL: http://localhost:${env.PORT}
 💬 WebSocket: ws://localhost:${env.PORT}/ws
-🗄️  Database: ${dbStatus.mode}${dbStatus.enabled ? ` (v${dbStatus.syncedVersion})` : ''}
+🗄️  Database: ${dbLabel}
 🚀 Environment: ${env.NODE_ENV}
 📦 Version: /api/v1
 ==================================================

@@ -28706,7 +28706,11 @@ var init_env = __esm({
       JWT_SECRET: external_exports.string().min(16).default("halder_super_secure_jwt_secret_production_2026_mandi"),
       JWT_EXPIRES_IN: external_exports.string().default("7d"),
       DB_PATH: external_exports.string().default(path.resolve(process.cwd(), "server", "halder.db")),
-      // Turso Cloud SQLite (libSQL) — optional; enables persistent cloud database on Vercel/Serverless
+      // Supabase PostgreSQL Cloud Sync (recommended persistent cloud DB for Vercel & production)
+      SUPABASE_URL: external_exports.string().optional(),
+      SUPABASE_ANON_KEY: external_exports.string().optional(),
+      SUPABASE_SYNC_SECRET: external_exports.string().optional(),
+      // Turso Cloud SQLite (libSQL) — optional alternative persistent cloud database
       TURSO_DATABASE_URL: external_exports.string().optional(),
       TURSO_AUTH_TOKEN: external_exports.string().optional(),
       CORS_ORIGIN: external_exports.string().default("http://localhost:5173,http://localhost:4173,http://localhost:3000"),
@@ -36671,6 +36675,311 @@ var init_turso = __esm({
   }
 });
 
+// server/src/db/supabaseSync.ts
+import { AsyncLocalStorage as AsyncLocalStorage2 } from "node:async_hooks";
+function getConfig() {
+  const url = (process.env.SUPABASE_URL ?? env.SUPABASE_URL ?? "").trim().replace(/\/+$/, "");
+  const anonKey = (process.env.SUPABASE_ANON_KEY ?? env.SUPABASE_ANON_KEY ?? "").trim();
+  const syncSecret = (process.env.SUPABASE_SYNC_SECRET ?? env.SUPABASE_SYNC_SECRET ?? "").trim();
+  return { url, anonKey, syncSecret };
+}
+function isSupabaseEnabled() {
+  const { url, anonKey, syncSecret } = getConfig();
+  return Boolean(url && anonKey && syncSecret);
+}
+function getSupabaseStatus() {
+  const { url } = getConfig();
+  return {
+    enabled: isSupabaseEnabled(),
+    ready: isSupabaseReady,
+    syncedVersion: localSyncedVersion2,
+    projectUrl: url || void 0,
+    mode: isSupabaseEnabled() ? "supabase-postgres" : "local-sqlite"
+  };
+}
+function extractTouchedTable(sql) {
+  const match = sql.match(
+    /^\s*(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|REPLACE\s+INTO|UPDATE(?:\s+OR\s+\w+)?|DELETE\s+FROM)\s+(?:["`]?main["`]?\.)?["`]?([a-zA-Z_][a-zA-Z0-9_]*)["`]?/i
+  );
+  if (!match) return null;
+  const tbl = match[1].toLowerCase();
+  return SYNCED_TABLE_SET.has(tbl) ? tbl : null;
+}
+async function callSupabaseRpc(fnName, body) {
+  const { url, anonKey } = getConfig();
+  const res = await fetch(`${url}/rest/v1/rpc/${fnName}`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Supabase RPC ${fnName} failed (${res.status}): ${text}`);
+  }
+  return await res.json();
+}
+function beginSupabaseTx() {
+  if (!isSupabaseEnabled() || isHydrating2) return;
+  activeTxTables = /* @__PURE__ */ new Set();
+}
+function commitSupabaseTx() {
+  if (!activeTxTables) return;
+  const committed = activeTxTables;
+  activeTxTables = null;
+  if (committed.size === 0) return;
+  const store = syncStore.getStore();
+  if (store) {
+    for (const t of committed) store.touchedTables.add(t);
+  } else {
+    for (const t of committed) globalTouchedTables.add(t);
+    scheduleGlobalFlush2();
+  }
+}
+function rollbackSupabaseTx() {
+  activeTxTables = null;
+}
+function recordSupabaseWrite(sql) {
+  if (!isSupabaseEnabled() || isHydrating2) return;
+  const table = extractTouchedTable(sql);
+  if (!table) return;
+  if (activeTxTables) {
+    activeTxTables.add(table);
+    return;
+  }
+  const store = syncStore.getStore();
+  if (store) {
+    store.touchedTables.add(table);
+  } else {
+    globalTouchedTables.add(table);
+    scheduleGlobalFlush2();
+  }
+}
+function scheduleGlobalFlush2() {
+  if (globalFlushScheduled2 || !boundLocalDb) return;
+  globalFlushScheduled2 = true;
+  queueMicrotask(() => {
+    globalFlushScheduled2 = false;
+    if (globalTouchedTables.size === 0 || !boundLocalDb) return;
+    const tables = Array.from(globalTouchedTables);
+    globalTouchedTables = /* @__PURE__ */ new Set();
+    flushTablesToSupabase(boundLocalDb, tables).catch((err) => {
+      console.error("[Supabase] Background flush failed:", err?.message || err);
+    });
+  });
+}
+function readTablesFromSqlite(localDb, tables) {
+  const payload = {};
+  for (const tbl of tables) {
+    if (!SYNCED_TABLE_SET.has(tbl)) continue;
+    try {
+      const rows = localDb.prepare(`SELECT * FROM "${tbl}"`).all();
+      payload[tbl] = rows.map((row) => {
+        const clean = {};
+        for (const [k5, v] of Object.entries(row)) {
+          clean[k5] = typeof v === "bigint" ? Number(v) : v;
+        }
+        return clean;
+      });
+    } catch {
+    }
+  }
+  return payload;
+}
+async function flushTablesToSupabase(localDb, tables) {
+  if (!isSupabaseEnabled() || tables.length === 0) return localSyncedVersion2;
+  const { syncSecret } = getConfig();
+  const payload = readTablesFromSqlite(localDb, tables);
+  if (Object.keys(payload).length === 0) return localSyncedVersion2;
+  const newVersion = await callSupabaseRpc("halder_sync_tables", {
+    p_secret: syncSecret,
+    p_tables: payload
+  });
+  localSyncedVersion2 = Number(newVersion || localSyncedVersion2 + 1);
+  lastVersionCheckAt2 = Date.now();
+  return localSyncedVersion2;
+}
+function hydrateLocalSqlite(localDb, tablesData, version2) {
+  isHydrating2 = true;
+  try {
+    localDb.exec("PRAGMA foreign_keys = OFF;");
+    localDb.exec("BEGIN IMMEDIATE TRANSACTION;");
+    for (const table of SYNCED_TABLES) {
+      const rows = tablesData[table];
+      if (!Array.isArray(rows)) continue;
+      const localColsInfo = localDb.prepare(`PRAGMA table_info("${table}")`).all();
+      if (localColsInfo.length === 0) continue;
+      const localColSet = new Set(localColsInfo.map((c5) => c5.name));
+      localDb.exec(`DELETE FROM "${table}";`);
+      if (rows.length === 0) continue;
+      const validCols = Object.keys(rows[0]).filter((c5) => localColSet.has(c5));
+      if (validCols.length === 0) continue;
+      const colList = validCols.map((c5) => `"${c5}"`).join(", ");
+      const placeholders = validCols.map(() => "?").join(", ");
+      const insertStmt = localDb.prepare(`INSERT INTO "${table}" (${colList}) VALUES (${placeholders})`);
+      for (const row of rows) {
+        const values = validCols.map((col) => {
+          const val = row[col];
+          if (val === void 0) return null;
+          if (typeof val === "boolean") return val ? 1 : 0;
+          return val;
+        });
+        insertStmt.run(...values);
+      }
+    }
+    localDb.exec("COMMIT;");
+    localDb.exec("PRAGMA foreign_keys = ON;");
+    localSyncedVersion2 = version2;
+    lastVersionCheckAt2 = Date.now();
+  } catch (err) {
+    try {
+      localDb.exec("ROLLBACK;");
+      localDb.exec("PRAGMA foreign_keys = ON;");
+    } catch {
+    }
+    throw err;
+  } finally {
+    isHydrating2 = false;
+  }
+}
+async function initSupabaseCloud(localDb, runLocalMigrations, runLocalSeed) {
+  boundLocalDb = localDb;
+  if (!isSupabaseEnabled()) return;
+  if (isSupabaseReady) return;
+  if (initPromise2) return initPromise2;
+  initPromise2 = (async () => {
+    const { syncSecret } = getConfig();
+    const snapshot = await callSupabaseRpc("halder_pull_snapshot", {
+      p_secret: syncSecret,
+      p_client_version: 0
+    });
+    const remoteHasUsers = Array.isArray(snapshot.tables?.users) && snapshot.tables.users.length > 0;
+    isHydrating2 = true;
+    try {
+      runLocalMigrations();
+      if (!remoteHasUsers) {
+        console.log("[Supabase] Fresh cloud Postgres detected \u2014 seeding clean HALDER data...");
+        localDb.exec("PRAGMA foreign_keys = OFF;");
+        const allLocalTables = localDb.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`).all();
+        for (const { name } of allLocalTables) {
+          try {
+            localDb.exec(`DELETE FROM "${name}";`);
+          } catch {
+          }
+        }
+        localDb.exec("PRAGMA foreign_keys = ON;");
+        await runLocalSeed();
+        await flushTablesToSupabase(localDb, SYNCED_TABLES);
+        console.log(`[Supabase] Seeded & synced all 22 tables to Supabase Postgres (v${localSyncedVersion2}).`);
+      } else {
+        hydrateLocalSqlite(localDb, snapshot.tables || {}, Number(snapshot.version || 1));
+        console.log(`[Supabase] Hydrated local engine from Supabase Postgres (v${localSyncedVersion2}).`);
+      }
+    } finally {
+      isHydrating2 = false;
+    }
+    isSupabaseReady = true;
+  })().catch((err) => {
+    initPromise2 = null;
+    console.error("[Supabase] Cloud initialization failed:", err?.message || err);
+    throw err;
+  });
+  return initPromise2;
+}
+async function syncFromSupabaseIfNeeded(localDb, forceCheck = false) {
+  if (!isSupabaseEnabled() || !isSupabaseReady) return;
+  const now = Date.now();
+  if (!forceCheck && now - lastVersionCheckAt2 < VERSION_CHECK_TTL_MS2) return;
+  try {
+    const { syncSecret } = getConfig();
+    const snapshot = await callSupabaseRpc("halder_pull_snapshot", {
+      p_secret: syncSecret,
+      p_client_version: localSyncedVersion2
+    });
+    lastVersionCheckAt2 = Date.now();
+    if (!snapshot.up_to_date && snapshot.tables) {
+      hydrateLocalSqlite(localDb, snapshot.tables, Number(snapshot.version || 1));
+    }
+  } catch (err) {
+    console.warn("[Supabase] Pre-request sync warning:", err?.message || err);
+  }
+}
+function createSupabaseMiddleware(getLocalDb) {
+  return (req, res, next) => {
+    if (!isSupabaseEnabled()) {
+      return next();
+    }
+    const localDb = getLocalDb();
+    boundLocalDb = localDb;
+    const isWriteMethod = !["GET", "HEAD", "OPTIONS"].includes(req.method.toUpperCase());
+    syncFromSupabaseIfNeeded(localDb, isWriteMethod).catch((err) => console.warn("[Supabase] Sync check warning:", err?.message || err)).finally(() => {
+      const ctx = { touchedTables: /* @__PURE__ */ new Set() };
+      const origEnd = res.end.bind(res);
+      let flushed = false;
+      res.end = function(...args) {
+        if (flushed || ctx.touchedTables.size === 0) {
+          return origEnd(...args);
+        }
+        flushed = true;
+        const pendingTables = Array.from(ctx.touchedTables);
+        ctx.touchedTables.clear();
+        flushTablesToSupabase(localDb, pendingTables).catch((err) => console.error("[Supabase] Write flush error:", err?.message || err)).finally(() => {
+          origEnd(...args);
+        });
+        return res;
+      };
+      syncStore.run(ctx, () => {
+        next();
+      });
+    });
+  };
+}
+var SYNCED_TABLES, SYNCED_TABLE_SET, syncStore, isHydrating2, isSupabaseReady, localSyncedVersion2, lastVersionCheckAt2, initPromise2, activeTxTables, globalTouchedTables, globalFlushScheduled2, boundLocalDb, VERSION_CHECK_TTL_MS2;
+var init_supabaseSync = __esm({
+  "server/src/db/supabaseSync.ts"() {
+    init_env();
+    SYNCED_TABLES = [
+      "users",
+      "identity_sequences",
+      "auth_identities",
+      "customer_profiles",
+      "customer_addresses",
+      "farmer_profiles",
+      "categories",
+      "products",
+      "product_images",
+      "conversations",
+      "messages",
+      "favorites",
+      "notifications",
+      "reviews",
+      "reports",
+      "saved_searches",
+      "platform_settings",
+      "audit_logs",
+      "farm_crops",
+      "farmer_subscriptions",
+      "device_tokens",
+      "inventory_audit_log"
+    ];
+    SYNCED_TABLE_SET = new Set(SYNCED_TABLES);
+    syncStore = new AsyncLocalStorage2();
+    isHydrating2 = false;
+    isSupabaseReady = false;
+    localSyncedVersion2 = 0;
+    lastVersionCheckAt2 = 0;
+    initPromise2 = null;
+    activeTxTables = null;
+    globalTouchedTables = /* @__PURE__ */ new Set();
+    globalFlushScheduled2 = false;
+    boundLocalDb = null;
+    VERSION_CHECK_TTL_MS2 = 2e3;
+  }
+});
+
 // server/src/db/database.ts
 import { DatabaseSync } from "node:sqlite";
 import fs from "fs";
@@ -36680,7 +36989,7 @@ function getDatabase() {
     let dbPath = env.DB_PATH;
     if (process.env.VERCEL) {
       const tmpPath = path2.join("/tmp", "halder.db");
-      if (!isTursoEnabled() && !fs.existsSync(tmpPath)) {
+      if (!isSupabaseEnabled() && !isTursoEnabled() && !fs.existsSync(tmpPath)) {
         const sourcePath = path2.resolve(process.cwd(), "server", "halder.db");
         if (fs.existsSync(sourcePath)) {
           fs.copyFileSync(sourcePath, tmpPath);
@@ -36708,6 +37017,7 @@ var init_database = __esm({
   "server/src/db/database.ts"() {
     init_env();
     init_turso();
+    init_supabaseSync();
     dbInstance = null;
     Database = class _Database {
       static getDB() {
@@ -36727,6 +37037,7 @@ var init_database = __esm({
         const db = getDatabase();
         const stmt = db.prepare(sql);
         const result = stmt.run(...params);
+        recordSupabaseWrite(sql);
         recordTursoWrite(sql, params);
         return result;
       }
@@ -36738,13 +37049,16 @@ var init_database = __esm({
         const db = getDatabase();
         _Database.inTransaction = true;
         db.exec("BEGIN IMMEDIATE TRANSACTION;");
+        beginSupabaseTx();
         beginTursoTx();
         try {
           const result = callback();
           db.exec("COMMIT;");
+          commitSupabaseTx();
           commitTursoTx();
           return result;
         } catch (error2) {
+          rollbackSupabaseTx();
           rollbackTursoTx();
           try {
             db.exec("ROLLBACK;");
@@ -97283,6 +97597,7 @@ var smartAlertRoutes_default = router21;
 // server/src/routes/index.ts
 init_database();
 init_turso();
+init_supabaseSync();
 var apiRouter = (0, import_express24.Router)();
 apiRouter.get("/health", (req, res) => {
   res.json({
@@ -97296,10 +97611,13 @@ apiRouter.get("/ready", (req, res) => {
   try {
     const dbCheck = Database.get("SELECT 1 as healthy");
     if (dbCheck && dbCheck.healthy === 1) {
+      const supabase = getSupabaseStatus();
       const turso = getTursoStatus();
+      const mode = supabase.enabled ? supabase.mode : turso.enabled ? turso.mode : "local-sqlite";
       return res.json({
         status: "ready",
-        database: turso.mode,
+        database: mode,
+        supabase,
         turso
       });
     }
@@ -97399,6 +97717,7 @@ function errorHandler(err, req, res, next) {
 // server/src/app.ts
 init_database();
 init_turso();
+init_supabaseSync();
 var app = (0, import_express25.default)();
 app.use(
   helmet({
@@ -97467,6 +97786,7 @@ app.use(
 app.get("/health", (req, res) => {
   res.json({ status: "healthy", app: "HALDER Backend API" });
 });
+app.use("/api/v1", createSupabaseMiddleware(getDatabase));
 app.use("/api/v1", createTursoMiddleware(getDatabase));
 app.use("/api/v1", routes_default);
 app.use(errorHandler);
@@ -98932,13 +99252,15 @@ if (process.argv[1] && process.argv[1].endsWith("seed.ts")) {
 
 // api/server.ts
 init_turso();
+init_supabaseSync();
 app.set("trust proxy", 1);
 var initialized = false;
-var initPromise2 = null;
+var initPromise3 = null;
 async function ensureInitialized() {
   if (initialized) return;
-  if (!initPromise2) {
-    initPromise2 = initTursoCloud(getDatabase(), runMigrations, seedDatabase).then(() => {
+  if (!initPromise3) {
+    const boot = isSupabaseEnabled() ? initSupabaseCloud(getDatabase(), runMigrations, seedDatabase) : isTursoEnabled() ? initTursoCloud(getDatabase(), runMigrations, seedDatabase) : seedDatabase();
+    initPromise3 = boot.then(() => {
       initialized = true;
     }).catch(async (err) => {
       console.warn("[Vercel Serverless] Cloud DB init warning, falling back to local seed:", err);
@@ -98949,7 +99271,7 @@ async function ensureInitialized() {
       initialized = true;
     });
   }
-  return initPromise2;
+  return initPromise3;
 }
 async function handler(req, res) {
   await ensureInitialized();

@@ -2,7 +2,8 @@ import { app } from '../server/src/app';
 import { getDatabase } from '../server/src/db/database';
 import { runMigrations } from '../server/src/db/migrate';
 import { seedDatabase } from '../server/src/db/seed';
-import { initTursoCloud } from '../server/src/db/turso';
+import { initTursoCloud, isTursoEnabled } from '../server/src/db/turso';
+import { initSupabaseCloud, isSupabaseEnabled } from '../server/src/db/supabaseSync';
 
 // Trust Vercel reverse proxy headers for rate limiting and IP tracking
 app.set('trust proxy', 1);
@@ -13,7 +14,13 @@ let initPromise: Promise<void> | null = null;
 async function ensureInitialized() {
   if (initialized) return;
   if (!initPromise) {
-    initPromise = initTursoCloud(getDatabase(), runMigrations, seedDatabase)
+    const boot = isSupabaseEnabled()
+      ? initSupabaseCloud(getDatabase(), runMigrations, seedDatabase)
+      : isTursoEnabled()
+      ? initTursoCloud(getDatabase(), runMigrations, seedDatabase)
+      : seedDatabase();
+
+    initPromise = boot
       .then(() => {
         initialized = true;
       })

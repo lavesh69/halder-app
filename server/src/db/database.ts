@@ -9,6 +9,13 @@ import {
   commitTursoTx,
   rollbackTursoTx,
 } from './turso';
+import {
+  isSupabaseEnabled,
+  recordSupabaseWrite,
+  beginSupabaseTx,
+  commitSupabaseTx,
+  rollbackSupabaseTx,
+} from './supabaseSync';
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -19,7 +26,7 @@ export function getDatabase(): DatabaseSync {
     // Support Vercel serverless writable storage (/tmp)
     if (process.env.VERCEL) {
       const tmpPath = path.join('/tmp', 'halder.db');
-      if (!isTursoEnabled() && !fs.existsSync(tmpPath)) {
+      if (!isSupabaseEnabled() && !isTursoEnabled() && !fs.existsSync(tmpPath)) {
         const sourcePath = path.resolve(process.cwd(), 'server', 'halder.db');
         if (fs.existsSync(sourcePath)) {
           fs.copyFileSync(sourcePath, tmpPath);
@@ -65,6 +72,7 @@ export class Database {
     const db = getDatabase();
     const stmt = db.prepare(sql);
     const result = stmt.run(...params);
+    recordSupabaseWrite(sql);
     recordTursoWrite(sql, params);
     return result;
   }
@@ -78,13 +86,16 @@ export class Database {
     const db = getDatabase();
     Database.inTransaction = true;
     db.exec('BEGIN IMMEDIATE TRANSACTION;');
+    beginSupabaseTx();
     beginTursoTx();
     try {
       const result = callback();
       db.exec('COMMIT;');
+      commitSupabaseTx();
       commitTursoTx();
       return result;
     } catch (error) {
+      rollbackSupabaseTx();
       rollbackTursoTx();
       try {
         db.exec('ROLLBACK;');

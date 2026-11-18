@@ -24,6 +24,7 @@ import mapRoutes from './mapRoutes';
 import smartAlertRoutes from './smartAlertRoutes';
 import { Database } from '../db/database';
 import { getTursoStatus } from '../db/turso';
+import { getSupabaseStatus } from '../db/supabaseSync';
 import { IdentityService } from '../services/identityService';
 
 const apiRouter = Router();
@@ -42,10 +43,17 @@ apiRouter.get('/ready', (req, res) => {
   try {
     const dbCheck = Database.get<any>('SELECT 1 as healthy');
     if (dbCheck && dbCheck.healthy === 1) {
+      const supabase = getSupabaseStatus();
       const turso = getTursoStatus();
+      const mode = supabase.enabled
+        ? supabase.mode
+        : turso.enabled
+        ? turso.mode
+        : 'local-sqlite';
       return res.json({
         status: 'ready',
-        database: turso.mode,
+        database: mode,
+        supabase,
         turso,
       });
     }
