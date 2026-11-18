@@ -92509,6 +92509,8 @@ function requireFeature(feature) {
 
 // server/src/routes/adminRoutes.ts
 init_database();
+init_supabaseSync();
+init_turso();
 init_zod();
 var router9 = (0, import_express9.Router)();
 var verifyFarmerSchema = external_exports.object({
@@ -92528,6 +92530,95 @@ router9.get("/kyc/pending", AdminController.listPendingKYC);
 router9.patch("/farmers/:id/kyc", AdminController.reviewKYC);
 router9.post("/categories", validateBody(categorySchema), AdminController.addCategory);
 router9.get("/audit-logs", AdminController.listAuditLogs);
+router9.get("/db-snapshot", async (req, res, next) => {
+  try {
+    await syncFromSupabaseIfNeeded(getDatabase(), true);
+    const safeQuery = (sql) => {
+      try {
+        return Database.query(sql);
+      } catch {
+        return [];
+      }
+    };
+    const safeCount = (table) => {
+      try {
+        const row = Database.get(`SELECT COUNT(*) as c FROM "${table}"`);
+        return Number(row?.c ?? 0);
+      } catch {
+        return 0;
+      }
+    };
+    const tables = {
+      users: safeQuery(
+        `SELECT id, halder_id, name, email, phone, role, status, created_at, updated_at
+         FROM users ORDER BY created_at DESC LIMIT 100`
+      ),
+      products: safeQuery(
+        `SELECT id, farmer_id, category_id, name, price, unit, available_quantity, city, location, status, moderation_status, views_count, created_at
+         FROM products ORDER BY created_at DESC LIMIT 100`
+      ),
+      farmer_profiles: safeQuery(
+        `SELECT id, user_id, farm_name, location, city, verification_status, rating, total_listings_count, created_at
+         FROM farmer_profiles ORDER BY created_at DESC LIMIT 100`
+      ),
+      categories: safeQuery(
+        `SELECT id, name, slug, emoji, active, created_at FROM categories ORDER BY name ASC LIMIT 100`
+      ),
+      messages: safeQuery(
+        `SELECT id, conversation_id, sender_id, sender_role, message, read_at, created_at
+         FROM messages ORDER BY created_at DESC LIMIT 100`
+      ),
+      conversations: safeQuery(
+        `SELECT id, customer_id, farmer_id, product_id, created_at, updated_at
+         FROM conversations ORDER BY updated_at DESC LIMIT 100`
+      ),
+      favorites: safeQuery(
+        `SELECT id, user_id, product_id, created_at FROM favorites ORDER BY created_at DESC LIMIT 100`
+      ),
+      reports: safeQuery(
+        `SELECT id, reporter_id, product_id, reason, status, priority, created_at
+         FROM reports ORDER BY created_at DESC LIMIT 100`
+      ),
+      saved_searches: safeQuery(
+        `SELECT id, user_id, search_name, product_query, category_name, city, created_at
+         FROM saved_searches ORDER BY created_at DESC LIMIT 100`
+      ),
+      notifications: safeQuery(
+        `SELECT id, user_id, recipient_role, type, title, message, is_read, created_at
+         FROM notifications ORDER BY created_at DESC LIMIT 100`
+      ),
+      audit_logs: safeQuery(
+        `SELECT id, actor_id, actor_role, action, target_type, target_id, details, created_at
+         FROM audit_logs ORDER BY created_at DESC LIMIT 100`
+      ),
+      platform_settings: safeQuery(
+        `SELECT key, value, description, updated_at FROM platform_settings ORDER BY key ASC LIMIT 100`
+      )
+    };
+    const counts = {};
+    for (const key of Object.keys(tables)) {
+      counts[key] = safeCount(key);
+    }
+    const supabase = getSupabaseStatus();
+    const turso = getTursoStatus();
+    const mode = supabase.enabled ? supabase.mode : turso.enabled ? turso.mode : "local-sqlite";
+    res.json({
+      success: true,
+      data: {
+        database: {
+          mode,
+          supabase,
+          turso,
+          fetchedAt: (/* @__PURE__ */ new Date()).toISOString()
+        },
+        counts,
+        tables
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 router9.get("/kill-switch", (req, res) => {
   res.json({ success: true, data: killSwitch.getAllStates() });
 });

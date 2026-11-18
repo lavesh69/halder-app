@@ -1277,7 +1277,7 @@ export class ApiClient {
   }
 
   static async getBackendReady(): Promise<any> {
-    return this.request<any>('/ready', { requireAuth: false });
+    return this.request<any>('/ready');
   }
 
   static async getAdminDbSnapshot(): Promise<any> {
