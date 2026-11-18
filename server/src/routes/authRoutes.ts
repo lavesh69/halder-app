@@ -20,7 +20,7 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   emailOrPhone: z.string().min(3).max(120),
   password: z.string().max(128).optional(),
-  role: z.enum(['customer', 'farmer']).optional(),
+  role: z.enum(['customer', 'farmer', 'admin']).optional(),
 });
 
 const googleSchema = z.object({

@@ -88689,7 +88689,7 @@ var registerSchema = external_exports.object({
 var loginSchema = external_exports.object({
   emailOrPhone: external_exports.string().min(3).max(120),
   password: external_exports.string().max(128).optional(),
-  role: external_exports.enum(["customer", "farmer"]).optional()
+  role: external_exports.enum(["customer", "farmer", "admin"]).optional()
 });
 var googleSchema = external_exports.object({
   idToken: external_exports.string().min(10),
