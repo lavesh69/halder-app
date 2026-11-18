@@ -10,6 +10,9 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16).default('halder_super_secure_jwt_secret_production_2026_mandi'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   DB_PATH: z.string().default(path.resolve(process.cwd(), 'server', 'halder.db')),
+  // Turso Cloud SQLite (libSQL) — optional; enables persistent cloud database on Vercel/Serverless
+  TURSO_DATABASE_URL: z.string().optional(),
+  TURSO_AUTH_TOKEN: z.string().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173,http://localhost:4173,http://localhost:3000'),
   UPLOAD_DIR: z.string().default(path.resolve(process.cwd(), 'server', 'uploads')),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),

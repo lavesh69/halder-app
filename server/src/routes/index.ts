@@ -23,6 +23,7 @@ import negotiationRoutes from './negotiationRoutes';
 import mapRoutes from './mapRoutes';
 import smartAlertRoutes from './smartAlertRoutes';
 import { Database } from '../db/database';
+import { getTursoStatus } from '../db/turso';
 import { IdentityService } from '../services/identityService';
 
 const apiRouter = Router();
@@ -41,7 +42,12 @@ apiRouter.get('/ready', (req, res) => {
   try {
     const dbCheck = Database.get<any>('SELECT 1 as healthy');
     if (dbCheck && dbCheck.healthy === 1) {
-      return res.json({ status: 'ready', database: 'connected' });
+      const turso = getTursoStatus();
+      return res.json({
+        status: 'ready',
+        database: turso.mode,
+        turso,
+      });
     }
     throw new Error('Database ping failed');
   } catch (err: any) {

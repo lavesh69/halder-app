@@ -7,6 +7,8 @@ import { env } from './config/env';
 import apiRouter from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
+import { getDatabase } from './db/database';
+import { createTursoMiddleware } from './db/turso';
 
 export const app = express();
 
@@ -87,6 +89,9 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', app: 'HALDER Backend API' });
 });
+
+// Sync & Write-Through Middleware for Turso Cloud SQLite (no-op when running local SQLite)
+app.use('/api/v1', createTursoMiddleware(getDatabase));
 
 // Mount Versioned API
 app.use('/api/v1', apiRouter);

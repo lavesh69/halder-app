@@ -2,6 +2,13 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
+import {
+  isTursoEnabled,
+  recordTursoWrite,
+  beginTursoTx,
+  commitTursoTx,
+  rollbackTursoTx,
+} from './turso';
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -12,7 +19,7 @@ export function getDatabase(): DatabaseSync {
     // Support Vercel serverless writable storage (/tmp)
     if (process.env.VERCEL) {
       const tmpPath = path.join('/tmp', 'halder.db');
-      if (!fs.existsSync(tmpPath)) {
+      if (!isTursoEnabled() && !fs.existsSync(tmpPath)) {
         const sourcePath = path.resolve(process.cwd(), 'server', 'halder.db');
         if (fs.existsSync(sourcePath)) {
           fs.copyFileSync(sourcePath, tmpPath);
@@ -57,7 +64,9 @@ export class Database {
   static run(sql: string, params: (string | number | null | boolean | Buffer)[] = []): { changes: number; lastInsertRowid: number | bigint } {
     const db = getDatabase();
     const stmt = db.prepare(sql);
-    return stmt.run(...params);
+    const result = stmt.run(...params);
+    recordTursoWrite(sql, params);
+    return result;
   }
 
   private static inTransaction = false;
@@ -69,11 +78,14 @@ export class Database {
     const db = getDatabase();
     Database.inTransaction = true;
     db.exec('BEGIN IMMEDIATE TRANSACTION;');
+    beginTursoTx();
     try {
       const result = callback();
       db.exec('COMMIT;');
+      commitTursoTx();
       return result;
     } catch (error) {
+      rollbackTursoTx();
       try {
         db.exec('ROLLBACK;');
       } catch {
