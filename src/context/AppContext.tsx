@@ -29,7 +29,7 @@ import { ApiClient } from '../api/client';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
-export type AdminTab = 'overview' | 'users' | 'verification' | 'products' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance';
+export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance';
 
 export interface ToastInfo {
   id: string;

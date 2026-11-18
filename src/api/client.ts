@@ -1275,6 +1275,14 @@ export class ApiClient {
     const history = await this.getProductStockHistory(productId);
     return { history };
   }
+
+  static async getBackendReady(): Promise<any> {
+    return this.request<any>('/ready', { requireAuth: false });
+  }
+
+  static async getAdminDbSnapshot(): Promise<any> {
+    return this.request<any>('/admin/db-snapshot');
+  }
 }
 
 

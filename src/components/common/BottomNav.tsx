@@ -21,6 +21,7 @@ import {
   Settings,
   Truck,
   CreditCard,
+  Database,
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
@@ -64,6 +65,18 @@ export const BottomNav: React.FC = () => {
           >
             <BarChart3 className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('nav.overview')}</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('database')}
+            className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
+              adminTab === 'database'
+                ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
+            }`}
+          >
+            <Database className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Live DB</span>
           </button>
 
           <button

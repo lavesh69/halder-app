@@ -4,9 +4,11 @@ import { formatCurrency } from '../../utils/formatters';
 import { StatusBadge } from '../common/StatusBadge';
 import { ApiClient } from '../../api/client';
 import { PushNotificationClient } from '../../services/pushNotificationClient';
+import { AdminBackendDataView } from './AdminBackendDataView';
 import { Role, OrderStatus, Product, Farmer, User, Order } from '../../types';
 import confetti from 'canvas-confetti';
 import {
+  Database as DatabaseIcon,
   Users,
   ShieldCheck,
   ShoppingBag,
@@ -651,6 +653,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="flex gap-1.5 p-1.5 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 overflow-x-auto no-scrollbar shadow-xs">
         {[
           { id: 'overview', label: 'Overview & KPIs', icon: BarChart3 },
+          { id: 'database', label: 'Live Backend DB', icon: DatabaseIcon },
           { id: 'users', label: 'Users & Roles', icon: Users, badge: totalUsersCount },
           { id: 'verification', label: 'Farmer KYC Review', icon: ShieldCheck, badge: pendingFarmersCount || undefined, alert: pendingFarmersCount > 0 },
           { id: 'products', label: 'Listings Moderation', icon: ShoppingBag, badge: products.length },
@@ -690,6 +693,13 @@ export const AdminDashboard: React.FC = () => {
           );
         })}
       </div>
+
+      {/* ========================================================================= */}
+      {/* SECTION 0: LIVE BACKEND DATABASE EXPLORER (SUPABASE CLOUD) */}
+      {/* ========================================================================= */}
+      {activeTab === 'database' && (
+        <AdminBackendDataView showToast={showToast} />
+      )}
 
       {/* ========================================================================= */}
       {/* SECTION 1: OVERVIEW & SYSTEM INTELLIGENCE */}

@@ -4,7 +4,9 @@ import { authenticateUser } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';
 import { validateBody } from '../middleware/validate';
 import { killSwitch } from '../config/killSwitch';
-import { Database } from '../db/database';
+import { Database, getDatabase } from '../db/database';
+import { getSupabaseStatus, syncFromSupabaseIfNeeded } from '../db/supabaseSync';
+import { getTursoStatus } from '../db/turso';
 import { z } from 'zod';
 
 const router = Router();
@@ -29,6 +31,102 @@ router.get('/kyc/pending', AdminController.listPendingKYC);
 router.patch('/farmers/:id/kyc', AdminController.reviewKYC);
 router.post('/categories', validateBody(categorySchema), AdminController.addCategory);
 router.get('/audit-logs', AdminController.listAuditLogs);
+
+// Live Backend Database Inspector (reads fresh rows from Supabase/SQLite; strips sensitive hashes)
+router.get('/db-snapshot', async (req, res, next) => {
+  try {
+    await syncFromSupabaseIfNeeded(getDatabase(), true);
+
+    const safeQuery = (sql: string) => {
+      try {
+        return Database.query(sql);
+      } catch {
+        return [];
+      }
+    };
+    const safeCount = (table: string) => {
+      try {
+        const row = Database.get<any>(`SELECT COUNT(*) as c FROM "${table}"`);
+        return Number(row?.c ?? 0);
+      } catch {
+        return 0;
+      }
+    };
+
+    const tables: Record<string, any[]> = {
+      users: safeQuery(
+        `SELECT id, halder_id, name, email, phone, role, status, created_at, updated_at
+         FROM users ORDER BY created_at DESC LIMIT 100`
+      ),
+      products: safeQuery(
+        `SELECT id, farmer_id, category_id, name, price, unit, available_quantity, city, location, status, moderation_status, views_count, created_at
+         FROM products ORDER BY created_at DESC LIMIT 100`
+      ),
+      farmer_profiles: safeQuery(
+        `SELECT id, user_id, farm_name, location, city, verification_status, rating, total_listings_count, created_at
+         FROM farmer_profiles ORDER BY created_at DESC LIMIT 100`
+      ),
+      categories: safeQuery(
+        `SELECT id, name, slug, emoji, active, created_at FROM categories ORDER BY name ASC LIMIT 100`
+      ),
+      messages: safeQuery(
+        `SELECT id, conversation_id, sender_id, sender_role, message, read_at, created_at
+         FROM messages ORDER BY created_at DESC LIMIT 100`
+      ),
+      conversations: safeQuery(
+        `SELECT id, customer_id, farmer_id, product_id, created_at, updated_at
+         FROM conversations ORDER BY updated_at DESC LIMIT 100`
+      ),
+      favorites: safeQuery(
+        `SELECT id, user_id, product_id, created_at FROM favorites ORDER BY created_at DESC LIMIT 100`
+      ),
+      reports: safeQuery(
+        `SELECT id, reporter_id, product_id, reason, status, priority, created_at
+         FROM reports ORDER BY created_at DESC LIMIT 100`
+      ),
+      saved_searches: safeQuery(
+        `SELECT id, user_id, search_name, product_query, category_name, city, created_at
+         FROM saved_searches ORDER BY created_at DESC LIMIT 100`
+      ),
+      notifications: safeQuery(
+        `SELECT id, user_id, recipient_role, type, title, message, is_read, created_at
+         FROM notifications ORDER BY created_at DESC LIMIT 100`
+      ),
+      audit_logs: safeQuery(
+        `SELECT id, actor_id, actor_role, action, target_type, target_id, details, created_at
+         FROM audit_logs ORDER BY created_at DESC LIMIT 100`
+      ),
+      platform_settings: safeQuery(
+        `SELECT key, value, description, updated_at FROM platform_settings ORDER BY key ASC LIMIT 100`
+      ),
+    };
+
+    const counts: Record<string, number> = {};
+    for (const key of Object.keys(tables)) {
+      counts[key] = safeCount(key);
+    }
+
+    const supabase = getSupabaseStatus();
+    const turso = getTursoStatus();
+    const mode = supabase.enabled ? supabase.mode : turso.enabled ? turso.mode : 'local-sqlite';
+
+    res.json({
+      success: true,
+      data: {
+        database: {
+          mode,
+          supabase,
+          turso,
+          fetchedAt: new Date().toISOString(),
+        },
+        counts,
+        tables,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Emergency Kill Switch Management (AI App Security Checklist - Point 9)
 router.get('/kill-switch', (req, res) => {
