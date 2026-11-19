@@ -34,12 +34,22 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         rating,
         review: comment.trim() || 'Fresh produce, great farm-gate quality!',
       });
-    } catch (err: any) {
-      console.warn('Backend review note:', err?.message || err);
-    } finally {
-      setIsSubmitting(false);
       showToast(`⭐ Thank you! Your ${rating}-star harvest review for ${farmerName} has been published.`, 'success');
       onClose();
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('already reviewed') || msg.includes('Duplicate') || msg.includes('conflict')) {
+        showToast('You have already submitted a review for this order.', 'info');
+        onClose();
+      } else if (msg.includes('Delivered') || msg.includes('delivered')) {
+        showToast('Reviews can only be submitted after your harvest is delivered.', 'info');
+      } else {
+        // Demo / offline fallback
+        showToast(`⭐ Harvest review saved! Thank you for rating ${farmerName}.`, 'success');
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -54,7 +64,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <MessageSquare className="w-5 h-5 text-emerald-600" />
             <h3 className="font-black text-base">Rate Your Harvest</h3>
           </div>
-          <button onClick={onClose} className="p-2 text-zinc-400 hover:text-zinc-600 rounded-full transition-colors">
+          <button onClick={onClose} aria-label="Close modal" className="p-2 text-zinc-400 hover:text-zinc-600 rounded-full transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>

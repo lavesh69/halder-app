@@ -87,7 +87,11 @@ export class ApiClient {
     }
 
     if (!response.ok || data?.success === false) {
-      throw new Error(data?.error?.message || `Request failed with status ${response.status}`);
+      let rawMsg = data?.error?.message || `Request failed with status ${response.status}`;
+      if (rawMsg.includes('User account no longer exists')) {
+        rawMsg = 'Your session has expired. Please sign in again.';
+      }
+      throw new Error(rawMsg);
     }
 
     return data?.data !== undefined ? data.data : data;

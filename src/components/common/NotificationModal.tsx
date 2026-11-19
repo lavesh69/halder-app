@@ -88,6 +88,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
             </button>
             <button
               onClick={() => setIsNotificationModalOpen(false)}
+              aria-label="Close modal"
               className="p-2 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X className="w-5 h-5" />

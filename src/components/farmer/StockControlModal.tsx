@@ -172,6 +172,7 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />

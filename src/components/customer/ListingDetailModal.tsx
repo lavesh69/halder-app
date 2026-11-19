@@ -224,6 +224,7 @@ export const ListingDetailModal: React.FC = () => {
                 e.stopPropagation();
                 setSelectedProduct(null);
               }}
+              aria-label="Close modal"
               className="p-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-colors"
             >
               <X className="w-5 h-5" />

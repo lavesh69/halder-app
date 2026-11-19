@@ -217,6 +217,7 @@ export const MarketplaceChatModal: React.FC = () => {
                 sendTyping(false);
                 setIsChatModalOpen(false);
               }}
+              aria-label="Close modal"
               className="p-2 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
               title={t('common.close')}
             >

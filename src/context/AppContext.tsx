@@ -717,6 +717,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     rating: p.rating || 5.0,
     viewsCount: p.views_count || 12,
     likesCount: p.likes_count || 4,
+    createdAt: p.created_at || p.createdAt || new Date().toISOString(),
     createdAtTime: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Today',
   });
 
@@ -806,6 +807,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch {
         ApiClient.clearToken();
       }
+
+      if (!ApiClient.hasToken()) return;
 
       try {
         const favsRes = await ApiClient.getFavorites();

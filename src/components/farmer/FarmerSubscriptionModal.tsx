@@ -113,6 +113,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 transition"
           >
             <X className="w-5 h-5" />
@@ -251,7 +252,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
                     Upgrade to {pendingPaidPlan.name}
                   </h4>
                 </div>
-                <button onClick={() => setPendingPaidPlan(null)} className="p-1 rounded-full text-zinc-400 hover:text-zinc-600">
+                <button onClick={() => setPendingPaidPlan(null)} aria-label="Close dialog" className="p-1 rounded-full text-zinc-400 hover:text-zinc-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>

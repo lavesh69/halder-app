@@ -34,12 +34,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     setBuyNowProduct,
     openFarmerChat,
     showToast,
+    setIsSearchScreenOpen,
   } = useApp();
 
   const favorite = isFavorite(product.id);
   const farmer = farmers.find((f) => f.id === product.farmerId);
 
   const handleCardClick = () => {
+    setIsSearchScreenOpen(false);
     setSelectedProduct(product);
   };
 

@@ -314,7 +314,7 @@ export const initialProducts: Product[] = [
     price: 50,
     unit: 'kg',
     availableQuantity: 20,
-    image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?w=600&auto=format&fit=crop&q=80',
     isOrganic: true,
     isAvailableToday: true,
     harvestDate: 'Harvested Today morning',

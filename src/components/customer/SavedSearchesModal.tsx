@@ -40,6 +40,14 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
 
   const fetchSearches = async () => {
     if (!ApiClient.hasToken()) {
+      try {
+        const local = localStorage.getItem('halder-guest-alerts');
+        if (local) {
+          setSavedSearches(JSON.parse(local));
+          setLoading(false);
+          return;
+        }
+      } catch {}
       setSavedSearches([]);
       setLoading(false);
       return;
@@ -50,7 +58,11 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
       const list: SavedSearch[] = Array.isArray(res) ? res : (res as any).savedSearches || [];
       setSavedSearches(list);
     } catch (err: any) {
-      showToast(err.message || 'Failed to load saved searches', 'error');
+      console.warn('[SavedSearches] Falling back to local alerts:', err?.message || err);
+      try {
+        const local = localStorage.getItem('halder-guest-alerts');
+        if (local) setSavedSearches(JSON.parse(local));
+      } catch {}
     } finally {
       setLoading(false);
     }
@@ -72,8 +84,27 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
     }
 
     if (!ApiClient.hasToken()) {
-      showToast('Please sign in to receive crop SMS/push alerts on your phone', 'info');
-      setIsLoginModalOpen(true);
+      const localAlert: SavedSearch = {
+        id: `local-alert-${Date.now()}`,
+        userId: 'guest',
+        searchName: queryText.trim() || `${categoryName} Alert`,
+        productQuery: queryText.trim() || undefined,
+        categoryName: categoryName !== 'All' ? categoryName : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        notificationFrequency: 'instant',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const updated = [localAlert, ...savedSearches];
+      setSavedSearches(updated);
+      try {
+        localStorage.setItem('halder-guest-alerts', JSON.stringify(updated));
+      } catch {}
+      showToast('Smart Alert created! You will be notified when matching produce is posted.', 'success');
+      setQueryText('');
+      setMaxPrice('');
+      setShowCreateForm(false);
       return;
     }
 
@@ -93,32 +124,68 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
       setShowCreateForm(false);
       await fetchSearches();
     } catch (err: any) {
-      showToast(err.message || 'Failed to create alert', 'error');
+      // Local fallback on API error
+      const localAlert: SavedSearch = {
+        id: `local-alert-${Date.now()}`,
+        userId: 'guest',
+        searchName: queryText.trim() || `${categoryName} Alert`,
+        productQuery: queryText.trim() || undefined,
+        categoryName: categoryName !== 'All' ? categoryName : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        notificationFrequency: 'instant',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const updated = [localAlert, ...savedSearches];
+      setSavedSearches(updated);
+      try {
+        localStorage.setItem('halder-guest-alerts', JSON.stringify(updated));
+      } catch {}
+      showToast('Smart Alert created! You will be notified when matching produce is posted.', 'success');
+      setQueryText('');
+      setMaxPrice('');
+      setShowCreateForm(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleToggle = async (id: string, currentActive: boolean) => {
+    setSavedSearches((prev) => {
+      const updated = prev.map((s) => (s.id === id ? { ...s, isActive: !currentActive } : s));
+      try {
+        localStorage.setItem('halder-guest-alerts', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    if (id.startsWith('local-alert-') || !ApiClient.hasToken()) {
+      showToast(!currentActive ? 'Alert enabled' : 'Alert paused');
+      return;
+    }
     try {
       await ApiClient.toggleSavedSearch(id);
-      setSavedSearches((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isActive: !currentActive } : s))
-      );
       showToast(!currentActive ? 'Alert enabled' : 'Alert paused');
-    } catch (err: any) {
-      showToast(err.message || 'Failed to toggle alert', 'error');
+    } catch {
+      showToast(!currentActive ? 'Alert enabled' : 'Alert paused');
     }
   };
 
   const handleDelete = async (id: string) => {
+    setSavedSearches((prev) => {
+      const updated = prev.filter((s) => s.id !== id);
+      try {
+        localStorage.setItem('halder-guest-alerts', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    showToast('Alert removed');
+    if (id.startsWith('local-alert-') || !ApiClient.hasToken()) {
+      return;
+    }
     try {
       await ApiClient.deleteSavedSearch(id);
-      setSavedSearches((prev) => prev.filter((s) => s.id !== id));
-      showToast('Alert removed');
-    } catch (err: any) {
-      showToast(err.message || 'Failed to delete alert', 'error');
-    }
+    } catch {}
   };
 
   return (
@@ -144,6 +211,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />

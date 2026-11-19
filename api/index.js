@@ -89508,8 +89508,8 @@ var ProductService = class _ProductService {
       Database.run("UPDATE products SET status = 'sold', available_quantity = 0, stock_status = 'out_of_stock', updated_at = ? WHERE id = ?", [now, productId]);
     } else if (statusAction === "renew") {
       Database.run(
-        "UPDATE products SET status = 'active', harvest_date = 'Freshly reconfirmed today', updated_at = ? WHERE id = ?",
-        [now, productId]
+        "UPDATE products SET status = 'active', harvest_date = 'Freshly reconfirmed today', created_at = ?, updated_at = ? WHERE id = ?",
+        [now, now, productId]
       );
     }
     return _ProductService.getById(productId);

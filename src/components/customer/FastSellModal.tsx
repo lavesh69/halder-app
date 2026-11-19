@@ -405,6 +405,7 @@ export const FastSellModal: React.FC = () => {
               setIsFastSellOpen(false);
               setEditingListing(null);
             }}
+            aria-label="Close modal"
             className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />

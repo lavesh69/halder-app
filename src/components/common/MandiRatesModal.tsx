@@ -43,17 +43,22 @@ export const MandiRatesModal: React.FC<MandiRatesModalProps> = ({ isOpen, onClos
     ApiClient.getMandiPrices()
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          const mapped = data.map((item: any) => ({
-            id: item.id,
-            crop: item.crop || item.commodity,
-            hindiName: item.hindiName || '',
-            market: item.market,
-            state: item.state,
-            district: item.district,
-            modalPrice: item.modal_price || item.modalPrice || 0,
-            unit: item.unit || 'qtl',
-            change: item.change || 0,
-          }));
+          const mapped = data.map((item: any) => {
+            const rawPrice = Number(item.modal_price || item.modalPrice || 0);
+            // APMC Agmarknet prices are per quintal (100 kg). If database stored per-kg rate, normalize to quintal
+            const modalPrice = rawPrice > 0 && rawPrice < 200 ? Math.round(rawPrice * 100) : rawPrice;
+            return {
+              id: item.id,
+              crop: item.crop || item.crop_name || item.commodity || 'Produce',
+              hindiName: item.hindiName || (item.crop_name && item.crop_name.includes('(') ? item.crop_name.split('(')[1].replace(')', '').trim() : ''),
+              market: item.market || item.market_name || 'APMC Mandi',
+              state: item.state || '',
+              district: item.district || '',
+              modalPrice: modalPrice || 2400,
+              unit: item.unit || 'qtl',
+              change: item.change || 0,
+            };
+          });
           setRates(mapped);
         }
       })
@@ -64,12 +69,19 @@ export const MandiRatesModal: React.FC<MandiRatesModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   const filteredRates = rates.filter((r) => {
-    const q = search.toLowerCase();
+    const q = (search || '').toLowerCase().trim();
+    if (!q) return true;
+    const cropStr = String(r.crop || '').toLowerCase();
+    const hindiStr = String(r.hindiName || '').toLowerCase();
+    const marketStr = String(r.market || '').toLowerCase();
+    const stateStr = String(r.state || '').toLowerCase();
+    const districtStr = String(r.district || '').toLowerCase();
     return (
-      r.crop.toLowerCase().includes(q) ||
-      (r.hindiName && r.hindiName.toLowerCase().includes(q)) ||
-      r.market.toLowerCase().includes(q) ||
-      (r.state && r.state.toLowerCase().includes(q))
+      cropStr.includes(q) ||
+      hindiStr.includes(q) ||
+      marketStr.includes(q) ||
+      stateStr.includes(q) ||
+      districtStr.includes(q)
     );
   });
 

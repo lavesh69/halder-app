@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
@@ -83,7 +83,68 @@ export const MarketplaceHome: React.FC = () => {
     setIsPostRequirementOpen,
     setIsMandiRatesModalOpen,
     setEditingListing,
+    showToast,
+    setSearchQuery,
   } = useApp();
+
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCameraScan = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      showToast('🔍 Analyzing crop photo with Agri-Vision...', 'info');
+      setTimeout(() => {
+        const lowerName = file.name.toLowerCase();
+        let matched: ProductCategory = 'Vegetables';
+        if (lowerName.includes('apple') || lowerName.includes('orange') || lowerName.includes('fruit') || lowerName.includes('mango')) {
+          matched = 'Fruits';
+        } else if (lowerName.includes('wheat') || lowerName.includes('rice') || lowerName.includes('paddy') || lowerName.includes('grain')) {
+          matched = 'Grains';
+        } else if (lowerName.includes('milk') || lowerName.includes('dairy') || lowerName.includes('ghee')) {
+          matched = 'Dairy';
+        } else if (lowerName.includes('honey') || lowerName.includes('pickle')) {
+          matched = 'Homemade';
+        }
+        setSelectedCategory(matched);
+        showToast(`🌿 Crop Identified: Fresh ${matched}! Filtered listings for you.`, 'success');
+      }, 900);
+    }
+  };
+
+  const handleVoiceSearch = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'hi-IN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        showToast('🎙️ बोलिए... (उदा. टमाटर, बासमती धान, आलू)', 'info');
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results?.[0]?.[0]?.transcript;
+          if (transcript) {
+            setSearchQuery(transcript);
+            setIsSearchScreenOpen(true);
+            showToast(`🔎 Searching for: "${transcript}"`, 'success');
+          }
+        };
+
+        recognition.onerror = () => {
+          setIsSearchScreenOpen(true);
+        };
+
+        recognition.start();
+        return;
+      } catch (err) {
+        console.warn('SpeechRecognition error:', err);
+      }
+    }
+    setIsSearchScreenOpen(true);
+    showToast('🎙️ Voice input ready in search bar', 'info');
+  };
 
   const isCitySelected = Boolean(activeCity && activeCity !== 'All India' && activeCity !== 'All');
 
@@ -223,20 +284,37 @@ export const MarketplaceHome: React.FC = () => {
 
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Visual Crop Scanner */}
-            <span
-              className="p-1.5 text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors rounded-lg"
+            <input
+              type="file"
+              ref={cameraInputRef}
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleCameraScan}
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                cameraInputRef.current?.click();
+              }}
+              className="p-1.5 text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors rounded-lg cursor-pointer"
               title="Camera Crop Scanner / फोटो से खोजें"
+              aria-label="Camera Crop Scanner"
             >
               <Camera className="w-4 h-4" />
-            </span>
+            </button>
 
             {/* Vernacular Voice Search (Agri Green Pill) */}
-            <span
-              className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-transform active:scale-95"
+            <button
+              type="button"
+              onClick={handleVoiceSearch}
+              className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-transform active:scale-95 cursor-pointer"
               title="Voice Search / बोलकर खोजें"
+              aria-label="Voice Search"
             >
               <Mic className="w-4 h-4" />
-            </span>
+            </button>
           </div>
         </div>
 

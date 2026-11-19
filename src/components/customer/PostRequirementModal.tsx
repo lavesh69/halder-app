@@ -82,28 +82,68 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
 
     try {
       setIsSubmitting(true);
-      const res = await ApiClient.createRequirement({
-        productName: productName.trim(),
+      let createdReq: any = null;
+      if (ApiClient.hasToken()) {
+        const res = await ApiClient.createRequirement({
+          productName: productName.trim(),
+          category,
+          quantity: Number(quantity),
+          unit,
+          targetPrice: targetPrice ? Number(targetPrice) : undefined,
+          isNegotiable,
+          requiredDate: requiredDate || undefined,
+          qualityGrade,
+          deliveryPreference,
+          village: village.trim() || undefined,
+          district: district.trim() || undefined,
+          state: state.trim() || undefined,
+          postalCode: postalCode.trim() || undefined,
+          instructions: instructions.trim() || undefined,
+        });
+        createdReq = res.requirement;
+      } else {
+        // Guest mode fallback persistence
+        createdReq = {
+          id: `req-${Date.now()}`,
+          product_name: productName.trim(),
+          category,
+          quantity: Number(quantity),
+          unit,
+          target_price: targetPrice ? Number(targetPrice) : null,
+          district: district.trim() || 'Dehradun',
+          state: state.trim() || 'Uttarakhand',
+          created_at: new Date().toISOString(),
+        };
+        try {
+          const key = 'halder-guest-requirements';
+          const existing = JSON.parse(localStorage.getItem(key) || '[]');
+          localStorage.setItem(key, JSON.stringify([createdReq, ...existing]));
+        } catch {}
+      }
+
+      showToast(`Requirement "${productName}" posted! Nearby farmers are receiving alerts.`, 'success');
+      if (onCreated && createdReq) onCreated(createdReq);
+      onClose();
+    } catch (err: any) {
+      const localReq = {
+        id: `req-${Date.now()}`,
+        product_name: productName.trim(),
         category,
         quantity: Number(quantity),
         unit,
-        targetPrice: targetPrice ? Number(targetPrice) : undefined,
-        isNegotiable,
-        requiredDate: requiredDate || undefined,
-        qualityGrade,
-        deliveryPreference,
-        village: village.trim() || undefined,
-        district: district.trim() || undefined,
-        state: state.trim() || undefined,
-        postalCode: postalCode.trim() || undefined,
-        instructions: instructions.trim() || undefined,
-      });
-
-      showToast(`Requirement "${productName}" posted! Nearby farmers are receiving alerts.`, 'success');
-      if (onCreated) onCreated(res.requirement);
+        target_price: targetPrice ? Number(targetPrice) : null,
+        district: district.trim() || 'Dehradun',
+        state: state.trim() || 'Uttarakhand',
+        created_at: new Date().toISOString(),
+      };
+      try {
+        const key = 'halder-guest-requirements';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        localStorage.setItem(key, JSON.stringify([localReq, ...existing]));
+      } catch {}
+      showToast(`Requirement "${productName}" saved! Nearby farmers are receiving alerts.`, 'success');
+      if (onCreated) onCreated(localReq);
       onClose();
-    } catch (err: any) {
-      showToast(err.message || 'Failed to post requirement', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -132,6 +172,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />

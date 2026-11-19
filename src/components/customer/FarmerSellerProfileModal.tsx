@@ -63,6 +63,7 @@ export const FarmerSellerProfileModal: React.FC = () => {
           {/* Close button */}
           <button
             onClick={() => setSelectedFarmer(null)}
+            aria-label="Close modal"
             className="absolute top-4 right-4 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-colors"
           >
             <X className="w-5 h-5" />
