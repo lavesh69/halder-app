@@ -17,6 +17,21 @@ import {
 
 interface NotificationModalProps {}
 
+function formatRelativeTime(dateStr?: string): string {
+  if (!dateStr) return 'Recently';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diffSec < 60) return 'Just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDays = Math.floor(diffHr / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
 export const NotificationModal: React.FC<NotificationModalProps> = () => {
   const {
     isNotificationModalOpen,
@@ -178,7 +193,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
                         {notif.title}
                       </h4>
                       <span className="text-[10px] text-zinc-400 shrink-0">
-                        {notif.createdAt}
+                        {formatRelativeTime(notif.createdAt)}
                       </span>
                     </div>
                     <p className="text-zinc-600 dark:text-zinc-300 mt-0.5 leading-relaxed">

@@ -41,6 +41,7 @@ export const SearchScreen: React.FC = () => {
     setFilterState,
     currentLocation,
     showToast,
+    setIsLoginModalOpen,
     customerTab,
     setCustomerTab,
   } = useApp();
@@ -165,6 +166,11 @@ export const SearchScreen: React.FC = () => {
 
   const handleSaveThisSearch = async () => {
     if (!inputVal.trim()) return;
+    if (!ApiClient.hasToken()) {
+      showToast('Please sign in to set crop price alerts', 'info');
+      setIsLoginModalOpen(true);
+      return;
+    }
     try {
       await ApiClient.createSavedSearch({
         query: inputVal.trim(),

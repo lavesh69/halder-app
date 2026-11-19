@@ -87,14 +87,20 @@ export const CustomerMyAdsView: React.FC = () => {
   };
 
   const isAdExpired = (ad: Product) => {
-    const created = new Date(ad.createdAt || (ad as any).created_at || '2024-01-01').getTime();
+    const rawDate = ad.createdAt || (ad as any).created_at;
+    if (!rawDate) return false;
+    const created = new Date(rawDate).getTime();
+    if (isNaN(created)) return false;
     const diffDays = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24));
     return diffDays >= 30;
   };
 
   const getAdAgeDays = (ad: Product) => {
-    const created = new Date(ad.createdAt || (ad as any).created_at || '2024-01-01').getTime();
-    return Math.max(1, Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)));
+    const rawDate = ad.createdAt || (ad as any).created_at;
+    if (!rawDate) return 0;
+    const created = new Date(rawDate).getTime();
+    if (isNaN(created)) return 0;
+    return Math.max(0, Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)));
   };
 
   return (

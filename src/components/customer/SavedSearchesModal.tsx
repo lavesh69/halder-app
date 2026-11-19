@@ -26,7 +26,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { showToast } = useApp();
+  const { showToast, setIsLoginModalOpen } = useApp();
 
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +39,11 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchSearches = async () => {
+    if (!ApiClient.hasToken()) {
+      setSavedSearches([]);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const res = await ApiClient.listSavedSearches();
@@ -63,6 +68,12 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
     e.preventDefault();
     if (!queryText.trim() && categoryName === 'All') {
       showToast('Please enter a crop keyword or choose a category', 'error');
+      return;
+    }
+
+    if (!ApiClient.hasToken()) {
+      showToast('Please sign in to receive crop SMS/push alerts on your phone', 'info');
+      setIsLoginModalOpen(true);
       return;
     }
 

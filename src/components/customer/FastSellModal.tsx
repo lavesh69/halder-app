@@ -172,7 +172,7 @@ export const FastSellModal: React.FC = () => {
       setDescription('');
       setPrice('');
       setUnit('kg');
-      setAvailableQuantity('');
+      setAvailableQuantity(100);
       setMinOrderQuantity(1);
       setIsNegotiable(true);
       setPriceSlabs([]);
@@ -316,6 +316,7 @@ export const FastSellModal: React.FC = () => {
     setCategory(preset.cat as ProductCategory);
     setPrice(preset.price);
     setUnit(preset.unit);
+    setAvailableQuantity(100);
     setUploadedPhotos([preset.url]);
     showToast(`Loaded details for ${preset.name}`);
   };
@@ -745,7 +746,7 @@ export const FastSellModal: React.FC = () => {
                     type="number"
                     value={availableQuantity}
                     onChange={(e) => setAvailableQuantity(e.target.value === '' ? '' : Number(e.target.value))}
-                    placeholder="100"
+                    placeholder="e.g. 100"
                     className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-600"
                   />
                 </div>

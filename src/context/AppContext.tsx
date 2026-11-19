@@ -1250,7 +1250,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return updated;
     });
 
-    if (isLoggedIn) {
+    if (isLoggedIn && ApiClient.hasToken()) {
       try {
         if (exists) {
           await ApiClient.removeFavorite(productId);
@@ -1387,6 +1387,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       viewsCount: 1,
       likesCount: 0,
       createdAtTime: 'Just now',
+      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     setProducts((prev) => [newListing, ...prev]);
@@ -1774,9 +1776,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProducts((prev) =>
       prev.map((p) => (p.id === productId ? { ...p, price: newPrice } : p))
     );
-    ApiClient.updateProduct(productId, { price: newPrice }).catch((e) =>
-      console.warn('[HALDER Sync] Price update server sync error:', e)
-    );
+    if (ApiClient.hasToken()) {
+      ApiClient.updateProduct(productId, { price: newPrice }).catch((e) =>
+        console.warn('[HALDER Sync] Price update server sync error:', e)
+      );
+    }
     showToast(`Price updated to ₹${newPrice}`, 'success');
   };
 
@@ -1801,15 +1805,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               availableQuantity: action === 'mark_sold' ? 0 : p.availableQuantity,
               harvestDate: action === 'renew' ? 'Freshly reconfirmed today' : p.harvestDate,
               createdAt: action === 'renew' ? new Date().toISOString() : p.createdAt,
+              created_at: action === 'renew' ? new Date().toISOString() : (p as any).created_at,
             }
           : p
       )
     );
     try {
-      const updated = await ApiClient.updateProductStatus(productId, action);
-      if (updated?.id) {
-        const mapped = mapBackendProduct(updated);
-        setProducts((prev) => prev.map((p) => (p.id === productId ? mapped : p)));
+      if (ApiClient.hasToken()) {
+        const updated = await ApiClient.updateProductStatus(productId, action);
+        if (updated?.id) {
+          const mapped = mapBackendProduct(updated);
+          setProducts((prev) => prev.map((p) => (p.id === productId ? mapped : p)));
+        }
       }
       const actionLabels: Record<typeof action, string> = {
         pause: 'Listing paused',
