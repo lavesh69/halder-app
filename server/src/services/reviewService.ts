@@ -20,9 +20,27 @@ export class ReviewService {
 
     if (orderId) {
       const order = Database.get<any>('SELECT * FROM orders WHERE id = ?', [orderId]);
-      if (order) {
-        farmerId = order.farmer_id;
+      if (!order) {
+        throw AppError.notFound('Order not found');
       }
+
+      if (order.customer_id !== data.customerId) {
+        throw AppError.forbidden('You can only review orders that you have placed.');
+      }
+
+      if (order.order_status !== 'delivered') {
+        throw AppError.badRequest(
+          'You can only review an order after it has been delivered by the farmer.',
+          'ORDER_NOT_DELIVERED'
+        );
+      }
+
+      const existingReview = Database.get<any>('SELECT id FROM reviews WHERE order_id = ?', [orderId]);
+      if (existingReview) {
+        throw AppError.conflict('You have already submitted a review for this order.');
+      }
+
+      farmerId = order.farmer_id;
     }
 
     if (!farmerId) {

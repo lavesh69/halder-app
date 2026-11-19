@@ -89723,6 +89723,64 @@ var ProductController = class {
   }
 };
 
+// server/src/middleware/idor.ts
+init_errors3();
+init_database();
+function verifyProductOwnership(req, res, next) {
+  const productId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  const product = Database.get(
+    "SELECT id, farmer_id FROM products WHERE id = ?",
+    [productId]
+  );
+  if (!product) {
+    return next(AppError.notFound("Product listing not found"));
+  }
+  if (product.farmer_id !== user.farmerProfileId) {
+    return next(AppError.forbidden("You are not authorized to modify another farmer's product listing."));
+  }
+  next();
+}
+function verifyOrderAccess(req, res, next) {
+  const orderId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  const order = Database.get(
+    "SELECT id, customer_id, farmer_id FROM orders WHERE id = ?",
+    [orderId]
+  );
+  if (!order) {
+    return next(AppError.notFound("Order not found"));
+  }
+  const isBuyer = order.customer_id === user.id;
+  const isSeller = order.farmer_id === user.farmerProfileId;
+  if (!isBuyer && !isSeller) {
+    return next(AppError.forbidden("You are not authorized to access this private order record."));
+  }
+  next();
+}
+function verifyConversationAccess(req, res, next) {
+  const conversationId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  const conv = Database.get(
+    "SELECT id, customer_id, farmer_id FROM conversations WHERE id = ?",
+    [conversationId]
+  );
+  if (!conv) {
+    return next(AppError.notFound("Conversation not found"));
+  }
+  const isParticipant = conv.customer_id === user.id || conv.farmer_id === user.farmerProfileId;
+  if (!isParticipant) {
+    return next(AppError.forbidden("You are not a participant in this conversation."));
+  }
+  next();
+}
+
 // server/src/routes/productRoutes.ts
 init_zod();
 var router2 = (0, import_express2.Router)();
@@ -89751,11 +89809,11 @@ var createProductSchema = external_exports.object({
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
 router2.get("/:id", ProductController.getById);
 router2.post("/", optionalAuth, validateBody(createProductSchema), ProductController.create);
-router2.patch("/:id", optionalAuth, ProductController.update);
-router2.patch("/:id/stock", optionalAuth, ProductController.updateStock);
-router2.get("/:id/stock-history", optionalAuth, ProductController.getStockHistory);
-router2.patch("/:id/status", optionalAuth, ProductController.updateStatus);
-router2.delete("/:id", optionalAuth, ProductController.delete);
+router2.patch("/:id", authenticateUser, verifyProductOwnership, ProductController.update);
+router2.patch("/:id/stock", authenticateUser, verifyProductOwnership, ProductController.updateStock);
+router2.get("/:id/stock-history", authenticateUser, verifyProductOwnership, ProductController.getStockHistory);
+router2.patch("/:id/status", authenticateUser, verifyProductOwnership, ProductController.updateStatus);
+router2.delete("/:id", authenticateUser, verifyProductOwnership, ProductController.delete);
 var productRoutes_default = router2;
 
 // server/src/routes/orderRoutes.ts
@@ -90149,47 +90207,6 @@ var OrderController = class {
     }
   }
 };
-
-// server/src/middleware/idor.ts
-init_errors3();
-init_database();
-function verifyOrderAccess(req, res, next) {
-  const orderId = req.params.id;
-  const user = req.user;
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === "admin") return next();
-  const order = Database.get(
-    "SELECT id, customer_id, farmer_id FROM orders WHERE id = ?",
-    [orderId]
-  );
-  if (!order) {
-    return next(AppError.notFound("Order not found"));
-  }
-  const isBuyer = order.customer_id === user.id;
-  const isSeller = order.farmer_id === user.farmerProfileId;
-  if (!isBuyer && !isSeller) {
-    return next(AppError.forbidden("You are not authorized to access this private order record."));
-  }
-  next();
-}
-function verifyConversationAccess(req, res, next) {
-  const conversationId = req.params.id;
-  const user = req.user;
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === "admin") return next();
-  const conv = Database.get(
-    "SELECT id, customer_id, farmer_id FROM conversations WHERE id = ?",
-    [conversationId]
-  );
-  if (!conv) {
-    return next(AppError.notFound("Conversation not found"));
-  }
-  const isParticipant = conv.customer_id === user.id || conv.farmer_id === user.farmerProfileId;
-  if (!isParticipant) {
-    return next(AppError.forbidden("You are not a participant in this conversation."));
-  }
-  next();
-}
 
 // server/src/routes/orderRoutes.ts
 init_zod();
@@ -91271,9 +91288,23 @@ var ReviewService = class {
     let orderId = data.orderId || null;
     if (orderId) {
       const order = Database.get("SELECT * FROM orders WHERE id = ?", [orderId]);
-      if (order) {
-        farmerId = order.farmer_id;
+      if (!order) {
+        throw AppError.notFound("Order not found");
       }
+      if (order.customer_id !== data.customerId) {
+        throw AppError.forbidden("You can only review orders that you have placed.");
+      }
+      if (order.order_status !== "delivered") {
+        throw AppError.badRequest(
+          "You can only review an order after it has been delivered by the farmer.",
+          "ORDER_NOT_DELIVERED"
+        );
+      }
+      const existingReview = Database.get("SELECT id FROM reviews WHERE order_id = ?", [orderId]);
+      if (existingReview) {
+        throw AppError.conflict("You have already submitted a review for this order.");
+      }
+      farmerId = order.farmer_id;
     }
     if (!farmerId) {
       throw AppError.badRequest("Farmer ID or Order ID required to submit review.");
@@ -97800,7 +97831,8 @@ apiRouter.get("/ready", (req, res) => {
       const mode = supabase.enabled ? supabase.mode : turso.enabled ? turso.mode : "local-sqlite";
       return res.json({
         status: "ready",
-        database: mode,
+        database: "connected",
+        databaseMode: mode,
         supabase,
         turso
       });

@@ -36,10 +36,10 @@ const createProductSchema = z.object({
 router.get('/', searchLimiter, optionalAuth, ProductController.list);
 router.get('/:id', ProductController.getById);
 router.post('/', optionalAuth, validateBody(createProductSchema), ProductController.create);
-router.patch('/:id', optionalAuth, ProductController.update);
-router.patch('/:id/stock', optionalAuth, ProductController.updateStock);
-router.get('/:id/stock-history', optionalAuth, ProductController.getStockHistory);
-router.patch('/:id/status', optionalAuth, ProductController.updateStatus);
-router.delete('/:id', optionalAuth, ProductController.delete);
+router.patch('/:id', authenticateUser, verifyProductOwnership, ProductController.update);
+router.patch('/:id/stock', authenticateUser, verifyProductOwnership, ProductController.updateStock);
+router.get('/:id/stock-history', authenticateUser, verifyProductOwnership, ProductController.getStockHistory);
+router.patch('/:id/status', authenticateUser, verifyProductOwnership, ProductController.updateStatus);
+router.delete('/:id', authenticateUser, verifyProductOwnership, ProductController.delete);
 
 export default router;

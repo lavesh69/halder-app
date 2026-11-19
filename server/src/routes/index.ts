@@ -52,7 +52,8 @@ apiRouter.get('/ready', (req, res) => {
         : 'local-sqlite';
       return res.json({
         status: 'ready',
-        database: mode,
+        database: 'connected',
+        databaseMode: mode,
         supabase,
         turso,
       });
