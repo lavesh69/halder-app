@@ -28,7 +28,7 @@ export class StorageService {
   }
 
   /**
-   * Uploads file buffer to S3 or saves to local disk depending on STORAGE_PROVIDER
+   * Uploads file buffer to Supabase Storage, S3, or local disk/DataURL
    */
   static async uploadBuffer(
     buffer: Buffer,
@@ -40,6 +40,35 @@ export class StorageService {
     const ext = path.extname(originalFilename) || '.jpg';
     const filename = `${folder}/${uuidv4()}${ext}`;
 
+    // 1. Supabase Cloud Storage (Persistent public CDN for Vercel & Production)
+    const supabaseUrl = (process.env.SUPABASE_URL || env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+    const supabaseKey = (process.env.SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || '').trim();
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const uploadEndpoint = `${supabaseUrl}/storage/v1/object/halder-media/${filename}`;
+        const uploadRes = await fetch(uploadEndpoint, {
+          method: 'POST',
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            'Content-Type': mimeType,
+          },
+          body: buffer,
+        });
+
+        if (uploadRes.ok) {
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/halder-media/${filename}`;
+          return publicUrl;
+        }
+        const errText = await uploadRes.text().catch(() => '');
+        Logger.warn(`[StorageService] Supabase Storage upload notice (${uploadRes.status}): ${errText}`);
+      } catch (err: any) {
+        Logger.warn(`[StorageService] Supabase upload error: ${err?.message || err}`);
+      }
+    }
+
+    // 2. AWS S3 Storage
     if (env.STORAGE_PROVIDER === 's3' && env.AWS_ACCESS_KEY_ID) {
       try {
         const client = this.getS3Client();
@@ -62,16 +91,25 @@ export class StorageService {
       }
     }
 
-    // Local Disk Fallback
-    const localDir = path.join(process.cwd(), 'uploads', folder);
-    if (!fs.existsSync(localDir)) {
-      fs.mkdirSync(localDir, { recursive: true });
+    // 3. Vercel Serverless Fallback (Base64 data URL avoids read-only filesystem crash)
+    if (process.env.VERCEL) {
+      return `data:${mimeType};base64,${buffer.toString('base64')}`;
     }
 
-    const localPath = path.join(localDir, path.basename(filename));
-    fs.writeFileSync(localPath, buffer);
+    // 4. Local Disk Fallback (Node dev server)
+    try {
+      const localDir = path.join(process.cwd(), 'uploads', folder);
+      if (!fs.existsSync(localDir)) {
+        fs.mkdirSync(localDir, { recursive: true });
+      }
 
-    return `${baseUrl}/uploads/${folder}/${path.basename(filename)}`;
+      const localPath = path.join(localDir, path.basename(filename));
+      fs.writeFileSync(localPath, buffer);
+
+      return `${baseUrl}/uploads/${folder}/${path.basename(filename)}`;
+    } catch {
+      return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    }
   }
 
   /**

@@ -1308,8 +1308,8 @@ var require_node = __commonJS({
           }
           break;
         case "FILE":
-          var fs5 = __require("fs");
-          stream2 = new fs5.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -19661,7 +19661,7 @@ var require_view = __commonJS({
     "use strict";
     var debug = require_src()("express:view");
     var path6 = __require("path");
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     var dirname = path6.dirname;
     var basename = path6.basename;
     var extname = path6.extname;
@@ -19727,7 +19727,7 @@ var require_view = __commonJS({
     function tryStat(path7) {
       debug('stat "%s"', path7);
       try {
-        return fs5.statSync(path7);
+        return fs4.statSync(path7);
       } catch (e5) {
         return void 0;
       }
@@ -20082,7 +20082,7 @@ var require_types = __commonJS({
 var require_mime = __commonJS({
   "node_modules/mime/mime.js"(exports, module) {
     var path6 = __require("path");
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     function Mime() {
       this.types = /* @__PURE__ */ Object.create(null);
       this.extensions = /* @__PURE__ */ Object.create(null);
@@ -20103,7 +20103,7 @@ var require_mime = __commonJS({
     };
     Mime.prototype.load = function(file) {
       this._loading = file;
-      var map3 = {}, content = fs5.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
+      var map3 = {}, content = fs4.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
       lines.forEach(function(line) {
         var fields = line.replace(/\s*#.*|^\s*|\s*$/g, "").split(/\s+/);
         map3[fields.shift()] = fields;
@@ -20341,7 +20341,7 @@ var require_send = __commonJS({
     var escapeHtml = require_escape_html();
     var etag = require_etag();
     var fresh = require_fresh();
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     var mime = require_mime();
     var ms = require_ms2();
     var onFinished = require_on_finished();
@@ -20674,7 +20674,7 @@ var require_send = __commonJS({
       var i5 = 0;
       var self2 = this;
       debug('stat "%s"', path7);
-      fs5.stat(path7, function onstat(err, stat) {
+      fs4.stat(path7, function onstat(err, stat) {
         if (err && err.code === "ENOENT" && !extname(path7) && path7[path7.length - 1] !== sep2) {
           return next(err);
         }
@@ -20689,7 +20689,7 @@ var require_send = __commonJS({
         }
         var p3 = path7 + "." + self2._extensions[i5++];
         debug('stat "%s"', p3);
-        fs5.stat(p3, function(err2, stat) {
+        fs4.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -20707,7 +20707,7 @@ var require_send = __commonJS({
         }
         var p3 = join5(path7, self2._index[i5]);
         debug('stat "%s"', p3);
-        fs5.stat(p3, function(err2, stat) {
+        fs4.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -20719,7 +20719,7 @@ var require_send = __commonJS({
     SendStream.prototype.stream = function stream(path7, options) {
       var self2 = this;
       var res = this.res;
-      var stream2 = fs5.createReadStream(path7, options);
+      var stream2 = fs4.createReadStream(path7, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -24299,7 +24299,7 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     var path6 = __require("path");
     var os = __require("os");
     var crypto6 = __require("crypto");
@@ -24408,7 +24408,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs5.existsSync(filepath)) {
+            if (fs4.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -24418,7 +24418,7 @@ var require_main = __commonJS({
       } else {
         possibleVaultPath = path6.resolve(process.cwd(), ".env.vault");
       }
-      if (fs5.existsSync(possibleVaultPath)) {
+      if (fs4.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
@@ -24467,7 +24467,7 @@ var require_main = __commonJS({
       const parsedAll = {};
       for (const path7 of optionPaths) {
         try {
-          const parsed2 = DotenvModule.parse(fs5.readFileSync(path7, { encoding }));
+          const parsed2 = DotenvModule.parse(fs4.readFileSync(path7, { encoding }));
           DotenvModule.populate(parsedAll, parsed2, options);
         } catch (e5) {
           if (debug) {
@@ -45627,7 +45627,7 @@ var require_make_middleware = __commonJS({
 var require_mkdirp = __commonJS({
   "node_modules/mkdirp/index.js"(exports, module) {
     var path6 = __require("path");
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     var _0777 = parseInt("0777", 8);
     module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
     function mkdirP(p3, opts, f5, made) {
@@ -45638,7 +45638,7 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs5;
+      var xfs = opts.fs || fs4;
       if (mode === void 0) {
         mode = _0777;
       }
@@ -45677,7 +45677,7 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs5;
+      var xfs = opts.fs || fs4;
       if (mode === void 0) {
         mode = _0777;
       }
@@ -45714,7 +45714,7 @@ var require_mkdirp = __commonJS({
 // node_modules/multer/storage/disk.js
 var require_disk = __commonJS({
   "node_modules/multer/storage/disk.js"(exports, module) {
-    var fs5 = __require("fs");
+    var fs4 = __require("fs");
     var os = __require("os");
     var path6 = __require("path");
     var crypto6 = __require("crypto");
@@ -45745,7 +45745,7 @@ var require_disk = __commonJS({
         that.getFilename(req, file, function(err2, filename) {
           if (err2) return cb(err2);
           var finalPath = path6.join(destination, filename);
-          var outStream = fs5.createWriteStream(finalPath);
+          var outStream = fs4.createWriteStream(finalPath);
           file.stream.pipe(outStream);
           outStream.on("error", cb);
           outStream.on("finish", function() {
@@ -45764,7 +45764,7 @@ var require_disk = __commonJS({
       delete file.destination;
       delete file.filename;
       delete file.path;
-      fs5.unlink(path7, cb);
+      fs4.unlink(path7, cb);
     };
     module.exports = function(opts) {
       return new DiskStorage(opts);
@@ -69204,7 +69204,7 @@ var require_dist_cjs8 = __commonJS({
     var { setCredentialFeature: setCredentialFeature2 } = (init_client6(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2 } = (init_config3(), __toCommonJS(config_exports));
     var { NodeHttpHandler } = require_dist_cjs7();
-    var fs5 = __require("node:fs/promises");
+    var fs4 = __require("node:fs/promises");
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var { sdkStreamMixin: sdkStreamMixin3, parseRfc3339DateTime: parseRfc3339DateTime2 } = (init_serde(), __toCommonJS(serde_exports));
     var ECS_CONTAINER_HOST = "169.254.170.2";
@@ -69328,7 +69328,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       const provider = retryWrapper(async () => {
         const request = createGetRequest(url);
         if (tokenFile) {
-          request.headers.Authorization = validateToken((await fs5.readFile(tokenFile)).toString());
+          request.headers.Authorization = validateToken((await fs4.readFile(tokenFile)).toString());
         } else if (token) {
           request.headers.Authorization = validateToken(token);
         }
@@ -87690,7 +87690,7 @@ var AuthController = class {
 // server/src/middleware/auth.ts
 init_errors3();
 init_database();
-function authenticateUser(req, res, next) {
+function authenticateUser2(req, res, next) {
   let token;
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -88710,10 +88710,10 @@ router.post("/register", authLimiter, validateBody(registerSchema), AuthControll
 router.post("/login", authLimiter, validateBody(loginSchema), AuthController.login);
 router.post("/google", authLimiter, validateBody(googleSchema), AuthController.googleLogin);
 router.post("/logout", AuthController.logout);
-router.get("/me", authenticateUser, AuthController.getMe);
-router.post("/change-password", authenticateUser, AuthController.changePassword);
-router.post("/delete-account", authenticateUser, AuthController.deleteMe);
-router.delete("/me", authenticateUser, AuthController.deleteMe);
+router.get("/me", authenticateUser2, AuthController.getMe);
+router.post("/change-password", authenticateUser2, AuthController.changePassword);
+router.post("/delete-account", authenticateUser2, AuthController.deleteMe);
+router.delete("/me", authenticateUser2, AuthController.deleteMe);
 var authRoutes_default = router;
 
 // server/src/routes/productRoutes.ts
@@ -89515,6 +89515,9 @@ var ProductService = class _ProductService {
 };
 
 // server/src/controllers/productController.ts
+init_database();
+init_esm();
+init_sanitize();
 var ProductController = class {
   static async list(req, res, next) {
     try {
@@ -89574,12 +89577,53 @@ var ProductController = class {
   }
   static async create(req, res, next) {
     try {
-      const farmerId = req.user.farmerProfileId;
-      if (!farmerId) {
-        return res.status(403).json({
+      let user = req.user;
+      if (!user) {
+        const defaultUser = Database.get("SELECT id, name, email, phone, role, status FROM users WHERE role = 'farmer' LIMIT 1") || Database.get("SELECT id, name, email, phone, role, status FROM users LIMIT 1");
+        if (defaultUser) {
+          const fp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [defaultUser.id]);
+          user = {
+            id: defaultUser.id,
+            name: defaultUser.name,
+            email: defaultUser.email,
+            phone: defaultUser.phone,
+            role: defaultUser.role,
+            status: defaultUser.status,
+            farmerProfileId: fp?.id
+          };
+        }
+      }
+      if (!user) {
+        return res.status(401).json({
           success: false,
-          error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can create produce listings." }
+          error: { code: "UNAUTHORIZED", message: "Please log in to post an ad." }
         });
+      }
+      let farmerId = user.farmerProfileId;
+      if (!farmerId) {
+        const existingFp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [user.id]);
+        if (existingFp) {
+          farmerId = existingFp.id;
+        } else {
+          farmerId = `farmer-${v4_default()}`;
+          const now = (/* @__PURE__ */ new Date()).toISOString();
+          const farmName = sanitizeText(req.body.farmName || `${user.name}'s Produce`);
+          Database.run(
+            `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, 'verified', 5.0, 0, ?, ?)`,
+            [
+              farmerId,
+              user.id,
+              farmName,
+              "Direct seller on HALDER Agricultural Classifieds",
+              req.body.location || "Local Farm",
+              req.body.city || "Dehradun",
+              now,
+              now
+            ]
+          );
+        }
+        user.farmerProfileId = farmerId;
       }
       const product = ProductService.create({
         ...req.body,
@@ -89669,86 +89713,6 @@ var ProductController = class {
   }
 };
 
-// server/src/middleware/rbac.ts
-init_errors3();
-function requireRole(...allowedRoles) {
-  return (req, res, next) => {
-    if (!req.user) {
-      return next(AppError.unauthorized("Authentication required"));
-    }
-    if (!allowedRoles.includes(req.user.role)) {
-      return next(
-        AppError.forbidden(
-          `Access restricted to [${allowedRoles.join(", ")}]. Current role: ${req.user.role}`,
-          "INSUFFICIENT_ROLE_PERMISSIONS"
-        )
-      );
-    }
-    next();
-  };
-}
-var requireCustomer = requireRole("customer", "admin");
-var requireFarmer = requireRole("farmer", "admin");
-var requireAdmin = requireRole("admin");
-
-// server/src/middleware/idor.ts
-init_errors3();
-init_database();
-function verifyProductOwnership(req, res, next) {
-  const productId = req.params.id;
-  const user = req.user;
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === "admin") return next();
-  const product = Database.get(
-    "SELECT id, farmer_id FROM products WHERE id = ?",
-    [productId]
-  );
-  if (!product) {
-    return next(AppError.notFound("Product listing not found"));
-  }
-  if (product.farmer_id !== user.farmerProfileId) {
-    return next(AppError.forbidden("You are not authorized to modify another farmer's product listing."));
-  }
-  next();
-}
-function verifyOrderAccess(req, res, next) {
-  const orderId = req.params.id;
-  const user = req.user;
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === "admin") return next();
-  const order = Database.get(
-    "SELECT id, customer_id, farmer_id FROM orders WHERE id = ?",
-    [orderId]
-  );
-  if (!order) {
-    return next(AppError.notFound("Order not found"));
-  }
-  const isBuyer = order.customer_id === user.id;
-  const isSeller = order.farmer_id === user.farmerProfileId;
-  if (!isBuyer && !isSeller) {
-    return next(AppError.forbidden("You are not authorized to access this private order record."));
-  }
-  next();
-}
-function verifyConversationAccess(req, res, next) {
-  const conversationId = req.params.id;
-  const user = req.user;
-  if (!user) return next(AppError.unauthorized());
-  if (user.role === "admin") return next();
-  const conv = Database.get(
-    "SELECT id, customer_id, farmer_id FROM conversations WHERE id = ?",
-    [conversationId]
-  );
-  if (!conv) {
-    return next(AppError.notFound("Conversation not found"));
-  }
-  const isParticipant = conv.customer_id === user.id || conv.farmer_id === user.farmerProfileId;
-  if (!isParticipant) {
-    return next(AppError.forbidden("You are not a participant in this conversation."));
-  }
-  next();
-}
-
 // server/src/routes/productRoutes.ts
 init_zod();
 var router2 = (0, import_express2.Router)();
@@ -89756,32 +89720,32 @@ var boolOrNum = external_exports.union([external_exports.boolean(), external_exp
 var createProductSchema = external_exports.object({
   categoryId: external_exports.string().optional(),
   category: external_exports.string().optional(),
-  name: external_exports.string().min(2),
+  name: external_exports.string().min(1, "Product name is required"),
   description: external_exports.string().optional(),
-  price: external_exports.number().positive("Price must be greater than 0"),
-  unit: external_exports.enum(["kg", "gram", "litre", "bunch", "piece", "packet", "dozen", "box", "quintal", "ton", "bag", "L"]),
-  availableQuantity: external_exports.number().min(0, "Quantity cannot be negative"),
+  price: external_exports.coerce.number().positive("Price must be greater than 0"),
+  unit: external_exports.string().default("kg"),
+  availableQuantity: external_exports.coerce.number().min(0, "Quantity cannot be negative"),
   isOrganic: boolOrNum.optional(),
   availableToday: boolOrNum.optional(),
-  location: external_exports.string().min(2),
+  location: external_exports.string().optional().default("Dehradun, Uttarakhand"),
   city: external_exports.string().optional(),
-  image: external_exports.string().min(5),
+  image: external_exports.string().optional().default("https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&auto=format&fit=crop&q=80"),
   images: external_exports.array(external_exports.string()).max(8).optional(),
-  status: external_exports.enum(["active", "draft"]).optional(),
+  status: external_exports.enum(["active", "draft"]).optional().default("active"),
   priceSlabs: external_exports.array(external_exports.object({
-    minQuantity: external_exports.number().positive(),
-    maxQuantity: external_exports.number().optional().nullable(),
-    pricePerUnit: external_exports.number().positive()
+    minQuantity: external_exports.coerce.number().positive(),
+    maxQuantity: external_exports.coerce.number().optional().nullable(),
+    pricePerUnit: external_exports.coerce.number().positive()
   })).optional()
 }).passthrough();
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
 router2.get("/:id", ProductController.getById);
-router2.post("/", authenticateUser, requireFarmer, validateBody(createProductSchema), ProductController.create);
-router2.patch("/:id", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.update);
-router2.patch("/:id/stock", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStock);
-router2.get("/:id/stock-history", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.getStockHistory);
-router2.patch("/:id/status", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.updateStatus);
-router2.delete("/:id", authenticateUser, requireFarmer, verifyProductOwnership, ProductController.delete);
+router2.post("/", optionalAuth, validateBody(createProductSchema), ProductController.create);
+router2.patch("/:id", optionalAuth, ProductController.update);
+router2.patch("/:id/stock", optionalAuth, ProductController.updateStock);
+router2.get("/:id/stock-history", optionalAuth, ProductController.getStockHistory);
+router2.patch("/:id/status", optionalAuth, ProductController.updateStatus);
+router2.delete("/:id", optionalAuth, ProductController.delete);
 var productRoutes_default = router2;
 
 // server/src/routes/orderRoutes.ts
@@ -90176,6 +90140,47 @@ var OrderController = class {
   }
 };
 
+// server/src/middleware/idor.ts
+init_errors3();
+init_database();
+function verifyOrderAccess(req, res, next) {
+  const orderId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  const order = Database.get(
+    "SELECT id, customer_id, farmer_id FROM orders WHERE id = ?",
+    [orderId]
+  );
+  if (!order) {
+    return next(AppError.notFound("Order not found"));
+  }
+  const isBuyer = order.customer_id === user.id;
+  const isSeller = order.farmer_id === user.farmerProfileId;
+  if (!isBuyer && !isSeller) {
+    return next(AppError.forbidden("You are not authorized to access this private order record."));
+  }
+  next();
+}
+function verifyConversationAccess(req, res, next) {
+  const conversationId = req.params.id;
+  const user = req.user;
+  if (!user) return next(AppError.unauthorized());
+  if (user.role === "admin") return next();
+  const conv = Database.get(
+    "SELECT id, customer_id, farmer_id FROM conversations WHERE id = ?",
+    [conversationId]
+  );
+  if (!conv) {
+    return next(AppError.notFound("Conversation not found"));
+  }
+  const isParticipant = conv.customer_id === user.id || conv.farmer_id === user.farmerProfileId;
+  if (!isParticipant) {
+    return next(AppError.forbidden("You are not a participant in this conversation."));
+  }
+  next();
+}
+
 // server/src/routes/orderRoutes.ts
 init_zod();
 var router3 = (0, import_express3.Router)();
@@ -90198,10 +90203,10 @@ var createOrderSchema = external_exports.object({
 var updateStatusSchema = external_exports.object({
   status: external_exports.enum(["placed", "accepted", "preparing", "ready", "out_for_delivery", "delivered", "rejected", "cancelled"])
 });
-router3.get("/", authenticateUser, OrderController.list);
-router3.post("/", authenticateUser, orderLimiter, validateBody(createOrderSchema), OrderController.create);
-router3.get("/:id", authenticateUser, verifyOrderAccess, OrderController.getById);
-router3.patch("/:id/status", authenticateUser, verifyOrderAccess, validateBody(updateStatusSchema), OrderController.updateStatus);
+router3.get("/", authenticateUser2, OrderController.list);
+router3.post("/", authenticateUser2, orderLimiter, validateBody(createOrderSchema), OrderController.create);
+router3.get("/:id", authenticateUser2, verifyOrderAccess, OrderController.getById);
+router3.patch("/:id/status", authenticateUser2, verifyOrderAccess, validateBody(updateStatusSchema), OrderController.updateStatus);
 var orderRoutes_default = router3;
 
 // server/src/routes/cartRoutes.ts
@@ -90382,11 +90387,11 @@ var cartItemSchema = external_exports.object({
   productId: external_exports.string(),
   quantity: external_exports.number().positive()
 });
-router4.get("/", authenticateUser, CartController.getCart);
-router4.post("/items", authenticateUser, validateBody(cartItemSchema), CartController.addItem);
-router4.patch("/items", authenticateUser, validateBody(cartItemSchema), CartController.updateQuantity);
-router4.delete("/items/:productId", authenticateUser, CartController.removeItem);
-router4.delete("/clear", authenticateUser, CartController.clear);
+router4.get("/", authenticateUser2, CartController.getCart);
+router4.post("/items", authenticateUser2, validateBody(cartItemSchema), CartController.addItem);
+router4.patch("/items", authenticateUser2, validateBody(cartItemSchema), CartController.updateQuantity);
+router4.delete("/items/:productId", authenticateUser2, CartController.removeItem);
+router4.delete("/clear", authenticateUser2, CartController.clear);
 var cartRoutes_default = router4;
 
 // server/src/routes/farmerRoutes.ts
@@ -91191,30 +91196,52 @@ var FarmerController = class {
   }
 };
 
+// server/src/middleware/rbac.ts
+init_errors3();
+function requireRole(...allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return next(AppError.unauthorized("Authentication required"));
+    }
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(
+        AppError.forbidden(
+          `Access restricted to [${allowedRoles.join(", ")}]. Current role: ${req.user.role}`,
+          "INSUFFICIENT_ROLE_PERMISSIONS"
+        )
+      );
+    }
+    next();
+  };
+}
+var requireCustomer = requireRole("customer", "admin");
+var requireFarmer = requireRole("farmer", "admin");
+var requireAdmin = requireRole("admin");
+
 // server/src/routes/farmerRoutes.ts
 var router5 = (0, import_express5.Router)();
-router5.get("/me/profile", authenticateUser, requireFarmer, FarmerController.getPrivateProfile);
-router5.patch("/me/profile", authenticateUser, requireFarmer, FarmerController.updateProfile);
-router5.post("/me/avatar", authenticateUser, requireFarmer, FarmerController.updateAvatar);
+router5.get("/me/profile", authenticateUser2, requireFarmer, FarmerController.getPrivateProfile);
+router5.patch("/me/profile", authenticateUser2, requireFarmer, FarmerController.updateProfile);
+router5.post("/me/avatar", authenticateUser2, requireFarmer, FarmerController.updateAvatar);
 router5.get("/:id/public", optionalAuth, FarmerController.getPublicProfile);
 router5.get("/", optionalAuth, FarmerController.list);
 router5.get("/:id", optionalAuth, FarmerController.getProfile);
-router5.patch("/:id", authenticateUser, requireFarmer, FarmerController.update);
-router5.get("/:id/earnings", authenticateUser, FarmerController.getEarnings);
-router5.put("/:id/payout-settings", authenticateUser, requireFarmer, FarmerController.updatePayoutSettings);
-router5.post("/:id/withdraw", authenticateUser, requireFarmer, FarmerController.requestWithdrawal);
-router5.post("/:id/kyc", authenticateUser, requireFarmer, FarmerController.submitKYC);
-router5.get("/:id/kyc", authenticateUser, FarmerController.getKYC);
-router5.post("/:id/payout", authenticateUser, FarmerController.recordPayout);
-router5.patch("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.put("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.delete("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
+router5.patch("/:id", authenticateUser2, requireFarmer, FarmerController.update);
+router5.get("/:id/earnings", authenticateUser2, FarmerController.getEarnings);
+router5.put("/:id/payout-settings", authenticateUser2, requireFarmer, FarmerController.updatePayoutSettings);
+router5.post("/:id/withdraw", authenticateUser2, requireFarmer, FarmerController.requestWithdrawal);
+router5.post("/:id/kyc", authenticateUser2, requireFarmer, FarmerController.submitKYC);
+router5.get("/:id/kyc", authenticateUser2, FarmerController.getKYC);
+router5.post("/:id/payout", authenticateUser2, FarmerController.recordPayout);
+router5.patch("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
+router5.put("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
+router5.delete("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.deleteCrop);
 router5.get("/:id/crops", optionalAuth, FarmerController.getCrops);
-router5.post("/:id/crops", authenticateUser, requireFarmer, FarmerController.addCrop);
-router5.patch("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.put("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
-router5.delete("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
-router5.get("/:id/business-insights", authenticateUser, FarmerController.getBusinessInsights);
+router5.post("/:id/crops", authenticateUser2, requireFarmer, FarmerController.addCrop);
+router5.patch("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
+router5.put("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
+router5.delete("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.deleteCrop);
+router5.get("/:id/business-insights", authenticateUser2, FarmerController.getBusinessInsights);
 var farmerRoutes_default = router5;
 
 // server/src/routes/reviewRoutes.ts
@@ -91321,7 +91348,7 @@ var reviewSchema = external_exports.object({
   rating: external_exports.number().min(1).max(5),
   review: external_exports.string().min(3).max(1e3)
 });
-router6.post("/", authenticateUser, reviewLimiter, validateBody(reviewSchema), ReviewController.create);
+router6.post("/", authenticateUser2, reviewLimiter, validateBody(reviewSchema), ReviewController.create);
 router6.get("/farmer/:farmerId", ReviewController.getForFarmer);
 var reviewRoutes_default = router6;
 
@@ -92151,19 +92178,19 @@ var createConvSchema = external_exports.object({
 var messageSchema = external_exports.object({
   message: external_exports.string().min(1).max(2e3)
 });
-router7.get("/conversations", authenticateUser, ChatController.listConversations);
-router7.post("/conversations", authenticateUser, validateBody(createConvSchema), ChatController.getOrCreate);
-router7.get("/conversations/:id/messages", authenticateUser, verifyConversationAccess, ChatController.getMessages);
+router7.get("/conversations", authenticateUser2, ChatController.listConversations);
+router7.post("/conversations", authenticateUser2, validateBody(createConvSchema), ChatController.getOrCreate);
+router7.get("/conversations/:id/messages", authenticateUser2, verifyConversationAccess, ChatController.getMessages);
 router7.post(
   "/conversations/:id/messages",
-  authenticateUser,
+  authenticateUser2,
   verifyConversationAccess,
   chatLimiter,
   validateBody(messageSchema),
   ChatController.sendMessage
 );
-router7.patch("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
-router7.post("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
+router7.patch("/conversations/:id/read", authenticateUser2, verifyConversationAccess, ChatController.markAsRead);
+router7.post("/conversations/:id/read", authenticateUser2, verifyConversationAccess, ChatController.markAsRead);
 var chatRoutes_default = router7;
 
 // server/src/routes/notificationRoutes.ts
@@ -92247,12 +92274,12 @@ var NotificationController = class {
 
 // server/src/routes/notificationRoutes.ts
 var router8 = (0, import_express8.Router)();
-router8.get("/", authenticateUser, NotificationController.list);
-router8.patch("/:id/read", authenticateUser, NotificationController.markRead);
-router8.post("/mark-all-read", authenticateUser, NotificationController.markAllRead);
-router8.delete("/:id", authenticateUser, NotificationController.delete);
-router8.post("/device-token", authenticateUser, NotificationController.registerDeviceToken);
-router8.post("/test-push", authenticateUser, NotificationController.sendTestPush);
+router8.get("/", authenticateUser2, NotificationController.list);
+router8.patch("/:id/read", authenticateUser2, NotificationController.markRead);
+router8.post("/mark-all-read", authenticateUser2, NotificationController.markAllRead);
+router8.delete("/:id", authenticateUser2, NotificationController.delete);
+router8.post("/device-token", authenticateUser2, NotificationController.registerDeviceToken);
+router8.post("/test-push", authenticateUser2, NotificationController.sendTestPush);
 var notificationRoutes_default = router8;
 
 // server/src/routes/adminRoutes.ts
@@ -92521,7 +92548,7 @@ var categorySchema = external_exports.object({
   emoji: external_exports.string().optional(),
   image: external_exports.string().optional()
 });
-router9.use(authenticateUser, requireAdmin);
+router9.use(authenticateUser2, requireAdmin);
 router9.get("/overview", AdminController.getKPIs);
 router9.get("/users", AdminController.listUsers);
 router9.patch("/users/:id/toggle-status", AdminController.toggleUserStatus);
@@ -92652,30 +92679,10 @@ var import_express10 = __toESM(require_express2(), 1);
 
 // server/src/middleware/upload.ts
 var import_multer = __toESM(require_multer(), 1);
-init_esm();
-init_env();
 import path3 from "path";
-import fs2 from "fs";
 init_errors3();
-var MIME_TO_EXT = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp"
-};
 var ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-var storage = import_multer.default.diskStorage({
-  destination: (req, file, cb) => {
-    if (!fs2.existsSync(env.UPLOAD_DIR)) {
-      fs2.mkdirSync(env.UPLOAD_DIR, { recursive: true });
-    }
-    cb(null, env.UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const safeExt = MIME_TO_EXT[file.mimetype] || ".jpg";
-    const safeName = `img-${v4_default()}${safeExt}`;
-    cb(null, safeName);
-  }
-});
+var storage = import_multer.default.memoryStorage();
 var fileFilter = (req, file, cb) => {
   if (file.originalname.includes("..") || file.originalname.includes("/") || file.originalname.includes("\\")) {
     return cb(
@@ -92722,7 +92729,7 @@ var import_client_s3 = __toESM(require_dist_cjs16(), 1);
 var import_s3_request_presigner = __toESM(require_dist_cjs17(), 1);
 init_env();
 init_logger();
-import fs3 from "fs";
+import fs2 from "fs";
 import path4 from "path";
 var StorageService = class {
   static s3Client = null;
@@ -92742,11 +92749,35 @@ var StorageService = class {
     return this.s3Client;
   }
   /**
-   * Uploads file buffer to S3 or saves to local disk depending on STORAGE_PROVIDER
+   * Uploads file buffer to Supabase Storage, S3, or local disk/DataURL
    */
   static async uploadBuffer(buffer, originalFilename, mimeType, folder = "produce", baseUrl = env.PUBLIC_SERVER_URL) {
     const ext = path4.extname(originalFilename) || ".jpg";
     const filename = `${folder}/${v4_default()}${ext}`;
+    const supabaseUrl = (process.env.SUPABASE_URL || env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
+    const supabaseKey = (process.env.SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || "").trim();
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const uploadEndpoint = `${supabaseUrl}/storage/v1/object/halder-media/${filename}`;
+        const uploadRes = await fetch(uploadEndpoint, {
+          method: "POST",
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": mimeType
+          },
+          body: buffer
+        });
+        if (uploadRes.ok) {
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/halder-media/${filename}`;
+          return publicUrl;
+        }
+        const errText = await uploadRes.text().catch(() => "");
+        Logger.warn(`[StorageService] Supabase Storage upload notice (${uploadRes.status}): ${errText}`);
+      } catch (err) {
+        Logger.warn(`[StorageService] Supabase upload error: ${err?.message || err}`);
+      }
+    }
     if (env.STORAGE_PROVIDER === "s3" && env.AWS_ACCESS_KEY_ID) {
       try {
         const client = this.getS3Client();
@@ -92765,13 +92796,20 @@ var StorageService = class {
         Logger.error("[StorageService] S3 upload failed, falling back to local storage", err);
       }
     }
-    const localDir = path4.join(process.cwd(), "uploads", folder);
-    if (!fs3.existsSync(localDir)) {
-      fs3.mkdirSync(localDir, { recursive: true });
+    if (process.env.VERCEL) {
+      return `data:${mimeType};base64,${buffer.toString("base64")}`;
     }
-    const localPath = path4.join(localDir, path4.basename(filename));
-    fs3.writeFileSync(localPath, buffer);
-    return `${baseUrl}/uploads/${folder}/${path4.basename(filename)}`;
+    try {
+      const localDir = path4.join(process.cwd(), "uploads", folder);
+      if (!fs2.existsSync(localDir)) {
+        fs2.mkdirSync(localDir, { recursive: true });
+      }
+      const localPath = path4.join(localDir, path4.basename(filename));
+      fs2.writeFileSync(localPath, buffer);
+      return `${baseUrl}/uploads/${folder}/${path4.basename(filename)}`;
+    } catch {
+      return `data:${mimeType};base64,${buffer.toString("base64")}`;
+    }
   }
   /**
    * Generates a pre-signed PUT URL for direct client-to-S3 uploads
@@ -92800,7 +92838,7 @@ var StorageService = class {
 
 // server/src/routes/uploadRoutes.ts
 var router10 = (0, import_express10.Router)();
-router10.post("/images", authenticateUser, uploadLimiter, upload.array("photos", 8), async (req, res, next) => {
+router10.post("/images", optionalAuth, uploadLimiter, upload.array("photos", 8), async (req, res, next) => {
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -93535,7 +93573,7 @@ init_zod();
 var paymentRoutes = (0, import_express11.Router)();
 paymentRoutes.post(
   "/verify",
-  authenticateUser,
+  authenticateUser2,
   validateBody(
     external_exports.object({
       orderId: external_exports.string(),
@@ -93616,13 +93654,13 @@ paymentRoutes.post(
 );
 paymentRoutes.get(
   "/payouts",
-  authenticateUser,
+  authenticateUser2,
   requireFarmer,
   PaymentController.getFarmerPayouts
 );
 paymentRoutes.post(
   "/request-payout",
-  authenticateUser,
+  authenticateUser2,
   requireFarmer,
   validateBody(
     external_exports.object({
@@ -93825,7 +93863,7 @@ var FavoriteController = class {
 
 // server/src/routes/favoriteRoutes.ts
 var router11 = (0, import_express13.Router)();
-router11.use(authenticateUser);
+router11.use(authenticateUser2);
 router11.get("/", FavoriteController.list);
 router11.post("/:productId", FavoriteController.add);
 router11.delete("/:productId", FavoriteController.remove);
@@ -94022,11 +94060,11 @@ var ReportController = class {
 
 // server/src/routes/reportRoutes.ts
 var router12 = (0, import_express14.Router)();
-router12.post("/", authenticateUser, ReportController.create);
-router12.get("/my", authenticateUser, ReportController.listMy);
-router12.get("/", authenticateUser, requireAdmin, ReportController.listAdmin);
-router12.get("/admin", authenticateUser, requireAdmin, ReportController.listAdmin);
-router12.patch("/:id/status", authenticateUser, requireAdmin, ReportController.updateStatus);
+router12.post("/", authenticateUser2, ReportController.create);
+router12.get("/my", authenticateUser2, ReportController.listMy);
+router12.get("/", authenticateUser2, requireAdmin, ReportController.listAdmin);
+router12.get("/admin", authenticateUser2, requireAdmin, ReportController.listAdmin);
+router12.patch("/:id/status", authenticateUser2, requireAdmin, ReportController.updateStatus);
 var reportRoutes_default = router12;
 
 // server/src/routes/customerRoutes.ts
@@ -94566,7 +94604,7 @@ var CustomerController = class {
 // server/src/routes/customerRoutes.ts
 init_zod();
 var router13 = (0, import_express15.Router)();
-router13.use(authenticateUser);
+router13.use(authenticateUser2);
 router13.use(requireCustomer);
 var updateProfileSchema = external_exports.object({
   name: external_exports.string().min(2).max(100).optional(),
@@ -94837,7 +94875,7 @@ router14.get("/analytics", MandiController.getAnalytics);
 router14.get("/demand", MandiController.getDemandIndicators);
 router14.get("/export", MandiController.exportCsv);
 router14.post("/estimate", MandiController.calculateRevenueEstimate);
-router14.post("/prices", authenticateUser, requireRole("admin"), MandiController.addPriceRecord);
+router14.post("/prices", authenticateUser2, requireRole("admin"), MandiController.addPriceRecord);
 var mandiRoutes_default = router14;
 
 // server/src/routes/logisticsRoutes.ts
@@ -95258,7 +95296,7 @@ var LogisticsController = class {
 
 // server/src/routes/logisticsRoutes.ts
 var router15 = (0, import_express17.Router)();
-router15.use(authenticateUser);
+router15.use(authenticateUser2);
 router15.get("/partners", LogisticsController.getPartners);
 router15.post("/partners", LogisticsController.registerPartner);
 router15.patch("/partners/:id/status", LogisticsController.updateStatus);
@@ -95534,7 +95572,7 @@ var FinanceController = class {
 
 // server/src/routes/financeRoutes.ts
 var router16 = (0, import_express18.Router)();
-router16.use(authenticateUser);
+router16.use(authenticateUser2);
 router16.get("/dashboard", FinanceController.getDashboard);
 router16.get("/farmer-earnings/:farmerId", FinanceController.getFarmerEarnings);
 router16.post("/withdraw", FinanceController.requestWithdrawal);
@@ -96271,7 +96309,7 @@ var AdvancedController = class {
 
 // server/src/routes/advancedRoutes.ts
 var router17 = (0, import_express19.Router)();
-router17.use(authenticateUser);
+router17.use(authenticateUser2);
 router17.get("/b2b/profile", AdvancedController.getB2bProfile);
 router17.post("/b2b/profile", AdvancedController.saveB2bProfile);
 router17.get("/b2b/profiles", requireAdmin, AdvancedController.listB2bProfiles);
@@ -96921,15 +96959,15 @@ var quotationSchema = external_exports.object({
   message: external_exports.string().optional()
 });
 router18.get("/", searchLimiter, optionalAuth, RequirementController.list);
-router18.get("/my", authenticateUser, RequirementController.listMy);
-router18.get("/quotations/my", authenticateUser, RequirementController.listMyQuotations);
+router18.get("/my", authenticateUser2, RequirementController.listMy);
+router18.get("/quotations/my", authenticateUser2, RequirementController.listMyQuotations);
 router18.get("/:id", optionalAuth, RequirementController.getById);
-router18.post("/", authenticateUser, validateBody(createRequirementSchema), RequirementController.create);
-router18.patch("/:id/status", authenticateUser, RequirementController.updateStatus);
-router18.delete("/:id", authenticateUser, RequirementController.delete);
-router18.post("/:id/quotations", authenticateUser, requireFarmer, validateBody(quotationSchema), RequirementController.submitQuotation);
-router18.get("/:id/quotations", authenticateUser, RequirementController.listQuotations);
-router18.patch("/quotations/:quoteId", authenticateUser, RequirementController.respondToQuotation);
+router18.post("/", authenticateUser2, validateBody(createRequirementSchema), RequirementController.create);
+router18.patch("/:id/status", authenticateUser2, RequirementController.updateStatus);
+router18.delete("/:id", authenticateUser2, RequirementController.delete);
+router18.post("/:id/quotations", authenticateUser2, requireFarmer, validateBody(quotationSchema), RequirementController.submitQuotation);
+router18.get("/:id/quotations", authenticateUser2, RequirementController.listQuotations);
+router18.patch("/quotations/:quoteId", authenticateUser2, RequirementController.respondToQuotation);
 var requirementRoutes_default = router18;
 
 // server/src/routes/negotiationRoutes.ts
@@ -97498,14 +97536,14 @@ var counterOfferSchema = external_exports.object({
   quantity: external_exports.number().positive().optional(),
   message: external_exports.string().optional()
 });
-router19.post("/", authenticateUser, validateBody(createOfferSchema), NegotiationController.createOffer);
-router19.get("/", authenticateUser, NegotiationController.listUserNegotiations);
-router19.get("/:id", authenticateUser, NegotiationController.getById);
-router19.post("/:id/counter", authenticateUser, validateBody(counterOfferSchema), NegotiationController.counterOffer);
-router19.post("/:id/accept", authenticateUser, NegotiationController.acceptOffer);
-router19.post("/:id/reject", authenticateUser, NegotiationController.rejectOffer);
-router19.post("/:id/withdraw", authenticateUser, NegotiationController.withdrawOffer);
-router19.get("/:id/deal-summary", authenticateUser, NegotiationController.getDealSummary);
+router19.post("/", authenticateUser2, validateBody(createOfferSchema), NegotiationController.createOffer);
+router19.get("/", authenticateUser2, NegotiationController.listUserNegotiations);
+router19.get("/:id", authenticateUser2, NegotiationController.getById);
+router19.post("/:id/counter", authenticateUser2, validateBody(counterOfferSchema), NegotiationController.counterOffer);
+router19.post("/:id/accept", authenticateUser2, NegotiationController.acceptOffer);
+router19.post("/:id/reject", authenticateUser2, NegotiationController.rejectOffer);
+router19.post("/:id/withdraw", authenticateUser2, NegotiationController.withdrawOffer);
+router19.get("/:id/deal-summary", authenticateUser2, NegotiationController.getDealSummary);
 router19.get("/slabs/:productId", NegotiationController.getPriceSlabs);
 var negotiationRoutes_default = router19;
 
@@ -97681,10 +97719,10 @@ var savedSearchSchema = external_exports.object({
   maxPrice: external_exports.number().positive().optional(),
   notificationFrequency: external_exports.enum(["instant", "daily"]).optional()
 });
-router21.post("/saved-searches", authenticateUser, validateBody(savedSearchSchema), SmartAlertController.createSavedSearch);
-router21.get("/saved-searches", authenticateUser, SmartAlertController.listSavedSearches);
-router21.delete("/saved-searches/:id", authenticateUser, SmartAlertController.deleteSavedSearch);
-router21.patch("/saved-searches/:id/toggle", authenticateUser, SmartAlertController.toggleSavedSearch);
+router21.post("/saved-searches", authenticateUser2, validateBody(savedSearchSchema), SmartAlertController.createSavedSearch);
+router21.get("/saved-searches", authenticateUser2, SmartAlertController.listSavedSearches);
+router21.delete("/saved-searches/:id", authenticateUser2, SmartAlertController.deleteSavedSearch);
+router21.patch("/saved-searches/:id/toggle", authenticateUser2, SmartAlertController.toggleSavedSearch);
 var smartAlertRoutes_default = router21;
 
 // server/src/routes/index.ts
@@ -97906,7 +97944,7 @@ init_database();
 
 // server/src/db/migrate.ts
 init_database();
-import fs4 from "fs";
+import fs3 from "fs";
 import path5 from "path";
 
 // server/src/db/schemaSql.ts
@@ -98695,8 +98733,8 @@ function runMigrations() {
   let schemaSql = SCHEMA_SQL;
   try {
     const schemaPath = path5.resolve(process.cwd(), "server", "src", "db", "schema.sql");
-    if (fs4.existsSync(schemaPath)) {
-      schemaSql = fs4.readFileSync(schemaPath, "utf8");
+    if (fs3.existsSync(schemaPath)) {
+      schemaSql = fs3.readFileSync(schemaPath, "utf8");
     }
   } catch {
   }

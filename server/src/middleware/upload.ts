@@ -14,20 +14,8 @@ const MIME_TO_EXT: Record<string, string> = {
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (!fs.existsSync(env.UPLOAD_DIR)) {
-      fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
-    }
-    cb(null, env.UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    // Completely ignore user-controlled filename to prevent path traversal
-    const safeExt = MIME_TO_EXT[file.mimetype] || '.jpg';
-    const safeName = `img-${uuidv4()}${safeExt}`;
-    cb(null, safeName);
-  },
-});
+// Use memoryStorage so file buffers are kept in RAM without crashing on read-only serverless filesystems (e.g. Vercel)
+const storage = multer.memoryStorage();
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // 1. Path traversal check in original name

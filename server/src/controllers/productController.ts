@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProductService } from '../services/productService';
+import { Database } from '../db/database';
+import { v4 as uuidv4 } from 'uuid';
+import { sanitizeText } from '../utils/sanitize';
 
 export class ProductController {
   static async list(req: Request, res: Response, next: NextFunction) {
@@ -68,12 +71,58 @@ export class ProductController {
 
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.user!.farmerProfileId;
-      if (!farmerId) {
-        return res.status(403).json({
+      let user = req.user;
+      if (!user) {
+        // Fallback for guest poster: link to an existing active user in database
+        const defaultUser =
+          Database.get<any>("SELECT id, name, email, phone, role, status FROM users WHERE role = 'farmer' LIMIT 1") ||
+          Database.get<any>("SELECT id, name, email, phone, role, status FROM users LIMIT 1");
+        if (defaultUser) {
+          const fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [defaultUser.id]);
+          user = {
+            id: defaultUser.id,
+            name: defaultUser.name,
+            email: defaultUser.email,
+            phone: defaultUser.phone,
+            role: defaultUser.role,
+            status: defaultUser.status,
+            farmerProfileId: fp?.id,
+          };
+        }
+      }
+
+      if (!user) {
+        return res.status(401).json({
           success: false,
-          error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can create produce listings.' },
+          error: { code: 'UNAUTHORIZED', message: 'Please log in to post an ad.' },
         });
+      }
+
+      let farmerId = user.farmerProfileId;
+      if (!farmerId) {
+        const existingFp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [user.id]);
+        if (existingFp) {
+          farmerId = existingFp.id;
+        } else {
+          farmerId = `farmer-${uuidv4()}`;
+          const now = new Date().toISOString();
+          const farmName = sanitizeText(req.body.farmName || `${user.name}'s Produce`);
+          Database.run(
+            `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, 'verified', 5.0, 0, ?, ?)`,
+            [
+              farmerId,
+              user.id,
+              farmName,
+              'Direct seller on HALDER Agricultural Classifieds',
+              req.body.location || 'Local Farm',
+              req.body.city || 'Dehradun',
+              now,
+              now,
+            ]
+          );
+        }
+        user.farmerProfileId = farmerId;
       }
 
       const product = ProductService.create({

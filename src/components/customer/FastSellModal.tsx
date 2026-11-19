@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ProductCategory, PriceSlab } from '../../types';
 import { compressImageFile, formatBytes } from '../../utils/imageCompression';
+import { ApiClient } from '../../api/client';
 import {
   X,
   Camera,
@@ -208,10 +209,23 @@ export const FastSellModal: React.FC = () => {
       const files = Array.from(e.target.files).slice(0, remainingSlots);
       setIsCompressing(true);
       try {
+        let uploadedCloudUrls: string[] = [];
+        try {
+          const uploadRes = await ApiClient.uploadImages(files);
+          if (uploadRes?.urls && uploadRes.urls.length > 0) {
+            uploadedCloudUrls = uploadRes.urls;
+          }
+        } catch (uploadErr) {
+          console.warn('[HALDER Upload] Cloud upload notice, falling back to local compressed:', uploadErr);
+        }
+
         let origSum = 0;
         let compSum = 0;
-        const compressedUrls = await Promise.all(
-          files.map(async (f) => {
+        const processedUrls = await Promise.all(
+          files.map(async (f, idx) => {
+            if (uploadedCloudUrls[idx]) {
+              return uploadedCloudUrls[idx];
+            }
             try {
               const res = await compressImageFile(f, { lowBandwidthMode });
               origSum += res.originalSize;
@@ -228,13 +242,15 @@ export const FastSellModal: React.FC = () => {
           compressedTotal: compSum,
           savingsPercent,
         });
-        setUploadedPhotos((prev) => [...prev, ...compressedUrls].slice(0, 8));
+        setUploadedPhotos((prev) => [...prev, ...processedUrls].slice(0, 8));
         showToast(
-          t('post_ad.photos_compressed', {
-            count: files.length,
-            percent: savingsPercent,
-            size: formatBytes(compSum),
-          }),
+          uploadedCloudUrls.length > 0
+            ? `Uploaded ${uploadedCloudUrls.length} photo(s) to cloud storage!`
+            : t('post_ad.photos_compressed', {
+                count: files.length,
+                percent: savingsPercent,
+                size: formatBytes(compSum),
+              }),
           'success'
         );
       } catch (err: any) {
