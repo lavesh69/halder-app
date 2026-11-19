@@ -9,7 +9,8 @@ import { reviewLimiter } from '../middleware/rateLimiter';
 const router = Router();
 
 const reviewSchema = z.object({
-  orderId: z.string(),
+  orderId: z.string().optional(),
+  farmerId: z.string().optional(),
   rating: z.number().min(1).max(5),
   review: z.string().min(3).max(1000),
 });

@@ -91267,22 +91267,16 @@ var ReviewService = class {
     if (data.rating < 1 || data.rating > 5) {
       throw AppError.badRequest("Rating must be between 1 and 5 stars.");
     }
-    const order = Database.get("SELECT * FROM orders WHERE id = ?", [data.orderId]);
-    if (!order) {
-      throw AppError.notFound("Order not found");
+    let farmerId = data.farmerId;
+    let orderId = data.orderId || null;
+    if (orderId) {
+      const order = Database.get("SELECT * FROM orders WHERE id = ?", [orderId]);
+      if (order) {
+        farmerId = order.farmer_id;
+      }
     }
-    if (order.customer_id !== data.customerId) {
-      throw AppError.forbidden("You can only review orders that you have placed.");
-    }
-    if (order.order_status !== "delivered") {
-      throw AppError.badRequest(
-        "You can only review an order after it has been delivered by the farmer.",
-        "ORDER_NOT_DELIVERED"
-      );
-    }
-    const existingReview = Database.get("SELECT id FROM reviews WHERE order_id = ?", [data.orderId]);
-    if (existingReview) {
-      throw AppError.conflict("You have already submitted a review for this order.");
+    if (!farmerId) {
+      throw AppError.badRequest("Farmer ID or Order ID required to submit review.");
     }
     const reviewId = `rev-${v4_default()}`;
     const now = (/* @__PURE__ */ new Date()).toISOString();
@@ -91292,22 +91286,24 @@ var ReviewService = class {
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           reviewId,
-          data.orderId,
+          orderId || `direct-deal-${v4_default().slice(0, 8)}`,
           data.customerId,
-          order.farmer_id,
+          farmerId,
           data.rating,
           sanitizeText(data.review),
           now
         ]
       );
-      const reviews = Database.query("SELECT rating FROM reviews WHERE farmer_id = ?", [order.farmer_id]);
-      const avg = reviews.reduce((sum, r5) => sum + r5.rating, 0) / reviews.length;
-      Database.run(
-        "UPDATE farmer_profiles SET rating = ?, updated_at = ? WHERE id = ?",
-        [Number(avg.toFixed(1)), now, order.farmer_id]
-      );
+      const reviews = Database.query("SELECT rating FROM reviews WHERE farmer_id = ?", [farmerId]);
+      if (reviews.length > 0) {
+        const avg = reviews.reduce((sum, r5) => sum + r5.rating, 0) / reviews.length;
+        Database.run(
+          "UPDATE farmer_profiles SET rating = ?, updated_at = ? WHERE id = ?",
+          [Math.round(avg * 10) / 10, now, farmerId]
+        );
+      }
     });
-    return Database.get("SELECT * FROM reviews WHERE id = ?", [reviewId]);
+    return Database.get("SELECT * FROM reviews WHERE id = ?", [reviewId]) || { id: reviewId, rating: data.rating, review: data.review };
   }
   static getForFarmer(farmerId) {
     return Database.query(
@@ -91354,7 +91350,8 @@ var ReviewController = class {
 init_zod();
 var router6 = (0, import_express6.Router)();
 var reviewSchema = external_exports.object({
-  orderId: external_exports.string(),
+  orderId: external_exports.string().optional(),
+  farmerId: external_exports.string().optional(),
   rating: external_exports.number().min(1).max(5),
   review: external_exports.string().min(3).max(1e3)
 });
@@ -93691,14 +93688,58 @@ var WeatherService = class {
   cache = /* @__PURE__ */ new Map();
   CACHE_TTL_MS = 15 * 60 * 1e3;
   // 15 minutes
-  async getAgroWeather(city = "Dehradun") {
+  async getAgroWeather(city = "Dehradun", customLat, customLng) {
     const normalizedCity = city.trim().toLowerCase();
+    const cacheKey = customLat && customLng ? `${customLat.toFixed(2)},${customLng.toFixed(2)}` : normalizedCity;
     const now = Date.now();
-    const cached = this.cache.get(normalizedCity);
+    const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > now) {
       return { ...cached.data, source: "cache" };
     }
-    const coords = normalizedCity.includes("rishi") ? { lat: 30.0869, lng: 78.2676 } : normalizedCity.includes("haridwar") ? { lat: 29.9457, lng: 78.1642 } : normalizedCity.includes("mussoorie") ? { lat: 30.4598, lng: 78.0644 } : { lat: 30.3165, lng: 78.0322 };
+    let coords;
+    if (customLat && customLng && !isNaN(customLat) && !isNaN(customLng)) {
+      coords = { lat: customLat, lng: customLng };
+    } else if (normalizedCity.includes("delhi")) {
+      coords = { lat: 28.6139, lng: 77.209 };
+    } else if (normalizedCity.includes("punjab") || normalizedCity.includes("ludhiana")) {
+      coords = { lat: 30.901, lng: 75.8573 };
+    } else if (normalizedCity.includes("karnal") || normalizedCity.includes("haryana")) {
+      coords = { lat: 29.6857, lng: 76.9905 };
+    } else if (normalizedCity.includes("nashik") || normalizedCity.includes("grape")) {
+      coords = { lat: 19.9975, lng: 73.7898 };
+    } else if (normalizedCity.includes("pune")) {
+      coords = { lat: 18.5204, lng: 73.8567 };
+    } else if (normalizedCity.includes("mumbai") || normalizedCity.includes("maharashtra")) {
+      coords = { lat: 19.076, lng: 72.8777 };
+    } else if (normalizedCity.includes("jaipur") || normalizedCity.includes("rajasthan")) {
+      coords = { lat: 26.9124, lng: 75.7873 };
+    } else if (normalizedCity.includes("ahmedabad") || normalizedCity.includes("gujarat")) {
+      coords = { lat: 23.0225, lng: 72.5714 };
+    } else if (normalizedCity.includes("lucknow") || normalizedCity.includes("up")) {
+      coords = { lat: 26.8467, lng: 80.9462 };
+    } else if (normalizedCity.includes("varanasi")) {
+      coords = { lat: 25.3176, lng: 82.9739 };
+    } else if (normalizedCity.includes("patna") || normalizedCity.includes("bihar")) {
+      coords = { lat: 25.5941, lng: 85.1376 };
+    } else if (normalizedCity.includes("indore") || normalizedCity.includes("bhopal") || normalizedCity.includes("mp")) {
+      coords = { lat: 22.7196, lng: 75.8577 };
+    } else if (normalizedCity.includes("bengaluru") || normalizedCity.includes("bangalore") || normalizedCity.includes("karnataka")) {
+      coords = { lat: 12.9716, lng: 77.5946 };
+    } else if (normalizedCity.includes("hyderabad") || normalizedCity.includes("telangana")) {
+      coords = { lat: 17.385, lng: 78.4867 };
+    } else if (normalizedCity.includes("kolkata") || normalizedCity.includes("bengal")) {
+      coords = { lat: 22.5726, lng: 88.3639 };
+    } else if (normalizedCity.includes("rishi")) {
+      coords = { lat: 30.0869, lng: 78.2676 };
+    } else if (normalizedCity.includes("haridwar")) {
+      coords = { lat: 29.9457, lng: 78.1642 };
+    } else if (normalizedCity.includes("nainital") || normalizedCity.includes("haldwani")) {
+      coords = { lat: 29.2183, lng: 79.513 };
+    } else if (normalizedCity.includes("mussoorie")) {
+      coords = { lat: 30.4598, lng: 78.0644 };
+    } else {
+      coords = { lat: 30.3165, lng: 78.0322 };
+    }
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4e3);
@@ -93775,7 +93816,9 @@ var handleWeather = async (req, res, next) => {
   try {
     const rawCity = typeof req.query.city === "string" ? req.query.city : "Dehradun";
     const city = sanitizeText(rawCity).slice(0, 50) || "Dehradun";
-    const data = await weatherService.getAgroWeather(city);
+    const lat = req.query.lat ? parseFloat(String(req.query.lat)) : void 0;
+    const lng = req.query.lng ? parseFloat(String(req.query.lng)) : void 0;
+    const data = await weatherService.getAgroWeather(city, lat, lng);
     res.json({
       success: true,
       data
@@ -98095,7 +98138,7 @@ CREATE TABLE IF NOT EXISTS products (
   slug TEXT NOT NULL,
   description TEXT DEFAULT '',
   price REAL NOT NULL CHECK(price > 0),
-  unit TEXT NOT NULL CHECK(unit IN ('kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box')),
+  unit TEXT NOT NULL CHECK(unit IN ('kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box', 'quintal', 'ton')),
   available_quantity REAL NOT NULL CHECK(available_quantity >= 0),
   is_organic INTEGER NOT NULL DEFAULT 0,
   available_today INTEGER NOT NULL DEFAULT 1,

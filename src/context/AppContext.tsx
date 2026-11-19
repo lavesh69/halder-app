@@ -26,6 +26,8 @@ import {
 } from '../data/mockData';
 import confetti from 'canvas-confetti';
 import { ApiClient } from '../api/client';
+import { calculateHaversineDistanceKm } from '../utils/geo';
+import { PushNotificationClient } from '../services/pushNotificationClient';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
@@ -132,12 +134,16 @@ interface AppContextType {
   setSelectedProduct: (p: Product | null) => void;
   selectedFarmer: Farmer | null;
   setSelectedFarmer: (f: Farmer | null) => void;
+  isPostRequirementOpen: boolean;
+  setIsPostRequirementOpen: (open: boolean) => void;
   trackingOrder: Order | null;
   setTrackingOrder: (o: Order | null) => void;
 
   // Location-first State
   currentLocation: string;
   setCurrentLocation: (loc: string) => void;
+  userCoordinates: { lat: number; lng: number } | null;
+  setUserCoordinates: (coords: { lat: number; lng: number } | null) => void;
   activeCity: string;
   setActiveCity: (city: string) => void;
   isLocationModalOpen: boolean;
@@ -477,6 +483,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? Number(saved) : 300;
   });
 
+  const [userCoordinates, setUserCoordinates] = useState<{ lat: number; lng: number } | null>(() => {
+    try {
+      const saved = localStorage.getItem('halder-user-coords');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (userCoordinates) {
+        localStorage.setItem('halder-user-coords', JSON.stringify(userCoordinates));
+      } else {
+        localStorage.removeItem('halder-user-coords');
+      }
+    } catch {}
+  }, [userCoordinates]);
+
   useEffect(() => {
     try {
       if (currentLocation) {
@@ -509,6 +534,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [isPostRequirementOpen, setIsPostRequirementOpen] = useState<boolean>(false);
   const [isFastSellOpen, setIsFastSellOpen] = useState<boolean>(false);
   const [editingListing, setEditingListing] = useState<Product | null>(null);
 
@@ -666,7 +692,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     postalCode: p.postal_code || '',
     pickupAvailable: p.pickup_available !== 0,
     farmerDeliveryAvailable: p.farmer_delivery_available !== 0,
-    distanceKm: typeof p.distance_km === 'number' ? p.distance_km : 2.1,
+    distanceKm: (() => {
+      const lat = p.latitude !== undefined && p.latitude !== null ? Number(p.latitude) : undefined;
+      const lng = p.longitude !== undefined && p.longitude !== null ? Number(p.longitude) : undefined;
+      if (userCoordinates && lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng)) {
+        return Math.round(calculateHaversineDistanceKm(userCoordinates, { lat, lng }) * 10) / 10;
+      }
+      return typeof p.distance_km === 'number' ? p.distance_km : 2.1;
+    })(),
     latitude: p.latitude !== undefined && p.latitude !== null ? Number(p.latitude) : undefined,
     longitude: p.longitude !== undefined && p.longitude !== null ? Number(p.longitude) : undefined,
     isOrganic: Boolean(p.is_organic),
@@ -676,7 +709,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     freshnessTag: p.freshness_tag || 'Fresh Harvest',
     image: p.image,
     images: Array.isArray(p.images) ? p.images : p.image ? [p.image] : [],
-    priceSlabs: Array.isArray(p.price_slabs) ? p.price_slabs : undefined,
+    priceSlabs: Array.isArray(p.price_slabs) ? p.price_slabs : Array.isArray(p.priceSlabs) ? p.priceSlabs : undefined,
+    price_slabs: Array.isArray(p.price_slabs) ? p.price_slabs : Array.isArray(p.priceSlabs) ? p.priceSlabs : undefined,
     rating: p.rating || 5.0,
     viewsCount: p.views_count || 12,
     likesCount: p.likes_count || 4,
@@ -1148,6 +1182,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: 'Just now',
     };
     setNotifications((prev) => [newNotif, ...prev]);
+    PushNotificationClient.showLocalNotification(title, { body: message });
   };
 
   const loginUser = (selectedRole: Role, phone?: string) => {
@@ -1317,6 +1352,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       priceSlabs: Array.isArray(listingData.priceSlabs) ? listingData.priceSlabs : [],
       status: listingData.status === 'draft' ? 'draft' : 'active',
       showPhoneNumber: listingData.showPhoneNumber !== false,
+      latitude: listingData.latitude || userCoordinates?.lat || undefined,
+      longitude: listingData.longitude || userCoordinates?.lng || undefined,
     };
 
     if (listingData.editingId) {
@@ -1903,10 +1940,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedProduct,
         selectedFarmer,
         setSelectedFarmer,
+        isPostRequirementOpen,
+        setIsPostRequirementOpen,
         trackingOrder,
         setTrackingOrder,
         currentLocation,
         setCurrentLocation,
+        userCoordinates,
+        setUserCoordinates,
         activeCity,
         setActiveCity,
         isLocationModalOpen,

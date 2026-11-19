@@ -26,24 +26,63 @@ class WeatherService {
   private cache = new Map<string, CacheEntry>();
   private readonly CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
-  public async getAgroWeather(city: string = 'Dehradun'): Promise<AgroWeatherInfo> {
+  public async getAgroWeather(city: string = 'Dehradun', customLat?: number, customLng?: number): Promise<AgroWeatherInfo> {
     const normalizedCity = city.trim().toLowerCase();
+    const cacheKey = customLat && customLng ? `${customLat.toFixed(2)},${customLng.toFixed(2)}` : normalizedCity;
     const now = Date.now();
 
     // 1. Check in-memory cache
-    const cached = this.cache.get(normalizedCity);
+    const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > now) {
       return { ...cached.data, source: 'cache' };
     }
 
-    // 2. Resolve coordinates
-    const coords = normalizedCity.includes('rishi')
-      ? { lat: 30.0869, lng: 78.2676 }
-      : normalizedCity.includes('haridwar')
-      ? { lat: 29.9457, lng: 78.1642 }
-      : normalizedCity.includes('mussoorie')
-      ? { lat: 30.4598, lng: 78.0644 }
-      : { lat: 30.3165, lng: 78.0322 }; // Dehradun default
+    // 2. Resolve coordinates (custom GPS or all-India agricultural hubs)
+    let coords: { lat: number; lng: number };
+
+    if (customLat && customLng && !isNaN(customLat) && !isNaN(customLng)) {
+      coords = { lat: customLat, lng: customLng };
+    } else if (normalizedCity.includes('delhi')) {
+      coords = { lat: 28.6139, lng: 77.2090 };
+    } else if (normalizedCity.includes('punjab') || normalizedCity.includes('ludhiana')) {
+      coords = { lat: 30.9010, lng: 75.8573 };
+    } else if (normalizedCity.includes('karnal') || normalizedCity.includes('haryana')) {
+      coords = { lat: 29.6857, lng: 76.9905 };
+    } else if (normalizedCity.includes('nashik') || normalizedCity.includes('grape')) {
+      coords = { lat: 19.9975, lng: 73.7898 };
+    } else if (normalizedCity.includes('pune')) {
+      coords = { lat: 18.5204, lng: 73.8567 };
+    } else if (normalizedCity.includes('mumbai') || normalizedCity.includes('maharashtra')) {
+      coords = { lat: 19.0760, lng: 72.8777 };
+    } else if (normalizedCity.includes('jaipur') || normalizedCity.includes('rajasthan')) {
+      coords = { lat: 26.9124, lng: 75.7873 };
+    } else if (normalizedCity.includes('ahmedabad') || normalizedCity.includes('gujarat')) {
+      coords = { lat: 23.0225, lng: 72.5714 };
+    } else if (normalizedCity.includes('lucknow') || normalizedCity.includes('up')) {
+      coords = { lat: 26.8467, lng: 80.9462 };
+    } else if (normalizedCity.includes('varanasi')) {
+      coords = { lat: 25.3176, lng: 82.9739 };
+    } else if (normalizedCity.includes('patna') || normalizedCity.includes('bihar')) {
+      coords = { lat: 25.5941, lng: 85.1376 };
+    } else if (normalizedCity.includes('indore') || normalizedCity.includes('bhopal') || normalizedCity.includes('mp')) {
+      coords = { lat: 22.7196, lng: 75.8577 };
+    } else if (normalizedCity.includes('bengaluru') || normalizedCity.includes('bangalore') || normalizedCity.includes('karnataka')) {
+      coords = { lat: 12.9716, lng: 77.5946 };
+    } else if (normalizedCity.includes('hyderabad') || normalizedCity.includes('telangana')) {
+      coords = { lat: 17.3850, lng: 78.4867 };
+    } else if (normalizedCity.includes('kolkata') || normalizedCity.includes('bengal')) {
+      coords = { lat: 22.5726, lng: 88.3639 };
+    } else if (normalizedCity.includes('rishi')) {
+      coords = { lat: 30.0869, lng: 78.2676 };
+    } else if (normalizedCity.includes('haridwar')) {
+      coords = { lat: 29.9457, lng: 78.1642 };
+    } else if (normalizedCity.includes('nainital') || normalizedCity.includes('haldwani')) {
+      coords = { lat: 29.2183, lng: 79.5130 };
+    } else if (normalizedCity.includes('mussoorie')) {
+      coords = { lat: 30.4598, lng: 78.0644 };
+    } else {
+      coords = { lat: 30.3165, lng: 78.0322 }; // Dehradun default
+    }
 
     try {
       const controller = new AbortController();

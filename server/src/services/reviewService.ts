@@ -5,7 +5,8 @@ import { sanitizeText } from '../utils/sanitize';
 
 export class ReviewService {
   static create(data: {
-    orderId: string;
+    orderId?: string;
+    farmerId?: string;
     customerId: string;
     rating: number;
     review: string;
@@ -14,25 +15,18 @@ export class ReviewService {
       throw AppError.badRequest('Rating must be between 1 and 5 stars.');
     }
 
-    const order = Database.get<any>('SELECT * FROM orders WHERE id = ?', [data.orderId]);
-    if (!order) {
-      throw AppError.notFound('Order not found');
+    let farmerId = data.farmerId;
+    let orderId = data.orderId || null;
+
+    if (orderId) {
+      const order = Database.get<any>('SELECT * FROM orders WHERE id = ?', [orderId]);
+      if (order) {
+        farmerId = order.farmer_id;
+      }
     }
 
-    if (order.customer_id !== data.customerId) {
-      throw AppError.forbidden('You can only review orders that you have placed.');
-    }
-
-    if (order.order_status !== 'delivered') {
-      throw AppError.badRequest(
-        'You can only review an order after it has been delivered by the farmer.',
-        'ORDER_NOT_DELIVERED'
-      );
-    }
-
-    const existingReview = Database.get<any>('SELECT id FROM reviews WHERE order_id = ?', [data.orderId]);
-    if (existingReview) {
-      throw AppError.conflict('You have already submitted a review for this order.');
+    if (!farmerId) {
+      throw AppError.badRequest('Farmer ID or Order ID required to submit review.');
     }
 
     const reviewId = `rev-${uuidv4()}`;
@@ -44,25 +38,26 @@ export class ReviewService {
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           reviewId,
-          data.orderId,
+          orderId || `direct-deal-${uuidv4().slice(0, 8)}`,
           data.customerId,
-          order.farmer_id,
+          farmerId,
           data.rating,
           sanitizeText(data.review),
           now,
         ]
       );
 
-      const reviews = Database.query<any>('SELECT rating FROM reviews WHERE farmer_id = ?', [order.farmer_id]);
-      const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-
-      Database.run(
-        'UPDATE farmer_profiles SET rating = ?, updated_at = ? WHERE id = ?',
-        [Number(avg.toFixed(1)), now, order.farmer_id]
-      );
+      const reviews = Database.query<any>('SELECT rating FROM reviews WHERE farmer_id = ?', [farmerId]);
+      if (reviews.length > 0) {
+        const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        Database.run(
+          'UPDATE farmer_profiles SET rating = ?, updated_at = ? WHERE id = ?',
+          [Math.round(avg * 10) / 10, now, farmerId]
+        );
+      }
     });
 
-    return Database.get<any>('SELECT * FROM reviews WHERE id = ?', [reviewId]);
+    return Database.get<any>('SELECT * FROM reviews WHERE id = ?', [reviewId]) || { id: reviewId, rating: data.rating, review: data.review };
   }
 
   static getForFarmer(farmerId: string) {

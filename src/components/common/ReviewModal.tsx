@@ -28,13 +28,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      if (orderId) {
-        await ApiClient.createReview({
-          orderId,
-          rating,
-          review: comment.trim() || 'Fresh produce, great farm-gate quality!',
-        });
-      }
+      await ApiClient.createReview({
+        orderId: orderId || undefined,
+        farmerId: farmerId || undefined,
+        rating,
+        review: comment.trim() || 'Fresh produce, great farm-gate quality!',
+      });
     } catch (err: any) {
       console.warn('Backend review note:', err?.message || err);
     } finally {

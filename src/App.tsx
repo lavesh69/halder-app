@@ -17,6 +17,7 @@ import { ListingDetailModal } from './components/customer/ListingDetailModal';
 import { FarmerSellerProfileModal } from './components/customer/FarmerSellerProfileModal';
 import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal';
 import { FastSellModal } from './components/customer/FastSellModal';
+import { PostRequirementModal } from './components/customer/PostRequirementModal';
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 import { ReviewModal } from './components/common/ReviewModal';
@@ -56,6 +57,8 @@ export const MainApp: React.FC = () => {
     setStockControlProduct,
     reviewTarget,
     setReviewTarget,
+    isPostRequirementOpen,
+    setIsPostRequirementOpen,
   } = useApp();
 
   // Proactively clear any legacy lockout or PIN artifacts from client storage
@@ -181,6 +184,10 @@ export const MainApp: React.FC = () => {
       <SavedSearchesModal
         isOpen={isSavedSearchesOpen}
         onClose={() => setIsSavedSearchesOpen(false)}
+      />
+      <PostRequirementModal
+        isOpen={isPostRequirementOpen}
+        onClose={() => setIsPostRequirementOpen(false)}
       />
 
       {reviewTarget && (

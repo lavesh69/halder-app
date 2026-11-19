@@ -71,6 +71,7 @@ export const FarmerDashboard: React.FC = () => {
     activeCity,
     currentUser,
     unreadChatCount,
+    openFarmerChat,
     showToast,
   } = useApp();
 
@@ -89,6 +90,17 @@ export const FarmerDashboard: React.FC = () => {
   const [isInsightsModalOpen, setIsInsightsModalOpen] = useState(false);
   const [isMandiModalOpen, setIsMandiModalOpen] = useState(false);
   const [, setMandiPrices] = useState<any[]>([]);
+  const [buyerDemands, setBuyerDemands] = useState<any[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    ApiClient.listRequirements({ limit: 4 })
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) setBuyerDemands(data);
+      })
+      .catch((err) => console.warn('Requirements fetch:', err));
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     ApiClient.getMandiPrices()
@@ -353,6 +365,61 @@ export const FarmerDashboard: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Live Buyer Demands & Mandi Tenders */}
+          {buyerDemands.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📢</span>
+                  <h3 className="text-base font-bold text-[#202923] dark:text-[#F2F5F3]">
+                    Buyer Demands & Bulk Tenders (खरीदार मांग)
+                  </h3>
+                </div>
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-bold">
+                  {buyerDemands.length} Active Leads
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {buyerDemands.map((dem) => (
+                  <div
+                    key={dem.id}
+                    className="p-3.5 bg-blue-50/50 dark:bg-blue-950/20 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-blue-950 dark:text-blue-100">
+                          {dem.product_name || dem.productName}
+                        </span>
+                        <span className="text-[10px] bg-blue-200/80 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 font-bold px-2 py-0.5 rounded-full">
+                          Req: {dem.required_quantity || dem.requiredQuantity} {dem.unit || 'kg'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
+                        📍 {dem.city || dem.location || 'Local Mandi'} • Target: {dem.target_price || dem.targetPrice ? `₹${dem.target_price || dem.targetPrice}/${dem.unit}` : 'Negotiable'}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        openFarmerChat({
+                          id: dem.buyer_id || dem.buyerId || 'buyer-1',
+                          name: dem.buyer_name || dem.buyerName || 'Verified Buyer',
+                          phone: dem.buyer_phone || dem.buyerPhone || '+91 98765 43210',
+                          location: dem.city || 'Local Mandi',
+                        } as any, `Namaste! Regarding your requirement for ${dem.product_name || dem.productName} (${dem.required_quantity || dem.requiredQuantity} ${dem.unit || 'kg'}), I can supply fresh morning harvest.`);
+                      }}
+                      className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-soft"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>Quote / Send Offer (भाव दें)</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column (Side Panel: Stats, Packing & Sales) */}

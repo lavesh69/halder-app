@@ -59,12 +59,34 @@ export class ApiClient {
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
-    const data = await response.json();
-    if (!response.ok || data.success === false) {
-      throw new Error(data.error?.message || `Request failed with status ${response.status}`);
+    let data: any;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch {
+        data = { success: false, error: { message: 'Invalid response format from server' } };
+      }
+    } else {
+      const text = await response.text().catch(() => '');
+      data = {
+        success: response.ok,
+        error: { message: response.ok ? text : `Server Error (${response.status}): Service temporarily unavailable` },
+      };
     }
 
-    return data.data !== undefined ? data.data : data;
+    if (response.status === 401) {
+      this.clearToken();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('halder:auth-expired'));
+      }
+    }
+
+    if (!response.ok || data?.success === false) {
+      throw new Error(data?.error?.message || `Request failed with status ${response.status}`);
+    }
+
+    return data?.data !== undefined ? data.data : data;
   }
 
   // Auth APIs
@@ -402,7 +424,7 @@ export class ApiClient {
   }
 
   // Reviews APIs
-  static createReview(data: { orderId: string; rating: number; review: string }) {
+  static createReview(data: { orderId?: string; farmerId?: string; rating: number; review: string }) {
     return this.request('/reviews', {
       method: 'POST',
       body: data,
@@ -459,7 +481,22 @@ export class ApiClient {
       body: formData,
     });
 
-    const data = await res.json();
+    let data: any;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json().catch(() => ({ success: false, error: { message: 'Upload parsing error' } }));
+    } else {
+      const errText = await res.text().catch(() => '');
+      data = { success: false, error: { message: errText || `Upload failed with status ${res.status}` } };
+    }
+
+    if (res.status === 401) {
+      this.clearToken();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('halder:auth-expired'));
+      }
+    }
+
     if (!res.ok || data.success === false) {
       throw new Error(data.error?.message || 'Image upload failed');
     }
@@ -468,9 +505,14 @@ export class ApiClient {
   }
 
   // Agro-Weather & Advisory API (AI App Security Checklist - Point 1 & 7)
-  static async getAgroWeather(city: string = 'Dehradun'): Promise<any> {
+  static async getAgroWeather(city: string = 'Dehradun', lat?: number, lng?: number): Promise<any> {
+    const params: Record<string, any> = { city };
+    if (lat !== undefined && lng !== undefined) {
+      params.lat = lat;
+      params.lng = lng;
+    }
     const res = await this.request<any>('/weather/agro', {
-      params: { city },
+      params,
     });
     return res.data;
   }

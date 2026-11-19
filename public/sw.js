@@ -81,7 +81,19 @@ self.addEventListener('fetch', (event) => {
         .catch(async () => {
           const cached = await caches.match(request);
           if (cached) return cached;
-          return new Response(JSON.stringify({ success: true, data: [], offline: true }), {
+
+          // If exact query not cached, try to find any cached products list
+          if (url.pathname.startsWith('/api/v1/products')) {
+            const cache = await caches.open(CACHE_NAME);
+            const cachedRequests = await cache.keys();
+            const productReq = cachedRequests.find((r) => new URL(r.url).pathname.startsWith('/api/v1/products'));
+            if (productReq) {
+              const matchedFallback = await cache.match(productReq);
+              if (matchedFallback) return matchedFallback;
+            }
+          }
+
+          return new Response(JSON.stringify({ success: true, data: [], offline: true, message: 'Offline mode active. Reconnect to see live mandi updates.' }), {
             headers: { 'Content-Type': 'application/json' },
           });
         })

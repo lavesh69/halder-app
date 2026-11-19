@@ -52,6 +52,7 @@ export const ListingDetailModal: React.FC = () => {
     updateProductStatusAction,
     setEditingListing,
     setIsFastSellOpen,
+    setReviewTarget,
     products,
     showToast,
   } = useApp();
@@ -379,14 +380,14 @@ export const ListingDetailModal: React.FC = () => {
           </div>
 
           {/* Volume Price Slabs (Module 5) */}
-          {selectedProduct.price_slabs && selectedProduct.price_slabs.length > 0 && (
+          {Boolean((selectedProduct.priceSlabs || selectedProduct.price_slabs)?.length) && (
             <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-200">
                 <Boxes className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>Bulk Volume Pricing (थोक मूल्य छूट)</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {selectedProduct.price_slabs.map((slab, idx) => (
+                {(selectedProduct.priceSlabs || selectedProduct.price_slabs)!.map((slab, idx) => (
                   <div
                     key={idx}
                     className="p-2 bg-white dark:bg-zinc-800 rounded-xl border border-amber-200/60 dark:border-amber-800/40 text-center"
@@ -404,22 +405,28 @@ export const ListingDetailModal: React.FC = () => {
           )}
 
           {/* Quality & Farm Provenance Specs */}
-          {(selectedProduct.product_grade || selectedProduct.organic_certification_body || selectedProduct.storage_info || selectedProduct.packaging_info || selectedProduct.village || selectedProduct.district) && (
+          {Boolean(
+            selectedProduct.productGrade || selectedProduct.product_grade ||
+            selectedProduct.organicCertificationBody || selectedProduct.organic_certification_body ||
+            selectedProduct.storageInfo || selectedProduct.storage_info ||
+            selectedProduct.packagingInfo || selectedProduct.packaging_info ||
+            selectedProduct.village || selectedProduct.district
+          ) && (
             <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/80 space-y-2 text-xs">
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">
                 Quality & Farm Specifications
               </span>
               <div className="grid grid-cols-2 gap-2 text-[11px]">
-                {selectedProduct.product_grade && (
+                {(selectedProduct.productGrade || selectedProduct.product_grade) && (
                   <div>
                     <span className="text-zinc-400 block">Grade:</span>
-                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.product_grade}</strong>
+                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.productGrade || selectedProduct.product_grade}</strong>
                   </div>
                 )}
-                {selectedProduct.organic_certification_body && (
+                {(selectedProduct.organicCertificationBody || selectedProduct.organic_certification_body) && (
                   <div>
                     <span className="text-zinc-400 block">Organic Body:</span>
-                    <strong className="text-emerald-600">{selectedProduct.organic_certification_body}</strong>
+                    <strong className="text-emerald-600">{selectedProduct.organicCertificationBody || selectedProduct.organic_certification_body}</strong>
                   </div>
                 )}
                 {(selectedProduct.village || selectedProduct.district) && (
@@ -430,16 +437,22 @@ export const ListingDetailModal: React.FC = () => {
                     </strong>
                   </div>
                 )}
-                {selectedProduct.min_order_quantity && (
+                {(selectedProduct.minOrderQuantity || selectedProduct.min_order_quantity) && (
                   <div>
                     <span className="text-zinc-400 block">Min Order (MOQ):</span>
-                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.min_order_quantity} {selectedProduct.unit}</strong>
+                    <strong className="text-zinc-800 dark:text-zinc-200">{selectedProduct.minOrderQuantity || selectedProduct.min_order_quantity} {selectedProduct.unit}</strong>
                   </div>
                 )}
-                {selectedProduct.packaging_info && (
+                {(selectedProduct.packagingInfo || selectedProduct.packaging_info) && (
                   <div>
                     <span className="text-zinc-400 block">Packaging:</span>
-                    <span className="text-zinc-700 dark:text-zinc-300">{selectedProduct.packaging_info}</span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{selectedProduct.packagingInfo || selectedProduct.packaging_info}</span>
+                  </div>
+                )}
+                {(selectedProduct.storageInfo || selectedProduct.storage_info) && (
+                  <div>
+                    <span className="text-zinc-400 block">Storage:</span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{selectedProduct.storageInfo || selectedProduct.storage_info}</span>
                   </div>
                 )}
                 {selectedProduct.storage_info && (
@@ -502,9 +515,26 @@ export const ListingDetailModal: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <span>View Farmer</span>
-                <ChevronRight className="w-4 h-4 ml-0.5" />
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <span>View Farmer</span>
+                  <ChevronRight className="w-4 h-4 ml-0.5" />
+                </div>
+                {!isOwner && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setReviewTarget({
+                        farmerId: selectedProduct.farmerId,
+                        farmerName: selectedProduct.farmerName,
+                      });
+                    }}
+                    className="text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60 transition"
+                  >
+                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                    <span>Rate Farmer</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

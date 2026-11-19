@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, X, Check, Navigation, Building2, Compass } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { cityCoordinatesMap } from '../../utils/geo';
 
 const popularLocations = [
   { city: 'All India', area: 'All India (सभी राज्य)' },
@@ -27,6 +28,8 @@ export const LocationModal: React.FC = () => {
     setIsLocationModalOpen,
     currentLocation,
     setCurrentLocation,
+    userCoordinates,
+    setUserCoordinates,
     setActiveCity,
     searchRadiusKm,
     setSearchRadiusKm,
@@ -37,9 +40,14 @@ export const LocationModal: React.FC = () => {
 
   if (!isLocationModalOpen) return null;
 
-  const handleSelect = (area: string, city: string) => {
+  const handleSelect = (area: string, city: string, coords?: { lat: number; lng: number }) => {
     setCurrentLocation(area);
     setActiveCity(city);
+    if (coords) {
+      setUserCoordinates(coords);
+    } else if (cityCoordinatesMap[city]) {
+      setUserCoordinates(cityCoordinatesMap[city]);
+    }
     setIsLocationModalOpen(false);
     showToast(`📍 Location set to ${area}`);
   };
@@ -59,6 +67,7 @@ export const LocationModal: React.FC = () => {
         async (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
+          setUserCoordinates({ lat, lng });
           try {
             const res = await fetch(
               `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
@@ -68,14 +77,14 @@ export const LocationModal: React.FC = () => {
               const city = data.city || data.locality || data.principalSubdivision || 'Local Area';
               const stateName = data.principalSubdivision ? `, ${data.principalSubdivision}` : '';
               const fullArea = `${city}${stateName} (GPS)`;
-              handleSelect(fullArea, city);
+              handleSelect(fullArea, city, { lat, lng });
               showToast(`📍 GPS Location synced: ${city}`);
               return;
             }
           } catch {
             // Geocoding fallback if offline or request blocked
           }
-          handleSelect(`GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`, 'Local Mandi');
+          handleSelect(`GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`, 'Local Mandi', { lat, lng });
           showToast(`🛰️ GPS Coordinates synced: ${lat.toFixed(3)}, ${lng.toFixed(3)}`);
         },
         () => {

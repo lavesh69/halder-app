@@ -23,6 +23,7 @@ import {
   Bell,
   Camera,
   Mic,
+  FileText,
   Sprout,
   Plus,
 } from 'lucide-react';
@@ -79,6 +80,7 @@ export const MarketplaceHome: React.FC = () => {
     setIsLocationModalOpen,
     setIsSavedSearchesOpen,
     setIsFastSellOpen,
+    setIsPostRequirementOpen,
     setEditingListing,
   } = useApp();
 
@@ -238,37 +240,52 @@ export const MarketplaceHome: React.FC = () => {
         </div>
 
         {/* Direct Agricultural Discovery Quick Actions */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="grid grid-cols-3 gap-2 pt-1">
           <button
             onClick={() => {
               setEditingListing(null);
               setIsFastSellOpen(true);
             }}
-            className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+            className="p-2.5 sm:p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
           >
             <div className="p-2 rounded-xl bg-emerald-600 text-white shrink-0 group-hover:scale-105 transition">
               <Plus className="w-4 h-4 stroke-[3]" />
             </div>
-            <div>
-              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block">
-                + Post Crop Ad
+            <div className="min-w-0">
+              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block truncate">
+                + Post Ad
               </span>
-              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block">फसल विज्ञापन डालें (Free)</span>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">बेचना है (Free)</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setIsPostRequirementOpen(true)}
+            className="p-2.5 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-blue-900 dark:text-blue-200 block truncate">
+                Need Crop?
+              </span>
+              <span className="text-[10px] text-blue-700 dark:text-blue-400 block truncate">मांग भेजें (B2B)</span>
             </div>
           </button>
 
           <button
             onClick={() => setIsSavedSearchesOpen(true)}
-            className="p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2.5 transition shadow-soft group cursor-pointer text-left"
+            className="p-2.5 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
           >
             <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
               <Bell className="w-4 h-4" />
             </div>
-            <div>
-              <span className="text-xs font-black text-zinc-900 dark:text-white block">
+            <div className="min-w-0">
+              <span className="text-xs font-black text-zinc-900 dark:text-white block truncate">
                 {t('home.crop_alerts')}
               </span>
-              <span className="text-[10px] text-zinc-500 block">{t('home.crop_alerts_sub')}</span>
+              <span className="text-[10px] text-zinc-500 block truncate">अलर्ट्स</span>
             </div>
           </button>
         </div>

@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS products (
   slug TEXT NOT NULL,
   description TEXT DEFAULT '',
   price REAL NOT NULL CHECK(price > 0),
-  unit TEXT NOT NULL CHECK(unit IN ('kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box')),
+  unit TEXT NOT NULL CHECK(unit IN ('kg', 'gram', 'litre', 'bunch', 'piece', 'packet', 'dozen', 'box', 'quintal', 'ton')),
   available_quantity REAL NOT NULL CHECK(available_quantity >= 0),
   is_organic INTEGER NOT NULL DEFAULT 0,
   available_today INTEGER NOT NULL DEFAULT 1,
