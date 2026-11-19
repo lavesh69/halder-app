@@ -10,8 +10,12 @@ const BASE_URL =
     : 'http://localhost:5000/api/v1');
 
 export class ApiClient {
-  private static getToken(): string | null {
+  static getToken(): string | null {
     return localStorage.getItem('halder-auth-token');
+  }
+
+  static hasToken(): boolean {
+    return !!this.getToken();
   }
 
   static setToken(token: string) {
@@ -412,8 +416,13 @@ export class ApiClient {
     });
   }
 
-  static getFarmerKYC(farmerId: string) {
-    return this.request(`/farmers/${farmerId}/kyc`);
+  static async getFarmerKYC(farmerId: string) {
+    if (!this.hasToken()) return null;
+    try {
+      return await this.request(`/farmers/${farmerId}/kyc`);
+    } catch {
+      return null;
+    }
   }
 
   static requestPayout(amount: number, upiOrBank: string) {
@@ -588,8 +597,13 @@ export class ApiClient {
   // ==========================================
 
   static async getCustomerProfile(): Promise<any> {
-    const res = await this.request<any>('/customers/me');
-    return res.data;
+    if (!this.hasToken()) return null;
+    try {
+      const res = await this.request<any>('/customers/me');
+      return res.data;
+    } catch {
+      return null;
+    }
   }
 
   static async updateCustomerProfile(data: {
@@ -732,8 +746,13 @@ export class ApiClient {
   // ==========================================
 
   static async getFarmerPrivateProfile(): Promise<any> {
-    const res = await this.request<any>('/farmers/me/profile');
-    return res.data;
+    if (!this.hasToken()) return null;
+    try {
+      const res = await this.request<any>('/farmers/me/profile');
+      return res.data;
+    } catch {
+      return null;
+    }
   }
 
   static async getFarmerPublicProfile(farmerProfileId: string): Promise<any> {

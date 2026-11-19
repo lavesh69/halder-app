@@ -182,7 +182,7 @@ async function runTests() {
         unit: 'kg',
         availableQuantity: 20,
         location: 'Doon Valley',
-        image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5c317?w=600',
+        image: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?w=600',
       },
     });
     assert('Scenario 4 (Negative Price): Rejected with 400 Bad Request', negativePricePost.status === 400);
@@ -197,7 +197,7 @@ async function runTests() {
         unit: 'kg',
         availableQuantity: -10, // NEGATIVE QUANTITY
         location: 'Doon Valley',
-        image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5c317?w=600',
+        image: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?w=600',
       },
     });
     assert('Scenario 4 (Negative Stock): Rejected with 400 Bad Request', negativeStockPost.status === 400);

@@ -21,6 +21,7 @@ import { PostRequirementModal } from './components/customer/PostRequirementModal
 import { CustomerChatsView } from './components/customer/CustomerChatsView';
 import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
 import { ReviewModal } from './components/common/ReviewModal';
+import { MandiRatesModal } from './components/common/MandiRatesModal';
 
 // Agricultural Classifieds Modals
 import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
@@ -59,6 +60,8 @@ export const MainApp: React.FC = () => {
     setReviewTarget,
     isPostRequirementOpen,
     setIsPostRequirementOpen,
+    isMandiRatesModalOpen,
+    setIsMandiRatesModalOpen,
   } = useApp();
 
   // Proactively clear any legacy lockout or PIN artifacts from client storage
@@ -188,6 +191,10 @@ export const MainApp: React.FC = () => {
       <PostRequirementModal
         isOpen={isPostRequirementOpen}
         onClose={() => setIsPostRequirementOpen(false)}
+      />
+      <MandiRatesModal
+        isOpen={isMandiRatesModalOpen}
+        onClose={() => setIsMandiRatesModalOpen(false)}
       />
 
       {reviewTarget && (

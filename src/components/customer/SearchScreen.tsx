@@ -379,13 +379,17 @@ export const SearchScreen: React.FC = () => {
             ) : searchViewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
                 {sortedListings.map((product) => (
-                  <ListingCard key={product.id} product={product} variant="compact-grid" />
+                  <div key={product.id} onClick={() => setIsSearchScreenOpen(false)}>
+                    <ListingCard product={product} variant="compact-grid" />
+                  </div>
                 ))}
               </div>
             ) : (
               <div className="space-y-3.5">
                 {sortedListings.map((product) => (
-                  <ListingCard key={product.id} product={product} variant="vertical-feed" />
+                  <div key={product.id} onClick={() => setIsSearchScreenOpen(false)}>
+                    <ListingCard product={product} variant="vertical-feed" />
+                  </div>
                 ))}
               </div>
             )}

@@ -81,6 +81,7 @@ export const MarketplaceHome: React.FC = () => {
     setIsSavedSearchesOpen,
     setIsFastSellOpen,
     setIsPostRequirementOpen,
+    setIsMandiRatesModalOpen,
     setEditingListing,
   } = useApp();
 
@@ -240,7 +241,7 @@ export const MarketplaceHome: React.FC = () => {
         </div>
 
         {/* Direct Agricultural Discovery Quick Actions */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           <button
             onClick={() => {
               setEditingListing(null);
@@ -271,6 +272,21 @@ export const MarketplaceHome: React.FC = () => {
                 Need Crop?
               </span>
               <span className="text-[10px] text-blue-700 dark:text-blue-400 block truncate">मांग भेजें (B2B)</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setIsMandiRatesModalOpen(true)}
+            className="p-2.5 sm:p-3 bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 hover:border-amber-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
+          >
+            <div className="p-2 rounded-xl bg-amber-600 text-white shrink-0 group-hover:scale-105 transition">
+              <Building2 className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-amber-900 dark:text-amber-200 block truncate">
+                Mandi Bhav
+              </span>
+              <span className="text-[10px] text-amber-700 dark:text-amber-400 block truncate">दैनिक मंडी भाव</span>
             </div>
           </button>
 

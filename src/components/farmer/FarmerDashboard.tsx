@@ -8,6 +8,7 @@ import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';
 import { FarmCropCalendarModal } from './FarmCropCalendarModal';
 import { FarmerSubscriptionModal } from './FarmerSubscriptionModal';
 import { FarmerBusinessInsightsModal } from './FarmerBusinessInsightsModal';
+import { MandiRatesModal } from '../common/MandiRatesModal';
 import {
   Sprout,
   TrendingUp,
@@ -288,6 +289,55 @@ export const FarmerDashboard: React.FC = () => {
           {/* Live Agro-Weather & AI Advisory Widget */}
           <WeatherAdvisoryWidget city={activeCity} />
 
+          {/* Live APMC Mandi Benchmark Ticker */}
+          <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                  <TrendingUp className="w-4 h-4" />
+                </span>
+                <div>
+                  <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-1.5">
+                    <span>Live APMC Mandi Bhav</span>
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full font-bold font-sans">
+                      दैनिक मंडी भाव
+                    </span>
+                  </h3>
+                  <span className="text-[11px] text-zinc-500">Government APMC & Agmarknet Daily Market Arrivals</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsMandiModalOpen(true)}
+                className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-0.5"
+              >
+                <span>View All</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {LIVE_MANDI_RATES.slice(0, 4).map((m, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setIsMandiModalOpen(true)}
+                  className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-800/80 hover:border-emerald-500/50 transition cursor-pointer"
+                >
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">
+                    {m.crop}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 truncate">{m.mandi}</div>
+                  <div className="mt-1 font-black text-xs text-zinc-900 dark:text-white flex items-center justify-between">
+                    <span>₹{m.modalPrice}/qtl</span>
+                    <span className={`text-[9px] font-bold ${m.change >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {m.change >= 0 ? `+₹${m.change}` : `-₹${Math.abs(m.change)}`}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Active Crop Advertisements Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
@@ -502,6 +552,11 @@ export const FarmerDashboard: React.FC = () => {
         isOpen={isInsightsModalOpen}
         onClose={() => setIsInsightsModalOpen(false)}
         farmerId={currentFarmerId}
+      />
+
+      <MandiRatesModal
+        isOpen={isMandiModalOpen}
+        onClose={() => setIsMandiModalOpen(false)}
       />
     </div>
   );
