@@ -73,13 +73,19 @@ export const MarketplaceHome: React.FC = () => {
     setFilterState,
     setSelectedFarmer,
     currentLocation,
+    setCurrentLocation,
+    activeCity,
+    setActiveCity,
     setIsLocationModalOpen,
     setIsSavedSearchesOpen,
     setIsFastSellOpen,
     setEditingListing,
   } = useApp();
 
+  const isCitySelected = Boolean(activeCity && activeCity !== 'All India' && activeCity !== 'All');
+
   const hasActiveFilters =
+    isCitySelected ||
     selectedCategory !== 'All' ||
     filterState.maxDistanceKm < 100 ||
     filterState.organicOnly ||
@@ -93,6 +99,8 @@ export const MarketplaceHome: React.FC = () => {
 
   const resetAllFilters = () => {
     setSelectedCategory('All');
+    setActiveCity('All India');
+    setCurrentLocation('All India (सभी राज्य)');
     setFilterState((prev) => ({
       ...prev,
       minPrice: 0,
@@ -121,11 +129,29 @@ export const MarketplaceHome: React.FC = () => {
       if (!farmer?.verified && farmer?.verification_status !== 'verified') return false;
     }
     if (p.distanceKm > filterState.maxDistanceKm) return false;
+
+    // Active City filter if selected and distance radius is restricted
+    if (isCitySelected && filterState.maxDistanceKm < 100) {
+      const cityNorm = activeCity.toLowerCase().trim();
+      const productLoc = `${p.city || ''} ${p.location || ''} ${p.district || ''} ${p.state || ''}`.toLowerCase();
+      if (!productLoc.includes(cityNorm) && p.distanceKm > filterState.maxDistanceKm) {
+        return false;
+      }
+    }
+
     return true;
   });
 
-  // Sort: Featured & Urgent ads at top
+  // Sort: City match, then Featured & Urgent ads at top
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (isCitySelected) {
+      const cityNorm = activeCity.toLowerCase().trim();
+      const aMatches = `${a.city || ''} ${a.location || ''} ${a.district || ''}`.toLowerCase().includes(cityNorm);
+      const bMatches = `${b.city || ''} ${b.location || ''} ${b.district || ''}`.toLowerCase().includes(cityNorm);
+      if (aMatches && !bMatches) return -1;
+      if (!aMatches && bMatches) return 1;
+    }
+
     if (a.isFeatured && !b.isFeatured) return -1;
     if (!a.isFeatured && b.isFeatured) return 1;
     if (a.isUrgent && !b.isUrgent) return -1;
@@ -158,6 +184,27 @@ export const MarketplaceHome: React.FC = () => {
             {t('common.edit')}
           </button>
         </div>
+
+        {/* Active City Notice Banner */}
+        {isCitySelected && (
+          <div className="flex items-center justify-between px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-800/60 rounded-2xl text-xs shadow-soft animate-fade-in">
+            <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 min-w-0">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="truncate">
+                Showing ads in &amp; around <strong className="font-bold underline decoration-emerald-500/50">{activeCity}</strong>
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setActiveCity('All India');
+                setCurrentLocation('All India (सभी राज्य)');
+              }}
+              className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white bg-white dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-700/60 shadow-2xs shrink-0 ml-2 transition active:scale-95"
+            >
+              Show All India
+            </button>
+          </div>
+        )}
 
         {/* Prominent High-Utility Search Bar (Stitch Design Pattern) */}
         <div
@@ -477,6 +524,20 @@ export const MarketplaceHome: React.FC = () => {
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-1.5 p-2.5 bg-[#EAF5EE]/60 dark:bg-[#182A20]/60 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 text-xs animate-fade-in">
             <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383]">Active:</span>
+            {isCitySelected && (
+              <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
+                📍 {activeCity}
+                <button
+                  onClick={() => {
+                    setActiveCity('All India');
+                    setCurrentLocation('All India (सभी राज्य)');
+                  }}
+                  className="text-[#89948C] hover:text-[#202923]"
+                >
+                  ×
+                </button>
+              </span>
+            )}
             {selectedCategory !== 'All' && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
                 {getCategoryLabel(selectedCategory)}

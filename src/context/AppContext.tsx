@@ -667,6 +667,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     pickupAvailable: p.pickup_available !== 0,
     farmerDeliveryAvailable: p.farmer_delivery_available !== 0,
     distanceKm: typeof p.distance_km === 'number' ? p.distance_km : 2.1,
+    latitude: p.latitude !== undefined && p.latitude !== null ? Number(p.latitude) : undefined,
+    longitude: p.longitude !== undefined && p.longitude !== null ? Number(p.longitude) : undefined,
     isOrganic: Boolean(p.is_organic),
     availableToday: Boolean(p.available_today),
     isAvailable: p.status === 'active' || p.status === undefined,

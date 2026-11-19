@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { ApiClient } from '../../api/client';
+import { getWhatsAppUrl } from '../../utils/formatters';
 
 export const FarmerSellerProfileModal: React.FC = () => {
   const {
@@ -136,9 +137,8 @@ export const FarmerSellerProfileModal: React.FC = () => {
 
             <button
               onClick={() => {
-                const cleanPhone = selectedFarmer.phone ? selectedFarmer.phone.replace(/[^0-9]/g, '') : '919845012345';
-                const text = encodeURIComponent(`Hello ${selectedFarmer.name}, I am contacting you regarding your farm produce on HALDER.`);
-                window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+                const text = `Hello ${selectedFarmer.name}, I am contacting you regarding your farm produce on HALDER.`;
+                window.open(getWhatsAppUrl(selectedFarmer.phone || '9876543210', text), '_blank');
               }}
               className="min-h-[48px] py-2 px-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 rounded-2xl font-bold border border-emerald-200 dark:border-emerald-800/50 transition-colors flex flex-col items-center justify-center gap-1 active:scale-95"
             >

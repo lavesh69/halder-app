@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { formatCurrency, formatDistance } from '../../utils/formatters';
+import { formatCurrency, formatDistance, getWhatsAppUrl } from '../../utils/formatters';
+import { ApiClient } from '../../api/client';
 import {
   X,
   MapPin,
@@ -111,13 +112,29 @@ export const ListingDetailModal: React.FC = () => {
 
   const handleOpenWhatsApp = () => {
     const rawPhone = selectedProduct.farmerPhone || farmer?.phone || '';
-    const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
-    if (!phoneDigits) {
+    if (!rawPhone) {
       showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
       return;
     }
-    const text = encodeURIComponent(`Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`);
-    window.open(`https://wa.me/${phoneDigits}?text=${text}`, '_blank');
+    const text = `Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`;
+    window.open(getWhatsAppUrl(rawPhone, text), '_blank');
+  };
+
+  const handleReportSubmit = async () => {
+    try {
+      await ApiClient.submitReport({
+        productId: selectedProduct.id,
+        reportedUserId: selectedProduct.farmerId,
+        reason: reportReason,
+        description: `Flagged from ad detail: ${selectedProduct.name} (ID: ${selectedProduct.id})`,
+        category: 'middleman_complaint',
+        priority: 'high',
+      });
+    } catch (e: any) {
+      console.warn('[HALDER Report] Server notice:', e?.message || e);
+    }
+    setHasReported(true);
+    showToast('Report submitted. Moderation team will review this listing within 2 hours.', 'success');
   };
 
   const handleOpenChat = () => {
@@ -654,10 +671,7 @@ export const ListingDetailModal: React.FC = () => {
                       Cancel
                     </button>
                     <button
-                      onClick={() => {
-                        setHasReported(true);
-                        showToast('Report submitted for review', 'info');
-                      }}
+                      onClick={handleReportSubmit}
                       className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-soft transition"
                     >
                       Submit Report

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatWhatsAppPhone } from '../../utils/formatters';
 import {
   X,
   Printer,
@@ -95,7 +95,7 @@ export const DealSummaryModal: React.FC<DealSummaryModalProps> = ({
     }
   };
 
-  const farmerPhoneDigits = (farmer.phone || '').replace(/[^0-9]/g, '');
+  const farmerPhoneDigits = formatWhatsAppPhone(farmer.phone || '');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fade-in print:p-0 print:bg-white">

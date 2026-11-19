@@ -618,6 +618,41 @@ export function useChatSocket({
     };
   }, [conversationId, isConnected, getAuthToken, sendWsPayload, loadHistory]);
 
+  // Active REST polling fallback for Vercel Serverless / disconnected environments
+  useEffect(() => {
+    if (!conversationId) return;
+    // If real WebSocket is alive and functional, skip polling
+    if (isConnected) return;
+
+    let isPollingActive = true;
+    const pollTimer = setInterval(async () => {
+      if (!isPollingActive || !isMountedRef.current) return;
+      try {
+        const history = await ApiClient.getMessages(conversationId);
+        if (Array.isArray(history) && isMountedRef.current) {
+          const normalized = history.map(normalizeMessage);
+          setMessages((prev) => {
+            if (prev.length === normalized.length) {
+              const lastOld = prev[prev.length - 1];
+              const lastNew = normalized[normalized.length - 1];
+              if (lastOld?.id === lastNew?.id && lastOld?.readAt === lastNew?.readAt) {
+                return prev;
+              }
+            }
+            return normalized;
+          });
+        }
+      } catch {
+        // Silent catch during periodic background polling
+      }
+    }, 3500);
+
+    return () => {
+      isPollingActive = false;
+      clearInterval(pollTimer);
+    };
+  }, [conversationId, isConnected]);
+
   const clearError = useCallback(() => setError(null), []);
 
   return {
