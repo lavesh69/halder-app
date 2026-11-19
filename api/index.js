@@ -36965,7 +36965,16 @@ var init_supabaseSync = __esm({
       "farm_crops",
       "farmer_subscriptions",
       "device_tokens",
-      "inventory_audit_log"
+      "inventory_audit_log",
+      "orders",
+      "order_items",
+      "order_timeline",
+      "carts",
+      "cart_items",
+      "negotiation_threads",
+      "negotiation_messages",
+      "buyer_requirements",
+      "requirement_quotations"
     ];
     SYNCED_TABLE_SET = new Set(SYNCED_TABLES);
     syncStore = new AsyncLocalStorage2();
@@ -88985,7 +88994,7 @@ var ProductService = class _ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
-             u.phone as farmer_phone,
+             CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
@@ -89113,7 +89122,7 @@ var ProductService = class _ProductService {
               f.total_orders as farmer_total_orders,
               f.response_rate as farmer_response_rate,
               u.name as farmer_name,
-              u.phone as farmer_phone,
+              CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
               f.avatar as farmer_avatar
        FROM products p
        JOIN categories c ON p.category_id = c.id
@@ -89170,7 +89179,7 @@ var ProductService = class _ProductService {
           pickup_available, farmer_delivery_available,
           is_organic, available_today, harvest_date,
           freshness_tag, location, city, latitude, longitude, image,
-          status, moderation_status, created_at, updated_at
+          status, moderation_status, show_phone_number, created_at, updated_at
         ) VALUES (
           ?, ?, ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?,
@@ -89179,7 +89188,7 @@ var ProductService = class _ProductService {
           ?, ?,
           ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          ?, 'approved', ?, ?
+          ?, 'approved', ?, ?, ?
         )`,
         [
           id,
@@ -89215,6 +89224,7 @@ var ProductService = class _ProductService {
           data.longitude || 78.0322,
           data.image,
           listingStatus,
+          data.showPhoneNumber === false ? 0 : 1,
           now,
           now
         ]
@@ -99106,6 +99116,10 @@ function runMigrations() {
     }
   } catch (err) {
     console.warn("[Migration] Notice on orders CHECK constraint update:", err.message);
+  }
+  try {
+    db.exec(`ALTER TABLE products ADD COLUMN show_phone_number INTEGER DEFAULT 1;`);
+  } catch {
   }
   console.log("[Migration] Database schema migrated successfully.");
 }

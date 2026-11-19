@@ -31,6 +31,7 @@ import {
   Boxes,
   FileCheck,
   Edit3,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const ListingDetailModal: React.FC = () => {
@@ -48,6 +49,7 @@ export const ListingDetailModal: React.FC = () => {
     setCustomerTab,
     currentUser,
     deleteProduct,
+    updateProductStatusAction,
     setEditingListing,
     setIsFastSellOpen,
     products,
@@ -135,6 +137,26 @@ export const ListingDetailModal: React.FC = () => {
     }
     setHasReported(true);
     showToast('Report submitted. Moderation team will review this listing within 2 hours.', 'success');
+  };
+
+  const isSold = selectedProduct.status === 'sold';
+
+  const handleToggleSoldStatus = async () => {
+    try {
+      const action = isSold ? 'renew' : 'mark_sold';
+      await updateProductStatusAction(selectedProduct.id, action);
+      setSelectedProduct({
+        ...selectedProduct,
+        status: isSold ? 'active' : 'sold',
+        isAvailable: isSold,
+      });
+      showToast(
+        isSold ? 'Listing reactivated as AVAILABLE!' : 'Listing marked as SOLD OUT (बिक गया)!',
+        'success'
+      );
+    } catch {
+      showToast('Failed to update status', 'error');
+    }
   };
 
   const handleOpenChat = () => {
@@ -281,6 +303,19 @@ export const ListingDetailModal: React.FC = () => {
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Remove</span>
               </button>
+            </div>
+          )}
+
+          {/* Sold Out Notice Banner */}
+          {isSold && (
+            <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-2.5 text-amber-900 dark:text-amber-200 text-xs font-bold animate-fade-in">
+              <span className="text-base">🏷️</span>
+              <div>
+                <span>This produce is SOLD OUT (यह फसल/उत्पाद बिक चुका है).</span>
+                <p className="text-[11px] font-normal text-amber-700 dark:text-amber-400 mt-0.5">
+                  The seller has concluded deals for this listing.
+                </p>
+              </div>
             </div>
           )}
           {/* Price & Stock Section */}
@@ -555,22 +590,35 @@ export const ListingDetailModal: React.FC = () => {
         {/* Sticky Fast Dual Action Buttons (Buy Now & Add to Cart or Owner Delete) */}
         <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D]">
           {isOwner ? (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setEditingListing(selectedProduct);
                   setSelectedProduct(null);
                   setIsFastSellOpen(true);
                 }}
-                className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-xs shadow-soft transition-all flex items-center justify-center gap-1.5 min-h-[44px]"
               >
                 <Edit3 className="w-4 h-4" />
                 <span>{t('ads.edit_ad')}</span>
               </button>
 
               <button
+                onClick={handleToggleSoldStatus}
+                className={`py-3 px-3 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] ${
+                  isSold
+                    ? 'bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                    : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700'
+                }`}
+                title={isSold ? 'Relist this ad' : 'Mark as sold'}
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>{isSold ? 'Relist Ad' : 'Mark as Sold (बिक गया)'}</span>
+              </button>
+
+              <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="py-3.5 px-4 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+                className="py-3 px-3 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-1 min-h-[44px]"
                 title="Delete ad permanently"
               >
                 <Trash2 className="w-4 h-4" />

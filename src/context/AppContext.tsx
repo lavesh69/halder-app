@@ -29,7 +29,7 @@ import { ApiClient } from '../api/client';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
-export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance';
+export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'reports' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance';
 
 export interface ToastInfo {
   id: string;
@@ -1316,6 +1316,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       images: Array.isArray(listingData.images) ? listingData.images.slice(0, 8) : [listingData.image],
       priceSlabs: Array.isArray(listingData.priceSlabs) ? listingData.priceSlabs : [],
       status: listingData.status === 'draft' ? 'draft' : 'active',
+      showPhoneNumber: listingData.showPhoneNumber !== false,
     };
 
     if (listingData.editingId) {
@@ -1334,7 +1335,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: tempId,
       farmerId: ownerId,
       farmerName: ownerName,
-      farmerPhone: currentUser?.phone,
+      farmerPhone: listingData.showPhoneNumber === false ? undefined : currentUser?.phone,
       farmName: ownerFarm,
       farmerAvatar: ownerAvatar,
       location: payload.location,

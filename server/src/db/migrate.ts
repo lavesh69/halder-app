@@ -408,6 +408,11 @@ export function runMigrations() {
     console.warn('[Migration] Notice on orders CHECK constraint update:', err.message);
   }
 
+  // Migration: Ensure show_phone_number column exists in products table
+  try {
+    db.exec(`ALTER TABLE products ADD COLUMN show_phone_number INTEGER DEFAULT 1;`);
+  } catch {}
+
   console.log('[Migration] Database schema migrated successfully.');
 }
 

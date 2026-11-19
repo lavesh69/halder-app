@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { PushNotificationClient } from '../../services/pushNotificationClient';
 import {
   Bell,
   X,
@@ -24,6 +25,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     role,
+    showToast,
   } = useApp();
 
   const [activeFilter, setActiveFilter] = useState<'all' | 'alerts'>('all');
@@ -77,6 +79,31 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
             </button>
           </div>
         </div>
+
+        {/* Real-time Push Permission Banner */}
+        {PushNotificationClient.isSupported() && PushNotificationClient.getPermissionStatus() !== 'granted' && (
+          <div className="mx-4 mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="text-emerald-900 dark:text-emerald-200 text-[11px] font-medium">
+                Get real-time alerts for crop orders & messages
+              </span>
+            </div>
+            <button
+              onClick={async () => {
+                const res = await PushNotificationClient.requestPermissionAndRegister();
+                if (res.success) {
+                  showToast('Push notifications enabled!', 'success');
+                } else {
+                  showToast(res.error || 'Could not enable notifications', 'info');
+                }
+              }}
+              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[10px] shrink-0 active:scale-95 transition"
+            >
+              Enable
+            </button>
+          </div>
+        )}
 
         {/* Categorized Filter Tabs */}
         <div className="flex border-b border-zinc-100 dark:border-zinc-800 px-3 bg-zinc-50/50 dark:bg-zinc-900/30 overflow-x-auto no-scrollbar">

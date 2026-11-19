@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ProductCategory, PriceSlab } from '../../types';
-import { compressImageFile, formatBytes } from '../../utils/imageCompression';
+import { compressImageFile, formatBytes, dataUrlToFile } from '../../utils/imageCompression';
 import { ApiClient } from '../../api/client';
 import {
   X,
@@ -209,9 +209,31 @@ export const FastSellModal: React.FC = () => {
       const files = Array.from(e.target.files).slice(0, remainingSlots);
       setIsCompressing(true);
       try {
+        let origSum = 0;
+        let compSum = 0;
+
+        // Step 1: Compress images client-side first (reducing 10MB down to ~120KB)
+        const compressedList = await Promise.all(
+          files.map(async (f) => {
+            try {
+              const res = await compressImageFile(f, { lowBandwidthMode });
+              origSum += res.originalSize;
+              compSum += res.compressedSize;
+              const compressedFile = dataUrlToFile(res.dataUrl, f.name);
+              return { dataUrl: res.dataUrl, file: compressedFile };
+            } catch {
+              origSum += f.size;
+              compSum += f.size;
+              return { dataUrl: URL.createObjectURL(f), file: f };
+            }
+          })
+        );
+
+        // Step 2: Upload the ultra-lightweight compressed files to cloud CDN
         let uploadedCloudUrls: string[] = [];
         try {
-          const uploadRes = await ApiClient.uploadImages(files);
+          const filesToUpload = compressedList.map((item) => item.file);
+          const uploadRes = await ApiClient.uploadImages(filesToUpload);
           if (uploadRes?.urls && uploadRes.urls.length > 0) {
             uploadedCloudUrls = uploadRes.urls;
           }
@@ -219,23 +241,10 @@ export const FastSellModal: React.FC = () => {
           console.warn('[HALDER Upload] Cloud upload notice, falling back to local compressed:', uploadErr);
         }
 
-        let origSum = 0;
-        let compSum = 0;
-        const processedUrls = await Promise.all(
-          files.map(async (f, idx) => {
-            if (uploadedCloudUrls[idx]) {
-              return uploadedCloudUrls[idx];
-            }
-            try {
-              const res = await compressImageFile(f, { lowBandwidthMode });
-              origSum += res.originalSize;
-              compSum += res.compressedSize;
-              return res.dataUrl;
-            } catch {
-              return URL.createObjectURL(f);
-            }
-          })
-        );
+        const processedUrls = compressedList.map((item, idx) => {
+          return uploadedCloudUrls[idx] || item.dataUrl;
+        });
+
         const savingsPercent = origSum > 0 ? Math.round(((origSum - compSum) / origSum) * 100) : 0;
         setCompressionStats({
           originalTotal: origSum,
@@ -245,7 +254,7 @@ export const FastSellModal: React.FC = () => {
         setUploadedPhotos((prev) => [...prev, ...processedUrls].slice(0, 8));
         showToast(
           uploadedCloudUrls.length > 0
-            ? `Uploaded ${uploadedCloudUrls.length} photo(s) to cloud storage!`
+            ? `Uploaded ${uploadedCloudUrls.length} photo(s) to cloud CDN!`
             : t('post_ad.photos_compressed', {
                 count: files.length,
                 percent: savingsPercent,

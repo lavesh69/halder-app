@@ -85,7 +85,7 @@ export class ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
-             u.phone as farmer_phone,
+             CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
@@ -236,7 +236,7 @@ export class ProductService {
               f.total_orders as farmer_total_orders,
               f.response_rate as farmer_response_rate,
               u.name as farmer_name,
-              u.phone as farmer_phone,
+              CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
               f.avatar as farmer_avatar
        FROM products p
        JOIN categories c ON p.category_id = c.id
@@ -339,7 +339,7 @@ export class ProductService {
           pickup_available, farmer_delivery_available,
           is_organic, available_today, harvest_date,
           freshness_tag, location, city, latitude, longitude, image,
-          status, moderation_status, created_at, updated_at
+          status, moderation_status, show_phone_number, created_at, updated_at
         ) VALUES (
           ?, ?, ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?,
@@ -348,7 +348,7 @@ export class ProductService {
           ?, ?,
           ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          ?, 'approved', ?, ?
+          ?, 'approved', ?, ?, ?
         )`,
         [
           id,
@@ -384,6 +384,7 @@ export class ProductService {
           data.longitude || 78.0322,
           data.image,
           listingStatus,
+          data.showPhoneNumber === false ? 0 : 1,
           now,
           now,
         ]

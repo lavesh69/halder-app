@@ -175,6 +175,9 @@ export function useAndroidHardware() {
     isNotificationModalOpen,
     isSearchScreenOpen,
     buyNowProduct,
+    isLocationModalOpen,
+    isSavedSearchesOpen,
+    stockControlProduct,
     customerTab,
     farmerTab,
     role,
@@ -192,6 +195,9 @@ export function useAndroidHardware() {
       isFilterModalOpen ||
       isNotificationModalOpen ||
       isSearchScreenOpen ||
+      isLocationModalOpen ||
+      isSavedSearchesOpen ||
+      !!stockControlProduct ||
       !!buyNowProduct;
 
     if (hasOpenModal && typeof window !== 'undefined') {
@@ -206,6 +212,9 @@ export function useAndroidHardware() {
     isFilterModalOpen,
     isNotificationModalOpen,
     isSearchScreenOpen,
+    isLocationModalOpen,
+    isSavedSearchesOpen,
+    stockControlProduct,
     buyNowProduct,
   ]);
 

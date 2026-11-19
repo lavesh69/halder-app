@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ListingCard } from '../common/ListingCard';
 import { ApiClient } from '../../api/client';
+import { matchesSearchQuery } from '../../utils/formatters';
 import {
   ArrowLeft,
   Search,
@@ -136,15 +137,8 @@ export const SearchScreen: React.FC = () => {
 
   // Filter listings based on search term & filter bottom sheet
   const matchingListings = products.filter((p) => {
-    if (inputVal.trim()) {
-      const q = inputVal.toLowerCase();
-      const match =
-        p.name.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.farmerName.toLowerCase().includes(q) ||
-        p.farmName.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q);
-      if (!match) return false;
+    if (inputVal.trim() && !matchesSearchQuery(p, inputVal)) {
+      return false;
     }
 
     if (filterState.category !== 'All' && p.category !== filterState.category) return false;

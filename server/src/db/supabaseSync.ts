@@ -29,6 +29,15 @@ export const SYNCED_TABLES = [
   'farmer_subscriptions',
   'device_tokens',
   'inventory_audit_log',
+  'orders',
+  'order_items',
+  'order_timeline',
+  'carts',
+  'cart_items',
+  'negotiation_threads',
+  'negotiation_messages',
+  'buyer_requirements',
+  'requirement_quotations',
 ] as const;
 
 const SYNCED_TABLE_SET = new Set<string>(SYNCED_TABLES);

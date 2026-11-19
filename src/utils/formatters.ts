@@ -84,3 +84,83 @@ export const calculateDistanceKm = (
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c * 10) / 10;
 };
+
+/**
+ * Vernacular Hindi & Hinglish agricultural produce synonyms
+ */
+export const AGRI_SYNONYMS: Record<string, string[]> = {
+  potato: ['aloo', 'aalu', 'alu', 'आलू', 'बटाटा', 'batata'],
+  potatoes: ['aloo', 'aalu', 'alu', 'आलू'],
+  aloo: ['potato', 'potatoes', 'आलू'],
+  onion: ['pyaz', 'pyaaz', 'कांदा', 'kanda', 'प्याज'],
+  onions: ['pyaz', 'pyaaz', 'कांदा', 'kanda', 'प्याज'],
+  pyaz: ['onion', 'onions', 'प्याज', 'kanda'],
+  tomato: ['tamatar', 'टमाटर'],
+  tomatoes: ['tamatar', 'टमाटर'],
+  tamatar: ['tomato', 'tomatoes', 'टमाटर'],
+  wheat: ['gehun', 'gehu', 'गेहूं', 'atta', 'kanak'],
+  gehun: ['wheat', 'गेहूं'],
+  rice: ['chawal', 'dhan', 'paddy', 'चावल', 'धान', 'basmati'],
+  chawal: ['rice', 'paddy', 'चावल', 'basmati'],
+  mango: ['aam', 'आम'],
+  aam: ['mango', 'आम'],
+  garlic: ['lahsun', 'lehsun', 'लहसुन'],
+  ginger: ['adrak', 'अदरक'],
+  chilli: ['mirch', 'mirchi', 'मिर्च', 'hari mirch'],
+  milk: ['doodh', 'दूध', 'dairy', 'milk'],
+  cow: ['desi cow', 'गाय', 'gai'],
+  mustard: ['sarson', 'sarso', 'सरसों'],
+  peas: ['matar', 'मटर'],
+  cauliflower: ['gobi', 'phool gobi', 'गोभी'],
+};
+
+/**
+ * Smart matching that checks produce names, descriptions, locations, and synonyms
+ */
+export const matchesSearchQuery = (product: any, rawQuery: string): boolean => {
+  const q = (rawQuery || '').trim().toLowerCase();
+  if (!q) return true;
+
+  const targetText = [
+    product.name,
+    product.category,
+    product.farmerName,
+    product.farmName,
+    product.description,
+    product.city,
+    product.location,
+    product.district,
+    product.state,
+    product.village,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  // 1. Direct substring match
+  if (targetText.includes(q)) return true;
+
+  // 2. Query words split match
+  const qWords = q.split(/\s+/).filter(Boolean);
+  const allWordsMatch = qWords.every((w) => targetText.includes(w));
+  if (allWordsMatch) return true;
+
+  // 3. Synonym expansion match
+  for (const w of qWords) {
+    const syns = AGRI_SYNONYMS[w] || [];
+    for (const syn of syns) {
+      if (targetText.includes(syn.toLowerCase())) return true;
+    }
+  }
+
+  // 4. Reverse check: does any word in product name map to query?
+  const nameWords = (product.name || '').toLowerCase().split(/\s+/).filter(Boolean);
+  for (const nw of nameWords) {
+    const syns = AGRI_SYNONYMS[nw] || [];
+    for (const syn of syns) {
+      if (syn.toLowerCase().includes(q) || q.includes(syn.toLowerCase())) return true;
+    }
+  }
+
+  return false;
+};

@@ -657,7 +657,7 @@ export const AdminDashboard: React.FC = () => {
           { id: 'users', label: 'Users & Roles', icon: Users, badge: totalUsersCount },
           { id: 'verification', label: 'Farmer KYC Review', icon: ShieldCheck, badge: pendingFarmersCount || undefined, alert: pendingFarmersCount > 0 },
           { id: 'products', label: 'Listings Moderation', icon: ShoppingBag, badge: products.length },
-          
+          { id: 'reports', label: 'Reports & Complaints', icon: ShieldAlert, badge: serverReports.filter((r) => r.status === 'open' || r.status === 'pending').length || undefined, alert: serverReports.some((r) => r.status === 'open' || r.status === 'pending') },
           { id: 'categories', label: 'Categories Taxonomy', icon: Layers, badge: categories.length },
           { id: 'audit', label: 'System Audit Logs', icon: Activity, badge: auditLogs.length || undefined },
           { id: 'settings', label: 'Platform Settings', icon: Settings },
@@ -1737,6 +1737,139 @@ export const AdminDashboard: React.FC = () => {
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION 5B: USER REPORTS & AD FRAUD MODERATION */}
+      {/* ========================================================================= */}
+      {activeTab === 'reports' && (
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            <div>
+              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-red-600" />
+                <span>Buyer Complaints & Ad Reports ({serverReports.length})</span>
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Review middleman complaints, fraud reports, fake harvest claims, and take swift moderation actions.
+              </p>
+            </div>
+            <button
+              onClick={loadServerData}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          {/* Reports List */}
+          <div className="space-y-3">
+            {serverReports.length === 0 ? (
+              <div className="p-8 text-center text-zinc-500 dark:text-zinc-400 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                <ShieldCheck className="w-8 h-8 mx-auto text-emerald-500 mb-2 opacity-60" />
+                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200">No Pending Reports</p>
+                <p className="text-xs mt-1">Marketplace is running cleanly. No unreviewed middleman or ad complaints.</p>
+              </div>
+            ) : (
+              serverReports.map((rep) => (
+                <div
+                  key={rep.id}
+                  className="p-4 bg-zinc-50/60 dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 text-[10px] font-black uppercase tracking-wider">
+                        {rep.reason || 'Fraud Report'}
+                      </span>
+                      <span className="text-[11px] font-bold text-zinc-500">
+                        Status: <strong className="capitalize">{rep.status || 'open'}</strong>
+                      </span>
+                      <span className="text-[11px] text-zinc-400">
+                        {rep.created_at ? new Date(rep.created_at).toLocaleString() : 'Recent'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                      {rep.description || 'Reported listing'}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-zinc-500 dark:text-zinc-400 pt-1">
+                      {rep.product_id && (
+                        <span>Product ID: <code className="bg-zinc-200 dark:bg-zinc-800 px-1 rounded">{rep.product_id}</code></span>
+                      )}
+                      {rep.reported_user_id && (
+                        <span>Seller User ID: <code className="bg-zinc-200 dark:bg-zinc-800 px-1 rounded">{rep.reported_user_id}</code></span>
+                      )}
+                      {rep.reporter_id && (
+                        <span>Reporter: <code className="bg-zinc-200 dark:bg-zinc-800 px-1 rounded">{rep.reporter_id}</code></span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Moderation Actions */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {rep.status !== 'resolved' && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await ApiClient.updateReportStatus(rep.id, { status: 'resolved', resolutionNotes: 'Reviewed & verified by Admin' });
+                            setServerReports((prev) => prev.map((r) => r.id === rep.id ? { ...r, status: 'resolved' } : r));
+                            showToast('Report marked as Resolved', 'success');
+                          } catch {
+                            showToast('Failed to resolve report', 'error');
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Resolve</span>
+                      </button>
+                    )}
+
+                    {rep.product_id && (
+                      <button
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to take down this reported listing?')) {
+                            try {
+                              await ApiClient.deleteProduct(rep.product_id);
+                              await ApiClient.updateReportStatus(rep.id, { status: 'resolved', resolutionNotes: 'Listing taken down' });
+                              setServerReports((prev) => prev.map((r) => r.id === rep.id ? { ...r, status: 'resolved' } : r));
+                              showToast('Reported listing removed from marketplace', 'success');
+                            } catch {
+                              showToast('Failed to delete listing', 'error');
+                            }
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Take Down Ad</span>
+                      </button>
+                    )}
+
+                    {rep.status === 'open' && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await ApiClient.updateReportStatus(rep.id, { status: 'dismissed', resolutionNotes: 'Dismissed - insufficient evidence' });
+                            setServerReports((prev) => prev.map((r) => r.id === rep.id ? { ...r, status: 'dismissed' } : r));
+                            showToast('Report dismissed', 'info');
+                          } catch {
+                            showToast('Failed to dismiss report', 'error');
+                          }
+                        }}
+                        className="px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition"
+                      >
+                        <span>Dismiss</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))

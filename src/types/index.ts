@@ -20,7 +20,7 @@ export type ProductCategory =
 export type UnitType = 'kg' | 'gram' | 'bunch' | 'piece' | 'litre' | 'packet' | 'box' | 'L';
 
 export type VerificationStatus = 'verified' | 'pending' | 'rejected';
-export type ProductStatus = 'active' | 'unavailable' | 'draft';
+export type ProductStatus = 'active' | 'unavailable' | 'draft' | 'sold' | 'paused';
 export type ModerationStatus = 'approved' | 'pending' | 'flagged';
 export type UserStatus = 'active' | 'suspended';
 
