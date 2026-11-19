@@ -87690,7 +87690,7 @@ var AuthController = class {
 // server/src/middleware/auth.ts
 init_errors3();
 init_database();
-function authenticateUser2(req, res, next) {
+function authenticateUser(req, res, next) {
   let token;
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -88710,10 +88710,10 @@ router.post("/register", authLimiter, validateBody(registerSchema), AuthControll
 router.post("/login", authLimiter, validateBody(loginSchema), AuthController.login);
 router.post("/google", authLimiter, validateBody(googleSchema), AuthController.googleLogin);
 router.post("/logout", AuthController.logout);
-router.get("/me", authenticateUser2, AuthController.getMe);
-router.post("/change-password", authenticateUser2, AuthController.changePassword);
-router.post("/delete-account", authenticateUser2, AuthController.deleteMe);
-router.delete("/me", authenticateUser2, AuthController.deleteMe);
+router.get("/me", authenticateUser, AuthController.getMe);
+router.post("/change-password", authenticateUser, AuthController.changePassword);
+router.post("/delete-account", authenticateUser, AuthController.deleteMe);
+router.delete("/me", authenticateUser, AuthController.deleteMe);
 var authRoutes_default = router;
 
 // server/src/routes/productRoutes.ts
@@ -90203,10 +90203,10 @@ var createOrderSchema = external_exports.object({
 var updateStatusSchema = external_exports.object({
   status: external_exports.enum(["placed", "accepted", "preparing", "ready", "out_for_delivery", "delivered", "rejected", "cancelled"])
 });
-router3.get("/", authenticateUser2, OrderController.list);
-router3.post("/", authenticateUser2, orderLimiter, validateBody(createOrderSchema), OrderController.create);
-router3.get("/:id", authenticateUser2, verifyOrderAccess, OrderController.getById);
-router3.patch("/:id/status", authenticateUser2, verifyOrderAccess, validateBody(updateStatusSchema), OrderController.updateStatus);
+router3.get("/", authenticateUser, OrderController.list);
+router3.post("/", authenticateUser, orderLimiter, validateBody(createOrderSchema), OrderController.create);
+router3.get("/:id", authenticateUser, verifyOrderAccess, OrderController.getById);
+router3.patch("/:id/status", authenticateUser, verifyOrderAccess, validateBody(updateStatusSchema), OrderController.updateStatus);
 var orderRoutes_default = router3;
 
 // server/src/routes/cartRoutes.ts
@@ -90387,11 +90387,11 @@ var cartItemSchema = external_exports.object({
   productId: external_exports.string(),
   quantity: external_exports.number().positive()
 });
-router4.get("/", authenticateUser2, CartController.getCart);
-router4.post("/items", authenticateUser2, validateBody(cartItemSchema), CartController.addItem);
-router4.patch("/items", authenticateUser2, validateBody(cartItemSchema), CartController.updateQuantity);
-router4.delete("/items/:productId", authenticateUser2, CartController.removeItem);
-router4.delete("/clear", authenticateUser2, CartController.clear);
+router4.get("/", authenticateUser, CartController.getCart);
+router4.post("/items", authenticateUser, validateBody(cartItemSchema), CartController.addItem);
+router4.patch("/items", authenticateUser, validateBody(cartItemSchema), CartController.updateQuantity);
+router4.delete("/items/:productId", authenticateUser, CartController.removeItem);
+router4.delete("/clear", authenticateUser, CartController.clear);
 var cartRoutes_default = router4;
 
 // server/src/routes/farmerRoutes.ts
@@ -91220,28 +91220,28 @@ var requireAdmin = requireRole("admin");
 
 // server/src/routes/farmerRoutes.ts
 var router5 = (0, import_express5.Router)();
-router5.get("/me/profile", authenticateUser2, requireFarmer, FarmerController.getPrivateProfile);
-router5.patch("/me/profile", authenticateUser2, requireFarmer, FarmerController.updateProfile);
-router5.post("/me/avatar", authenticateUser2, requireFarmer, FarmerController.updateAvatar);
+router5.get("/me/profile", authenticateUser, requireFarmer, FarmerController.getPrivateProfile);
+router5.patch("/me/profile", authenticateUser, requireFarmer, FarmerController.updateProfile);
+router5.post("/me/avatar", authenticateUser, requireFarmer, FarmerController.updateAvatar);
 router5.get("/:id/public", optionalAuth, FarmerController.getPublicProfile);
 router5.get("/", optionalAuth, FarmerController.list);
 router5.get("/:id", optionalAuth, FarmerController.getProfile);
-router5.patch("/:id", authenticateUser2, requireFarmer, FarmerController.update);
-router5.get("/:id/earnings", authenticateUser2, FarmerController.getEarnings);
-router5.put("/:id/payout-settings", authenticateUser2, requireFarmer, FarmerController.updatePayoutSettings);
-router5.post("/:id/withdraw", authenticateUser2, requireFarmer, FarmerController.requestWithdrawal);
-router5.post("/:id/kyc", authenticateUser2, requireFarmer, FarmerController.submitKYC);
-router5.get("/:id/kyc", authenticateUser2, FarmerController.getKYC);
-router5.post("/:id/payout", authenticateUser2, FarmerController.recordPayout);
-router5.patch("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
-router5.put("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
-router5.delete("/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.deleteCrop);
+router5.patch("/:id", authenticateUser, requireFarmer, FarmerController.update);
+router5.get("/:id/earnings", authenticateUser, FarmerController.getEarnings);
+router5.put("/:id/payout-settings", authenticateUser, requireFarmer, FarmerController.updatePayoutSettings);
+router5.post("/:id/withdraw", authenticateUser, requireFarmer, FarmerController.requestWithdrawal);
+router5.post("/:id/kyc", authenticateUser, requireFarmer, FarmerController.submitKYC);
+router5.get("/:id/kyc", authenticateUser, FarmerController.getKYC);
+router5.post("/:id/payout", authenticateUser, FarmerController.recordPayout);
+router5.patch("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
+router5.put("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
+router5.delete("/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
 router5.get("/:id/crops", optionalAuth, FarmerController.getCrops);
-router5.post("/:id/crops", authenticateUser2, requireFarmer, FarmerController.addCrop);
-router5.patch("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
-router5.put("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.updateCrop);
-router5.delete("/:id/crops/:cropId", authenticateUser2, requireFarmer, FarmerController.deleteCrop);
-router5.get("/:id/business-insights", authenticateUser2, FarmerController.getBusinessInsights);
+router5.post("/:id/crops", authenticateUser, requireFarmer, FarmerController.addCrop);
+router5.patch("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
+router5.put("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.updateCrop);
+router5.delete("/:id/crops/:cropId", authenticateUser, requireFarmer, FarmerController.deleteCrop);
+router5.get("/:id/business-insights", authenticateUser, FarmerController.getBusinessInsights);
 var farmerRoutes_default = router5;
 
 // server/src/routes/reviewRoutes.ts
@@ -91348,7 +91348,7 @@ var reviewSchema = external_exports.object({
   rating: external_exports.number().min(1).max(5),
   review: external_exports.string().min(3).max(1e3)
 });
-router6.post("/", authenticateUser2, reviewLimiter, validateBody(reviewSchema), ReviewController.create);
+router6.post("/", authenticateUser, reviewLimiter, validateBody(reviewSchema), ReviewController.create);
 router6.get("/farmer/:farmerId", ReviewController.getForFarmer);
 var reviewRoutes_default = router6;
 
@@ -92178,19 +92178,19 @@ var createConvSchema = external_exports.object({
 var messageSchema = external_exports.object({
   message: external_exports.string().min(1).max(2e3)
 });
-router7.get("/conversations", authenticateUser2, ChatController.listConversations);
-router7.post("/conversations", authenticateUser2, validateBody(createConvSchema), ChatController.getOrCreate);
-router7.get("/conversations/:id/messages", authenticateUser2, verifyConversationAccess, ChatController.getMessages);
+router7.get("/conversations", authenticateUser, ChatController.listConversations);
+router7.post("/conversations", authenticateUser, validateBody(createConvSchema), ChatController.getOrCreate);
+router7.get("/conversations/:id/messages", authenticateUser, verifyConversationAccess, ChatController.getMessages);
 router7.post(
   "/conversations/:id/messages",
-  authenticateUser2,
+  authenticateUser,
   verifyConversationAccess,
   chatLimiter,
   validateBody(messageSchema),
   ChatController.sendMessage
 );
-router7.patch("/conversations/:id/read", authenticateUser2, verifyConversationAccess, ChatController.markAsRead);
-router7.post("/conversations/:id/read", authenticateUser2, verifyConversationAccess, ChatController.markAsRead);
+router7.patch("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
+router7.post("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
 var chatRoutes_default = router7;
 
 // server/src/routes/notificationRoutes.ts
@@ -92274,12 +92274,12 @@ var NotificationController = class {
 
 // server/src/routes/notificationRoutes.ts
 var router8 = (0, import_express8.Router)();
-router8.get("/", authenticateUser2, NotificationController.list);
-router8.patch("/:id/read", authenticateUser2, NotificationController.markRead);
-router8.post("/mark-all-read", authenticateUser2, NotificationController.markAllRead);
-router8.delete("/:id", authenticateUser2, NotificationController.delete);
-router8.post("/device-token", authenticateUser2, NotificationController.registerDeviceToken);
-router8.post("/test-push", authenticateUser2, NotificationController.sendTestPush);
+router8.get("/", authenticateUser, NotificationController.list);
+router8.patch("/:id/read", authenticateUser, NotificationController.markRead);
+router8.post("/mark-all-read", authenticateUser, NotificationController.markAllRead);
+router8.delete("/:id", authenticateUser, NotificationController.delete);
+router8.post("/device-token", authenticateUser, NotificationController.registerDeviceToken);
+router8.post("/test-push", authenticateUser, NotificationController.sendTestPush);
 var notificationRoutes_default = router8;
 
 // server/src/routes/adminRoutes.ts
@@ -92548,7 +92548,7 @@ var categorySchema = external_exports.object({
   emoji: external_exports.string().optional(),
   image: external_exports.string().optional()
 });
-router9.use(authenticateUser2, requireAdmin);
+router9.use(authenticateUser, requireAdmin);
 router9.get("/overview", AdminController.getKPIs);
 router9.get("/users", AdminController.listUsers);
 router9.patch("/users/:id/toggle-status", AdminController.toggleUserStatus);
@@ -93573,7 +93573,7 @@ init_zod();
 var paymentRoutes = (0, import_express11.Router)();
 paymentRoutes.post(
   "/verify",
-  authenticateUser2,
+  authenticateUser,
   validateBody(
     external_exports.object({
       orderId: external_exports.string(),
@@ -93654,13 +93654,13 @@ paymentRoutes.post(
 );
 paymentRoutes.get(
   "/payouts",
-  authenticateUser2,
+  authenticateUser,
   requireFarmer,
   PaymentController.getFarmerPayouts
 );
 paymentRoutes.post(
   "/request-payout",
-  authenticateUser2,
+  authenticateUser,
   requireFarmer,
   validateBody(
     external_exports.object({
@@ -93863,7 +93863,7 @@ var FavoriteController = class {
 
 // server/src/routes/favoriteRoutes.ts
 var router11 = (0, import_express13.Router)();
-router11.use(authenticateUser2);
+router11.use(authenticateUser);
 router11.get("/", FavoriteController.list);
 router11.post("/:productId", FavoriteController.add);
 router11.delete("/:productId", FavoriteController.remove);
@@ -94060,11 +94060,11 @@ var ReportController = class {
 
 // server/src/routes/reportRoutes.ts
 var router12 = (0, import_express14.Router)();
-router12.post("/", authenticateUser2, ReportController.create);
-router12.get("/my", authenticateUser2, ReportController.listMy);
-router12.get("/", authenticateUser2, requireAdmin, ReportController.listAdmin);
-router12.get("/admin", authenticateUser2, requireAdmin, ReportController.listAdmin);
-router12.patch("/:id/status", authenticateUser2, requireAdmin, ReportController.updateStatus);
+router12.post("/", authenticateUser, ReportController.create);
+router12.get("/my", authenticateUser, ReportController.listMy);
+router12.get("/", authenticateUser, requireAdmin, ReportController.listAdmin);
+router12.get("/admin", authenticateUser, requireAdmin, ReportController.listAdmin);
+router12.patch("/:id/status", authenticateUser, requireAdmin, ReportController.updateStatus);
 var reportRoutes_default = router12;
 
 // server/src/routes/customerRoutes.ts
@@ -94604,7 +94604,7 @@ var CustomerController = class {
 // server/src/routes/customerRoutes.ts
 init_zod();
 var router13 = (0, import_express15.Router)();
-router13.use(authenticateUser2);
+router13.use(authenticateUser);
 router13.use(requireCustomer);
 var updateProfileSchema = external_exports.object({
   name: external_exports.string().min(2).max(100).optional(),
@@ -94875,7 +94875,7 @@ router14.get("/analytics", MandiController.getAnalytics);
 router14.get("/demand", MandiController.getDemandIndicators);
 router14.get("/export", MandiController.exportCsv);
 router14.post("/estimate", MandiController.calculateRevenueEstimate);
-router14.post("/prices", authenticateUser2, requireRole("admin"), MandiController.addPriceRecord);
+router14.post("/prices", authenticateUser, requireRole("admin"), MandiController.addPriceRecord);
 var mandiRoutes_default = router14;
 
 // server/src/routes/logisticsRoutes.ts
@@ -95296,7 +95296,7 @@ var LogisticsController = class {
 
 // server/src/routes/logisticsRoutes.ts
 var router15 = (0, import_express17.Router)();
-router15.use(authenticateUser2);
+router15.use(authenticateUser);
 router15.get("/partners", LogisticsController.getPartners);
 router15.post("/partners", LogisticsController.registerPartner);
 router15.patch("/partners/:id/status", LogisticsController.updateStatus);
@@ -95572,7 +95572,7 @@ var FinanceController = class {
 
 // server/src/routes/financeRoutes.ts
 var router16 = (0, import_express18.Router)();
-router16.use(authenticateUser2);
+router16.use(authenticateUser);
 router16.get("/dashboard", FinanceController.getDashboard);
 router16.get("/farmer-earnings/:farmerId", FinanceController.getFarmerEarnings);
 router16.post("/withdraw", FinanceController.requestWithdrawal);
@@ -96309,7 +96309,7 @@ var AdvancedController = class {
 
 // server/src/routes/advancedRoutes.ts
 var router17 = (0, import_express19.Router)();
-router17.use(authenticateUser2);
+router17.use(authenticateUser);
 router17.get("/b2b/profile", AdvancedController.getB2bProfile);
 router17.post("/b2b/profile", AdvancedController.saveB2bProfile);
 router17.get("/b2b/profiles", requireAdmin, AdvancedController.listB2bProfiles);
@@ -96959,15 +96959,15 @@ var quotationSchema = external_exports.object({
   message: external_exports.string().optional()
 });
 router18.get("/", searchLimiter, optionalAuth, RequirementController.list);
-router18.get("/my", authenticateUser2, RequirementController.listMy);
-router18.get("/quotations/my", authenticateUser2, RequirementController.listMyQuotations);
+router18.get("/my", authenticateUser, RequirementController.listMy);
+router18.get("/quotations/my", authenticateUser, RequirementController.listMyQuotations);
 router18.get("/:id", optionalAuth, RequirementController.getById);
-router18.post("/", authenticateUser2, validateBody(createRequirementSchema), RequirementController.create);
-router18.patch("/:id/status", authenticateUser2, RequirementController.updateStatus);
-router18.delete("/:id", authenticateUser2, RequirementController.delete);
-router18.post("/:id/quotations", authenticateUser2, requireFarmer, validateBody(quotationSchema), RequirementController.submitQuotation);
-router18.get("/:id/quotations", authenticateUser2, RequirementController.listQuotations);
-router18.patch("/quotations/:quoteId", authenticateUser2, RequirementController.respondToQuotation);
+router18.post("/", authenticateUser, validateBody(createRequirementSchema), RequirementController.create);
+router18.patch("/:id/status", authenticateUser, RequirementController.updateStatus);
+router18.delete("/:id", authenticateUser, RequirementController.delete);
+router18.post("/:id/quotations", authenticateUser, requireFarmer, validateBody(quotationSchema), RequirementController.submitQuotation);
+router18.get("/:id/quotations", authenticateUser, RequirementController.listQuotations);
+router18.patch("/quotations/:quoteId", authenticateUser, RequirementController.respondToQuotation);
 var requirementRoutes_default = router18;
 
 // server/src/routes/negotiationRoutes.ts
@@ -97536,14 +97536,14 @@ var counterOfferSchema = external_exports.object({
   quantity: external_exports.number().positive().optional(),
   message: external_exports.string().optional()
 });
-router19.post("/", authenticateUser2, validateBody(createOfferSchema), NegotiationController.createOffer);
-router19.get("/", authenticateUser2, NegotiationController.listUserNegotiations);
-router19.get("/:id", authenticateUser2, NegotiationController.getById);
-router19.post("/:id/counter", authenticateUser2, validateBody(counterOfferSchema), NegotiationController.counterOffer);
-router19.post("/:id/accept", authenticateUser2, NegotiationController.acceptOffer);
-router19.post("/:id/reject", authenticateUser2, NegotiationController.rejectOffer);
-router19.post("/:id/withdraw", authenticateUser2, NegotiationController.withdrawOffer);
-router19.get("/:id/deal-summary", authenticateUser2, NegotiationController.getDealSummary);
+router19.post("/", authenticateUser, validateBody(createOfferSchema), NegotiationController.createOffer);
+router19.get("/", authenticateUser, NegotiationController.listUserNegotiations);
+router19.get("/:id", authenticateUser, NegotiationController.getById);
+router19.post("/:id/counter", authenticateUser, validateBody(counterOfferSchema), NegotiationController.counterOffer);
+router19.post("/:id/accept", authenticateUser, NegotiationController.acceptOffer);
+router19.post("/:id/reject", authenticateUser, NegotiationController.rejectOffer);
+router19.post("/:id/withdraw", authenticateUser, NegotiationController.withdrawOffer);
+router19.get("/:id/deal-summary", authenticateUser, NegotiationController.getDealSummary);
 router19.get("/slabs/:productId", NegotiationController.getPriceSlabs);
 var negotiationRoutes_default = router19;
 
@@ -97719,10 +97719,10 @@ var savedSearchSchema = external_exports.object({
   maxPrice: external_exports.number().positive().optional(),
   notificationFrequency: external_exports.enum(["instant", "daily"]).optional()
 });
-router21.post("/saved-searches", authenticateUser2, validateBody(savedSearchSchema), SmartAlertController.createSavedSearch);
-router21.get("/saved-searches", authenticateUser2, SmartAlertController.listSavedSearches);
-router21.delete("/saved-searches/:id", authenticateUser2, SmartAlertController.deleteSavedSearch);
-router21.patch("/saved-searches/:id/toggle", authenticateUser2, SmartAlertController.toggleSavedSearch);
+router21.post("/saved-searches", authenticateUser, validateBody(savedSearchSchema), SmartAlertController.createSavedSearch);
+router21.get("/saved-searches", authenticateUser, SmartAlertController.listSavedSearches);
+router21.delete("/saved-searches/:id", authenticateUser, SmartAlertController.deleteSavedSearch);
+router21.patch("/saved-searches/:id/toggle", authenticateUser, SmartAlertController.toggleSavedSearch);
 var smartAlertRoutes_default = router21;
 
 // server/src/routes/index.ts
