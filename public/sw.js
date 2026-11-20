@@ -1,8 +1,6 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v10-pwa-icons';
+const CACHE_NAME = 'halder-cache-v12-clean-auth';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/favicon.svg',
   '/icon-192.png',
@@ -52,10 +50,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Navigation / HTML Document: Network-First so app updates reflect immediately
+  // 1. Navigation / HTML Document: Network-First with cache bypass so app updates reflect immediately
   if (request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-cache' })
         .then((response) => {
           if (response && response.status === 200) {
             const clone = response.clone();

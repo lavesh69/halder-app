@@ -36806,6 +36806,24 @@ async function flushTablesToSupabase(localDb, tables) {
     tableSet.add("users");
   }
   const orderedTables = SYNCED_TABLES.filter((t) => tableSet.has(t));
+  if (orderedTables.length === 0) return localSyncedVersion2;
+  if (orderedTables.includes("users") && orderedTables.length > 1) {
+    const usersPayload = readTablesFromSqlite(localDb, ["users"]);
+    await callSupabaseRpc("halder_sync_tables", {
+      p_secret: syncSecret,
+      p_tables: usersPayload
+    });
+    const remainingTables = orderedTables.filter((t) => t !== "users");
+    const childPayload = readTablesFromSqlite(localDb, remainingTables);
+    if (Object.keys(childPayload).length === 0) return localSyncedVersion2;
+    const newVersion2 = await callSupabaseRpc("halder_sync_tables", {
+      p_secret: syncSecret,
+      p_tables: childPayload
+    });
+    localSyncedVersion2 = Number(newVersion2 || localSyncedVersion2 + 1);
+    lastVersionCheckAt2 = Date.now();
+    return localSyncedVersion2;
+  }
   const payload = readTablesFromSqlite(localDb, orderedTables);
   if (Object.keys(payload).length === 0) return localSyncedVersion2;
   const newVersion = await callSupabaseRpc("halder_sync_tables", {
