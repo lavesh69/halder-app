@@ -1,10 +1,15 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v9-no-pin';
+const CACHE_NAME = 'halder-cache-v10-pwa-icons';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-192.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
   '/logo.svg',
   '/halder-logo.svg',
 ];

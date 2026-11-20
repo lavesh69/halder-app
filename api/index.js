@@ -36817,19 +36817,45 @@ function hydrateLocalSqlite(localDb, tablesData, version2) {
       const localColSet = new Set(localColsInfo.map((c5) => c5.name));
       localDb.exec(`DELETE FROM "${table}";`);
       if (rows.length === 0) continue;
-      const validCols = Object.keys(rows[0]).filter((c5) => localColSet.has(c5));
+      let cleanRows = rows;
+      if (table === "customer_profiles" || table === "farmer_profiles") {
+        const seen = /* @__PURE__ */ new Map();
+        for (const r5 of rows) {
+          if (r5.user_id) seen.set(r5.user_id, r5);
+        }
+        cleanRows = Array.from(seen.values());
+      } else if (table === "auth_identities") {
+        const seen = /* @__PURE__ */ new Map();
+        for (const r5 of rows) {
+          const key = `${r5.provider}_${r5.provider_user_id}`;
+          seen.set(key, r5);
+        }
+        cleanRows = Array.from(seen.values());
+      } else if (table === "users") {
+        const seenId = /* @__PURE__ */ new Map();
+        for (const r5 of rows) {
+          if (r5.id) seenId.set(r5.id, r5);
+        }
+        cleanRows = Array.from(seenId.values());
+      }
+      if (cleanRows.length === 0) continue;
+      const validCols = Object.keys(cleanRows[0]).filter((c5) => localColSet.has(c5));
       if (validCols.length === 0) continue;
       const colList = validCols.map((c5) => `"${c5}"`).join(", ");
       const placeholders = validCols.map(() => "?").join(", ");
-      const insertStmt = localDb.prepare(`INSERT INTO "${table}" (${colList}) VALUES (${placeholders})`);
-      for (const row of rows) {
+      const insertStmt = localDb.prepare(`INSERT OR REPLACE INTO "${table}" (${colList}) VALUES (${placeholders})`);
+      for (const row of cleanRows) {
         const values = validCols.map((col) => {
           const val = row[col];
           if (val === void 0) return null;
           if (typeof val === "boolean") return val ? 1 : 0;
           return val;
         });
-        insertStmt.run(...values);
+        try {
+          insertStmt.run(...values);
+        } catch (rowErr) {
+          console.warn(`[Supabase] Hydrate row warning in "${table}":`, rowErr?.message || rowErr);
+        }
       }
     }
     localDb.exec("COMMIT;");
