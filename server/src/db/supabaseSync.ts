@@ -191,7 +191,49 @@ function readTablesFromSqlite(localDb: DatabaseSync, tables: readonly string[]):
 export async function flushTablesToSupabase(localDb: DatabaseSync, tables: readonly string[]): Promise<number> {
   if (!isSupabaseEnabled() || tables.length === 0) return localSyncedVersion;
   const { syncSecret } = getConfig();
-  const payload = readTablesFromSqlite(localDb, tables);
+
+  const tableSet = new Set(tables);
+  if (
+    tableSet.has('carts') ||
+    tableSet.has('customer_profiles') ||
+    tableSet.has('farmer_profiles') ||
+    tableSet.has('customer_addresses')
+  ) {
+    tableSet.add('users');
+  }
+  if (tableSet.has('cart_items')) {
+    tableSet.add('carts');
+  }
+  if (tableSet.has('order_items') || tableSet.has('order_timeline')) {
+    tableSet.add('orders');
+    tableSet.add('users');
+  }
+
+  // Ensure tables are processed in strict foreign-key dependency order
+  const orderedTables = SYNCED_TABLES.filter((t) => tableSet.has(t));
+  if (orderedTables.length === 0) return localSyncedVersion;
+
+  // If 'users' is included with dependent child tables, flush 'users' first to satisfy Postgres FK constraints
+  if (orderedTables.includes('users') && orderedTables.length > 1) {
+    const usersPayload = readTablesFromSqlite(localDb, ['users']);
+    await callSupabaseRpc<number>('halder_sync_tables', {
+      p_secret: syncSecret,
+      p_tables: usersPayload,
+    });
+    const remainingTables = orderedTables.filter((t) => t !== 'users');
+    const childPayload = readTablesFromSqlite(localDb, remainingTables);
+    if (Object.keys(childPayload).length === 0) return localSyncedVersion;
+
+    const newVersion = await callSupabaseRpc<number>('halder_sync_tables', {
+      p_secret: syncSecret,
+      p_tables: childPayload,
+    });
+    localSyncedVersion = Number(newVersion || localSyncedVersion + 1);
+    lastVersionCheckAt = Date.now();
+    return localSyncedVersion;
+  }
+
+  const payload = readTablesFromSqlite(localDb, orderedTables);
   if (Object.keys(payload).length === 0) return localSyncedVersion;
 
   const newVersion = await callSupabaseRpc<number>('halder_sync_tables', {

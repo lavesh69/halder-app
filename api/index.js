@@ -36794,7 +36794,19 @@ function readTablesFromSqlite(localDb, tables) {
 async function flushTablesToSupabase(localDb, tables) {
   if (!isSupabaseEnabled() || tables.length === 0) return localSyncedVersion2;
   const { syncSecret } = getConfig();
-  const payload = readTablesFromSqlite(localDb, tables);
+  const tableSet = new Set(tables);
+  if (tableSet.has("carts") || tableSet.has("customer_profiles") || tableSet.has("farmer_profiles") || tableSet.has("customer_addresses")) {
+    tableSet.add("users");
+  }
+  if (tableSet.has("cart_items")) {
+    tableSet.add("carts");
+  }
+  if (tableSet.has("order_items") || tableSet.has("order_timeline")) {
+    tableSet.add("orders");
+    tableSet.add("users");
+  }
+  const orderedTables = SYNCED_TABLES.filter((t) => tableSet.has(t));
+  const payload = readTablesFromSqlite(localDb, orderedTables);
   if (Object.keys(payload).length === 0) return localSyncedVersion2;
   const newVersion = await callSupabaseRpc("halder_sync_tables", {
     p_secret: syncSecret,

@@ -138,8 +138,6 @@ export const AdminDashboard: React.FC = () => {
   // Logistics & Fleet States (Module 5)
   const [deliveryPartners, setDeliveryPartners] = useState<any[]>([]);
   const [deliveryTasks, setDeliveryTasks] = useState<any[]>([]);
-  const [otpVerifyTaskId, setOtpVerifyTaskId] = useState<string | null>(null);
-  const [otpVerifyInput, setOtpVerifyInput] = useState<string>('');
 
   // Financial Ledger States (Module 6)
   const [financialDashboard, setFinancialDashboard] = useState<any>(null);

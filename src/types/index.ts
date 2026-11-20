@@ -178,7 +178,7 @@ export type OrderStatus =
   | 'delivered'
   | 'rejected';
 
-export type PaymentMethod = 'cod' | 'upi' | 'online' | 'card' | 'wallet' | 'phonepe' | 'gpay' | 'paytm';
+export type PaymentMethod = 'cod' | 'upi' | 'online' | 'card' | 'wallet' | 'direct';
 
 export interface OrderItem {
   product: Product;

@@ -440,7 +440,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             onClick={() => setShowRolePick(true)}
             className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
           >
-            📱 Mobile OTP Login
+            🔑 Sign In / Register
           </button>
           <button
             type="button"
