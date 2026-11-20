@@ -230,25 +230,6 @@ export const CustomerProfileView: React.FC = () => {
         />
       </div>
 
-      {/* Switch to Farmer Banner */}
-      <div
-        onClick={() => setRole('farmer')}
-        className="p-4 bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl text-white shadow-soft hover:shadow-soft-md cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-white/15 text-white shadow-xs">
-            <Sprout className="w-6 h-6" />
-          </div>
-          <div>
-            <h4 className="font-heading font-black text-sm">{t('profile.switch_to_farmer')}</h4>
-            <p className="text-xs text-emerald-100">
-              {t('profile.switch_to_farmer_desc')}
-            </p>
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-emerald-200" />
-      </div>
-
       {/* Menu List */}
       <div className="bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/80 shadow-soft">
         {/* My Advertisements (OLX style) */}
@@ -454,17 +435,6 @@ export const CustomerProfileView: React.FC = () => {
             );
           })}
         </div>
-      </div>
-
-      {/* Reset Demo State Button */}
-      <div className="text-center pt-2">
-        <button
-          onClick={resetDemoData}
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 py-1.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-colors"
-        >
-          <RotateCcw className="w-3 h-3" />
-          <span>{t('profile.reset_demo')}</span>
-        </button>
       </div>
 
       {/* Interactive Profile Modals */}

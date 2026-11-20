@@ -45,6 +45,7 @@ export const MainApp: React.FC = () => {
     showSplash,
     hasSeenOnboarding,
     isLoggedIn,
+    currentUser,
     isLoginModalOpen,
     setIsLoginModalOpen,
     isDeviceFrame,
@@ -138,9 +139,27 @@ export const MainApp: React.FC = () => {
     );
   };
 
-  // Screen Dispatcher based on Role
+  // Screen Dispatcher based on Role with strict profile lock guards
   const renderScreen = () => {
     if (role === 'admin') {
+      // Guard: strictly require logged in admin
+      if (!isLoggedIn || currentUser?.role !== 'admin') {
+        return (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center text-purple-700 shadow-soft">
+              <span className="text-2xl">🛡️</span>
+            </div>
+            <h2 className="text-xl font-black text-zinc-900 dark:text-white">Admin Access Restricted</h2>
+            <p className="text-xs text-zinc-500 max-w-sm">Please log in with verified administrator credentials to access the moderation command center.</p>
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
+            >
+              Sign In as Admin
+            </button>
+          </div>
+        );
+      }
       return (
         <React.Suspense fallback={<div className="flex items-center justify-center min-h-[300px] text-sm text-zinc-500 font-medium">Loading Admin Command Center...</div>}>
           <AdminDashboard />
@@ -148,6 +167,24 @@ export const MainApp: React.FC = () => {
       );
     }
     if (role === 'farmer') {
+      // Guard: strictly require logged in farmer
+      if (!isLoggedIn || currentUser?.role !== 'farmer') {
+        return (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center text-amber-700 shadow-soft">
+              <span className="text-2xl">🌾</span>
+            </div>
+            <h2 className="text-xl font-black text-zinc-900 dark:text-white">Farmer Mandi Dashboard</h2>
+            <p className="text-xs text-zinc-500 max-w-sm">Sign in with your farmer account to manage crop listings, view wholesale orders, and chat with buyers.</p>
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
+            >
+              Sign In as Farmer
+            </button>
+          </div>
+        );
+      }
       return renderFarmerScreen();
     }
     return renderCustomerScreen();

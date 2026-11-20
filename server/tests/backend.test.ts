@@ -155,7 +155,7 @@ async function runTests() {
 
     const adminLogin = await request('/auth/login', {
       method: 'POST',
-      body: { emailOrPhone: 'admin@halder.com', password: 'halder123' },
+      body: { emailOrPhone: 'admin@halder.com', password: 'HalderAdmin@2026!' },
     });
     assert('Admin Vikram Patel login success', adminLogin.status === 200 && !!adminLogin.json.data.token);
     adminToken = adminLogin.json.data.token;

@@ -196,25 +196,6 @@ export const FarmerProfileView: React.FC = () => {
         <Plus className="w-6 h-6 text-white stroke-[2.5]" />
       </div>
 
-      {/* Switch to Customer Marketplace Button */}
-      <div
-        onClick={() => setRole('customer')}
-        className="p-4 bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-3xl text-white shadow-soft hover:shadow-soft-md cursor-pointer hover:opacity-95 transition-all flex items-center justify-between"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-xl shrink-0">
-            🛒
-          </div>
-          <div>
-            <h4 className="font-heading font-black text-sm text-white">Switch to Customer App</h4>
-            <p className="text-xs text-zinc-300">
-              Browse the consumer marketplace & see how your products look
-            </p>
-          </div>
-        </div>
-        <Repeat className="w-5 h-5 text-emerald-400" />
-      </div>
-
       {/* Farmer Center Action Links: My Ads, Earnings, Orders */}
       <div className="bg-white dark:bg-[#1B201D] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden shadow-soft divide-y divide-zinc-100 dark:divide-zinc-800/80">
         <button
@@ -469,17 +450,6 @@ export const FarmerProfileView: React.FC = () => {
             );
           })}
         </div>
-      </div>
-
-      {/* Reset Demo Data */}
-      <div className="text-center pt-2">
-        <button
-          onClick={resetDemoData}
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 py-1.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-colors"
-        >
-          <RotateCcw className="w-3 h-3" />
-          <span>{t('profile.reset_demo')}</span>
-        </button>
       </div>
 
       {/* Edit Farmer Profile Modal */}

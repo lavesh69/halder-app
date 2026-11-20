@@ -586,38 +586,6 @@ export const AdminDashboard: React.FC = () => {
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
             <span>{isRefreshing ? 'Syncing...' : 'Sync Data'}</span>
           </button>
-
-          {/* Reset Demo Data Button */}
-          <button
-            onClick={resetDemoData}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 hover:bg-zinc-50 text-zinc-600 dark:text-zinc-300 font-semibold transition-colors shadow-2xs"
-            title="Reset to fresh demo seeds"
-          >
-            <span>Reset Seeds</span>
-          </button>
-
-          {/* Quick Persona Inspection Switchers */}
-          <button
-            onClick={() => {
-              setRole('farmer');
-              showToast('Switched to Farmer Portal view', 'info');
-            }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition shadow-2xs"
-            title="Inspect application as a Farmer"
-          >
-            <span>🌾 Farmer View</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setRole('customer');
-              showToast('Switched to Buyer Marketplace view', 'info');
-            }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-300 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold hover:bg-blue-100 transition shadow-2xs"
-            title="Inspect application as a Buyer"
-          >
-            <span>🛒 Buyer View</span>
-          </button>
         </div>
       </div>
 

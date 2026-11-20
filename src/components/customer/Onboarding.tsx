@@ -172,7 +172,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
         }
         const res: any = await ApiClient.login(idToLogin, realPassword, selectedRole);
         if (res?.token) ApiClient.setToken(res.token);
-        login(idToLogin, selectedRole);
+        const resolvedRole = res?.user?.role || selectedRole;
+        login(idToLogin, resolvedRole);
         showToast(`Welcome back, ${res?.user?.name || idToLogin}!`, 'success');
       }
       if (onClose) onClose();
@@ -576,7 +577,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           <button
             type="button"
             onClick={() => {
-              loginUser(selectedRole, '9876543210');
+              loginUser(selectedRole);
               if (onClose) onClose();
             }}
             className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all text-center block"
@@ -644,7 +645,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           ) : (
             <button
               type="button"
-              onClick={() => loginUser('customer', '9876543210')}
+              onClick={() => loginUser('customer')}
               className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 px-3 py-1 rounded-full border border-emerald-500/30 transition-all"
             >
               Skip →
@@ -721,7 +722,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           <button
             type="button"
             onClick={() => {
-              loginUser('customer', '9876543210');
+              loginUser('customer');
               if (onClose) onClose();
             }}
             className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"

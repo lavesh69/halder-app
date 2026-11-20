@@ -268,26 +268,7 @@ const initialFilterState: FilterState = {
   sortBy: 'nearest',
 };
 
-const initialChatMessages: Record<string, ChatMessage[]> = {
-  'farmer-1': [
-    {
-      id: 'msg-1',
-      farmerId: 'farmer-1',
-      sender: 'farmer',
-      text: 'Namaste! Welcome to Green Valley Farm. Our morning tomatoes and fresh A2 milk are harvested and ready for dispatch.',
-      time: '7:15 AM',
-    },
-  ],
-  'farmer-3': [
-    {
-      id: 'msg-2',
-      farmerId: 'farmer-3',
-      sender: 'farmer',
-      text: 'Hello! All our mountain spinach and carrots are 100% certified organic from Mussoorie foothills.',
-      time: '6:30 AM',
-    },
-  ],
-};
+const initialChatMessages: Record<string, ChatMessage[]> = {};
 
 const initialPlatformSettings: PlatformSettings = {
   platformCommissionRate: 0,
@@ -298,34 +279,7 @@ const initialPlatformSettings: PlatformSettings = {
   emergencyAlert: '',
 };
 
-const initialDisputes: DisputeRecord[] = [
-  {
-    id: 'DISP-101',
-    orderId: 'order-101',
-    orderNumber: '#HD1042',
-    farmerName: 'Rajesh Kumar',
-    customerName: 'Aman Sharma',
-    customerPhone: '+91 98765 43210',
-    category: 'Spoiled / Rotten Produce',
-    details: 'Morning delivery of organic tomatoes had cracked & bruised items at the bottom of the eco-crate.',
-    amount: 140,
-    status: 'UNDER_INVESTIGATION',
-    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-  },
-  {
-    id: 'DISP-102',
-    orderId: 'order-102',
-    orderNumber: '#HD1088',
-    farmerName: 'Amit Singh',
-    customerName: 'Priya Patel',
-    customerPhone: '+91 98450 99887',
-    category: 'Weight Discrepancy (Underweight)',
-    details: 'Delivered Mustard Greens crate measured 4.2 kg on calibrated digital scale instead of 5.0 kg invoice billing.',
-    amount: 90,
-    status: 'UNDER_INVESTIGATION',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
+const initialDisputes: DisputeRecord[] = [];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -913,16 +867,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const setRole = (newRole: Role) => {
-    setRoleState(newRole);
-    if (newRole === 'admin') {
-      ApiClient.login('admin@halder.com', 'halder123', 'admin')
-        .then((res) => {
-          if (res?.token) ApiClient.setToken(res.token);
-          if (res?.user) setCurrentUser(res.user);
-        })
-        .catch((e) => console.warn('[Admin Auth] auto-login:', e.message));
+    // Profile Lock: A logged-in user is strictly locked to their account role
+    if (currentUser?.role) {
+      if (currentUser.role !== newRole) {
+        showToast(`Role is locked to your ${currentUser.role} account. Please log out to switch accounts.`, 'info');
+        return;
+      }
     }
-    showToast(`Switched to ${newRole === 'farmer' ? '🌾 Farmer Mandi (Rajesh Kumar)' : newRole === 'admin' ? '🛡️ Superadmin Console' : '🛒 Local Marketplace'}`);
+    // Unauthenticated users cannot enter farmer or admin workspace
+    if (!isLoggedIn && (newRole === 'farmer' || newRole === 'admin')) {
+      showToast(`Please sign in with your ${newRole} account to continue.`, 'info');
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setRoleState(newRole);
+    localStorage.setItem('halder-role', newRole);
   };
 
   const setHasSeenOnboarding = (seen: boolean) => {
@@ -941,13 +900,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (res?.token) ApiClient.setToken(res.token);
         if (res?.user) {
           setCurrentUser(res.user);
-          setRoleState(targetRole || res.user.role);
+          localStorage.setItem('halder-current-user-v2', JSON.stringify(res.user));
+          setRoleState(res.user.role);
+          localStorage.setItem('halder-role', res.user.role);
+          setIsLoggedIn(true);
+          localStorage.setItem('halder-loggedin', 'true');
         }
       })
       .catch((e) => console.warn('[HALDER Auth] Server login fallback:', e.message));
 
     const existing = users.find(
-      (u) => u.email.toLowerCase() === emailOrPhone.toLowerCase() || u.phone === emailOrPhone
+      (u) =>
+        u.email.toLowerCase() === emailOrPhone.toLowerCase() ||
+        u.phone === emailOrPhone ||
+        (u.username && u.username.toLowerCase() === emailOrPhone.replace(/^@/, '').toLowerCase())
     );
     if (existing) {
       if (existing.status === 'suspended') {
@@ -955,29 +921,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return false;
       }
       setCurrentUser(existing);
-      setRoleState(targetRole || existing.role);
+      localStorage.setItem('halder-current-user-v2', JSON.stringify(existing));
+      setRoleState(existing.role);
+      localStorage.setItem('halder-role', existing.role);
       setIsLoggedIn(true);
+      localStorage.setItem('halder-loggedin', 'true');
       setHasSeenOnboarding(true);
       showToast(`Welcome back, ${existing.name}!`);
       return true;
     }
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: emailOrPhone.includes('@') ? emailOrPhone.split('@')[0] : 'User ' + emailOrPhone.slice(-4),
-      phone: emailOrPhone.includes('@') ? '+91 98000 00000' : emailOrPhone,
-      email: emailOrPhone.includes('@') ? emailOrPhone : `user_${Date.now()}@halder.com`,
-      role: targetRole || 'customer',
-      profile_image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
-      status: 'active',
-      created_at: 'Just now',
-      updated_at: 'Just now',
-    };
-    setUsers((prev) => [newUser, ...prev]);
-    setCurrentUser(newUser);
-    setRoleState(newUser.role);
-    setIsLoggedIn(true);
-    setHasSeenOnboarding(true);
-    showToast(`Welcome to HALDER, ${newUser.name}!`);
     return true;
   };
 
@@ -1188,20 +1140,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     PushNotificationClient.showLocalNotification(title, { body: message });
   };
 
-  const loginUser = (selectedRole: Role, phone?: string) => {
-    setIsLoggedIn(true);
+  const loginUser = (selectedRole: Role) => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setRoleState(selectedRole === 'farmer' ? 'farmer' : 'customer');
     setHasSeenOnboarding(true);
-    setRoleState(selectedRole);
-
-    const credential = phone || (selectedRole === 'farmer' ? 'rajesh@greenvalley.in' : 'aman@halder.com');
-    ApiClient.login(credential, undefined, selectedRole)
-      .then((res) => {
-        if (res?.token) ApiClient.setToken(res.token);
-        if (res?.user) setCurrentUser(res.user);
-      })
-      .catch((e) => console.warn('[HALDER Auth] Offline/fallback login mode:', e.message));
-
-    showToast(`Welcome to HALDER! Logged in as ${selectedRole === 'farmer' ? 'Rajesh Kumar (Farmer)' : selectedRole === 'admin' ? 'Admin' : 'Customer'}.`);
+    localStorage.setItem('halder-onboarded', 'true');
+    localStorage.setItem('halder-loggedin', 'false');
+    localStorage.removeItem('halder-current-user-v2');
+    showToast('Browsing HALDER Marketplace as Guest.');
   };
 
   const loginWithGoogle = async (idToken: string, selectedRole: Role = 'customer'): Promise<boolean> => {

@@ -42,6 +42,7 @@ export const BottomNav: React.FC = () => {
     farmers,
     unreadChatCount,
     currentUser,
+    isLoggedIn,
   } = useApp();
 
   const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -52,6 +53,7 @@ export const BottomNav: React.FC = () => {
   const pendingFarmerVerifications = farmers.filter((f) => f.verification_status === 'pending').length;
 
   if (role === 'admin') {
+    if (!isLoggedIn || currentUser?.role !== 'admin') return null;
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-between overflow-x-auto no-scrollbar px-1.5 py-1 gap-0.5">
@@ -169,7 +171,7 @@ export const BottomNav: React.FC = () => {
     );
   }
 
-  if (role === 'customer') {
+  if (role === 'customer' || (role === 'farmer' && (!isLoggedIn || currentUser?.role !== 'farmer'))) {
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-around px-2 py-1">

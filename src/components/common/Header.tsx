@@ -27,7 +27,9 @@ import {
 export const Header: React.FC = () => {
   const {
     role,
-    setRole,
+    setRole: _setRole,
+    currentUser,
+    logout,
     currentLocation,
     setIsLocationModalOpen,
     isDeviceFrame,
@@ -126,66 +128,25 @@ export const Header: React.FC = () => {
               </button>
             )}
 
-            {/* Mobile Quick Role Toggle */}
-            <button
-              onClick={() => setRole(role === 'farmer' ? 'customer' : 'farmer')}
-              className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold shadow-2xs active:scale-95 transition"
-              title={role === 'farmer' ? 'Switch to Buyer Mode' : 'Switch to Farmer Mode'}
-            >
-              {role === 'farmer' ? (
-                <>
-                  <ShoppingBag className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                  <span>खरीदार</span>
-                </>
-              ) : (
-                <>
-                  <Sprout className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                  <span>किसान</span>
-                </>
-              )}
-            </button>
-
-            {/* 3-Way Role Selector (Desktop/Tablet) */}
-            <div className="hidden md:flex items-center bg-[#F0F4F1] dark:bg-[#181F1A] p-0.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] text-[10px] font-bold">
-              <button
-                onClick={() => setRole('customer')}
-                title={t('nav.buyer')}
-                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
-                  role === 'customer'
-                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-                }`}
+            {/* Locked Persona Badge when Logged In */}
+            {isLoggedIn && currentUser && (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs max-w-[130px] sm:max-w-[160px] truncate"
+                style={{
+                  borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
+                  backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.08)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.08)' : 'rgba(5, 150, 105, 0.08)',
+                  color: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#b45309' : '#047857',
+                }}
+                title={`Logged in as ${currentUser.name || currentUser.username} (${role})`}
               >
-                <User className="w-3 h-3" />
-                <span className="hidden sm:inline">{t('nav.buyer')}</span>
-              </button>
-
-              <button
-                onClick={() => setRole('farmer')}
-                title={t('nav.farmer')}
-                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
-                  role === 'farmer'
-                    ? 'bg-white dark:bg-[#222B25] text-[#176B45] dark:text-[#5FB383] shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-                }`}
-              >
-                <Sprout className="w-3 h-3" />
-                <span className="hidden sm:inline">{t('nav.farmer')}</span>
-              </button>
-
-              <button
-                onClick={() => setRole('admin')}
-                title={t('nav.admin')}
-                className={`px-1.5 py-1 sm:px-2 sm:py-1 rounded-full flex items-center gap-1 transition-all ${
-                  role === 'admin'
-                    ? 'bg-purple-600 text-white shadow-soft font-bold'
-                    : 'text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923]'
-                }`}
-              >
-                <Shield className="w-3 h-3" />
-                <span className="hidden sm:inline">{t('nav.admin')}</span>
-              </button>
-            </div>
+                {role === 'admin' && <Shield className="w-3.5 h-3.5 shrink-0 text-purple-600" />}
+                {role === 'farmer' && <Sprout className="w-3.5 h-3.5 shrink-0 text-amber-600" />}
+                {role === 'customer' && <ShoppingBag className="w-3.5 h-3.5 shrink-0 text-emerald-600" />}
+                <span className="truncate">
+                  {role === 'admin' ? 'Admin' : role === 'farmer' ? 'किसान' : 'खरीदार'} {currentUser.username ? `@${currentUser.username}` : ''}
+                </span>
+              </div>
+            )}
 
             {/* Quick + Post Ad Button for Farmers (Desktop/Tablet) */}
             {role === 'farmer' && (

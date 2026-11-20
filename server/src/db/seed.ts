@@ -44,12 +44,17 @@ export async function seedCoreSystem(now: string) {
 
   // 2. Default System Admin Account
   const existingAdmin = Database.get<any>("SELECT id FROM users WHERE role = 'admin' OR username = 'admin'");
+  const adminPasswordHash = await bcrypt.hash('HalderAdmin@2026!', 10);
   if (!existingAdmin) {
-    const adminPasswordHash = await bcrypt.hash('halder123', 10);
     Database.run(
       `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
        ('user-admin-1', 'HAL-ADM-90000001', 'admin', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
       [adminPasswordHash, now, now]
+    );
+  } else {
+    Database.run(
+      `UPDATE users SET password_hash = ?, username = 'admin', email = 'admin@halder.com', updated_at = ? WHERE id = ?`,
+      [adminPasswordHash, now, existingAdmin.id]
     );
   }
 
