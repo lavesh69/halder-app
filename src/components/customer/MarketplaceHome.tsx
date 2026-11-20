@@ -25,6 +25,8 @@ import {
   FileText,
   Sprout,
   Plus,
+  X,
+  Check,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -45,6 +47,9 @@ export const MarketplaceHome: React.FC = () => {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isExploreCategoriesOpen, setIsExploreCategoriesOpen] = useState(false);
+  const [isAgriVisionOpen, setIsAgriVisionOpen] = useState(false);
+  const [scannedPhotoUrl, setScannedPhotoUrl] = useState<string | null>(null);
+  const [detectedCategory, setDetectedCategory] = useState<ProductCategory>('Vegetables');
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
@@ -90,23 +95,32 @@ export const MarketplaceHome: React.FC = () => {
   const handleCameraScan = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      showToast('🔍 Analyzing crop photo with Agri-Vision...', 'info');
-      setTimeout(() => {
-        const lowerName = file.name.toLowerCase();
-        let matched: ProductCategory = 'Vegetables';
-        if (lowerName.includes('apple') || lowerName.includes('orange') || lowerName.includes('fruit') || lowerName.includes('mango')) {
-          matched = 'Fruits';
-        } else if (lowerName.includes('wheat') || lowerName.includes('rice') || lowerName.includes('paddy') || lowerName.includes('grain')) {
-          matched = 'Grains';
-        } else if (lowerName.includes('milk') || lowerName.includes('dairy') || lowerName.includes('ghee')) {
-          matched = 'Dairy';
-        } else if (lowerName.includes('honey') || lowerName.includes('pickle')) {
-          matched = 'Homemade';
-        }
-        setSelectedCategory(matched);
-        showToast(`🌿 Crop Identified: Fresh ${matched}! Filtered listings for you.`, 'success');
-      }, 900);
+      const lowerName = file.name.toLowerCase();
+      let guessed: ProductCategory = 'Vegetables';
+      if (lowerName.includes('apple') || lowerName.includes('orange') || lowerName.includes('fruit') || lowerName.includes('mango') || lowerName.includes('banana')) {
+        guessed = 'Fruits';
+      } else if (lowerName.includes('wheat') || lowerName.includes('rice') || lowerName.includes('paddy') || lowerName.includes('grain') || lowerName.includes('dal') || lowerName.includes('atta')) {
+        guessed = 'Grains';
+      } else if (lowerName.includes('milk') || lowerName.includes('dairy') || lowerName.includes('ghee') || lowerName.includes('paneer')) {
+        guessed = 'Dairy';
+      } else if (lowerName.includes('honey') || lowerName.includes('pickle') || lowerName.includes('organic')) {
+        guessed = 'Homemade';
+      }
+      setDetectedCategory(guessed);
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setScannedPhotoUrl(event.target?.result as string);
+        setIsAgriVisionOpen(true);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleConfirmAgriCategory = (cat: ProductCategory) => {
+    setSelectedCategory(cat);
+    setIsAgriVisionOpen(false);
+    showToast(`🌿 Crop Identified: Fresh ${cat}! Filtered listings for you.`, 'success');
   };
 
   const handleVoiceSearch = (e: React.MouseEvent) => {
@@ -871,6 +885,94 @@ export const MarketplaceHome: React.FC = () => {
         isOpen={isExploreCategoriesOpen}
         onClose={() => setIsExploreCategoriesOpen(false)}
       />
+
+      {/* Agri-Vision Crop Scanner Modal */}
+      {isAgriVisionOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white dark:bg-[#1B201D] border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-zinc-900 dark:text-white">
+                    Agri-Vision Smart Scanner
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    AI Crop Analysis (कृषि-दृष्टि फसल पहचान)
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAgriVisionOpen(false)}
+                className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Photo preview with scanning effect */}
+            {scannedPhotoUrl && (
+              <div className="relative rounded-2xl overflow-hidden aspect-video bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-inner">
+                <img
+                  src={scannedPhotoUrl}
+                  alt="Scanned Crop"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
+                  <div className="px-3 py-1 rounded-full bg-emerald-600/90 text-white text-xs font-bold flex items-center gap-1.5 shadow-md">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Identified: {detectedCategory}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Category selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                Confirm or change category (श्रेणी चुनें):
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Vegetables (सब्जियां)', cat: 'Vegetables' as ProductCategory, emoji: '🥬' },
+                  { label: 'Fruits (फल)', cat: 'Fruits' as ProductCategory, emoji: '🍎' },
+                  { label: 'Grains (अनाज)', cat: 'Grains' as ProductCategory, emoji: '🌾' },
+                  { label: 'Dairy (डेयरी)', cat: 'Dairy' as ProductCategory, emoji: '🥛' },
+                  { label: 'Organic/Home (जैविक)', cat: 'Homemade' as ProductCategory, emoji: '🍯' },
+                  { label: 'Equipment (उपकरण)', cat: 'Farm Equipment' as ProductCategory, emoji: '🚜' },
+                ].map((item) => (
+                  <button
+                    key={item.cat}
+                    type="button"
+                    onClick={() => setDetectedCategory(item.cat)}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-semibold flex items-center gap-2 transition ${
+                      detectedCategory === item.cat
+                        ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                        : 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300'
+                    }`}
+                  >
+                    <span>{item.emoji}</span>
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action button */}
+            <button
+              type="button"
+              onClick={() => handleConfirmAgriCategory(detectedCategory)}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>View Listings for {detectedCategory}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

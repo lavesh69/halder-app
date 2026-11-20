@@ -120,6 +120,40 @@ export class AuthController {
     }
   }
 
+  static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      const result = await AuthService.forgotPassword(email);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, code, newPassword, resetToken } = req.body;
+      const result = await AuthService.resetPassword({ email, code, newPassword, resetToken });
+
+      res.cookie('halder_token', result.token, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // -------------------------------------------------------------
   // Dynamic Real SMS OTP Flow
   // -------------------------------------------------------------

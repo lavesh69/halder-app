@@ -722,6 +722,51 @@ async function runTests() {
       successCount === 2 && distinctUsers.size === 1
     );
 
+    // --- Section 12: Forgot Password & Reset Password Flow ---
+    console.log('\n--- Section 12: Forgot Password & Reset Password Flow ---');
+    const fpRes = await request('/auth/forgot-password', {
+      method: 'POST',
+      body: { email: 'aman@halder.com' },
+    });
+    assert('Forgot Password: Generates code and resetToken for valid account',
+      fpRes.status === 200 && fpRes.json?.data?.success && fpRes.json?.data?.code?.length === 6
+    );
+
+    const fpInvalidCode = await request('/auth/reset-password', {
+      method: 'POST',
+      body: {
+        email: 'aman@halder.com',
+        code: '999999',
+        newPassword: 'brandnewpassword123',
+        resetToken: fpRes.json?.data?.resetToken,
+      },
+    });
+    assert('Forgot Password: Wrong code rejected with 400 Bad Request', fpInvalidCode.status === 400);
+
+    const fpValidReset = await request('/auth/reset-password', {
+      method: 'POST',
+      body: {
+        email: 'aman@halder.com',
+        code: fpRes.json?.data?.code,
+        newPassword: 'brandnewpassword123',
+        resetToken: fpRes.json?.data?.resetToken,
+      },
+    });
+    assert('Forgot Password: Valid code resets password and returns auth session',
+      fpValidReset.status === 200 && fpValidReset.json?.data?.token
+    );
+
+    // Verify login with new password
+    const newLoginRes = await request('/auth/login', {
+      method: 'POST',
+      body: { emailOrPhone: 'aman@halder.com', password: 'brandnewpassword123' },
+    });
+    assert('Forgot Password: Can login with newly updated password', newLoginRes.status === 200);
+
+    // Restore original password
+    const origHash = await CryptoUtil.hashPassword('halder123');
+    Database.run('UPDATE users SET password_hash = ? WHERE email = ?', [origHash, 'aman@halder.com']);
+
 
 
 

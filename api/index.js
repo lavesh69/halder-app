@@ -25161,11 +25161,11 @@ function isValidIP(ip, version2) {
   }
   return false;
 }
-function isValidJWT(jwt2, alg) {
-  if (!jwtRegex.test(jwt2))
+function isValidJWT(jwt3, alg) {
+  if (!jwtRegex.test(jwt3))
     return false;
   try {
-    const [header] = jwt2.split(".");
+    const [header] = jwt3.split(".");
     if (!header)
       return false;
     const base64 = header.replace(/-/g, "+").replace(/_/g, "/").padEnd(header.length + (4 - header.length % 4) % 4, "=");
@@ -34923,11 +34923,11 @@ var init_stream3 = __esm({
       #closed;
       #sqlIdAlloc;
       /** @private */
-      constructor(client, baseUrl, jwt2, customFetch, remoteEncryptionKey) {
+      constructor(client, baseUrl, jwt3, customFetch, remoteEncryptionKey) {
         super(client.intMode);
         this.#client = client;
         this.#baseUrl = baseUrl.toString();
-        this.#jwt = jwt2;
+        this.#jwt = jwt3;
         this.#fetch = customFetch;
         this.#remoteEncryptionKey = remoteEncryptionKey;
         this.#baton = void 0;
@@ -35251,10 +35251,10 @@ var init_client3 = __esm({
       /** @private */
       _endpoint;
       /** @private */
-      constructor(url, jwt2, customFetch, remoteEncryptionKey, protocolVersion = 2) {
+      constructor(url, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
         super();
         this.#url = url;
-        this.#jwt = jwt2;
+        this.#jwt = jwt3;
         this.#fetch = customFetch ?? globalThis.fetch;
         this.#remoteEncryptionKey = remoteEncryptionKey;
         this.#closed = void 0;
@@ -35327,8 +35327,8 @@ var init_libsql_url = __esm({
 });
 
 // node_modules/@libsql/hrana-client/lib-esm/index.js
-function openHttp(url, jwt2, customFetch, remoteEncryptionKey, protocolVersion = 2) {
-  return new HttpClient(url instanceof URL ? url : new URL(url), jwt2, customFetch, remoteEncryptionKey, protocolVersion);
+function openHttp(url, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
+  return new HttpClient(url instanceof URL ? url : new URL(url), jwt3, customFetch, remoteEncryptionKey, protocolVersion);
 }
 var init_lib_esm = __esm({
   "node_modules/@libsql/hrana-client/lib-esm/index.js"() {
@@ -37851,9 +37851,9 @@ var require_jws = __commonJS({
 var require_decode = __commonJS({
   "node_modules/jsonwebtoken/decode.js"(exports, module) {
     var jws = require_jws();
-    module.exports = function(jwt2, options) {
+    module.exports = function(jwt3, options) {
       options = options || {};
-      var decoded = jws.decode(jwt2, options);
+      var decoded = jws.decode(jwt3, options);
       if (!decoded) {
         return null;
       }
@@ -86993,6 +86993,9 @@ var IdentityService = class {
 
 // server/src/services/authService.ts
 init_audit();
+var import_jsonwebtoken2 = __toESM(require_jsonwebtoken(), 1);
+init_env();
+var resetCodeStore = /* @__PURE__ */ new Map();
 var AuthService = class _AuthService {
   static async register(data) {
     if (data.role === "admin") {
@@ -87183,6 +87186,82 @@ var AuthService = class _AuthService {
     });
     logAuditEvent(userId, user.role, "ACCOUNT_DELETED", "users", userId);
     return { message: "Account and personal data permanently purged." };
+  }
+  static async forgotPassword(email) {
+    const cleanEmail = email.toLowerCase().trim();
+    const user = Database.get("SELECT id, name, email, role FROM users WHERE LOWER(email) = ?", [cleanEmail]);
+    if (!user) {
+      throw AppError.notFound("No account found with this email address.", "USER_NOT_FOUND");
+    }
+    const code = Math.floor(1e5 + Math.random() * 9e5).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1e3;
+    resetCodeStore.set(cleanEmail, { code, userId: user.id, expiresAt });
+    const resetToken = import_jsonwebtoken2.default.sign(
+      { userId: user.id, email: cleanEmail, code, purpose: "pwd_reset" },
+      env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+    logAuditEvent(user.id, user.role, "PASSWORD_RESET_REQUESTED", "users", user.id);
+    return {
+      success: true,
+      message: "Password reset code generated successfully. Please enter the verification code.",
+      code,
+      resetToken
+    };
+  }
+  static async resetPassword(data) {
+    const cleanEmail = data.email.toLowerCase().trim();
+    const cleanCode = data.code.trim();
+    if (!data.newPassword || data.newPassword.length < 6) {
+      throw AppError.badRequest("New password must be at least 6 characters long.");
+    }
+    let verifiedUserId = null;
+    if (data.resetToken) {
+      try {
+        const decoded = import_jsonwebtoken2.default.verify(data.resetToken, env.JWT_SECRET);
+        if (decoded && decoded.purpose === "pwd_reset" && decoded.email === cleanEmail && decoded.code === cleanCode) {
+          verifiedUserId = decoded.userId;
+        }
+      } catch (err) {
+        console.warn("[AuthService] Reset token verification failed:", err.message);
+      }
+    }
+    if (!verifiedUserId) {
+      const stored = resetCodeStore.get(cleanEmail);
+      if (stored && stored.code === cleanCode && Date.now() <= stored.expiresAt) {
+        verifiedUserId = stored.userId;
+      }
+    }
+    if (!verifiedUserId) {
+      throw AppError.badRequest("Invalid or expired verification code.", "INVALID_RESET_CODE");
+    }
+    const newHash = await CryptoUtil.hashPassword(data.newPassword);
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      "UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?",
+      [newHash, now, verifiedUserId]
+    );
+    resetCodeStore.delete(cleanEmail);
+    const user = Database.get(
+      "SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
+      [verifiedUserId]
+    );
+    let farmerProfile = null;
+    if (user && user.role === "farmer") {
+      farmerProfile = Database.get("SELECT * FROM farmer_profiles WHERE user_id = ?", [user.id]);
+    }
+    const token = CryptoUtil.generateToken({
+      userId: user.id,
+      role: user.role,
+      email: user.email
+    });
+    logAuditEvent(user.id, user.role, "PASSWORD_RESET_COMPLETED", "users", user.id);
+    return {
+      message: "Password reset successfully. You are now logged in.",
+      user,
+      farmerProfile,
+      token
+    };
   }
 };
 
@@ -87649,6 +87728,36 @@ var AuthController = class {
       const { password } = req.body || {};
       const result = await AuthService.deleteAccount(userId, password);
       res.clearCookie("halder_token");
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body;
+      const result = await AuthService.forgotPassword(email);
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async resetPassword(req, res, next) {
+    try {
+      const { email, code, newPassword, resetToken } = req.body;
+      const result = await AuthService.resetPassword({ email, code, newPassword, resetToken });
+      res.cookie("halder_token", result.token, {
+        httpOnly: true,
+        secure: env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1e3
+      });
       res.json({
         success: true,
         data: result
@@ -88760,6 +88869,15 @@ var googleSchema = external_exports.object({
   idToken: external_exports.string().min(10),
   role: external_exports.enum(["customer", "farmer", "admin"]).optional()
 });
+var forgotPasswordSchema = external_exports.object({
+  email: external_exports.string().email().max(120)
+});
+var resetPasswordSchema = external_exports.object({
+  email: external_exports.string().email().max(120),
+  code: external_exports.string().min(4).max(10),
+  newPassword: external_exports.string().min(6).max(128),
+  resetToken: external_exports.string().optional()
+});
 var sendOtpSchema = external_exports.object({
   phone: external_exports.string().min(10).max(15)
 });
@@ -88784,6 +88902,8 @@ router.all("/verify-otp", (req, res) => {
 router.post("/register", authLimiter, validateBody(registerSchema), AuthController.register);
 router.post("/login", authLimiter, validateBody(loginSchema), AuthController.login);
 router.post("/google", authLimiter, validateBody(googleSchema), AuthController.googleLogin);
+router.post("/forgot-password", authLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
+router.post("/reset-password", authLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
 router.post("/logout", AuthController.logout);
 router.get("/me", authenticateUser, AuthController.getMe);
 router.post("/change-password", authenticateUser, AuthController.changePassword);
@@ -89218,11 +89338,19 @@ var ProductService = class _ProductService {
     return product;
   }
   static create(data) {
-    if (data.price <= 0) {
-      throw AppError.badRequest("Product price must be greater than zero.");
+    if (data.price <= 0 || data.price > 1e6) {
+      throw AppError.badRequest("Product price must be between \u20B91 and \u20B910,00,000.");
     }
-    if (data.availableQuantity < 0) {
-      throw AppError.badRequest("Available quantity cannot be negative.");
+    if (data.availableQuantity <= 0 || data.availableQuantity > 1e7) {
+      throw AppError.badRequest("Available quantity must be between 0.01 and 10,000,000.");
+    }
+    const cleanName = sanitizeText(data.name.trim());
+    if (cleanName.length < 2) {
+      throw AppError.badRequest("Product name must be at least 2 characters.");
+    }
+    const spamRegex = /\b(casino|gambling|viagra|porn|xxx|crypto-scam)\b/i;
+    if (spamRegex.test(cleanName) || data.description && spamRegex.test(data.description)) {
+      throw AppError.badRequest("Product contains disallowed terms or prohibited spam content.", "SPAM_REJECTED");
     }
     const catLookup = data.category || data.categoryId || "Vegetables";
     const category = Database.get("SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?)", [
@@ -89854,11 +89982,11 @@ var boolOrNum = external_exports.union([external_exports.boolean(), external_exp
 var createProductSchema = external_exports.object({
   categoryId: external_exports.string().optional(),
   category: external_exports.string().optional(),
-  name: external_exports.string().min(1, "Product name is required"),
-  description: external_exports.string().optional(),
-  price: external_exports.coerce.number().positive("Price must be greater than 0"),
+  name: external_exports.string().trim().min(2, "Product name must be at least 2 characters").max(120, "Product name must not exceed 120 characters"),
+  description: external_exports.string().max(2e3).optional(),
+  price: external_exports.coerce.number().positive("Price must be greater than 0").max(1e6, "Price must not exceed \u20B910,00,000"),
   unit: external_exports.string().default("kg"),
-  availableQuantity: external_exports.coerce.number().min(0, "Quantity cannot be negative"),
+  availableQuantity: external_exports.coerce.number().min(0.01, "Quantity must be at least 0.01").max(1e7, "Quantity cannot exceed 10,000,000"),
   isOrganic: boolOrNum.optional(),
   availableToday: boolOrNum.optional(),
   location: external_exports.string().optional().default("Dehradun, Uttarakhand"),

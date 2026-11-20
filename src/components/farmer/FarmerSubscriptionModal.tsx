@@ -121,6 +121,26 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
 
         {/* Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
+          {/* Launch Special Promotional Banner */}
+          <div className="p-3.5 bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-amber-500/15 border border-amber-400/40 dark:border-amber-500/30 rounded-2xl flex items-center gap-3">
+            <div className="p-2 bg-amber-400/20 text-amber-600 dark:text-amber-300 rounded-xl shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-amber-900 dark:text-amber-200 uppercase tracking-wider">
+                  🎉 Launch Celebration Special (लॉन्च विशेष उपहार)
+                </span>
+                <span className="text-[10px] bg-emerald-600 text-white font-black px-2 py-0.5 rounded-full">
+                  100% Free
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-300 mt-0.5">
+                All Pro farmer tiers & increased listing limits are 100% free during our launch celebration. Zero payment or fees required!
+              </p>
+            </div>
+          </div>
+
           {/* Current Plan Banner */}
           {currentSub && (
             <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -199,13 +219,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
                       </div>
                     ) : (
                       <button
-                        onClick={() => {
-                          if (plan.priceMonthly > 0) {
-                            setPendingPaidPlan(plan);
-                          } else {
-                            handleUpgrade(plan.id);
-                          }
-                        }}
+                        onClick={() => handleUpgrade(plan.id)}
                         disabled={upgradingId !== null}
                         className={`w-full py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 ${
                           isPopular
@@ -213,7 +227,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
                             : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90'
                         } disabled:opacity-50`}
                       >
-                        {upgradingId === plan.id ? 'Activating...' : `Switch to ${plan.name.split(' ')[0]}`}
+                        {upgradingId === plan.id ? 'Activating...' : `Activate ${plan.name.split(' ')[0]} (Free)`}
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}

@@ -45,12 +45,74 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showRolePick, setShowRolePick] = useState(initialShowLogin);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isForgotMode, setIsForgotMode] = useState(false);
+  const [forgotStep, setForgotStep] = useState<'request' | 'verify'>('request');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotCode, setForgotCode] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [inputCode, setInputCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [realName, setRealName] = useState('');
   const [realEmail, setRealEmail] = useState('');
   const [realPhone, setRealPhone] = useState('');
   const [realPassword, setRealPassword] = useState('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'customer' | 'farmer'>('customer');
+
+  const handleForgotRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) {
+      showToast('Please enter your email address', 'error');
+      return;
+    }
+    setIsSubmittingAuth(true);
+    try {
+      const res = await ApiClient.forgotPassword(forgotEmail.trim().toLowerCase());
+      const code = res?.data?.code || res?.code || '';
+      const token = res?.data?.resetToken || res?.resetToken || '';
+      setForgotCode(code);
+      setInputCode(code); // Pre-fill for instantaneous convenience
+      setResetToken(token);
+      setForgotStep('verify');
+      showToast(`Verification code: ${code}`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to request password reset. Check email.', 'error');
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputCode.trim()) {
+      showToast('Please enter the 6-digit verification code', 'error');
+      return;
+    }
+    if (!newPassword.trim() || newPassword.trim().length < 6) {
+      showToast('New password must be at least 6 characters', 'error');
+      return;
+    }
+    setIsSubmittingAuth(true);
+    try {
+      const res = await ApiClient.resetPassword({
+        email: forgotEmail.trim().toLowerCase(),
+        code: inputCode.trim(),
+        newPassword: newPassword.trim(),
+        resetToken: resetToken || undefined,
+      });
+      const user = res?.data?.user || res?.user;
+      const token = res?.data?.token || res?.token;
+      if (token) ApiClient.setToken(token);
+      login(user?.email || forgotEmail.trim().toLowerCase(), user?.role || selectedRole);
+      showToast('Password reset successfully! Logged in.', 'success');
+      setIsForgotMode(false);
+      if (onClose) onClose();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to reset password. Please check the code.', 'error');
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  };
 
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,6 +239,129 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           </div>
 
           {/* Account Login / Registration Form */}
+          {isForgotMode ? (
+            <div className="space-y-3 bg-white dark:bg-[#1B201D] p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
+              <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-1">
+                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                  🔐 Reset Password (पासवर्ड रीसेट)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsForgotMode(false)}
+                  className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                >
+                  ← Back to Sign In
+                </button>
+              </div>
+
+              {forgotStep === 'request' ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Enter your account email to receive a 6-digit recovery code.
+                  </p>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                      Email Address (ईमेल पता) *
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                      <input
+                        type="email"
+                        required
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        placeholder="e.g. you@gmail.com"
+                        className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleForgotRequest}
+                    disabled={isSubmittingAuth}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    {isSubmittingAuth ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Sending Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Get Reset Code (कोड प्राप्त करें)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {forgotCode && (
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center">
+                      <div className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">
+                        Your Verification Code (सत्यापन कोड):
+                      </div>
+                      <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 tracking-widest mt-0.5">
+                        {forgotCode}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                      6-Digit Code (सत्यापन कोड) *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      value={inputCode}
+                      onChange={(e) => setInputCode(e.target.value)}
+                      placeholder="123456"
+                      className="w-full px-3 py-2 text-center text-lg font-bold tracking-widest bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                      New Password (नया पासवर्ड) *
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                      <input
+                        type="password"
+                        required
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="At least 6 characters"
+                        className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleResetSubmit}
+                    disabled={isSubmittingAuth}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    {isSubmittingAuth ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Updating Password...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Reset Password & Enter</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
           <div className="space-y-3 bg-white dark:bg-[#1B201D] p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
             <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-1">
               <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
@@ -246,9 +431,24 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               )}
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                  Password (पासवर्ड) *
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                    Password (पासवर्ड) *
+                  </label>
+                  {!isRegisterMode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotMode(true);
+                        setForgotStep('request');
+                        setForgotEmail(realEmail);
+                      }}
+                      className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline"
+                    >
+                      Forgot? (पासवर्ड भूल गए?)
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
                   <input
@@ -280,6 +480,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                 )}
               </button>
             </div>
+          )}
 
           {/* Divider */}
           <div className="relative flex py-0.5 items-center">

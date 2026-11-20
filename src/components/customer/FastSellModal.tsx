@@ -322,19 +322,27 @@ export const FastSellModal: React.FC = () => {
   };
 
   const handlePublish = (status: 'active' | 'draft' = 'active') => {
-    if (!name.trim()) {
-      showToast(t('post_ad.err_name'));
+    if (!name.trim() || name.trim().length < 2) {
+      showToast('Please enter a valid crop name (at least 2 characters)', 'error');
       setStep(1);
       return;
     }
-    if (!price || Number(price) <= 0) {
-      showToast(t('post_ad.err_price'));
+    const numPrice = Number(price);
+    if (!price || numPrice < 1 || numPrice > 500000) {
+      showToast('Please enter a realistic price between ₹1 and ₹5,00,000', 'error');
       setStep(2);
       return;
     }
-    if (!availableQuantity || Number(availableQuantity) <= 0) {
-      showToast(t('post_ad.err_quantity'));
+    const numQty = Number(availableQuantity);
+    if (!availableQuantity || numQty < 0.1 || numQty > 1000000) {
+      showToast('Please enter a realistic quantity between 0.1 and 10,00,000', 'error');
       setStep(2);
+      return;
+    }
+
+    const spamCheck = /\b(casino|gambling|viagra|porn|xxx|crypto-scam)\b/i;
+    if (spamCheck.test(name) || (description && spamCheck.test(description))) {
+      showToast('Disallowed terms or prohibited spam content detected in listing.', 'error');
       return;
     }
 

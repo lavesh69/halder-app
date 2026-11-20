@@ -34,6 +34,13 @@ export const FarmerChatView: React.FC = () => {
   useEffect(() => {
     setIsLoading(true);
     refreshChatConversations().finally(() => setIsLoading(false));
+
+    // Auto-poll conversations every 5 seconds so incoming buyer messages show in real time
+    const pollInterval = setInterval(() => {
+      refreshChatConversations();
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const effectiveConversations = chatConversations;

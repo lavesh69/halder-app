@@ -134,6 +134,20 @@ export class ApiClient {
     });
   }
 
+  static forgotPassword(email: string) {
+    return this.request<any>('/auth/forgot-password', {
+      method: 'POST',
+      body: { email },
+    });
+  }
+
+  static resetPassword(data: { email: string; code: string; newPassword: string; resetToken?: string }) {
+    return this.request<any>('/auth/reset-password', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
   static async loginWithGoogle(idToken: string, role?: string) {
     const res = await this.request<any>('/auth/google', {
       method: 'POST',

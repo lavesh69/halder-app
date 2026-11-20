@@ -5,6 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
 import { IdentityService } from './identityService';
 import { logAuditEvent } from '../middleware/audit';
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env';
+
+// In-memory fallback store for password reset verification codes
+const resetCodeStore = new Map<string, { code: string; userId: string; expiresAt: number }>();
 
 export class AuthService {
   static async register(data: {
@@ -253,5 +258,119 @@ export class AuthService {
     logAuditEvent(userId, user.role, 'ACCOUNT_DELETED', 'users', userId);
 
     return { message: 'Account and personal data permanently purged.' };
+  }
+
+  static async forgotPassword(email: string) {
+    const cleanEmail = email.toLowerCase().trim();
+    const user = Database.get<any>('SELECT id, name, email, role FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+    if (!user) {
+      throw AppError.notFound('No account found with this email address.', 'USER_NOT_FOUND');
+    }
+
+    // Generate 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    // Store in-memory
+    resetCodeStore.set(cleanEmail, { code, userId: user.id, expiresAt });
+
+    // Generate signed stateless JWT reset token (15 mins)
+    const resetToken = jwt.sign(
+      { userId: user.id, email: cleanEmail, code, purpose: 'pwd_reset' },
+      env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    logAuditEvent(user.id, user.role, 'PASSWORD_RESET_REQUESTED', 'users', user.id);
+
+    return {
+      success: true,
+      message: 'Password reset code generated successfully. Please enter the verification code.',
+      code,
+      resetToken,
+    };
+  }
+
+  static async resetPassword(data: {
+    email: string;
+    code: string;
+    newPassword: string;
+    resetToken?: string;
+  }) {
+    const cleanEmail = data.email.toLowerCase().trim();
+    const cleanCode = data.code.trim();
+
+    if (!data.newPassword || data.newPassword.length < 6) {
+      throw AppError.badRequest('New password must be at least 6 characters long.');
+    }
+
+    let verifiedUserId: string | null = null;
+
+    // 1. Verify via signed stateless reset token if present
+    if (data.resetToken) {
+      try {
+        const decoded = jwt.verify(data.resetToken, env.JWT_SECRET) as any;
+        if (
+          decoded &&
+          decoded.purpose === 'pwd_reset' &&
+          decoded.email === cleanEmail &&
+          decoded.code === cleanCode
+        ) {
+          verifiedUserId = decoded.userId;
+        }
+      } catch (err: any) {
+        console.warn('[AuthService] Reset token verification failed:', err.message);
+      }
+    }
+
+    // 2. Fallback to in-memory store if token check wasn't verified
+    if (!verifiedUserId) {
+      const stored = resetCodeStore.get(cleanEmail);
+      if (stored && stored.code === cleanCode && Date.now() <= stored.expiresAt) {
+        verifiedUserId = stored.userId;
+      }
+    }
+
+    if (!verifiedUserId) {
+      throw AppError.badRequest('Invalid or expired verification code.', 'INVALID_RESET_CODE');
+    }
+
+    // 3. Update password in database
+    const newHash = await CryptoUtil.hashPassword(data.newPassword);
+    const now = new Date().toISOString();
+
+    Database.run(
+      'UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?',
+      [newHash, now, verifiedUserId]
+    );
+
+    // Clean up memory store
+    resetCodeStore.delete(cleanEmail);
+
+    // Fetch user and issue fresh login token
+    const user = Database.get<any>(
+      'SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
+      [verifiedUserId]
+    );
+
+    let farmerProfile = null;
+    if (user && user.role === 'farmer') {
+      farmerProfile = Database.get<any>('SELECT * FROM farmer_profiles WHERE user_id = ?', [user.id]);
+    }
+
+    const token = CryptoUtil.generateToken({
+      userId: user.id,
+      role: user.role,
+      email: user.email,
+    });
+
+    logAuditEvent(user.id, user.role, 'PASSWORD_RESET_COMPLETED', 'users', user.id);
+
+    return {
+      message: 'Password reset successfully. You are now logged in.',
+      user,
+      farmerProfile,
+      token,
+    };
   }
 }

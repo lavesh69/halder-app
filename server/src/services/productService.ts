@@ -309,11 +309,22 @@ export class ProductService {
     status?: 'active' | 'draft';
     priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number | null; pricePerUnit: number }>;
   }) {
-    if (data.price <= 0) {
-      throw AppError.badRequest('Product price must be greater than zero.');
+    if (data.price <= 0 || data.price > 1000000) {
+      throw AppError.badRequest('Product price must be between ₹1 and ₹10,00,000.');
     }
-    if (data.availableQuantity < 0) {
-      throw AppError.badRequest('Available quantity cannot be negative.');
+    if (data.availableQuantity <= 0 || data.availableQuantity > 10000000) {
+      throw AppError.badRequest('Available quantity must be between 0.01 and 10,000,000.');
+    }
+
+    const cleanName = sanitizeText(data.name.trim());
+    if (cleanName.length < 2) {
+      throw AppError.badRequest('Product name must be at least 2 characters.');
+    }
+
+    // Basic profanity / junk test detection
+    const spamRegex = /\b(casino|gambling|viagra|porn|xxx|crypto-scam)\b/i;
+    if (spamRegex.test(cleanName) || (data.description && spamRegex.test(data.description))) {
+      throw AppError.badRequest('Product contains disallowed terms or prohibited spam content.', 'SPAM_REJECTED');
     }
 
     const catLookup = data.category || data.categoryId || 'Vegetables';

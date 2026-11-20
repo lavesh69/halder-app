@@ -28,6 +28,17 @@ const googleSchema = z.object({
   role: z.enum(['customer', 'farmer', 'admin']).optional(),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email().max(120),
+});
+
+const resetPasswordSchema = z.object({
+  email: z.string().email().max(120),
+  code: z.string().min(4).max(10),
+  newPassword: z.string().min(6).max(128),
+  resetToken: z.string().optional(),
+});
+
 const sendOtpSchema = z.object({
   phone: z.string().min(10).max(15),
 });
@@ -54,6 +65,8 @@ router.all('/verify-otp', (req, res) => {
 router.post('/register', authLimiter, validateBody(registerSchema), AuthController.register);
 router.post('/login', authLimiter, validateBody(loginSchema), AuthController.login);
 router.post('/google', authLimiter, validateBody(googleSchema), AuthController.googleLogin);
+router.post('/forgot-password', authLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
+router.post('/reset-password', authLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
 router.post('/logout', AuthController.logout);
 router.get('/me', authenticateUser, AuthController.getMe);
 router.post('/change-password', authenticateUser, AuthController.changePassword);
