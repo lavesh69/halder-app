@@ -5,7 +5,6 @@ import { X, Lock, ShieldAlert, Check, Loader2, AlertCircle, Trash2, KeyRound } f
 interface CustomerSecurityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isGoogleConnected?: boolean;
   showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
   onAccountDeleted?: () => void;
 }
@@ -13,7 +12,6 @@ interface CustomerSecurityModalProps {
 export const CustomerSecurityModal: React.FC<CustomerSecurityModalProps> = ({
   isOpen,
   onClose,
-  isGoogleConnected,
   showToast,
   onAccountDeleted,
 }) => {
@@ -111,32 +109,6 @@ export const CustomerSecurityModal: React.FC<CustomerSecurityModalProps> = ({
 
         {/* Content */}
         <div className="p-5 overflow-y-auto flex-1 space-y-6">
-          {/* Google SSO Status */}
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white dark:bg-zinc-700 shadow-xs flex items-center justify-center text-sm font-bold">
-                  G
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-zinc-900 dark:text-white">Google Authentication</h4>
-                  <p className="text-[11px] text-zinc-500">
-                    {isGoogleConnected ? 'Account linked with Google OAuth' : 'Standard email/phone login'}
-                  </p>
-                </div>
-              </div>
-              <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  isGoogleConnected
-                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                    : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
-                }`}
-              >
-                {isGoogleConnected ? '✓ Connected' : 'Not Linked'}
-              </span>
-            </div>
-          </div>
-
           {/* Change Password */}
           <form onSubmit={handlePasswordChange} className="space-y-3.5">
             <div className="flex items-center gap-2">

@@ -390,7 +390,7 @@ export const FarmerProfileView: React.FC = () => {
                 Security & Account Credentials
               </span>
               <span className="text-[11px] text-zinc-500">
-                Change password, Google authentication, and account settings
+                Change password and account settings
               </span>
             </div>
           </div>
@@ -467,7 +467,6 @@ export const FarmerProfileView: React.FC = () => {
       <CustomerSecurityModal
         isOpen={isSecurityModalOpen}
         onClose={() => setIsSecurityModalOpen(false)}
-        isGoogleConnected={false}
         showToast={showToast}
       />
 
