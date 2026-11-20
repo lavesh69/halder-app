@@ -3,15 +3,10 @@ import { useApp } from '../../context/AppContext';
 import { ListingCard } from '../common/ListingCard';
 import {
   X,
-  Star,
-  MapPin,
   ShieldCheck,
-  Calendar,
   MessageCircle,
   Phone,
-  Package,
   CheckCircle2,
-  TrendingUp,
 } from 'lucide-react';
 
 import { ApiClient } from '../../api/client';

@@ -94,8 +94,6 @@ export const AdminDashboard: React.FC = () => {
     setRole,
     platformSettings,
     updatePlatformSettings,
-    disputes,
-    resolveDispute,
   } = useApp();
 
   // Navigation tab is directly bound to adminTab from AppContext
@@ -187,22 +185,6 @@ export const AdminDashboard: React.FC = () => {
   const [newPriceValue, setNewPriceValue] = useState('');
 
   const [isKillSwitchModalOpen, setIsKillSwitchModalOpen] = useState(false);
-
-  const handleApproveDisputeRefund = async (disputeId: string) => {
-    resolveDispute(disputeId, 'refund', 'Refund approved by Admin. Instant UPI credit processed.');
-    await ApiClient.updateReportStatus(disputeId, {
-      status: 'resolved',
-      resolutionNotes: 'Refund approved by Admin. Instant UPI credit processed.'
-    }).catch(() => {});
-  };
-
-  const handleDismissDispute = async (disputeId: string) => {
-    resolveDispute(disputeId, 'dismiss', 'Dismissed by Admin after review.');
-    await ApiClient.updateReportStatus(disputeId, {
-      status: 'dismissed',
-      resolutionNotes: 'Dismissed by Admin after review.'
-    }).catch(() => {});
-  };
 
   // New Category Form
   const [newCatName, setNewCatName] = useState('');

@@ -108,7 +108,7 @@ export class AddressService {
   }
 
   static updateAddress(customerId: string, addressId: string, input: Partial<AddressInput>) {
-    const existing = this.getAddressById(customerId, addressId);
+    this.getAddressById(customerId, addressId);
     const now = new Date().toISOString();
 
     Database.transaction(() => {

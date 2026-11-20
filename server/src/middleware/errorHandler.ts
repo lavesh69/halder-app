@@ -7,7 +7,7 @@ export function errorHandler(
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) {
   let statusCode = err.statusCode || 500;
   let errorCode = err.code || 'INTERNAL_SERVER_ERROR';

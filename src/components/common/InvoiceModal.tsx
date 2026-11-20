@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/formatters';
-import { X, Printer, Download, CheckCircle2, ShieldCheck, Sprout } from 'lucide-react';
+import { X, Printer, ShieldCheck } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface InvoiceModalProps {

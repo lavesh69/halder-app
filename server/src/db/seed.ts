@@ -126,32 +126,7 @@ export async function seedDatabase() {
 }
 
 function seedExtendedEcosystem(now: string) {
-  // 1. Mandi Prices
-  const mandiCount = Database.get<any>('SELECT COUNT(*) as count FROM mandi_prices');
-  if (!mandiCount || mandiCount.count === 0) {
-    console.log('[Seed] Seeding verified Mandi price intelligence records...');
-    const mandiDate = new Date().toISOString().split('T')[0];
-    const prices = [
-      ['mandi-1', 'Tomato (टमाटर)', 'Tomato', 'Hybrid Red', 'Uttarakhand', 'Dehradun', 'Dehradun Mandi', 26.0, 36.0, 32.0, 18.5, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-2', 'Pahari Potato (आलू)', 'Potato', 'Jyoti / Red Mountain', 'Uttarakhand', 'Dehradun', 'Dehradun Mandi', 20.0, 28.0, 24.0, 42.0, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-3', 'Red Onion (प्याज)', 'Onion', 'Nashik Red', 'Uttarakhand', 'Dehradun', 'Rishikesh Mandi', 32.0, 44.0, 38.0, 26.0, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-4', 'Green Peas (मटर)', 'Peas', 'Sweet Mountain Green', 'Uttarakhand', 'Dehradun', 'Dehradun Mandi', 55.0, 75.0, 65.0, 14.0, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-5', 'Cauliflower (फूलगोभी)', 'Cauliflower', 'Snowball', 'Uttarakhand', 'Haridwar', 'Roorkee Mandi', 20.0, 34.0, 28.0, 9.5, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-6', 'Mountain Spinach (पालक)', 'Spinach', 'Desi Broadleaf', 'Uttarakhand', 'Nainital', 'Haldwani Mandi', 15.0, 26.0, 20.0, 6.2, mandiDate, 'Agmarknet / UK Mandi Board', 1],
-      ['mandi-7', 'Basmati Paddy (धान)', 'Paddy (Dhan)', 'Pusa 1121 Basmati', 'Uttarakhand', 'Haridwar', 'Haridwar Mandi', 32.0, 38.5, 35.5, 85.0, mandiDate, 'e-NAM National Portal', 1],
-      ['mandi-8', 'Himachali Apple (सेब)', 'Apple', 'Royal Delicious', 'Uttarakhand', 'Dehradun', 'Dehradun Mandi', 85.0, 135.0, 110.0, 22.0, mandiDate, 'Agmarknet / UK Mandi Board', 1]
-    ];
-
-    for (const p of prices) {
-      Database.run(
-        `INSERT OR IGNORE INTO mandi_prices (id, crop_name, commodity, variety, state, district, market_name, min_price, max_price, modal_price, arrival_quantity_tonnes, price_date, source, is_verified, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [...p, now, now]
-      );
-    }
-  }
-
-  // 2. Crop Demand Indicators
+  // 1. Crop Demand Indicators
   const demandCount = Database.get<any>('SELECT COUNT(*) as count FROM crop_demand_indicators');
   if (!demandCount || demandCount.count === 0) {
     const indicators = [

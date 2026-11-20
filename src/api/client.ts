@@ -1341,7 +1341,7 @@ export class ApiClient {
     return this.respondToRequirementQuotation(quoteId, 'accept');
   }
 
-  static async listNegotiations(params?: any): Promise<any> {
+  static async listNegotiations(_params?: any): Promise<any> {
     const list = await this.listUserNegotiations();
     return { negotiations: list };
   }

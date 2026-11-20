@@ -1,16 +1,6 @@
 ﻿import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
-import { env } from '../config/env';
 import { ALLOWED_IMAGE_MIME_TYPES, MAX_FILE_SIZE_BYTES } from '../config/constants';
 import { AppError } from '../utils/errors';
-
-const MIME_TO_EXT: Record<string, string> = {
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-};
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 

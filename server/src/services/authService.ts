@@ -153,7 +153,7 @@ export class AuthService {
       email: user.email,
     });
 
-    const { password_hash, ...safeUser } = user;
+    const { password_hash: _password_hash, ...safeUser } = user;
 
     let farmerProfile = null;
     if (user.role === 'farmer') {

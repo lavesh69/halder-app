@@ -28693,7 +28693,7 @@ var init_zod = __esm({
 });
 
 // server/src/config/env.ts
-import path from "path";
+import path2 from "path";
 var import_dotenv, envSchema, parsed, env;
 var init_env = __esm({
   "server/src/config/env.ts"() {
@@ -28705,7 +28705,7 @@ var init_env = __esm({
       NODE_ENV: external_exports.enum(["development", "test", "production"]).default("development"),
       JWT_SECRET: external_exports.string().min(16).default("halder_super_secure_jwt_secret_production_2026_mandi"),
       JWT_EXPIRES_IN: external_exports.string().default("7d"),
-      DB_PATH: external_exports.string().default(path.resolve(process.cwd(), "server", "halder.db")),
+      DB_PATH: external_exports.string().default(path2.resolve(process.cwd(), "server", "halder.db")),
       // Supabase PostgreSQL Cloud Sync (recommended persistent cloud DB for Vercel & production)
       SUPABASE_URL: external_exports.string().optional(),
       SUPABASE_ANON_KEY: external_exports.string().optional(),
@@ -28716,7 +28716,7 @@ var init_env = __esm({
       CORS_ORIGIN: external_exports.string().default(
         "https://halder-app.vercel.app,http://localhost:5173,http://localhost:4173,http://localhost:3000,https://localhost,capacitor://localhost"
       ),
-      UPLOAD_DIR: external_exports.string().default(path.resolve(process.cwd(), "server", "uploads")),
+      UPLOAD_DIR: external_exports.string().default(path2.resolve(process.cwd(), "server", "uploads")),
       RATE_LIMIT_WINDOW_MS: external_exports.coerce.number().default(15 * 60 * 1e3),
       RATE_LIMIT_MAX_REQUESTS: external_exports.coerce.number().default(300),
       PHONEPE_MERCHANT_ID: external_exports.string().default("PGTESTPAYUAT"),
@@ -37050,21 +37050,21 @@ var init_supabaseSync = __esm({
 // server/src/db/database.ts
 import { DatabaseSync } from "node:sqlite";
 import fs from "fs";
-import path2 from "path";
+import path3 from "path";
 function getDatabase() {
   if (!dbInstance) {
     let dbPath = env.DB_PATH;
     if (process.env.VERCEL) {
-      const tmpPath = path2.join("/tmp", "halder.db");
+      const tmpPath = path3.join("/tmp", "halder.db");
       if (!isSupabaseEnabled() && !isTursoEnabled() && !fs.existsSync(tmpPath)) {
-        const sourcePath = path2.resolve(process.cwd(), "server", "halder.db");
+        const sourcePath = path3.resolve(process.cwd(), "server", "halder.db");
         if (fs.existsSync(sourcePath)) {
           fs.copyFileSync(sourcePath, tmpPath);
         }
       }
       dbPath = tmpPath;
     }
-    const dbDir = path2.dirname(dbPath);
+    const dbDir = path3.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
@@ -87107,7 +87107,7 @@ var AuthService = class _AuthService {
       role: user.role,
       email: user.email
     });
-    const { password_hash, ...safeUser } = user;
+    const { password_hash: _password_hash, ...safeUser } = user;
     let farmerProfile = null;
     if (user.role === "farmer") {
       farmerProfile = Database.get(
@@ -92911,7 +92911,6 @@ var import_express10 = __toESM(require_express2(), 1);
 
 // server/src/middleware/upload.ts
 var import_multer = __toESM(require_multer(), 1);
-import path3 from "path";
 init_errors3();
 var ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 var storage = import_multer.default.memoryStorage();
@@ -92931,7 +92930,7 @@ var fileFilter = (req, file, cb) => {
       false
     );
   }
-  const ext = path3.extname(file.originalname).toLowerCase();
+  const ext = path.extname(file.originalname).toLowerCase();
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
     return cb(
       AppError.badRequest(
@@ -94647,7 +94646,7 @@ var AddressService = class {
     return this.getAddressById(customerId, id);
   }
   static updateAddress(customerId, addressId, input) {
-    const existing = this.getAddressById(customerId, addressId);
+    this.getAddressById(customerId, addressId);
     const now = (/* @__PURE__ */ new Date()).toISOString();
     Database.transaction(() => {
       if (input.isDefault) {
@@ -98064,7 +98063,7 @@ var routes_default = apiRouter;
 init_errors3();
 init_logger();
 init_env();
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
   let statusCode = err.statusCode || 500;
   let errorCode = err.code || "INTERNAL_SERVER_ERROR";
   let message = err.message || "An unexpected error occurred";
@@ -99497,28 +99496,6 @@ async function seedDatabase() {
   console.log("[Seed] Production database successfully initialized and seeded!");
 }
 function seedExtendedEcosystem(now) {
-  const mandiCount = Database.get("SELECT COUNT(*) as count FROM mandi_prices");
-  if (!mandiCount || mandiCount.count === 0) {
-    console.log("[Seed] Seeding verified Mandi price intelligence records...");
-    const mandiDate = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-    const prices = [
-      ["mandi-1", "Tomato (\u091F\u092E\u093E\u091F\u0930)", "Tomato", "Hybrid Red", "Uttarakhand", "Dehradun", "Dehradun Mandi", 26, 36, 32, 18.5, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-2", "Pahari Potato (\u0906\u0932\u0942)", "Potato", "Jyoti / Red Mountain", "Uttarakhand", "Dehradun", "Dehradun Mandi", 20, 28, 24, 42, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-3", "Red Onion (\u092A\u094D\u092F\u093E\u091C)", "Onion", "Nashik Red", "Uttarakhand", "Dehradun", "Rishikesh Mandi", 32, 44, 38, 26, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-4", "Green Peas (\u092E\u091F\u0930)", "Peas", "Sweet Mountain Green", "Uttarakhand", "Dehradun", "Dehradun Mandi", 55, 75, 65, 14, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-5", "Cauliflower (\u092B\u0942\u0932\u0917\u094B\u092D\u0940)", "Cauliflower", "Snowball", "Uttarakhand", "Haridwar", "Roorkee Mandi", 20, 34, 28, 9.5, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-6", "Mountain Spinach (\u092A\u093E\u0932\u0915)", "Spinach", "Desi Broadleaf", "Uttarakhand", "Nainital", "Haldwani Mandi", 15, 26, 20, 6.2, mandiDate, "Agmarknet / UK Mandi Board", 1],
-      ["mandi-7", "Basmati Paddy (\u0927\u093E\u0928)", "Paddy (Dhan)", "Pusa 1121 Basmati", "Uttarakhand", "Haridwar", "Haridwar Mandi", 32, 38.5, 35.5, 85, mandiDate, "e-NAM National Portal", 1],
-      ["mandi-8", "Himachali Apple (\u0938\u0947\u092C)", "Apple", "Royal Delicious", "Uttarakhand", "Dehradun", "Dehradun Mandi", 85, 135, 110, 22, mandiDate, "Agmarknet / UK Mandi Board", 1]
-    ];
-    for (const p3 of prices) {
-      Database.run(
-        `INSERT OR IGNORE INTO mandi_prices (id, crop_name, commodity, variety, state, district, market_name, min_price, max_price, modal_price, arrival_quantity_tonnes, price_date, source, is_verified, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [...p3, now, now]
-      );
-    }
-  }
   const demandCount = Database.get("SELECT COUNT(*) as count FROM crop_demand_indicators");
   if (!demandCount || demandCount.count === 0) {
     const indicators = [
