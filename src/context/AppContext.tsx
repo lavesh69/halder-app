@@ -136,8 +136,6 @@ interface AppContextType {
   setSelectedFarmer: (f: Farmer | null) => void;
   isPostRequirementOpen: boolean;
   setIsPostRequirementOpen: (open: boolean) => void;
-  isMandiRatesModalOpen: boolean;
-  setIsMandiRatesModalOpen: (open: boolean) => void;
   trackingOrder: Order | null;
   setTrackingOrder: (o: Order | null) => void;
 
@@ -537,7 +535,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [isPostRequirementOpen, setIsPostRequirementOpen] = useState<boolean>(false);
-  const [isMandiRatesModalOpen, setIsMandiRatesModalOpen] = useState<boolean>(false);
   const [isFastSellOpen, setIsFastSellOpen] = useState<boolean>(false);
   const [editingListing, setEditingListing] = useState<Product | null>(null);
 
@@ -1955,8 +1952,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedFarmer,
         isPostRequirementOpen,
         setIsPostRequirementOpen,
-        isMandiRatesModalOpen,
-        setIsMandiRatesModalOpen,
         trackingOrder,
         setTrackingOrder,
         currentLocation,

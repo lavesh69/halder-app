@@ -145,14 +145,6 @@ export const AdminDashboard: React.FC = () => {
   const [financialDashboard, setFinancialDashboard] = useState<any>(null);
   const [financialTransactions, setFinancialTransactions] = useState<any[]>([]);
 
-  // Mandi Form State (Module 4)
-  const [newMandiCrop, setNewMandiCrop] = useState('');
-  const [newMandiMarket, setNewMandiMarket] = useState('Dehradun APMC');
-  const [newMandiState, setNewMandiState] = useState('Uttarakhand');
-  const [newMandiDistrict, setNewMandiDistrict] = useState('Dehradun');
-  const [newMandiModalPrice, setNewMandiModalPrice] = useState('2500');
-  const [isMandiSubmitting, setIsMandiSubmitting] = useState(false);
-
   // Overview Metrics Time Range
   const [metricsTimeRange, setMetricsTimeRange] = useState<'today' | 'week' | 'all'>('all');
 
@@ -2095,7 +2087,7 @@ export const AdminDashboard: React.FC = () => {
                 <span>Platform Governance & Commercial Settings (मंच विन्यास व नीतियां)</span>
               </h2>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Configure commission structure, delivery thresholds, support contacts, and APMC benchmark integrations
+                Configure commission structure, delivery thresholds, and customer support contacts
               </p>
             </div>
 

@@ -360,7 +360,7 @@ export const ListingDetailModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Mandi vs Retail Price Transparency Callout */}
+          {/* Farm vs Retail Price Transparency Callout */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-200/70 dark:border-emerald-800/50">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
@@ -368,7 +368,7 @@ export const ListingDetailModal: React.FC = () => {
               </div>
               <div>
                 <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 block">
-                  Direct Mandi Rate (दैनिक मंडी भाव)
+                  Direct Farm Price (सीधे किसान से भाव)
                 </span>
                 <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
                   Save ~25-30% vs Supermarkets • Zero middlemen markups • 100% to farmer

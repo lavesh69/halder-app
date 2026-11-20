@@ -8,10 +8,8 @@ import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';
 import { FarmCropCalendarModal } from './FarmCropCalendarModal';
 import { FarmerSubscriptionModal } from './FarmerSubscriptionModal';
 import { FarmerBusinessInsightsModal } from './FarmerBusinessInsightsModal';
-import { MandiRatesModal } from '../common/MandiRatesModal';
 import {
   Sprout,
-  TrendingUp,
   Plus,
   CheckCircle2,
   XCircle,
@@ -22,8 +20,6 @@ import {
   Phone,
   ArrowUpRight,
   Activity,
-  ArrowUp,
-  ArrowDown,
   RefreshCw,
   Calculator,
   Calendar,
@@ -32,15 +28,6 @@ import {
   Megaphone,
   Sparkles,
 } from 'lucide-react';
-
-interface MandiRate {
-  crop: string;
-  hindiName: string;
-  mandi: string;
-  modalPrice: number;
-  unit: string;
-  change: number; // + or -
-}
 
 interface CropCalcPreset {
   id: string;
@@ -51,16 +38,6 @@ interface CropCalcPreset {
   avgCostPerAcre: number; // in rupees
   benchmarkPrice: number; // in rupees per quintal
 }
-
-const LIVE_MANDI_RATES: MandiRate[] = [
-  { crop: 'Wheat (Sharbati)', hindiName: 'गेहूं (शरबती)', mandi: 'Karnal APMC', modalPrice: 2450, unit: 'qtl', change: 35 },
-  { crop: 'Basmati Paddy', hindiName: 'धान (बासमती)', mandi: 'Taraori Mandi', modalPrice: 3820, unit: 'qtl', change: -20 },
-  { crop: 'Hybrid Tomato', hindiName: 'टमाटर (देसी)', mandi: 'Azadpur Mandi', modalPrice: 1850, unit: 'qtl', change: 80 },
-  { crop: 'Nasik Red Onion', hindiName: 'प्याज़ (लाल)', mandi: 'Lasalgaon APMC', modalPrice: 2150, unit: 'qtl', change: -45 },
-  { crop: 'Jyoti Potato', hindiName: 'आलू (ज्योति)', mandi: 'Agra Mandi', modalPrice: 1420, unit: 'qtl', change: 15 },
-  { crop: 'Black Mustard', hindiName: 'सरसों (काली)', mandi: 'Jaipur Mandi', modalPrice: 5650, unit: 'qtl', change: 110 },
-  { crop: 'Soybean Yellow', hindiName: 'सोयाबीन (पीला)', mandi: 'Indore APMC', modalPrice: 4720, unit: 'qtl', change: 40 },
-];
 
 export const FarmerDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -89,8 +66,6 @@ export const FarmerDashboard: React.FC = () => {
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [isInsightsModalOpen, setIsInsightsModalOpen] = useState(false);
-  const [isMandiModalOpen, setIsMandiModalOpen] = useState(false);
-  const [, setMandiPrices] = useState<any[]>([]);
   const [buyerDemands, setBuyerDemands] = useState<any[]>([]);
 
   useEffect(() => {
@@ -101,14 +76,6 @@ export const FarmerDashboard: React.FC = () => {
       })
       .catch((err) => console.warn('Requirements fetch:', err));
     return () => { isMounted = false; };
-  }, []);
-
-  useEffect(() => {
-    ApiClient.getMandiPrices()
-      .then((data) => {
-        if (data && data.length > 0) setMandiPrices(data);
-      })
-      .catch((err) => console.warn('Mandi rates fetch:', err));
   }, []);
 
   return (
@@ -288,55 +255,6 @@ export const FarmerDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Live Agro-Weather & AI Advisory Widget */}
           <WeatherAdvisoryWidget city={activeCity} />
-
-          {/* Live APMC Mandi Benchmark Ticker */}
-          <div className="p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-                  <TrendingUp className="w-4 h-4" />
-                </span>
-                <div>
-                  <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-1.5">
-                    <span>Live APMC Mandi Bhav</span>
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full font-bold font-sans">
-                      दैनिक मंडी भाव
-                    </span>
-                  </h3>
-                  <span className="text-[11px] text-zinc-500">Government APMC & Agmarknet Daily Market Arrivals</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsMandiModalOpen(true)}
-                className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-0.5"
-              >
-                <span>View All</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {LIVE_MANDI_RATES.slice(0, 4).map((m, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setIsMandiModalOpen(true)}
-                  className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-800/80 hover:border-emerald-500/50 transition cursor-pointer"
-                >
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">
-                    {m.crop}
-                  </div>
-                  <div className="text-[10px] text-zinc-400 truncate">{m.mandi}</div>
-                  <div className="mt-1 font-black text-xs text-zinc-900 dark:text-white flex items-center justify-between">
-                    <span>₹{m.modalPrice}/qtl</span>
-                    <span className={`text-[9px] font-bold ${m.change >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                      {m.change >= 0 ? `+₹${m.change}` : `-₹${Math.abs(m.change)}`}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* Active Crop Advertisements Section */}
           <div className="space-y-3">
@@ -552,11 +470,6 @@ export const FarmerDashboard: React.FC = () => {
         isOpen={isInsightsModalOpen}
         onClose={() => setIsInsightsModalOpen(false)}
         farmerId={currentFarmerId}
-      />
-
-      <MandiRatesModal
-        isOpen={isMandiModalOpen}
-        onClose={() => setIsMandiModalOpen(false)}
       />
     </div>
   );

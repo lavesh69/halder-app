@@ -94959,12 +94959,13 @@ var MandiController = class {
 
 // server/src/routes/mandiRoutes.ts
 var router14 = (0, import_express16.Router)();
-router14.get("/prices", MandiController.getPrices);
+router14.all("/prices", (_req, res) => {
+  res.status(410).json({ error: "Live APMC Mandi rates feature has been decommissioned." });
+});
 router14.get("/analytics", MandiController.getAnalytics);
 router14.get("/demand", MandiController.getDemandIndicators);
 router14.get("/export", MandiController.exportCsv);
 router14.post("/estimate", MandiController.calculateRevenueEstimate);
-router14.post("/prices", authenticateUser, requireRole("admin"), MandiController.addPriceRecord);
 var mandiRoutes_default = router14;
 
 // server/src/routes/logisticsRoutes.ts
