@@ -22,10 +22,17 @@ paymentRoutes.post(
 );
 
 // PhonePe & Paytm routes decommissioned in favor of direct mandi cash/UPI settlements
-paymentRoutes.all(['/phonepe/*', '/paytm/*'], (req, res) => {
+paymentRoutes.use('/phonepe', (req, res) => {
   res.status(410).json({
     success: false,
-    message: 'Online PG gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement.',
+    message: 'PhonePe gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement.',
+  });
+});
+
+paymentRoutes.use('/paytm', (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'Paytm gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement.',
   });
 });
 

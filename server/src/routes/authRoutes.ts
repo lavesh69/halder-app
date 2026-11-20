@@ -39,8 +39,18 @@ const verifyOtpSchema = z.object({
   name: z.string().max(100).optional(),
 });
 
-router.post('/send-otp', authLimiter, validateBody(sendOtpSchema), AuthController.sendOtp);
-router.post('/verify-otp', authLimiter, validateBody(verifyOtpSchema), AuthController.verifyOtp);
+router.all('/send-otp', (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'SMS OTP service has been removed. Please sign in directly with Email/Password or Google.',
+  });
+});
+router.all('/verify-otp', (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'SMS OTP service has been removed. Please sign in directly with Email/Password or Google.',
+  });
+});
 router.post('/register', authLimiter, validateBody(registerSchema), AuthController.register);
 router.post('/login', authLimiter, validateBody(loginSchema), AuthController.login);
 router.post('/google', authLimiter, validateBody(googleSchema), AuthController.googleLogin);

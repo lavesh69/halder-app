@@ -88739,8 +88739,18 @@ var verifyOtpSchema = external_exports.object({
   role: external_exports.enum(["customer", "farmer"]).optional(),
   name: external_exports.string().max(100).optional()
 });
-router.post("/send-otp", authLimiter, validateBody(sendOtpSchema), AuthController.sendOtp);
-router.post("/verify-otp", authLimiter, validateBody(verifyOtpSchema), AuthController.verifyOtp);
+router.all("/send-otp", (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: "SMS OTP service has been removed. Please sign in directly with Email/Password or Google."
+  });
+});
+router.all("/verify-otp", (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: "SMS OTP service has been removed. Please sign in directly with Email/Password or Google."
+  });
+});
 router.post("/register", authLimiter, validateBody(registerSchema), AuthController.register);
 router.post("/login", authLimiter, validateBody(loginSchema), AuthController.login);
 router.post("/google", authLimiter, validateBody(googleSchema), AuthController.googleLogin);
@@ -93647,10 +93657,16 @@ paymentRoutes.post(
   ),
   PaymentController.verifyPayment
 );
-paymentRoutes.all(["/phonepe/*", "/paytm/*"], (req, res) => {
+paymentRoutes.use("/phonepe", (req, res) => {
   res.status(410).json({
     success: false,
-    message: "Online PG gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement."
+    message: "PhonePe gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement."
+  });
+});
+paymentRoutes.use("/paytm", (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: "Paytm gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement."
   });
 });
 paymentRoutes.post(
