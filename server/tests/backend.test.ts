@@ -110,28 +110,29 @@ async function runTests() {
     assert('Login with "@rajesh" handle success', atUsernameLogin.status === 200 && atUsernameLogin.json.data.user.username === 'rajesh');
 
     // Test Registration with Unique Username
+    const testUname = `vikas_${Math.floor(100000 + Math.random() * 900000)}`;
     const uniqueUserRes = await request('/auth/register', {
       method: 'POST',
       body: {
-        username: 'kisan_vikas',
+        username: testUname,
         name: 'Vikas Rawat',
-        email: 'vikas.rawat@test.com',
-        phone: '+91 97777 88888',
+        email: `${testUname}@test.com`,
+        phone: `+91 97777 ${Math.floor(10000 + Math.random() * 90000)}`,
         password: 'Password123!',
         role: 'farmer',
         farmName: 'Vikas Hill Orchard',
       },
     });
-    assert('Registration with unique username "kisan_vikas" success', uniqueUserRes.status === 201 && uniqueUserRes.json.data.user.username === 'kisan_vikas');
+    assert(`Registration with unique username "${testUname}" success`, uniqueUserRes.status === 201 && uniqueUserRes.json.data.user.username === testUname);
 
     // Test Duplicate Username Rejection (409 Conflict)
     const dupUserRes = await request('/auth/register', {
       method: 'POST',
       body: {
-        username: 'kisan_vikas',
+        username: testUname,
         name: 'Another Vikas',
-        email: 'another.vikas@test.com',
-        phone: '+91 97777 99999',
+        email: `another.${testUname}@test.com`,
+        phone: `+91 97777 99999`,
         password: 'Password123!',
         role: 'farmer',
       },

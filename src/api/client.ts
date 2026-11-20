@@ -98,20 +98,6 @@ export class ApiClient {
   }
 
   // Auth APIs
-  static sendOtp(phone: string) {
-    return this.request('/auth/send-otp', {
-      method: 'POST',
-      body: { phone },
-    });
-  }
-
-  static verifyOtp(data: { phone: string; otp: string; role?: string; name?: string }) {
-    return this.request('/auth/verify-otp', {
-      method: 'POST',
-      body: data,
-    });
-  }
-
   static login(
     identifierOrData: string | { usernameOrEmail?: string; emailOrPhone?: string; username?: string; password?: string; role?: string },
     password?: string,
