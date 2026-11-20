@@ -164,6 +164,21 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
             </span>
           </div>
 
+          {/* Unique Username Handle */}
+          {(currentProfile as any)?.username && (
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                  Unique Farmer Username (यूज़रनेम)
+                </label>
+                <span className="text-[10px] text-zinc-400">Permanent Handle</span>
+              </div>
+              <div className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/30 text-zinc-500 dark:text-zinc-400 font-mono text-sm select-all">
+                @{(currentProfile as any).username}
+              </div>
+            </div>
+          )}
+
           {/* Farm / Business Name */}
           <div>
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">

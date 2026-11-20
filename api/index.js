@@ -87003,6 +87003,26 @@ var AuthService = class _AuthService {
     }
     const cleanEmail = data.email.toLowerCase().trim();
     const cleanPhone = data.phone.trim();
+    let cleanUsername = (data.username || "").toLowerCase().trim().replace(/^@/, "");
+    if (!cleanUsername) {
+      const base = cleanEmail.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 20) || "user";
+      cleanUsername = base;
+      let counter = 1;
+      while (Database.get("SELECT id FROM users WHERE LOWER(username) = ?", [cleanUsername])) {
+        cleanUsername = `${base}_${counter++}`;
+      }
+    } else {
+      if (!/^[a-z0-9_.-]{3,30}$/.test(cleanUsername)) {
+        throw AppError.badRequest(
+          "Username must be 3-30 characters long and contain only letters, numbers, underscores, dots, or hyphens.",
+          "INVALID_USERNAME"
+        );
+      }
+      const existingUsername = Database.get("SELECT id FROM users WHERE LOWER(username) = ?", [cleanUsername]);
+      if (existingUsername) {
+        throw AppError.conflict("This username is already taken. Please choose another username.", "USERNAME_ALREADY_TAKEN");
+      }
+    }
     const existingEmail = Database.get("SELECT id FROM users WHERE LOWER(email) = ?", [cleanEmail]);
     if (existingEmail) {
       throw AppError.conflict("An account with this email address already exists.", "EMAIL_ALREADY_EXISTS");
@@ -87018,11 +87038,12 @@ var AuthService = class _AuthService {
     let farmerProfileId = null;
     Database.transaction(() => {
       Database.run(
-        `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+        `INSERT INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
         [
           userId,
           halderId,
+          cleanUsername,
           sanitizeText(data.name.trim()),
           cleanEmail,
           cleanPhone,
@@ -87070,26 +87091,28 @@ var AuthService = class _AuthService {
       email: cleanEmail
     });
     const user = Database.get(
-      "SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
+      "SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
       [userId]
     );
     const farmerProfile = farmerProfileId ? Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [farmerProfileId]) : null;
     return { user, farmerProfile, token };
   }
-  static async login(emailOrPhone, password, requestedRole) {
-    const cleanInput = emailOrPhone.trim().toLowerCase();
+  static async login(usernameOrEmail, password, requestedRole) {
+    const rawInput = usernameOrEmail.trim();
+    const cleanInput = rawInput.replace(/^@/, "").toLowerCase();
     const user = Database.get(
-      "SELECT * FROM users WHERE LOWER(email) = ? OR phone = ?",
-      [cleanInput, emailOrPhone.trim()]
+      "SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR REPLACE(phone, ' ', '') = ?",
+      [cleanInput, cleanInput, rawInput, rawInput.replace(/\s+/g, "")]
     );
     if (!user) {
       if (password) {
-        throw AppError.unauthorized("Invalid email or password.", "INVALID_CREDENTIALS");
+        throw AppError.unauthorized("Invalid username, email, or password.", "INVALID_CREDENTIALS");
       }
       return _AuthService.register({
-        name: cleanInput.includes("@") ? cleanInput.split("@")[0] : `User ${cleanInput.slice(-4)}`,
-        email: cleanInput.includes("@") ? cleanInput : `user_${Date.now()}@halder.com`,
-        phone: cleanInput.includes("@") ? `+91 ${Math.floor(1e9 + Math.random() * 9e9)}` : cleanInput,
+        username: cleanInput.replace(/[^a-z0-9_.-]/g, "").slice(0, 25) || `user_${Date.now()}`,
+        name: rawInput.includes("@") ? rawInput.split("@")[0] : `User ${rawInput.slice(-4)}`,
+        email: rawInput.includes("@") ? rawInput.toLowerCase() : `user_${Date.now()}@halder.com`,
+        phone: rawInput.includes("@") ? `+91 ${Math.floor(1e9 + Math.random() * 9e9)}` : rawInput,
         role: requestedRole === "farmer" ? "farmer" : "customer"
       });
     }
@@ -87119,7 +87142,7 @@ var AuthService = class _AuthService {
   }
   static async getMe(userId) {
     const user = Database.get(
-      "SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
+      "SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
       [userId]
     );
     if (!user) throw AppError.notFound("User not found");
@@ -87360,7 +87383,7 @@ var GoogleAuthService = class {
     );
     if (existingIdentity) {
       const user2 = Database.get(
-        "SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
+        "SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?",
         [existingIdentity.user_id]
       );
       if (!user2) {
@@ -87377,7 +87400,7 @@ var GoogleAuthService = class {
       return { user: user2, token: token2, isNewUser: false };
     }
     const existingUserByEmail = Database.get(
-      "SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE LOWER(email) = ?",
+      "SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE LOWER(email) = ?",
       [googleUser.email]
     );
     if (existingUserByEmail) {
@@ -87405,14 +87428,21 @@ var GoogleAuthService = class {
     const halderId = IdentityService.generateNextId(targetRole);
     const identityId = `ident-${v4_default()}`;
     const generatedPhone = `+91 ${Math.floor(6e9 + Math.random() * 3e9)}`;
+    const baseUsername = googleUser.email.split("@")[0].replace(/[^a-z0-9_.-]/gi, "").toLowerCase().slice(0, 20) || "user";
+    let candidateUsername = baseUsername;
+    let suffix = 1;
+    while (Database.get("SELECT id FROM users WHERE LOWER(username) = ?", [candidateUsername])) {
+      candidateUsername = `${baseUsername}_${suffix++}`;
+    }
     try {
       Database.transaction(() => {
         Database.run(
-          `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, 'GOOGLE_OAUTH_ACCOUNT', ?, ?, 'active', ?, ?)`,
+          `INSERT INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'GOOGLE_OAUTH_ACCOUNT', ?, ?, 'active', ?, ?)`,
           [
             userId,
             halderId,
+            candidateUsername,
             sanitizeText(googleUser.name),
             googleUser.email,
             generatedPhone,
@@ -87656,8 +87686,9 @@ var AuthController = class {
   }
   static async login(req, res, next) {
     try {
-      const { emailOrPhone, password, role } = req.body;
-      const result = await AuthService.login(emailOrPhone, password, role);
+      const identifier = req.body.usernameOrEmail || req.body.username || req.body.emailOrPhone;
+      const { password, role } = req.body;
+      const result = await AuthService.login(identifier, password, role);
       res.cookie("halder_token", result.token, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
@@ -88852,6 +88883,9 @@ function validateBody(schema) {
 init_zod();
 var router = (0, import_express.Router)();
 var registerSchema = external_exports.object({
+  username: external_exports.string().min(3).max(30).regex(/^[a-zA-Z0-9_.-]+$/, {
+    message: "Username can only contain letters, numbers, underscores, dots, and hyphens"
+  }).optional(),
   name: external_exports.string().min(2).max(100),
   email: external_exports.string().email().max(120),
   phone: external_exports.string().min(10).max(15),
@@ -88861,9 +88895,13 @@ var registerSchema = external_exports.object({
   location: external_exports.string().max(200).optional()
 });
 var loginSchema = external_exports.object({
-  emailOrPhone: external_exports.string().min(3).max(120),
+  usernameOrEmail: external_exports.string().min(3).max(120).optional(),
+  emailOrPhone: external_exports.string().min(3).max(120).optional(),
+  username: external_exports.string().min(3).max(120).optional(),
   password: external_exports.string().max(128).optional(),
   role: external_exports.enum(["customer", "farmer", "admin"]).optional()
+}).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username, {
+  message: "Username or email is required"
 });
 var googleSchema = external_exports.object({
   idToken: external_exports.string().min(10),
@@ -98207,6 +98245,7 @@ PRAGMA journal_mode = WAL;
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   halder_id TEXT UNIQUE,
+  username TEXT UNIQUE,
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   phone TEXT UNIQUE NOT NULL,
@@ -98555,6 +98594,7 @@ CREATE TABLE IF NOT EXISTS payout_records (
 );
 
 -- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -98987,8 +99027,63 @@ function runMigrations() {
   } catch {
   }
   const db = Database.getDB();
+  try {
+    const userCols = db.prepare(`PRAGMA table_info(users)`).all();
+    const userColNames = userCols.map((c5) => c5.name);
+    if (userColNames.length > 0 && !userColNames.includes("username")) {
+      db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
+    }
+  } catch {
+  }
   db.exec(schemaSql);
   try {
+    const userCols = db.prepare(`PRAGMA table_info(users)`).all();
+    const userColNames = userCols.map((c5) => c5.name);
+    if (!userColNames.includes("username")) {
+      db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
+      db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
+    }
+    db.exec(`
+      UPDATE users SET username = 'admin' WHERE (username IS NULL OR username = '') AND (id = 'user-admin-1' OR email = 'admin@halder.com');
+      UPDATE users SET username = 'aman' WHERE (username IS NULL OR username = '') AND id = 'user-cust-1';
+      UPDATE users SET username = 'rajesh' WHERE (username IS NULL OR username = '') AND id = 'user-farm-1';
+      UPDATE users SET username = 'amit' WHERE (username IS NULL OR username = '') AND id = 'user-farm-2';
+      UPDATE users SET username = 'pooja' WHERE (username IS NULL OR username = '') AND id = 'user-farm-3';
+      UPDATE users SET username = 'rahul_del' WHERE (username IS NULL OR username = '') AND id = 'user-del-1';
+      UPDATE users SET username = LOWER(REPLACE(SUBSTR(email, 1, INSTR(email, '@') - 1), '.', '_')) 
+      WHERE (username IS NULL OR username = '') AND INSTR(email, '@') > 1;
+      UPDATE users SET username = 'user_' || SUBSTR(id, -6) WHERE username IS NULL OR username = '';
+    `);
+    if (process.env.NODE_ENV !== "test") {
+      try {
+        db.exec(`
+          DELETE FROM order_timeline WHERE order_id IN ('order-101', 'order-102');
+          DELETE FROM order_items WHERE order_id IN ('order-101', 'order-102');
+          DELETE FROM reviews WHERE order_id IN ('order-101', 'order-102') OR id = 'rev-1';
+          DELETE FROM delivery_tasks WHERE id = 'task-101' OR order_id IN ('order-101', 'order-102');
+          DELETE FROM orders WHERE id IN ('order-101', 'order-102');
+          DELETE FROM inventory_audit_log WHERE product_id LIKE 'prod-%';
+          DELETE FROM product_price_slabs WHERE product_id LIKE 'prod-%';
+          DELETE FROM product_images WHERE product_id LIKE 'prod-%';
+          DELETE FROM favorites WHERE product_id LIKE 'prod-%';
+          DELETE FROM cart_items WHERE product_id LIKE 'prod-%';
+          DELETE FROM group_buy_participants WHERE group_buy_id = 'gb-1';
+          DELETE FROM group_buys WHERE id = 'gb-1';
+          DELETE FROM scheduled_procurements WHERE id = 'sp-1';
+          DELETE FROM farm_crops WHERE id IN ('crop-1', 'crop-2', 'crop-3', 'crop-4', 'crop-5');
+          DELETE FROM products WHERE id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM b2b_profiles WHERE id = 'b2b-1';
+          DELETE FROM farmer_subscriptions WHERE id IN ('sub-1', 'sub-2', 'sub-3');
+          DELETE FROM financial_transactions WHERE id IN ('fin-1', 'fin-2', 'fin-3');
+          DELETE FROM delivery_partners WHERE id IN ('partner-1', 'partner-2');
+          DELETE FROM notifications WHERE id IN ('notif-1', 'notif-2', 'notif-3');
+          DELETE FROM farmer_profiles WHERE id IN ('farmer-1', 'farmer-2', 'farmer-3');
+          DELETE FROM users WHERE id IN ('user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1');
+        `);
+      } catch (cleanErr) {
+        console.warn("[Migration] Note on purging legacy mock data:", cleanErr.message);
+      }
+    }
     const cols = db.prepare(`PRAGMA table_info(orders)`).all();
     const colNames = cols.map((c5) => c5.name);
     if (!colNames.includes("notes")) {
@@ -99367,33 +99462,24 @@ if (process.argv[1] && process.argv[1].endsWith("migrate.ts")) {
 
 // server/src/db/seed.ts
 init_database();
-async function seedDatabase() {
+async function seedDatabase(forceTestSeed = false) {
   runMigrations();
-  const existingUsers = Database.get("SELECT COUNT(*) as count FROM users");
   const now = (/* @__PURE__ */ new Date()).toISOString();
-  if (!existingUsers || existingUsers.count === 0) {
-    console.log("[Seed] Seeding production database with initial realistic mandi data...");
-    const passwordHash = await bcryptjs_default.hash("halder123", 10);
+  await seedCoreSystem(now);
+  if (forceTestSeed || process.env.NODE_ENV === "test") {
+    await seedTestFixtures(now);
+    seedExtendedTestEcosystem(now);
+    console.log("[Seed] Test environment fixtures populated successfully.");
+  } else {
+    console.log("[Seed] Production database initialized: Categories, Admin account, and System settings ready (Zero mock data).");
+  }
+}
+async function seedCoreSystem(now) {
+  const existingCats = Database.get("SELECT COUNT(*) as count FROM categories");
+  if (!existingCats || existingCats.count === 0) {
     Database.transaction(() => {
       Database.run(
-        `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
-         ('user-cust-1', 'HAL-CUS-10000001', 'Aman Sharma', 'aman@halder.com', '+91 98765 43210', ?, 'customer', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
-         ('user-farm-1', 'HAL-FRM-20000001', 'Rajesh Kumar', 'rajesh@greenvalley.in', '+91 98450 12345', ?, 'farmer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
-         ('user-farm-2', 'HAL-FRM-20000002', 'Amit Singh', 'amit@sunrisefarms.in', '+91 98110 54321', ?, 'farmer', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
-         ('user-farm-3', 'HAL-FRM-20000003', 'Pooja Devi', 'pooja@himalayanorganics.in', '+91 98330 98765', ?, 'farmer', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
-         ('user-admin-1', 'HAL-ADM-90000001', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
-         ('user-del-1', 'HAL-CUS-10000002', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
-        [passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now]
-      );
-      Database.run(
-        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, latitude, longitude, verification_status, rating, total_orders, total_listings_count, response_rate, joined_year, avatar, cover_image, created_at, updated_at) VALUES
-         ('farmer-1', 'user-farm-1', 'Green Valley Farm', 'Organic hill vegetables & A2 Badri cow dairy from Doon Valley.', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'verified', 4.9, 142, 4, 98, 2021, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80', ?, ?),
-         ('farmer-2', 'user-farm-2', 'Sunrise Farm', 'Naturally grown seasonal potatoes, onions, carrots and green peas.', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'verified', 4.8, 98, 3, 95, 2022, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&auto=format&fit=crop&q=80', ?, ?),
-         ('farmer-3', 'user-farm-3', 'Himalayan Organics', 'Certified mountain greens, chemical-free raw wild honey and organic cauliflower.', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'pending', 4.9, 175, 3, 99, 2020, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=800&auto=format&fit=crop&q=80', ?, ?)`,
-        [now, now, now, now, now, now]
-      );
-      Database.run(
-        `INSERT INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
+        `INSERT OR IGNORE INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
          ('cat-veg', 'Vegetables', 'vegetables', '\u{1F345}', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
          ('cat-fruits', 'Fruits', 'fruits', '\u{1F34E}', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
          ('cat-leafy', 'Leafy Greens', 'leafy-greens', '\u{1F96C}', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
@@ -99403,8 +99489,59 @@ async function seedDatabase() {
          ('cat-homemade', 'Homemade Pickles', 'homemade', '\u{1FAD9}', 'https://images.unsplash.com/photo-1589135233689-d49fa2b23419?w=400&auto=format&fit=crop&q=80', 1, ?)`,
         [now, now, now, now, now, now, now]
       );
+    });
+  }
+  const existingAdmin = Database.get("SELECT id FROM users WHERE role = 'admin' OR username = 'admin'");
+  if (!existingAdmin) {
+    const adminPasswordHash = await bcryptjs_default.hash("halder123", 10);
+    Database.run(
+      `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
+       ('user-admin-1', 'HAL-ADM-90000001', 'admin', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
+      [adminPasswordHash, now, now]
+    );
+  }
+  const settingsCount = Database.get("SELECT COUNT(*) as count FROM platform_settings");
+  if (!settingsCount || settingsCount.count === 0) {
+    const defaultSettings = [
+      ["commission_rate_pct", "5.0", "Marketplace platform commission percentage taken on customer order subtotal."],
+      ["delivery_base_fee", "20.0", "Base delivery charge for first 3 km distance."],
+      ["delivery_per_km_rate", "5.0", "Additional charge per km past base distance."],
+      ["min_withdrawal_amount", "100.0", "Minimum settlement balance required for farmer bank withdrawal."],
+      ["settlement_cycle_days", "1", "Daily T+1 automatic settlement cycle for delivered orders."],
+      ["auto_assign_delivery", "true", "Enable automatic closest-partner delivery assignment on order ready."],
+      ["tax_gst_rate_pct", "0.0", "Fresh farm produce exempt from GST under Indian Agricultural Tax Code."]
+    ];
+    for (const [key, val, desc] of defaultSettings) {
       Database.run(
-        `INSERT INTO products (
+        `INSERT OR IGNORE INTO platform_settings (key, value, description, updated_at) VALUES (?, ?, ?, ?)`,
+        [key, val, desc, now]
+      );
+    }
+  }
+}
+async function seedTestFixtures(now) {
+  const existingUsers = Database.get("SELECT id FROM users WHERE id = 'user-cust-1'");
+  if (!existingUsers) {
+    const passwordHash = await bcryptjs_default.hash("halder123", 10);
+    Database.transaction(() => {
+      Database.run(
+        `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
+         ('user-cust-1', 'HAL-CUS-10000001', 'aman', 'Aman Sharma', 'aman@halder.com', '+91 98765 43210', ?, 'customer', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-1', 'HAL-FRM-20000001', 'rajesh', 'Rajesh Kumar', 'rajesh@greenvalley.in', '+91 98450 12345', ?, 'farmer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-2', 'HAL-FRM-20000002', 'amit', 'Amit Singh', 'amit@sunrisefarms.in', '+91 98110 54321', ?, 'farmer', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-farm-3', 'HAL-FRM-20000003', 'pooja', 'Pooja Devi', 'pooja@himalayanorganics.in', '+91 98330 98765', ?, 'farmer', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
+         ('user-del-1', 'HAL-CUS-10000002', 'rahul_del', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
+        [passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now]
+      );
+      Database.run(
+        `INSERT OR IGNORE INTO farmer_profiles (id, user_id, farm_name, description, location, city, latitude, longitude, verification_status, rating, total_orders, total_listings_count, response_rate, joined_year, avatar, cover_image, created_at, updated_at) VALUES
+         ('farmer-1', 'user-farm-1', 'Green Valley Farm', 'Organic hill vegetables & A2 Badri cow dairy from Doon Valley.', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'verified', 4.9, 142, 4, 98, 2021, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80', ?, ?),
+         ('farmer-2', 'user-farm-2', 'Sunrise Farm', 'Naturally grown seasonal potatoes, onions, carrots and green peas.', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'verified', 4.8, 98, 3, 95, 2022, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&auto=format&fit=crop&q=80', ?, ?),
+         ('farmer-3', 'user-farm-3', 'Himalayan Organics', 'Certified mountain greens, chemical-free raw wild honey and organic cauliflower.', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'pending', 4.9, 175, 3, 99, 2020, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=800&auto=format&fit=crop&q=80', ?, ?)`,
+        [now, now, now, now, now, now]
+      );
+      Database.run(
+        `INSERT OR IGNORE INTO products (
           id, farmer_id, category_id, name, slug, description, price, unit,
           available_quantity, is_organic, available_today, harvest_date,
           freshness_tag, location, city, latitude, longitude, image,
@@ -99449,9 +99586,9 @@ async function seedDatabase() {
           now
         ]
       );
-      Database.run("INSERT INTO carts (id, user_id, created_at, updated_at) VALUES ('cart-cust-1', 'user-cust-1', ?, ?)", [now, now]);
+      Database.run("INSERT OR IGNORE INTO carts (id, user_id, created_at, updated_at) VALUES ('cart-cust-1', 'user-cust-1', ?, ?)", [now, now]);
       Database.run(
-        `INSERT INTO orders (
+        `INSERT OR IGNORE INTO orders (
           id, order_number, customer_id, farmer_id, total_amount, subtotal,
           delivery_fee, farmer_tip, delivery_address, city, postal_code,
           customer_phone, customer_name, farmer_name, farm_name, farmer_phone,
@@ -99463,14 +99600,14 @@ async function seedDatabase() {
         [now, now, now, now]
       );
       Database.run(
-        `INSERT INTO order_items (id, order_id, product_id, farmer_id, product_name_snapshot, unit_price_snapshot, unit_snapshot, quantity, subtotal) VALUES
+        `INSERT OR IGNORE INTO order_items (id, order_id, product_id, farmer_id, product_name_snapshot, unit_price_snapshot, unit_snapshot, quantity, subtotal) VALUES
          ('item-1', 'order-101', 'prod-1', 'farmer-1', 'Fresh Farm Tomatoes', 40.0, 'kg', 2.0, 80.0),
          ('item-2', 'order-101', 'prod-9', 'farmer-1', 'Desi Badri Cow Raw Milk', 75.0, 'litre', 2.0, 150.0),
          ('item-3', 'order-102', 'prod-4', 'farmer-3', 'Organic Mountain Spinach', 25.0, 'bunch', 3.0, 75.0),
          ('item-4', 'order-102', 'prod-6', 'farmer-3', 'Farm Cauliflower', 40.0, 'piece', 2.0, 80.0)`
       );
       Database.run(
-        `INSERT INTO order_timeline (id, order_id, status, title, description, time, completed, current, created_at) VALUES
+        `INSERT OR IGNORE INTO order_timeline (id, order_id, status, title, description, time, completed, current, created_at) VALUES
          ('tl-1', 'order-101', 'placed', 'Order Placed', 'Order placed with Rajesh Kumar', '7:00 AM', 1, 0, ?),
          ('tl-2', 'order-101', 'accepted', 'Harvest Confirmed', 'Rajesh Kumar verified morning harvest', '7:05 AM', 1, 0, ?),
          ('tl-3', 'order-101', 'preparing', 'Weighing & Packing', 'Eco-crate weighing and hygiene pack', '7:15 AM', 1, 1, ?),
@@ -99479,12 +99616,12 @@ async function seedDatabase() {
         [now, now, now, now, now]
       );
       Database.run(
-        `INSERT INTO reviews (id, order_id, customer_id, farmer_id, rating, review, created_at) VALUES
+        `INSERT OR IGNORE INTO reviews (id, order_id, customer_id, farmer_id, rating, review, created_at) VALUES
          ('rev-1', 'order-102', 'user-cust-1', 'farmer-3', 5.0, 'The mountain spinach was super fresh and the cauliflower tasted sweet! Delivered right on time.', ?)`,
         [now]
       );
       Database.run(
-        `INSERT INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at) VALUES
+        `INSERT OR IGNORE INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at) VALUES
          ('notif-1', 'user-cust-1', 'customer', 'order', 'Order Placed \u{1F9FA}', 'Your order #HD8491 from Green Valley Farm has been placed.', 1, ?),
          ('notif-2', 'user-farm-1', 'farmer', 'order', 'New Order Received! \u{1F514}', 'New order #HD8491 received from Aman Sharma for \u20B9265.', 0, ?),
          ('notif-3', 'user-farm-1', 'farmer', 'verification', 'Farmer Verified! \u{1F6E1}\uFE0F', 'Your farm verification credentials have been approved by Admin.', 1, ?)`,
@@ -99492,10 +99629,8 @@ async function seedDatabase() {
       );
     });
   }
-  seedExtendedEcosystem(now);
-  console.log("[Seed] Production database successfully initialized and seeded!");
 }
-function seedExtendedEcosystem(now) {
+function seedExtendedTestEcosystem(now) {
   const demandCount = Database.get("SELECT COUNT(*) as count FROM crop_demand_indicators");
   if (!demandCount || demandCount.count === 0) {
     const indicators = [
@@ -99532,15 +99667,6 @@ function seedExtendedEcosystem(now) {
   }
   const delCount = Database.get("SELECT COUNT(*) as count FROM delivery_partners");
   if (!delCount || delCount.count === 0) {
-    const delUser = Database.get("SELECT id FROM users WHERE id = 'user-del-1'");
-    if (!delUser) {
-      const defaultPasswordHash = bcryptjs_default.hashSync("halder123", 10);
-      Database.run(
-        `INSERT OR IGNORE INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
-         VALUES ('user-del-1', 'HAL-CUS-10000002', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
-        [defaultPasswordHash, now, now]
-      );
-    }
     Database.run(
       `INSERT OR IGNORE INTO delivery_partners (id, user_id, vehicle_type, vehicle_number, license_number, service_zone, is_available, current_lat, current_lng, rating, total_deliveries, status, created_at, updated_at)
        VALUES 
@@ -99599,24 +99725,6 @@ function seedExtendedEcosystem(now) {
        VALUES ('sp-1', 'user-cust-1', 'prod-9', 'farmer-1', 2.0, 'litre', 'daily', 'Morning (06:00 - 08:30 AM)', '14, Rajpur Road, Dehradun', ?, 'active', ?, ?)`,
       [nextDate, now, now]
     );
-  }
-  const settingsCount = Database.get("SELECT COUNT(*) as count FROM platform_settings");
-  if (!settingsCount || settingsCount.count === 0) {
-    const defaultSettings = [
-      ["commission_rate_pct", "5.0", "Marketplace platform commission percentage taken on customer order subtotal."],
-      ["delivery_base_fee", "20.0", "Base delivery charge for first 3 km distance."],
-      ["delivery_per_km_rate", "5.0", "Additional charge per km past base distance."],
-      ["min_withdrawal_amount", "100.0", "Minimum settlement balance required for farmer bank withdrawal."],
-      ["settlement_cycle_days", "1", "Daily T+1 automatic settlement cycle for delivered orders."],
-      ["auto_assign_delivery", "true", "Enable automatic closest-partner delivery assignment on order ready."],
-      ["tax_gst_rate_pct", "0.0", "Fresh farm produce exempt from GST under Indian Agricultural Tax Code."]
-    ];
-    for (const [key, val, desc] of defaultSettings) {
-      Database.run(
-        `INSERT OR IGNORE INTO platform_settings (key, value, description, updated_at) VALUES (?, ?, ?, ?)`,
-        [key, val, desc, now]
-      );
-    }
   }
   const finCount = Database.get("SELECT COUNT(*) as count FROM financial_transactions");
   if (!finCount || finCount.count === 0) {

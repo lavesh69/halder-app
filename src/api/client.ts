@@ -113,14 +113,14 @@ export class ApiClient {
   }
 
   static login(
-    emailOrPhoneOrData: string | { emailOrPhone: string; password?: string; role?: string },
+    identifierOrData: string | { usernameOrEmail?: string; emailOrPhone?: string; username?: string; password?: string; role?: string },
     password?: string,
     role?: string
   ) {
     const payload =
-      typeof emailOrPhoneOrData === 'object' && emailOrPhoneOrData !== null
-        ? emailOrPhoneOrData
-        : { emailOrPhone: emailOrPhoneOrData, password, role };
+      typeof identifierOrData === 'object' && identifierOrData !== null
+        ? identifierOrData
+        : { usernameOrEmail: identifierOrData, emailOrPhone: identifierOrData, password, role };
     return this.request('/auth/login', {
       method: 'POST',
       body: payload,

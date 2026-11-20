@@ -95,11 +95,12 @@ export const FarmerProfileView: React.FC = () => {
     }, 400);
   };
 
-  const displayName = profile?.name || currentUser?.name || 'Rajesh Kumar';
-  const displayFarm = profile?.farmName || 'Green Valley Farm';
+  const displayName = profile?.name || currentUser?.name || 'Kisan';
+  const displayUsername = (profile as any)?.username || currentUser?.username || '';
+  const displayFarm = profile?.farmName || (currentUser?.name ? `${currentUser.name}'s Farm` : 'Farm');
   const displayId = profile?.halderId || currentUser?.halder_id || 'HAL-FRM-00000001';
-  const displayPhone = profile?.phone || currentUser?.phone || '+91 98450 12345';
-  const displayLocation = profile?.location || 'Sarjapur Agro Belt, Bengaluru';
+  const displayPhone = profile?.phone || currentUser?.phone || '';
+  const displayLocation = profile?.location || '';
   const displayAvatar =
     profile?.avatar ||
     currentUser?.profile_image ||
@@ -121,10 +122,15 @@ export const FarmerProfileView: React.FC = () => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <h3 className="text-lg font-black text-zinc-900 dark:text-white truncate">
               {displayName}
             </h3>
+            {displayUsername && (
+              <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                @{displayUsername}
+              </span>
+            )}
             {kycData?.verificationStatus === 'verified' ? (
               <span title="Government KYC Verified Kisan">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

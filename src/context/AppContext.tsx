@@ -345,7 +345,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('halder-current-user-v2');
-    return saved ? JSON.parse(saved) : initialUsers[0];
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
@@ -401,7 +401,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('halder-favorites');
-    return saved ? JSON.parse(saved) : ['prod-1', 'prod-3', 'prod-7'];
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Platform Governance Settings
@@ -1884,7 +1884,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProducts(initialProducts);
     setOrders(initialOrders);
     setCart([]);
-    setFavorites(['prod-1', 'prod-3', 'prod-7']);
+    setFavorites([]);
     localStorage.removeItem('halder-products-v2');
     localStorage.removeItem('halder-orders-v2');
     localStorage.removeItem('halder-cart-v2');

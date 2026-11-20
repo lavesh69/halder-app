@@ -8,6 +8,9 @@ import { z } from 'zod';
 const router = Router();
 
 const registerSchema = z.object({
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_.-]+$/, {
+    message: 'Username can only contain letters, numbers, underscores, dots, and hyphens',
+  }).optional(),
   name: z.string().min(2).max(100),
   email: z.string().email().max(120),
   phone: z.string().min(10).max(15),
@@ -18,9 +21,13 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  emailOrPhone: z.string().min(3).max(120),
+  usernameOrEmail: z.string().min(3).max(120).optional(),
+  emailOrPhone: z.string().min(3).max(120).optional(),
+  username: z.string().min(3).max(120).optional(),
   password: z.string().max(128).optional(),
   role: z.enum(['customer', 'farmer', 'admin']).optional(),
+}).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username, {
+  message: 'Username or email is required',
 });
 
 const googleSchema = z.object({

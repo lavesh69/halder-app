@@ -13,6 +13,7 @@ const resetCodeStore = new Map<string, { code: string; userId: string; expiresAt
 
 export class AuthService {
   static async register(data: {
+    username?: string;
     name: string;
     email: string;
     phone: string;
@@ -27,6 +28,28 @@ export class AuthService {
 
     const cleanEmail = data.email.toLowerCase().trim();
     const cleanPhone = data.phone.trim();
+
+    // Unique Username Validation & Derivation
+    let cleanUsername = (data.username || '').toLowerCase().trim().replace(/^@/, '');
+    if (!cleanUsername) {
+      const base = cleanEmail.split('@')[0].replace(/[^a-z0-9_.-]/g, '').slice(0, 20) || 'user';
+      cleanUsername = base;
+      let counter = 1;
+      while (Database.get('SELECT id FROM users WHERE LOWER(username) = ?', [cleanUsername])) {
+        cleanUsername = `${base}_${counter++}`;
+      }
+    } else {
+      if (!/^[a-z0-9_.-]{3,30}$/.test(cleanUsername)) {
+        throw AppError.badRequest(
+          'Username must be 3-30 characters long and contain only letters, numbers, underscores, dots, or hyphens.',
+          'INVALID_USERNAME'
+        );
+      }
+      const existingUsername = Database.get('SELECT id FROM users WHERE LOWER(username) = ?', [cleanUsername]);
+      if (existingUsername) {
+        throw AppError.conflict('This username is already taken. Please choose another username.', 'USERNAME_ALREADY_TAKEN');
+      }
+    }
 
     const existingEmail = Database.get('SELECT id FROM users WHERE LOWER(email) = ?', [cleanEmail]);
     if (existingEmail) {
@@ -49,11 +72,12 @@ export class AuthService {
 
     Database.transaction(() => {
       Database.run(
-        `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+        `INSERT INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
         [
           userId,
           halderId,
+          cleanUsername,
           sanitizeText(data.name.trim()),
           cleanEmail,
           cleanPhone,
@@ -106,7 +130,7 @@ export class AuthService {
     });
 
     const user = Database.get<any>(
-      'SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
+      'SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
       [userId]
     );
 
@@ -117,21 +141,23 @@ export class AuthService {
     return { user, farmerProfile, token };
   }
 
-  static async login(emailOrPhone: string, password?: string, requestedRole?: 'customer' | 'farmer' | 'admin') {
-    const cleanInput = emailOrPhone.trim().toLowerCase();
+  static async login(usernameOrEmail: string, password?: string, requestedRole?: 'customer' | 'farmer' | 'admin') {
+    const rawInput = usernameOrEmail.trim();
+    const cleanInput = rawInput.replace(/^@/, '').toLowerCase();
     const user = Database.get<any>(
-      'SELECT * FROM users WHERE LOWER(email) = ? OR phone = ?',
-      [cleanInput, emailOrPhone.trim()]
+      "SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR REPLACE(phone, ' ', '') = ?",
+      [cleanInput, cleanInput, rawInput, rawInput.replace(/\s+/g, '')]
     );
 
     if (!user) {
       if (password) {
-        throw AppError.unauthorized('Invalid email or password.', 'INVALID_CREDENTIALS');
+        throw AppError.unauthorized('Invalid username, email, or password.', 'INVALID_CREDENTIALS');
       }
       return AuthService.register({
-        name: cleanInput.includes('@') ? cleanInput.split('@')[0] : `User ${cleanInput.slice(-4)}`,
-        email: cleanInput.includes('@') ? cleanInput : `user_${Date.now()}@halder.com`,
-        phone: cleanInput.includes('@') ? `+91 ${Math.floor(1000000000 + Math.random() * 9000000000)}` : cleanInput,
+        username: cleanInput.replace(/[^a-z0-9_.-]/g, '').slice(0, 25) || `user_${Date.now()}`,
+        name: rawInput.includes('@') ? rawInput.split('@')[0] : `User ${rawInput.slice(-4)}`,
+        email: rawInput.includes('@') ? rawInput.toLowerCase() : `user_${Date.now()}@halder.com`,
+        phone: rawInput.includes('@') ? `+91 ${Math.floor(1000000000 + Math.random() * 9000000000)}` : rawInput,
         role: requestedRole === 'farmer' ? 'farmer' : 'customer',
       });
     }
@@ -168,7 +194,7 @@ export class AuthService {
 
   static async getMe(userId: string) {
     const user = Database.get<any>(
-      'SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
+      'SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
       [userId]
     );
 

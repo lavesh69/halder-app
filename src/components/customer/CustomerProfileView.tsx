@@ -88,14 +88,15 @@ export const CustomerProfileView: React.FC = () => {
     setShowLogoutConfirm(true);
   };
 
-  const displayName = profileData?.name || currentUser?.name || 'Aman Sharma';
+  const displayName = profileData?.name || currentUser?.name || 'HALDER User';
+  const displayUsername = (profileData as any)?.username || currentUser?.username || '';
   const displayId = profileData?.halderId || currentUser?.halder_id || 'HAL-CUS-00000001';
-  const displayPhone = profileData?.phone || currentUser?.phone || '+91 98765 43210';
-  const displayEmail = profileData?.email || currentUser?.email || 'aman@halder.com';
+  const displayPhone = profileData?.phone || currentUser?.phone || '';
+  const displayEmail = profileData?.email || currentUser?.email || '';
   const displayAvatar = profileData?.avatar || currentUser?.profile_image || '';
   const defaultAddressStr = profileData?.defaultAddress
     ? `${profileData.defaultAddress.house_building}, ${profileData.defaultAddress.street_locality}, ${profileData.defaultAddress.city}`
-    : 'Flat 402, Rajpur Road, Dehradun';
+    : '';
 
   const initials = displayName
     .split(' ')
@@ -127,10 +128,15 @@ export const CustomerProfileView: React.FC = () => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <h3 className="text-lg font-black text-zinc-900 dark:text-white truncate">
               {displayName}
             </h3>
+            {displayUsername && (
+              <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                @{displayUsername}
+              </span>
+            )}
             <span className="text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full shrink-0">
               {t('profile.customer_role')}
             </span>

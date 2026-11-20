@@ -96,6 +96,48 @@ async function runTests() {
     assert('Customer Aman Sharma login success', custLogin.status === 200 && !!custLogin.json.data.token);
     custToken = custLogin.json.data.token;
 
+    // Test Login via Unique Username
+    const usernameLogin = await request('/auth/login', {
+      method: 'POST',
+      body: { usernameOrEmail: 'aman', password: 'halder123' },
+    });
+    assert('Login with Unique Username "aman" success', usernameLogin.status === 200 && usernameLogin.json.data.user.username === 'aman');
+
+    const atUsernameLogin = await request('/auth/login', {
+      method: 'POST',
+      body: { usernameOrEmail: '@rajesh', password: 'halder123' },
+    });
+    assert('Login with "@rajesh" handle success', atUsernameLogin.status === 200 && atUsernameLogin.json.data.user.username === 'rajesh');
+
+    // Test Registration with Unique Username
+    const uniqueUserRes = await request('/auth/register', {
+      method: 'POST',
+      body: {
+        username: 'kisan_vikas',
+        name: 'Vikas Rawat',
+        email: 'vikas.rawat@test.com',
+        phone: '+91 97777 88888',
+        password: 'Password123!',
+        role: 'farmer',
+        farmName: 'Vikas Hill Orchard',
+      },
+    });
+    assert('Registration with unique username "kisan_vikas" success', uniqueUserRes.status === 201 && uniqueUserRes.json.data.user.username === 'kisan_vikas');
+
+    // Test Duplicate Username Rejection (409 Conflict)
+    const dupUserRes = await request('/auth/register', {
+      method: 'POST',
+      body: {
+        username: 'kisan_vikas',
+        name: 'Another Vikas',
+        email: 'another.vikas@test.com',
+        phone: '+91 97777 99999',
+        password: 'Password123!',
+        role: 'farmer',
+      },
+    });
+    assert('Duplicate username registration rejected with 409 Conflict', dupUserRes.status === 409 && dupUserRes.json.error?.code === 'USERNAME_ALREADY_TAKEN');
+
     const farm1Login = await request('/auth/login', {
       method: 'POST',
       body: { emailOrPhone: 'rajesh@greenvalley.in', password: 'halder123' },

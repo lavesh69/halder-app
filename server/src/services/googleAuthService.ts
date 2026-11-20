@@ -126,7 +126,7 @@ export class GoogleAuthService {
 
     if (existingIdentity) {
       const user = Database.get<any>(
-        'SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
+        'SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE id = ?',
         [existingIdentity.user_id]
       );
 
@@ -149,7 +149,7 @@ export class GoogleAuthService {
 
     // 2. Check if user already exists by verified email (Account Linking)
     const existingUserByEmail = Database.get<any>(
-      'SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at FROM users WHERE LOWER(email) = ?',
+      'SELECT id, halder_id, username, name, email, phone, role, profile_image, status, created_at FROM users WHERE LOWER(email) = ?',
       [googleUser.email]
     );
 
@@ -186,14 +186,23 @@ export class GoogleAuthService {
     const identityId = `ident-${uuidv4()}`;
     const generatedPhone = `+91 ${Math.floor(6000000000 + Math.random() * 3000000000)}`;
 
+    // Generate unique username from Google account email
+    const baseUsername = googleUser.email.split('@')[0].replace(/[^a-z0-9_.-]/gi, '').toLowerCase().slice(0, 20) || 'user';
+    let candidateUsername = baseUsername;
+    let suffix = 1;
+    while (Database.get('SELECT id FROM users WHERE LOWER(username) = ?', [candidateUsername])) {
+      candidateUsername = `${baseUsername}_${suffix++}`;
+    }
+
     try {
       Database.transaction(() => {
         Database.run(
-          `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, 'GOOGLE_OAUTH_ACCOUNT', ?, ?, 'active', ?, ?)`,
+          `INSERT INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'GOOGLE_OAUTH_ACCOUNT', ?, ?, 'active', ?, ?)`,
           [
             userId,
             halderId,
+            candidateUsername,
             sanitizeText(googleUser.name),
             googleUser.email,
             generatedPhone,

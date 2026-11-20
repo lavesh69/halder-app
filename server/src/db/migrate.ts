@@ -15,10 +15,75 @@ export function runMigrations() {
   }
 
   const db = Database.getDB();
+
+  // Ensure 'username' exists on pre-existing users tables before applying indexes
+  try {
+    const userCols = db.prepare(`PRAGMA table_info(users)`).all() as any[];
+    const userColNames = userCols.map((c) => c.name);
+    if (userColNames.length > 0 && !userColNames.includes('username')) {
+      db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
+    }
+  } catch {
+    // Users table does not exist yet; schemaSql will create it
+  }
+
   db.exec(schemaSql);
 
   // Migration: add notes and phonepe_transaction_id to orders if missing
   try {
+    // Users table enhancements (Unique Username)
+    const userCols = db.prepare(`PRAGMA table_info(users)`).all() as any[];
+    const userColNames = userCols.map((c) => c.name);
+    if (!userColNames.includes('username')) {
+      db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
+      db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
+    }
+
+    // Backfill any existing users without username
+    db.exec(`
+      UPDATE users SET username = 'admin' WHERE (username IS NULL OR username = '') AND (id = 'user-admin-1' OR email = 'admin@halder.com');
+      UPDATE users SET username = 'aman' WHERE (username IS NULL OR username = '') AND id = 'user-cust-1';
+      UPDATE users SET username = 'rajesh' WHERE (username IS NULL OR username = '') AND id = 'user-farm-1';
+      UPDATE users SET username = 'amit' WHERE (username IS NULL OR username = '') AND id = 'user-farm-2';
+      UPDATE users SET username = 'pooja' WHERE (username IS NULL OR username = '') AND id = 'user-farm-3';
+      UPDATE users SET username = 'rahul_del' WHERE (username IS NULL OR username = '') AND id = 'user-del-1';
+      UPDATE users SET username = LOWER(REPLACE(SUBSTR(email, 1, INSTR(email, '@') - 1), '.', '_')) 
+      WHERE (username IS NULL OR username = '') AND INSTR(email, '@') > 1;
+      UPDATE users SET username = 'user_' || SUBSTR(id, -6) WHERE username IS NULL OR username = '';
+    `);
+
+    // In non-test mode (production/staging), purge legacy mock demo seed records
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        db.exec(`
+          DELETE FROM order_timeline WHERE order_id IN ('order-101', 'order-102');
+          DELETE FROM order_items WHERE order_id IN ('order-101', 'order-102');
+          DELETE FROM reviews WHERE order_id IN ('order-101', 'order-102') OR id = 'rev-1';
+          DELETE FROM delivery_tasks WHERE id = 'task-101' OR order_id IN ('order-101', 'order-102');
+          DELETE FROM orders WHERE id IN ('order-101', 'order-102');
+          DELETE FROM inventory_audit_log WHERE product_id LIKE 'prod-%';
+          DELETE FROM product_price_slabs WHERE product_id LIKE 'prod-%';
+          DELETE FROM product_images WHERE product_id LIKE 'prod-%';
+          DELETE FROM favorites WHERE product_id LIKE 'prod-%';
+          DELETE FROM cart_items WHERE product_id LIKE 'prod-%';
+          DELETE FROM group_buy_participants WHERE group_buy_id = 'gb-1';
+          DELETE FROM group_buys WHERE id = 'gb-1';
+          DELETE FROM scheduled_procurements WHERE id = 'sp-1';
+          DELETE FROM farm_crops WHERE id IN ('crop-1', 'crop-2', 'crop-3', 'crop-4', 'crop-5');
+          DELETE FROM products WHERE id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM b2b_profiles WHERE id = 'b2b-1';
+          DELETE FROM farmer_subscriptions WHERE id IN ('sub-1', 'sub-2', 'sub-3');
+          DELETE FROM financial_transactions WHERE id IN ('fin-1', 'fin-2', 'fin-3');
+          DELETE FROM delivery_partners WHERE id IN ('partner-1', 'partner-2');
+          DELETE FROM notifications WHERE id IN ('notif-1', 'notif-2', 'notif-3');
+          DELETE FROM farmer_profiles WHERE id IN ('farmer-1', 'farmer-2', 'farmer-3');
+          DELETE FROM users WHERE id IN ('user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1');
+        `);
+      } catch (cleanErr: any) {
+        console.warn('[Migration] Note on purging legacy mock data:', cleanErr.message);
+      }
+    }
+
     const cols = db.prepare(`PRAGMA table_info(orders)`).all() as any[];
     const colNames = cols.map((c) => c.name);
     if (!colNames.includes('notes')) {

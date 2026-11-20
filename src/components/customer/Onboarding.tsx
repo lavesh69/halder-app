@@ -53,6 +53,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
   const [inputCode, setInputCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [realName, setRealName] = useState('');
+  const [username, setUsername] = useState('');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
   const [realEmail, setRealEmail] = useState('');
   const [realPhone, setRealPhone] = useState('');
   const [realPassword, setRealPassword] = useState('');
@@ -116,20 +118,37 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
 
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!realEmail.trim() || !realPassword.trim()) {
-      showToast('Please enter your email and password', 'error');
+    if (!realPassword.trim()) {
+      showToast('Please enter your password', 'error');
       return;
     }
 
     setIsSubmittingAuth(true);
     try {
       if (isRegisterMode) {
+        if (!username.trim()) {
+          showToast('Please enter a unique username (e.g. @kisan_ramesh)', 'error');
+          setIsSubmittingAuth(false);
+          return;
+        }
+        const cleanUsername = username.trim().toLowerCase().replace(/^@/, '');
+        if (!/^[a-z0-9_.-]{3,30}$/.test(cleanUsername)) {
+          showToast('Username must be 3-30 letters, numbers, dot, or underscore', 'error');
+          setIsSubmittingAuth(false);
+          return;
+        }
         if (!realName.trim()) {
           showToast('Please enter your full name', 'error');
           setIsSubmittingAuth(false);
           return;
         }
+        if (!realEmail.trim()) {
+          showToast('Please enter your email address', 'error');
+          setIsSubmittingAuth(false);
+          return;
+        }
         const res: any = await ApiClient.register({
+          username: cleanUsername,
           name: realName.trim(),
           email: realEmail.trim().toLowerCase(),
           phone: realPhone.trim() || `+91 ${Math.floor(6000000000 + Math.random() * 3000000000)}`,
@@ -143,16 +162,26 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           res?.user?.phone || realPhone.trim() || '+91 98765 43210',
           selectedRole
         );
-        showToast(`Welcome, ${realName.trim()}! Your real account has been created.`, 'success');
+        showToast(`Welcome, @${cleanUsername}! Account successfully created.`, 'success');
       } else {
-        const res: any = await ApiClient.login(realEmail.trim().toLowerCase(), realPassword, selectedRole);
+        const idToLogin = loginIdentifier.trim() || realEmail.trim();
+        if (!idToLogin) {
+          showToast('Please enter your username or email', 'error');
+          setIsSubmittingAuth(false);
+          return;
+        }
+        const res: any = await ApiClient.login(idToLogin, realPassword, selectedRole);
         if (res?.token) ApiClient.setToken(res.token);
-        login(realEmail.trim().toLowerCase(), selectedRole);
-        showToast(`Welcome back, ${res?.user?.name || realEmail.split('@')[0]}!`, 'success');
+        login(idToLogin, selectedRole);
+        showToast(`Welcome back, ${res?.user?.name || idToLogin}!`, 'success');
       }
       if (onClose) onClose();
     } catch (err: any) {
-      showToast(err.message || 'Authentication failed. Please check your credentials.', 'error');
+      if (err.status === 409 || err.message?.includes('already taken')) {
+        showToast('This username or email is already taken. Please choose another.', 'error');
+      } else {
+        showToast(err.message || 'Authentication failed. Please check your credentials.', 'error');
+      }
     } finally {
       setIsSubmittingAuth(false);
     }
@@ -377,40 +406,86 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               </div>
 
               {isRegisterMode && (
+                <>
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                        Unique Username (यूज़रनेम / ID) *
+                      </label>
+                      <span className="text-[10px] text-zinc-400 font-mono">@unique</span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 select-none">
+                        @
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
+                        placeholder="e.g. kisan_ramesh or aman_s"
+                        className="w-full pl-8 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono font-medium"
+                      />
+                    </div>
+                    <p className="text-[10px] text-zinc-400">
+                      3-30 letters, numbers, dot, or underscore. Permanent profile handle.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                      Your Full Name (आपका पूरा नाम) *
+                    </label>
+                    <div className="relative">
+                      <UserIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                      <input
+                        type="text"
+                        required
+                        value={realName}
+                        onChange={(e) => setRealName(e.target.value)}
+                        placeholder="e.g. Lavesh Dobriyal"
+                        className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {!isRegisterMode ? (
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                    Your Real Name (आपका पूरा नाम) *
+                    Username or Email (यूज़रनेम या ईमेल) *
                   </label>
                   <div className="relative">
                     <UserIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
                     <input
                       type="text"
                       required
-                      value={realName}
-                      onChange={(e) => setRealName(e.target.value)}
-                      placeholder="e.g. Lavesh Dobriyal"
+                      value={loginIdentifier}
+                      onChange={(e) => setLoginIdentifier(e.target.value)}
+                      placeholder="Enter username (e.g. kisan_ramesh) or email"
+                      className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                    Email Address (ईमेल पता) *
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                    <input
+                      type="email"
+                      required
+                      value={realEmail}
+                      onChange={(e) => setRealEmail(e.target.value)}
+                      placeholder="e.g. you@gmail.com"
                       className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
                     />
                   </div>
                 </div>
               )}
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                  Email Address (ईमेल पता) *
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
-                  <input
-                    type="email"
-                    required
-                    value={realEmail}
-                    onChange={(e) => setRealEmail(e.target.value)}
-                    placeholder="e.g. you@gmail.com"
-                    className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-                  />
-                </div>
-              </div>
 
               {isRegisterMode && (
                 <div className="space-y-1">
