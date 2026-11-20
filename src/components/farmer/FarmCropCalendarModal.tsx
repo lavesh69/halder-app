@@ -410,7 +410,7 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
         <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs">
           <span className="text-zinc-400 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            Verified Crop Database for Direct APMC & Consumer Selling
+            Verified Crop Database for Direct Wholesale & Consumer Selling
           </span>
           <button
             onClick={onClose}

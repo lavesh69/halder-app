@@ -209,7 +209,7 @@ export const FarmerBusinessInsightsModal: React.FC<Props> = ({ isOpen, onClose, 
                     Kisan Growth Recommendation for this Season
                   </h5>
                   <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                    Local consumer demand for <strong>Pusa Basmati Rice</strong> and <strong>Desi Tomatoes</strong> in your area is currently 25% higher than APMC mandi benchmarks. Listing wholesale bundles (50+ KG) can yield 18% additional profit margin through bulk direct sales.
+                    Local consumer demand for <strong>Pusa Basmati Rice</strong> and <strong>Desi Tomatoes</strong> in your area is currently 25% higher than wholesale market benchmarks. Listing wholesale bundles (50+ KG) can yield 18% additional profit margin through bulk direct sales.
                   </p>
                 </div>
               </div>

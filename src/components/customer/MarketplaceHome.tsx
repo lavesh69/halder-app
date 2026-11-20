@@ -828,8 +828,8 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
               <span className="text-lg">⚖️</span>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Live APMC Mandi</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Fair transparent benchmarks</p>
+              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mt-1">Fair Pricing</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Direct transparent farmer rates</p>
             </div>
             <div className="p-2.5 rounded-xl bg-white/80 dark:bg-black/20">
               <span className="text-lg">🛡️</span>
