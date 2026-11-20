@@ -80,7 +80,7 @@ export const knTranslations: TranslationDictionary = {
   'checkout.title': 'ರೈತರಿಗೆ ನೇರ ಪಾವತಿ',
   'checkout.delivery_address': 'ವಿತರಣಾ ವಿಳಾಸ',
   'checkout.payment_method': 'ಪಾವತಿ ವಿಧಾನ',
-  'checkout.upi_instant': 'ತಕ್ಷಣದ UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'ತಕ್ಷಣದ UPI (Direct UPI)',
   'checkout.cod': 'ವಿತರಣೆಯ ಸಮಯದಲ್ಲಿ ನಗದು (COD)',
   'checkout.cards_netbanking': 'ಕ್ರೆಡಿಟ್ / ಡೆಬಿಟ್ ಕಾರ್ಡ್ & ನೆಟ್‌ಬ್ಯಾಂಕಿಂಗ್',
   'checkout.place_order': 'ಆರ್ಡರ್ ದೃಢೀಕರಿಸಿ (₹{total})',

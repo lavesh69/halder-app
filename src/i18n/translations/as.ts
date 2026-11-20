@@ -97,7 +97,7 @@ export const asTranslations: TranslationDictionary = {
   'checkout.title': 'পোনপটীয়া কৃষক পৰিশোধ',
   'checkout.delivery_address': 'ডেলিভাৰী ঠিকনা',
   'checkout.payment_method': 'পৰিশোধৰ পদ্ধতি',
-  'checkout.upi_instant': 'তাৎক্ষণিক UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'তাৎক্ষণিক UPI (Direct UPI)',
   'checkout.cod': 'সামগ্ৰী পোৱাৰ সময়ত নগদ ধন (COD)',
   'checkout.cards_netbanking': 'ডেবিট/ক্ৰেডিট কাৰ্ড আৰু নেট বেংকিং',
   'checkout.place_order': 'অৰ্ডাৰ নিশ্চিত কৰক (₹{total})',

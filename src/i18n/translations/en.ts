@@ -87,7 +87,7 @@ export const enTranslations = {
   'checkout.title': 'Direct Farmer Checkout',
   'checkout.delivery_address': 'Delivery Address',
   'checkout.payment_method': 'Payment Method',
-  'checkout.upi_instant': 'Instant UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'Instant UPI (Direct UPI)',
   'checkout.cod': 'Cash on Direct Delivery',
   'checkout.cards_netbanking': 'Credit / Debit Cards & NetBanking',
   'checkout.place_order': 'Confirm Order (₹{total})',

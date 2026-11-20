@@ -97,7 +97,7 @@ export const teTranslations: TranslationDictionary = {
   'checkout.title': 'రైతు ప్రత్యక్ష చెల్లింపు',
   'checkout.delivery_address': 'డెలివరీ చిరునామా',
   'checkout.payment_method': 'చెల్లింపు విధానం',
-  'checkout.upi_instant': 'తక్షణ UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'తక్షణ UPI (Direct UPI)',
   'checkout.cod': 'క్యాష్ ఆన్ డెలివరీ (COD)',
   'checkout.cards_netbanking': 'డెబిట్ / క్రెడిట్ కార్డులు & నెట్ బ్యాంకింగ్',
   'checkout.place_order': 'ఆర్డర్ నిర్ధారించండి (₹{total})',

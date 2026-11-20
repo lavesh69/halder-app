@@ -89,7 +89,7 @@ export const paTranslations: TranslationDictionary = {
   'checkout.title': 'ਕਿਸਾਨ ਸਿੱਧਾ ਚੈੱਕਆਉਟ',
   'checkout.delivery_address': 'ਡਿਲੀਵਰੀ ਦਾ ਪਤਾ',
   'checkout.payment_method': 'ਭੁਗਤਾਨ ਵਿਧੀ',
-  'checkout.upi_instant': 'ਤੁਰੰਤ ਯੂਪੀਆਈ (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'ਤੁਰੰਤ ਯੂਪੀਆਈ (Direct UPI)',
   'checkout.cod': 'ਸਿੱਧੀ ਡਿਲੀਵਰੀ ਤੇ ਨਕਦ (COD)',
   'checkout.cards_netbanking': 'ਕ੍ਰੈਡਿਟ / ਡੈਬਿਟ ਕਾਰਡ ਅਤੇ ਨੈੱਟਬੈਂਕਿੰਗ',
   'checkout.place_order': 'ਆਰਡਰ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ (₹{total})',

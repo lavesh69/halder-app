@@ -80,7 +80,7 @@ export const taTranslations: TranslationDictionary = {
   'checkout.title': 'விவசாயி நேரடி கட்டணம்',
   'checkout.delivery_address': 'டெலிவரி முகவரி',
   'checkout.payment_method': 'பணம் செலுத்தும் முறை',
-  'checkout.upi_instant': 'உடனடி UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'உடனடி UPI (Direct UPI)',
   'checkout.cod': 'நேரடி டெலிவரியில் பணம் (COD)',
   'checkout.cards_netbanking': 'கிரெடிட் / டெபிட் கார்டுகள் & நெட்பேங்கிங்',
   'checkout.place_order': 'ஆர்டரை உறுதிசெய் (₹{total})',

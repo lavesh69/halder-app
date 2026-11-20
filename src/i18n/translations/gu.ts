@@ -80,7 +80,7 @@ export const guTranslations: TranslationDictionary = {
   'checkout.title': 'ખેડૂત સીધું ચેકઆઉટ',
   'checkout.delivery_address': 'ડિલિવરી સરનામું',
   'checkout.payment_method': 'ચુકવણી પદ્ધતિ',
-  'checkout.upi_instant': 'ત્વરિત UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'ત્વરિત UPI (Direct UPI)',
   'checkout.cod': 'ડિલિવરી પર રોકડ (COD)',
   'checkout.cards_netbanking': 'ક્રેડિટ / ડેબિટ કાર્ડ અને નેટબેંકિંગ',
   'checkout.place_order': 'ઓર્ડર કન્ફર્મ કરો (₹{total})',

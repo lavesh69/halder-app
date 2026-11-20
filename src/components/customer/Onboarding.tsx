@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Sparkles, Loader2, RotateCcw, CheckCircle2, X, ShoppingBag, User as UserIcon, Mail, Lock, Phone } from 'lucide-react';
+import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Loader2, X, ShoppingBag, User as UserIcon, Mail, Lock, Phone } from 'lucide-react';
 import { GoogleSignInButton } from '../common/GoogleSignInButton';
 import { Logo } from '../common/Logo';
 import { ApiClient } from '../../api/client';
@@ -44,30 +44,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
   const { setHasSeenOnboarding, setIsLoggedIn, loginUser, loginWithGoogle, showToast, signup, login } = useApp();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showRolePick, setShowRolePick] = useState(initialShowLogin);
-  const [authMethod, setAuthMethod] = useState<'account' | 'otp'>('account');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [realName, setRealName] = useState('');
   const [realEmail, setRealEmail] = useState('');
   const [realPhone, setRealPhone] = useState('');
   const [realPassword, setRealPassword] = useState('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
-
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [otp, setOtp] = useState('');
   const [selectedRole, setSelectedRole] = useState<'customer' | 'farmer'>('customer');
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
-
-  useEffect(() => {
-    let timer: any;
-    if (cooldown > 0) {
-      timer = setInterval(() => setCooldown((c) => c - 1), 1000);
-    }
-    return () => clearInterval(timer);
-  }, [cooldown]);
 
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,52 +104,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
     }
   };
 
-  const handleSendOtp = async () => {
-    const clean = mobileNumber.replace(/\D/g, '').slice(-10);
-    if (clean.length !== 10) {
-      showToast('Please enter a valid 10-digit mobile number', 'error');
-      return;
-    }
-
-    setIsSendingOtp(true);
-    try {
-      const res: any = await ApiClient.sendOtp(clean);
-      setIsOtpSent(true);
-      setCooldown(res?.cooldownSeconds || 60);
-      if (res?.devOtp) {
-        setDevOtp(res.devOtp);
-      }
-      showToast(res?.message || 'OTP dispatched to your mobile', 'success');
-    } catch (err: any) {
-      showToast(err.message || 'Failed to send OTP. Please retry.', 'error');
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp.trim() || otp.trim().length < 4) {
-      showToast('Please enter the verification code', 'error');
-      return;
-    }
-
-    setIsVerifyingOtp(true);
-    try {
-      await ApiClient.verifyOtp({
-        phone: mobileNumber.replace(/\D/g, '').slice(-10),
-        otp: otp.trim(),
-        role: selectedRole,
-      });
-      showToast('Mobile verified successfully! Welcome to HALDER.', 'success');
-      loginUser(selectedRole, mobileNumber);
-    } catch (err: any) {
-      showToast(err.message || 'Invalid or expired OTP', 'error');
-    } finally {
-      setIsVerifyingOtp(false);
-    }
-  };
-
   const slide = slides[currentSlide];
   const Icon = slide.icon;
 
@@ -190,11 +127,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             Sign In to Continue
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Select your role and enter mobile number or continue with Google
+            Sign in with your email or continue with Google
           </p>
         </div>
 
-        <form onSubmit={authMethod === 'account' ? handleAccountSubmit : (isOtpSent ? handleVerifyOtp : (e) => { e.preventDefault(); handleSendOtp(); })} className="space-y-4 my-auto max-w-sm mx-auto w-full">
+        <form onSubmit={handleAccountSubmit} className="space-y-4 my-auto max-w-sm mx-auto w-full">
           {/* Role Choice */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
@@ -239,41 +176,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             </div>
           </div>
 
-          {/* Auth Method Switcher Tabs */}
-          <div className="flex bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-xl gap-1">
-            <button
-              type="button"
-              onClick={() => setAuthMethod('account')}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                authMethod === 'account'
-                  ? 'bg-white dark:bg-[#1B201D] text-emerald-700 dark:text-emerald-400 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <UserIcon className="w-3.5 h-3.5" />
-              <span>Real Account</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setAuthMethod('otp')}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                authMethod === 'otp'
-                  ? 'bg-white dark:bg-[#1B201D] text-emerald-700 dark:text-emerald-400 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Mobile OTP</span>
-            </button>
-          </div>
-
-          {/* Mode 1: Real Account (Name, Email & Password) */}
-          {authMethod === 'account' ? (
-            <div className="space-y-3 bg-white dark:bg-[#1B201D] p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
-              <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-1">
-                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                  {isRegisterMode ? '✨ Create Real Account' : '🔑 Sign In'}
-                </span>
+          {/* Account Login / Registration Form */}
+          <div className="space-y-3 bg-white dark:bg-[#1B201D] p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
+            <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-1">
+              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                {isRegisterMode ? '✨ Create Account' : '🔑 Sign In'}
+              </span>
                 <button
                   type="button"
                   onClick={() => setIsRegisterMode(!isRegisterMode)}
@@ -366,139 +274,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                   </>
                 ) : (
                   <>
-                    <span>{isRegisterMode ? 'Create Real Account & Enter' : 'Sign In with Real Account'}</span>
+                    <span>{isRegisterMode ? 'Create Account & Enter' : 'Sign In to HALDER'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </div>
-          ) : (
-            /* Mode 2: Dynamic 2-Step Real SMS OTP Verification */
-            <div className="space-y-4 bg-white dark:bg-[#1B201D] p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-soft">
-              {!isOtpSent ? (
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                      Mobile Number (मोबाइल नंबर)
-                    </label>
-                    <div className="flex gap-2">
-                      <span className="inline-flex items-center px-3 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-xl text-sm font-medium">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        required
-                        value={mobileNumber}
-                        onChange={(e) => setMobileNumber(e.target.value)}
-                        placeholder="10-digit mobile number"
-                        maxLength={10}
-                        className="flex-1 px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={isSendingOtp || mobileNumber.length < 10}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    {isSendingOtp ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending OTP SMS...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Send OTP (ओटीपी भेजें)</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-500/20 text-xs">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span className="font-bold text-zinc-800 dark:text-zinc-200">+91 {mobileNumber}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOtpSent(false);
-                        setOtp('');
-                      }}
-                      className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold underline hover:opacity-80"
-                    >
-                      Change
-                    </button>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                        Enter 6-Digit OTP (ओटीपी दर्ज करें)
-                      </label>
-                      {devOtp && (
-                        <button
-                          type="button"
-                          onClick={() => setOtp(devOtp)}
-                          className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded cursor-pointer"
-                        >
-                          Paste Dev OTP: {devOtp}
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="Enter 6-digit OTP"
-                      maxLength={6}
-                      autoFocus
-                      className="w-full text-center tracking-[0.4em] text-lg font-black py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs pt-1">
-                    <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
-                      {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Did not receive SMS?'}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={cooldown > 0 || isSendingOtp}
-                      onClick={handleSendOtp}
-                      className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold disabled:opacity-40 flex items-center gap-1 hover:underline"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      Resend OTP
-                    </button>
-                  </div>
-
-                  <button
-                    type="submit"
-                    onClick={handleVerifyOtp}
-                    disabled={isVerifyingOtp || otp.length < 4}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-soft-lg"
-                  >
-                    {isVerifyingOtp ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Verifying...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Verify & Enter HALDER</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Divider */}
           <div className="relative flex py-0.5 items-center">

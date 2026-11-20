@@ -93647,49 +93647,12 @@ paymentRoutes.post(
   ),
   PaymentController.verifyPayment
 );
-paymentRoutes.post(
-  "/phonepe/initiate",
-  optionalAuth,
-  validateBody(
-    external_exports.object({
-      amount: external_exports.number().positive(),
-      orderId: external_exports.string().optional(),
-      customerMobile: external_exports.string().optional(),
-      redirectUrl: external_exports.string().optional()
-    })
-  ),
-  PaymentController.initiatePhonePe
-);
-paymentRoutes.get(
-  "/phonepe/status/:merchantTransactionId",
-  optionalAuth,
-  PaymentController.checkPhonePeStatus
-);
-paymentRoutes.post(
-  "/phonepe/webhook",
-  PaymentController.handlePhonePeWebhook
-);
-paymentRoutes.post(
-  "/paytm/initiate",
-  optionalAuth,
-  validateBody(
-    external_exports.object({
-      amount: external_exports.number().positive(),
-      orderId: external_exports.string().optional(),
-      customerMobile: external_exports.string().optional()
-    })
-  ),
-  PaymentController.initiatePaytm
-);
-paymentRoutes.get(
-  "/paytm/status/:orderId",
-  optionalAuth,
-  PaymentController.checkPaytmStatus
-);
-paymentRoutes.post(
-  "/paytm/webhook",
-  PaymentController.handlePaytmWebhook
-);
+paymentRoutes.all(["/phonepe/*", "/paytm/*"], (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: "Online PG gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement."
+  });
+});
 paymentRoutes.post(
   "/gpay/initiate",
   optionalAuth,

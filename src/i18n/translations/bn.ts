@@ -89,7 +89,7 @@ export const bnTranslations: TranslationDictionary = {
   'checkout.title': 'কৃষক সরাসরি চেকআউট',
   'checkout.delivery_address': 'ডেলিভারি ঠিকানা',
   'checkout.payment_method': 'পেমেন্ট পদ্ধতি',
-  'checkout.upi_instant': 'তাত্ক্ষণিক ইউপিআই (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'তাত্ক্ষণিক ইউপিআই (Direct UPI)',
   'checkout.cod': 'ক্যাশ অন ডেলিভারি (COD)',
   'checkout.cards_netbanking': 'ক্রেডিট / ডেবিট কার্ড ও নেট ব্যাংকিং',
   'checkout.place_order': 'অর্ডার নিশ্চিত করুন (₹{total})',

@@ -80,7 +80,7 @@ export const mlTranslations: TranslationDictionary = {
   'checkout.title': 'കർഷക നേരിട്ടുള്ള പേയ്‌മെന്റ്',
   'checkout.delivery_address': 'ഡെലിവറി വിലാസം',
   'checkout.payment_method': 'പേയ്‌മെന്റ് രീതി',
-  'checkout.upi_instant': 'തൽക്ഷണ UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'തൽക്ഷണ UPI (Direct UPI)',
   'checkout.cod': 'ഡെലിവറി സമയത്ത് പണം നൽകുക (COD)',
   'checkout.cards_netbanking': 'ക്രെഡിറ്റ് / ഡെബിറ്റ് കാർഡുകൾ & നെറ്റ്ബാങ്കിംഗ്',
   'checkout.place_order': 'ഓർഡർ സ്ഥിരീകരിക്കുക (₹{total})',

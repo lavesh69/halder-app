@@ -112,10 +112,18 @@ export class ApiClient {
     });
   }
 
-  static login(emailOrPhone: string, password?: string, role?: string) {
+  static login(
+    emailOrPhoneOrData: string | { emailOrPhone: string; password?: string; role?: string },
+    password?: string,
+    role?: string
+  ) {
+    const payload =
+      typeof emailOrPhoneOrData === 'object' && emailOrPhoneOrData !== null
+        ? emailOrPhoneOrData
+        : { emailOrPhone: emailOrPhoneOrData, password, role };
     return this.request('/auth/login', {
       method: 'POST',
-      body: { emailOrPhone, password, role },
+      body: payload,
     });
   }
 

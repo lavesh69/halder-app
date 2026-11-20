@@ -271,7 +271,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
                   {[
                     { id: 'aadhaar', label: 'Aadhaar Card', desc: 'UIDAI 12-digit UID' },
                     { id: 'land_record', label: 'Land Record (7/12)', desc: 'Saat-Baara / Khasra' },
-                    { id: 'kisan_credit_card', label: 'Kisan Credit Card', desc: 'KCC / Bank Passbook' },
+                    { id: 'kisan_credit_card', label: 'Kisan Credit Card', desc: 'KCC / Agri Certificate' },
                     { id: 'farmer_id', label: 'Govt Kisan ID', desc: 'State Agri Department' },
                   ].map((doc) => (
                     <button

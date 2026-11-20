@@ -89,7 +89,7 @@ export const hiTranslations: TranslationDictionary = {
   'checkout.title': 'किसान सीधा चेकआउट',
   'checkout.delivery_address': 'डिलीवरी का पता',
   'checkout.payment_method': 'भुगतान विधि',
-  'checkout.upi_instant': 'त्वरित यूपीआई (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'त्वरित यूपीआई (Direct UPI)',
   'checkout.cod': 'सीधी डिलीवरी पर नकद (COD)',
   'checkout.cards_netbanking': 'क्रेडिट / डेबिट कार्ड और नेटबैंकिंग',
   'checkout.place_order': 'ऑर्डर की पुष्टि करें (₹{total})',

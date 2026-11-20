@@ -21,60 +21,13 @@ paymentRoutes.post(
   PaymentController.verifyPayment
 );
 
-// PhonePe PG: Initiate Payment
-paymentRoutes.post(
-  '/phonepe/initiate',
-  optionalAuth,
-  validateBody(
-    z.object({
-      amount: z.number().positive(),
-      orderId: z.string().optional(),
-      customerMobile: z.string().optional(),
-      redirectUrl: z.string().optional(),
-    })
-  ),
-  PaymentController.initiatePhonePe
-);
-
-// PhonePe PG: Query Status
-paymentRoutes.get(
-  '/phonepe/status/:merchantTransactionId',
-  optionalAuth,
-  PaymentController.checkPhonePeStatus
-);
-
-// PhonePe PG: Webhook Callback
-paymentRoutes.post(
-  '/phonepe/webhook',
-  PaymentController.handlePhonePeWebhook
-);
-
-// Paytm PG: Initiate Transaction
-paymentRoutes.post(
-  '/paytm/initiate',
-  optionalAuth,
-  validateBody(
-    z.object({
-      amount: z.number().positive(),
-      orderId: z.string().optional(),
-      customerMobile: z.string().optional(),
-    })
-  ),
-  PaymentController.initiatePaytm
-);
-
-// Paytm PG: Query Status
-paymentRoutes.get(
-  '/paytm/status/:orderId',
-  optionalAuth,
-  PaymentController.checkPaytmStatus
-);
-
-// Paytm PG: Webhook Callback
-paymentRoutes.post(
-  '/paytm/webhook',
-  PaymentController.handlePaytmWebhook
-);
+// PhonePe & Paytm routes decommissioned in favor of direct mandi cash/UPI settlements
+paymentRoutes.all(['/phonepe/*', '/paytm/*'], (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'Online PG gateway decommissioned. HALDER operates on Direct Kisan Farm-Gate & Cash/UPI settlement.',
+  });
+});
 
 // Google Pay: Initiate Payment
 paymentRoutes.post(

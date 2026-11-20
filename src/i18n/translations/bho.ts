@@ -97,7 +97,7 @@ export const bhoTranslations: TranslationDictionary = {
   'checkout.title': 'सीधा किसान भुगतान',
   'checkout.delivery_address': 'डिलीवरी पता',
   'checkout.payment_method': 'पैसा देवे के तरीका',
-  'checkout.upi_instant': 'तुरंत UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'तुरंत UPI (Direct UPI)',
   'checkout.cod': 'सामान मिले पर नकद (COD)',
   'checkout.cards_netbanking': 'डेबिट/क्रेडिट कार्ड आ नेट बैंकिंग',
   'checkout.place_order': 'ऑर्डर पक्का करीं (₹{total})',

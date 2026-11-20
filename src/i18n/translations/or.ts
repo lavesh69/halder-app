@@ -97,7 +97,7 @@ export const orTranslations: TranslationDictionary = {
   'checkout.title': 'ଚାଷୀ ସିଧାସଳଖ ପେମେଣ୍ଟ',
   'checkout.delivery_address': 'ଡେଲିଭରୀ ଠିକଣା',
   'checkout.payment_method': 'ପେମେଣ୍ଟ ମାଧ୍ୟମ',
-  'checkout.upi_instant': 'ତୁରନ୍ତ UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'ତୁରନ୍ତ UPI (Direct UPI)',
   'checkout.cod': 'କ୍ୟାସ୍ ଅନ୍ ଡେଲିଭରୀ (COD)',
   'checkout.cards_netbanking': 'ଡେବିଟ୍ / କ୍ରେଡିଟ୍ କାର୍ଡ ଓ ନେଟ୍ ବ୍ୟାଙ୍କିଂ',
   'checkout.place_order': 'ଅର୍ଡର ନିଶ୍ଚିତ କରନ୍ତୁ (₹{total})',

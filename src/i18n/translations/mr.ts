@@ -89,7 +89,7 @@ export const mrTranslations: TranslationDictionary = {
   'checkout.title': 'शेतकरी थेट चेकआउट',
   'checkout.delivery_address': 'डिलिव्हरीचा पत्ता',
   'checkout.payment_method': 'पेमेंट पद्धत',
-  'checkout.upi_instant': 'झटपट UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'झटपट UPI (Direct UPI)',
   'checkout.cod': 'कॅश ऑन डिलिव्हरी (COD)',
   'checkout.cards_netbanking': 'क्रेडिट / डेबिट कार्ड आणि नेटबँकिंग',
   'checkout.place_order': 'ऑर्डर निश्चित करा (₹{total})',

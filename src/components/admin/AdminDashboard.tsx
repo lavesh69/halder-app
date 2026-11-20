@@ -2350,44 +2350,6 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Farmer Direct Bank Account & UPI Settlement Proof */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                3. Direct Kisan Bank Settlement & UPI Details (बैंक खाता सत्यापन)
-              </span>
-
-              <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-2xl border-2 border-blue-300 dark:border-blue-800 space-y-2.5">
-                <div className="flex items-center justify-between pb-1.5 border-b border-blue-200 dark:border-blue-800">
-                  <span className="font-black text-xs text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
-                    <CreditCard className="w-3.5 h-3.5 text-blue-600" />
-                    <span>State Bank of India (SBI Kisan Branch)</span>
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded">
-                    ✓ NPCI Verified
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">A/C Number:</span>
-                    <span className="font-mono font-bold text-zinc-900 dark:text-white">•••• •••• 4921</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">IFSC Code:</span>
-                    <span className="font-mono font-bold text-zinc-900 dark:text-white">SBIN0002145</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">Account Holder:</span>
-                    <span className="font-bold text-zinc-900 dark:text-white">{inspectingKycDoc.farmer_name}</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">Direct UPI VPA:</span>
-                    <span className="font-mono font-bold text-blue-600">kisan.{inspectingKycDoc.id || 'farmer'}@sbi</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Action Bar inside modal */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
               <a

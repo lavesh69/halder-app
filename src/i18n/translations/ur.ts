@@ -80,7 +80,7 @@ export const urTranslations: TranslationDictionary = {
   'checkout.title': 'کسان سے براہ راست چیک آؤٹ',
   'checkout.delivery_address': 'ڈیلیوری کا پتہ',
   'checkout.payment_method': 'ادائیگی کا طریقہ',
-  'checkout.upi_instant': 'فوری UPI (PhonePe / GPay / Paytm)',
+  'checkout.upi_instant': 'فوری UPI (Direct UPI)',
   'checkout.cod': 'ڈیلیوری پر نقد ادائیگی (COD)',
   'checkout.cards_netbanking': 'کریڈٹ / ڈیبٹ کارڈز اور نیٹ بینکنگ',
   'checkout.place_order': 'آرڈر کی تصدیق کریں (₹{total})',
