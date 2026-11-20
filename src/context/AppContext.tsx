@@ -83,6 +83,7 @@ interface AppContextType {
   setIsLoggedIn: (logged: boolean) => void;
   isLoginModalOpen: boolean;
   setIsLoginModalOpen: (open: boolean) => void;
+  setAuthenticatedSession: (user: User, token?: string) => void;
   loginUser: (role: Role, phone?: string) => void;
   loginWithGoogle: (idToken: string, role?: Role) => Promise<boolean>;
   currentUser: User | null;
@@ -309,7 +310,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [reviews, setReviews] = useState<Review[]>(() => {
     const saved = localStorage.getItem('halder-reviews-v2');
-    return saved ? JSON.parse(saved) : initialReviews;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed.filter((r: any) => !r.id?.startsWith('rev-')) : [];
+      } catch {
+        return initialReviews;
+      }
+    }
+    return initialReviews;
   });
 
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {
@@ -321,7 +330,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [farmers, setFarmers] = useState<Farmer[]>(() => {
     const saved = localStorage.getItem('halder-farmers-v2');
-    return saved ? JSON.parse(saved) : initialFarmers;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed.filter((f: any) => !f.id?.startsWith('farmer-')) : [];
+      } catch {
+        return initialFarmers;
+      }
+    }
+    return initialFarmers;
   });
 
   const [showSplash, setShowSplash] = useState<boolean>(true);
@@ -336,12 +353,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Data
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('halder-products-v2');
-    return saved ? JSON.parse(saved) : initialProducts;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed.filter((p: any) => !p.id?.startsWith('prod-')) : [];
+      } catch {
+        return initialProducts;
+      }
+    }
+    return initialProducts;
   });
 
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('halder-orders-v2');
-    return saved ? JSON.parse(saved) : initialOrders;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed.filter((o: any) => !o.id?.startsWith('ord-')) : [];
+      } catch {
+        return initialOrders;
+      }
+    }
+    return initialOrders;
   });
 
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -882,6 +915,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     setRoleState(newRole);
     localStorage.setItem('halder-role', newRole);
+  };
+
+  const setAuthenticatedSession = (user: User, token?: string) => {
+    if (token) {
+      ApiClient.setToken(token);
+      localStorage.setItem('halder-auth-token', token);
+    }
+    setCurrentUser(user);
+    localStorage.setItem('halder-current-user-v2', JSON.stringify(user));
+    setRoleState(user.role);
+    localStorage.setItem('halder-role', user.role);
+    setIsLoggedInState(true);
+    localStorage.setItem('halder-loggedin', 'true');
+    setHasSeenOnboardingState(true);
+    localStorage.setItem('halder-onboarded', 'true');
+    setIsLoginModalOpen(false);
+
+    if (user.role === 'admin') {
+      setAdminTab('overview');
+    } else if (user.role === 'farmer') {
+      setFarmerTab('dashboard');
+    } else {
+      setCustomerTab('home');
+    }
   };
 
   const setHasSeenOnboarding = (seen: boolean) => {
@@ -1858,6 +1915,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoggedIn,
         isLoginModalOpen,
         setIsLoginModalOpen,
+        setAuthenticatedSession,
         loginUser,
         loginWithGoogle,
         currentUser,

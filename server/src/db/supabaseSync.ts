@@ -285,6 +285,23 @@ function hydrateLocalSqlite(localDb: DatabaseSync, tablesData: Record<string, an
         cleanRows = Array.from(seenId.values());
       }
 
+      // Purge legacy mock seed items during hydration so platform starts clean
+      if (table === 'products') {
+        cleanRows = cleanRows.filter((p) => !p.id.startsWith('prod-'));
+      } else if (table === 'users') {
+        cleanRows = cleanRows.filter(
+          (u) =>
+            u.id === 'user-admin-1' ||
+            (!u.id.startsWith('user-cust-') && !u.id.startsWith('user-farm-') && !u.id.startsWith('user-del-'))
+        );
+      } else if (table === 'orders') {
+        cleanRows = cleanRows.filter((o) => !o.id.startsWith('ord-'));
+      } else if (table === 'reviews') {
+        cleanRows = cleanRows.filter((r) => !r.id.startsWith('rev-'));
+      } else if (table === 'farmer_profiles') {
+        cleanRows = cleanRows.filter((f) => !f.id.startsWith('farmer-'));
+      }
+
       if (cleanRows.length === 0) continue;
 
       const validCols = Object.keys(cleanRows[0]).filter((c) => localColSet.has(c));

@@ -41,7 +41,7 @@ const slides = [
 ];
 
 export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false, onClose }) => {
-  const { setHasSeenOnboarding, setIsLoggedIn, loginUser, loginWithGoogle, showToast, signup, login } = useApp();
+  const { setHasSeenOnboarding, setIsLoggedIn, setAuthenticatedSession, loginUser, loginWithGoogle, showToast, signup, login } = useApp();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showRolePick, setShowRolePick] = useState(initialShowLogin);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -170,12 +170,20 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           setIsSubmittingAuth(false);
           return;
         }
-        const res: any = await ApiClient.login(idToLogin, realPassword, selectedRole);
-        if (res?.token) ApiClient.setToken(res.token);
-        const resolvedRole = res?.user?.role || selectedRole;
-        login(idToLogin, resolvedRole);
-        showToast(`Welcome back, ${res?.user?.name || idToLogin}!`, 'success');
+        const res: any = await ApiClient.login(idToLogin, realPassword);
+        const user = res?.user || res?.data?.user;
+        const token = res?.token || res?.data?.token;
+        if (user) {
+          setAuthenticatedSession(user, token);
+        } else {
+          login(idToLogin, selectedRole);
+          setHasSeenOnboarding(true);
+          setIsLoggedIn(true);
+        }
+        showToast(`Welcome back, ${user?.name || user?.username || idToLogin}!`, 'success');
       }
+      setHasSeenOnboarding(true);
+      setIsLoggedIn(true);
       if (onClose) onClose();
     } catch (err: any) {
       if (err.status === 409 || err.message?.includes('already taken')) {
@@ -224,49 +232,51 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
         </div>
 
         <form onSubmit={handleAccountSubmit} className="space-y-4 my-auto max-w-sm mx-auto w-full">
-          {/* Role Choice */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-              I want to use HALDER as:
-            </label>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setSelectedRole('customer')}
-                className={`p-3 rounded-2xl border text-center transition-all ${
-                  selectedRole === 'customer'
-                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
-                    : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
-                }`}
-              >
-                <div className="p-1.5 rounded-xl bg-emerald-100/60 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 w-fit mx-auto mb-1">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-                <div className="font-bold text-xs">Customer (ग्राहक)</div>
-                <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                  Buy fresh farm food
-                </div>
-              </button>
+          {/* Role Choice - Only displayed during Registration */}
+          {isRegisterMode && (
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                I want to register as (खाता प्रकार):
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedRole('customer')}
+                  className={`p-3 rounded-2xl border text-center transition-all ${
+                    selectedRole === 'customer'
+                      ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
+                      : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
+                  }`}
+                >
+                  <div className="p-1.5 rounded-xl bg-emerald-100/60 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 w-fit mx-auto mb-1">
+                    <ShoppingBag className="w-5 h-5" />
+                  </div>
+                  <div className="font-bold text-xs">Customer (ग्राहक)</div>
+                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    Buy fresh farm food
+                  </div>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setSelectedRole('farmer')}
-                className={`p-3 rounded-2xl border text-center transition-all ${
-                  selectedRole === 'farmer'
-                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
-                    : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
-                }`}
-              >
-                <div className="p-1.5 rounded-xl bg-amber-100/60 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 w-fit mx-auto mb-1">
-                  <Sprout className="w-5 h-5" />
-                </div>
-                <div className="font-bold text-xs">Farmer (किसान)</div>
-                <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                  Sell your harvest
-                </div>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRole('farmer')}
+                  className={`p-3 rounded-2xl border text-center transition-all ${
+                    selectedRole === 'farmer'
+                      ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
+                      : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300'
+                  }`}
+                >
+                  <div className="p-1.5 rounded-xl bg-amber-100/60 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 w-fit mx-auto mb-1">
+                    <Sprout className="w-5 h-5" />
+                  </div>
+                  <div className="font-bold text-xs">Farmer (किसान)</div>
+                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    Sell your harvest
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Account Login / Registration Form */}
           {isForgotMode ? (
@@ -464,7 +474,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                       required
                       value={loginIdentifier}
                       onChange={(e) => setLoginIdentifier(e.target.value)}
-                      placeholder="Enter username (e.g. kisan_ramesh) or email"
+                      placeholder="Enter username (e.g. admin or kisan_ramesh)"
                       className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
                     />
                   </div>
