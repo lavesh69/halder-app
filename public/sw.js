@@ -1,5 +1,5 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v16-profile-google-removed';
+const CACHE_NAME = 'halder-cache-v17-profile-save-and-home-nav';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.svg',

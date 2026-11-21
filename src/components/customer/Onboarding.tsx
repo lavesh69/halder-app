@@ -41,7 +41,18 @@ const slides = [
 ];
 
 export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false, onClose }) => {
-  const { setHasSeenOnboarding, setIsLoggedIn, setAuthenticatedSession, loginUser, loginWithGoogle, showToast, signup, login } = useApp();
+  const {
+    setHasSeenOnboarding,
+    setIsLoggedIn,
+    setAuthenticatedSession,
+    loginUser,
+    loginWithGoogle,
+    showToast,
+    signup,
+    login,
+    setCustomerTab,
+    setFarmerTab,
+  } = useApp();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showRolePick, setShowRolePick] = useState(initialShowLogin);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -181,6 +192,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           setIsLoggedIn(true);
         }
         showToast(`Welcome back, ${user?.name || user?.username || idToLogin}!`, 'success');
+      }
+      if (selectedRole === 'farmer') {
+        setFarmerTab('dashboard');
+      } else {
+        setCustomerTab('home');
       }
       setHasSeenOnboarding(true);
       setIsLoggedIn(true);

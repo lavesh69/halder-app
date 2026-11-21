@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 
 export const FarmerProfileView: React.FC = () => {
-  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing, setFarmerTab, products } = useApp();
+  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing, setFarmerTab, products, logout } = useApp();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const farmerId = currentUser?.farmerProfileId || 'farmer-1';
@@ -58,8 +58,16 @@ export const FarmerProfileView: React.FC = () => {
       if (data) {
         setProfile(data);
         if (data.kyc) setKycData(data.kyc);
+        try {
+          localStorage.setItem('halder-farmer-profile-cache', JSON.stringify(data));
+        } catch {}
       }
-    } catch {}
+    } catch {
+      try {
+        const cached = localStorage.getItem('halder-farmer-profile-cache');
+        if (cached) setProfile(JSON.parse(cached));
+      } catch {}
+    }
     setIsLoadingProfile(false);
   };
 
@@ -88,11 +96,7 @@ export const FarmerProfileView: React.FC = () => {
 
   const confirmLogout = async () => {
     setShowLogoutConfirm(false);
-    await ApiClient.logout();
-    showToast('Logged out successfully', 'info');
-    setTimeout(() => {
-      window.location.reload();
-    }, 400);
+    logout();
   };
 
   const displayName = profile?.name || currentUser?.name || 'Kisan';

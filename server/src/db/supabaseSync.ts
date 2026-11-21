@@ -286,20 +286,21 @@ function hydrateLocalSqlite(localDb: DatabaseSync, tablesData: Record<string, an
       }
 
       // Purge legacy mock seed items during hydration so platform starts clean
+      const isLegacyMockId = (id: string, prefix: string) => new RegExp(`^${prefix}-\\d+$`).test(id);
       if (table === 'products') {
-        cleanRows = cleanRows.filter((p) => !p.id.startsWith('prod-'));
+        cleanRows = cleanRows.filter((p) => !isLegacyMockId(p.id, 'prod'));
       } else if (table === 'users') {
         cleanRows = cleanRows.filter(
           (u) =>
             u.id === 'user-admin-1' ||
-            (!u.id.startsWith('user-cust-') && !u.id.startsWith('user-farm-') && !u.id.startsWith('user-del-'))
+            (!/^user-(cust|farm|del)-\d+$/.test(u.id))
         );
       } else if (table === 'orders') {
-        cleanRows = cleanRows.filter((o) => !o.id.startsWith('ord-'));
+        cleanRows = cleanRows.filter((o) => !isLegacyMockId(o.id, 'ord') && !isLegacyMockId(o.id, 'order'));
       } else if (table === 'reviews') {
-        cleanRows = cleanRows.filter((r) => !r.id.startsWith('rev-'));
+        cleanRows = cleanRows.filter((r) => !isLegacyMockId(r.id, 'rev'));
       } else if (table === 'farmer_profiles') {
-        cleanRows = cleanRows.filter((f) => !f.id.startsWith('farmer-'));
+        cleanRows = cleanRows.filter((f) => !isLegacyMockId(f.id, 'farmer'));
       }
 
       if (cleanRows.length === 0) continue;

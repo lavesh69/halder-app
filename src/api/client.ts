@@ -612,7 +612,7 @@ export class ApiClient {
     if (!this.hasToken()) return null;
     try {
       const res = await this.request<any>('/customers/me');
-      return res.data;
+      return res?.data !== undefined ? res.data : res;
     } catch {
       return null;
     }
@@ -629,7 +629,7 @@ export class ApiClient {
       method: 'PATCH',
       body: data,
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async uploadCustomerAvatar(avatar: string): Promise<any> {
@@ -637,19 +637,19 @@ export class ApiClient {
       method: 'POST',
       body: { avatar },
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async removeCustomerAvatar(): Promise<any> {
     const res = await this.request<any>('/customers/me/avatar', {
       method: 'DELETE',
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async getCustomerAddresses(): Promise<any[]> {
     const res = await this.request<any>('/customers/me/addresses');
-    return res.data || [];
+    return res?.data !== undefined ? res.data : (Array.isArray(res) ? res : []);
   }
 
   static async createCustomerAddress(data: {
@@ -670,7 +670,7 @@ export class ApiClient {
       method: 'POST',
       body: data,
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async updateCustomerAddress(
@@ -694,26 +694,26 @@ export class ApiClient {
       method: 'PUT',
       body: data,
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async deleteCustomerAddress(addressId: string): Promise<any> {
     const res = await this.request<any>(`/customers/me/addresses/${addressId}`, {
       method: 'DELETE',
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async setDefaultCustomerAddress(addressId: string): Promise<any> {
     const res = await this.request<any>(`/customers/me/addresses/${addressId}/default`, {
       method: 'PATCH',
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async getCustomerSettings(): Promise<any> {
     const res = await this.request<any>('/customers/me/settings');
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async updateCustomerSettings(settings: Record<string, boolean>): Promise<any> {
@@ -721,7 +721,7 @@ export class ApiClient {
       method: 'PATCH',
       body: settings,
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   // ==========================================
@@ -733,7 +733,7 @@ export class ApiClient {
       method: 'POST',
       body: { currentPassword, newPassword },
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async deleteAccount(password?: string): Promise<any> {
@@ -742,7 +742,7 @@ export class ApiClient {
       body: { password },
     });
     this.clearToken();
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async logout(): Promise<any> {
@@ -761,7 +761,7 @@ export class ApiClient {
     if (!this.hasToken()) return null;
     try {
       const res = await this.request<any>('/farmers/me/profile');
-      return res.data;
+      return res?.data !== undefined ? res.data : res;
     } catch {
       return null;
     }
@@ -769,10 +769,12 @@ export class ApiClient {
 
   static async getFarmerPublicProfile(farmerProfileId: string): Promise<any> {
     const res = await this.request<any>(`/farmers/${farmerProfileId}/public`);
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async updateFarmerProfile(data: {
+    name?: string;
+    phone?: string;
     farmName?: string;
     description?: string;
     location?: string;
@@ -786,7 +788,7 @@ export class ApiClient {
       method: 'PATCH',
       body: data,
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   static async uploadFarmerAvatar(avatar: string): Promise<any> {
@@ -794,7 +796,7 @@ export class ApiClient {
       method: 'POST',
       body: { avatar },
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   }
 
   // ==========================================

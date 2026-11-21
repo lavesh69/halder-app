@@ -234,10 +234,19 @@ export class CustomerProfileService {
         'UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?',
         [base64Data, now, customerId]
       );
-      Database.run(
-        'UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
-        [base64Data, now, customerId]
-      );
+      let cp = Database.get<any>('SELECT id FROM customer_profiles WHERE user_id = ?', [customerId]);
+      if (!cp) {
+        Database.run(
+          `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
+           VALUES (?, ?, '', ?, ?, ?)`,
+          [`cust-prof-${uuidv4()}`, customerId, base64Data, now, now]
+        );
+      } else {
+        Database.run(
+          'UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
+          [base64Data, now, customerId]
+        );
+      }
     });
 
     logAuditEvent(customerId, 'customer', 'CUSTOMER_AVATAR_UPDATED', 'users', customerId);

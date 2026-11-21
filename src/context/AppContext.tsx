@@ -87,6 +87,7 @@ interface AppContextType {
   loginUser: (role: Role, phone?: string) => void;
   loginWithGoogle: (idToken: string, role?: Role) => Promise<boolean>;
   currentUser: User | null;
+  updateCurrentUser: (updates: Partial<User>) => void;
   users: User[];
   login: (emailOrPhone: string, role?: Role) => boolean;
   signup: (name: string, email: string, phone: string, role: Role) => void;
@@ -750,22 +751,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     async function syncUserData() {
       let token = localStorage.getItem('halder-auth-token');
-      if (!token) {
-        try {
-          const authRes = await ApiClient.login(
-            currentUser?.phone || currentUser?.email || 'aman@halder.com',
-            undefined,
-            (currentUser?.role as any) || role || 'customer'
-          );
-          if (authRes?.token) {
-            ApiClient.setToken(authRes.token);
-            token = authRes.token;
-            if (isMounted && authRes?.user) {
-              setCurrentUser(authRes.user);
-            }
-          }
-        } catch {}
-      }
       if (!token) return;
       try {
         const meRes = await ApiClient.getMe();
@@ -941,6 +926,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const updateCurrentUser = (updates: Partial<User>) => {
+    setCurrentUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...updates };
+      try {
+        localStorage.setItem('halder-current-user-v2', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    setUsers((prev) =>
+      prev.map((u) => (u.id === currentUser?.id ? { ...u, ...updates } : u))
+    );
+  };
+
   const setHasSeenOnboarding = (seen: boolean) => {
     setHasSeenOnboardingState(seen);
     localStorage.setItem('halder-onboarded', seen ? 'true' : 'false');
@@ -952,6 +951,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const login = (emailOrPhone: string, targetRole?: Role): boolean => {
+    setCustomerTab('home');
+    setFarmerTab('dashboard');
+    setAdminTab('overview');
+
     ApiClient.login(emailOrPhone, undefined, targetRole)
       .then((res) => {
         if (res?.token) ApiClient.setToken(res.token);
@@ -984,6 +987,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsLoggedIn(true);
       localStorage.setItem('halder-loggedin', 'true');
       setHasSeenOnboarding(true);
+      if (existing.role === 'farmer') {
+        setFarmerTab('dashboard');
+      } else if (existing.role === 'admin') {
+        setAdminTab('overview');
+      } else {
+        setCustomerTab('home');
+      }
       showToast(`Welcome back, ${existing.name}!`);
       return true;
     }
@@ -1014,6 +1024,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRoleState(newRole);
     setIsLoggedIn(true);
     setHasSeenOnboarding(true);
+    if (newRole === 'farmer') {
+      setFarmerTab('dashboard');
+    } else {
+      setCustomerTab('home');
+    }
     showToast(`Account created as ${newRole}!`);
   };
 
@@ -1028,6 +1043,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRoleState('customer');
     setIsLoggedIn(false);
     setHasSeenOnboarding(false);
+    setCustomerTab('home');
+    setFarmerTab('dashboard');
+    setAdminTab('overview');
     setIsLoginModalOpen(true);
     showToast('Logged out of HALDER.', 'info');
   };
@@ -1205,6 +1223,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('halder-onboarded', 'true');
     localStorage.setItem('halder-loggedin', 'false');
     localStorage.removeItem('halder-current-user-v2');
+    if (selectedRole === 'farmer') {
+      setFarmerTab('dashboard');
+    } else {
+      setCustomerTab('home');
+    }
     showToast('Browsing HALDER Marketplace as Guest.');
   };
 
@@ -1216,6 +1239,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoggedIn(true);
         setHasSeenOnboarding(true);
         setRoleState(res.user.role || selectedRole);
+        if (res.user.role === 'farmer' || selectedRole === 'farmer') {
+          setFarmerTab('dashboard');
+        } else {
+          setCustomerTab('home');
+        }
         showToast(`Welcome, ${res.user.name}! Authenticated via Google.`, 'success');
         return true;
       }
@@ -1241,6 +1269,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLoggedIn(true);
     setHasSeenOnboarding(true);
     setRoleState(selectedRole);
+    if (selectedRole === 'farmer') {
+      setFarmerTab('dashboard');
+    } else {
+      setCustomerTab('home');
+    }
     showToast(`Welcome, ${fallbackUser.name}! Logged in with Google (Free).`, 'success');
     return true;
   };
@@ -1919,6 +1952,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginUser,
         loginWithGoogle,
         currentUser,
+        updateCurrentUser,
         users,
         login,
         signup,

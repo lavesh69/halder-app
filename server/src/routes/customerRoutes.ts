@@ -13,10 +13,10 @@ router.use(requireCustomer);
 
 const updateProfileSchema = z.object({
   name: z.string().min(2).max(100).optional(),
-  phone: z.string().min(10).max(15).optional(),
-  bio: z.string().max(500).optional(),
-  dateOfBirth: z.string().max(20).optional(),
-  gender: z.string().max(20).optional(),
+  phone: z.string().max(30).optional().or(z.literal('')),
+  bio: z.string().max(500).optional().or(z.literal('')),
+  dateOfBirth: z.string().max(30).optional().or(z.literal('')),
+  gender: z.string().max(30).optional().or(z.literal('')),
 });
 
 const avatarSchema = z.object({

@@ -36868,18 +36868,19 @@ function hydrateLocalSqlite(localDb, tablesData, version2) {
         }
         cleanRows = Array.from(seenId.values());
       }
+      const isLegacyMockId = (id, prefix) => new RegExp(`^${prefix}-\\d+$`).test(id);
       if (table === "products") {
-        cleanRows = cleanRows.filter((p3) => !p3.id.startsWith("prod-"));
+        cleanRows = cleanRows.filter((p3) => !isLegacyMockId(p3.id, "prod"));
       } else if (table === "users") {
         cleanRows = cleanRows.filter(
-          (u) => u.id === "user-admin-1" || !u.id.startsWith("user-cust-") && !u.id.startsWith("user-farm-") && !u.id.startsWith("user-del-")
+          (u) => u.id === "user-admin-1" || !/^user-(cust|farm|del)-\d+$/.test(u.id)
         );
       } else if (table === "orders") {
-        cleanRows = cleanRows.filter((o3) => !o3.id.startsWith("ord-"));
+        cleanRows = cleanRows.filter((o3) => !isLegacyMockId(o3.id, "ord") && !isLegacyMockId(o3.id, "order"));
       } else if (table === "reviews") {
-        cleanRows = cleanRows.filter((r5) => !r5.id.startsWith("rev-"));
+        cleanRows = cleanRows.filter((r5) => !isLegacyMockId(r5.id, "rev"));
       } else if (table === "farmer_profiles") {
-        cleanRows = cleanRows.filter((f5) => !f5.id.startsWith("farmer-"));
+        cleanRows = cleanRows.filter((f5) => !isLegacyMockId(f5.id, "farmer"));
       }
       if (cleanRows.length === 0) continue;
       const validCols = Object.keys(cleanRows[0]).filter((c5) => localColSet.has(c5));
@@ -90969,10 +90970,23 @@ var FarmerService = class _FarmerService {
       [farmerUserId]
     );
     if (!user) throw AppError.notFound("Farmer user not found");
-    const profile = Database.get(
+    let profile = Database.get(
       "SELECT * FROM farmer_profiles WHERE user_id = ?",
       [farmerUserId]
     );
+    if (!profile) {
+      const fProfId = `farmer-${v4_default()}`;
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      Database.run(
+        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+         VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', 'pending', 5.0, 0, ?, ?)`,
+        [fProfId, farmerUserId, user.name ? `${user.name}'s Organic Farm` : "Organic Farm", now, now]
+      );
+      profile = Database.get(
+        "SELECT * FROM farmer_profiles WHERE user_id = ?",
+        [farmerUserId]
+      );
+    }
     if (!profile) throw AppError.notFound("Farmer profile not found");
     return {
       userId: user.id,
@@ -91066,37 +91080,72 @@ var FarmerService = class _FarmerService {
     };
   }
   static updateFarmerProfile(farmerUserId, input) {
-    const profile = Database.get(
+    let profile = Database.get(
       "SELECT id FROM farmer_profiles WHERE user_id = ?",
       [farmerUserId]
     );
-    if (!profile) throw AppError.notFound("Farmer profile not found");
     const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.run(
-      `UPDATE farmer_profiles SET
-        farm_name = COALESCE(?, farm_name),
-        description = COALESCE(?, description),
-        location = COALESCE(?, location),
-        city = COALESCE(?, city),
-        specialty_crops = COALESCE(?, specialty_crops),
-        farm_size_acres = COALESCE(?, farm_size_acres),
-        water_source = COALESCE(?, water_source),
-        experience_years = COALESCE(?, experience_years),
-        updated_at = ?
-       WHERE user_id = ?`,
-      [
-        input.farmName !== void 0 ? sanitizeText(input.farmName.trim()) : null,
-        input.description !== void 0 ? sanitizeText(input.description.trim()) : null,
-        input.location !== void 0 ? sanitizeText(input.location.trim()) : null,
-        input.city !== void 0 ? sanitizeText(input.city.trim()) : null,
-        input.specialtyCrops !== void 0 ? JSON.stringify(input.specialtyCrops) : null,
-        input.farmSizeAcres !== void 0 ? Number(input.farmSizeAcres) : null,
-        input.waterSource !== void 0 ? sanitizeText(input.waterSource.trim()) : null,
-        input.experienceYears !== void 0 ? Number(input.experienceYears) : null,
-        now,
-        farmerUserId
-      ]
-    );
+    if (!profile) {
+      const fProfId = `farmer-${v4_default()}`;
+      const user = Database.get("SELECT name FROM users WHERE id = ?", [farmerUserId]);
+      Database.run(
+        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+         VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', 'pending', 5.0, 0, ?, ?)`,
+        [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : "Organic Farm", now, now]
+      );
+      profile = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [farmerUserId]);
+    }
+    Database.transaction(() => {
+      if (input.name !== void 0 || input.phone !== void 0) {
+        if (input.phone && input.phone.trim()) {
+          const phoneConflict = Database.get(
+            "SELECT id FROM users WHERE phone = ? AND id != ?",
+            [input.phone.trim(), farmerUserId]
+          );
+          if (phoneConflict) {
+            throw AppError.badRequest("This phone number is already registered with another HALDER account.");
+          }
+        }
+        Database.run(
+          `UPDATE users SET
+            name = COALESCE(?, name),
+            phone = COALESCE(?, phone),
+            updated_at = ?
+           WHERE id = ?`,
+          [
+            input.name !== void 0 ? sanitizeText(input.name.trim()) : null,
+            input.phone !== void 0 ? sanitizeText(input.phone.trim()) : null,
+            now,
+            farmerUserId
+          ]
+        );
+      }
+      Database.run(
+        `UPDATE farmer_profiles SET
+          farm_name = COALESCE(?, farm_name),
+          description = COALESCE(?, description),
+          location = COALESCE(?, location),
+          city = COALESCE(?, city),
+          specialty_crops = COALESCE(?, specialty_crops),
+          farm_size_acres = COALESCE(?, farm_size_acres),
+          water_source = COALESCE(?, water_source),
+          experience_years = COALESCE(?, experience_years),
+          updated_at = ?
+         WHERE user_id = ?`,
+        [
+          input.farmName !== void 0 ? sanitizeText(input.farmName.trim()) : null,
+          input.description !== void 0 ? sanitizeText(input.description.trim()) : null,
+          input.location !== void 0 ? sanitizeText(input.location.trim()) : null,
+          input.city !== void 0 ? sanitizeText(input.city.trim()) : null,
+          input.specialtyCrops !== void 0 ? JSON.stringify(input.specialtyCrops) : null,
+          input.farmSizeAcres !== void 0 ? Number(input.farmSizeAcres) : null,
+          input.waterSource !== void 0 ? sanitizeText(input.waterSource.trim()) : null,
+          input.experienceYears !== void 0 ? Number(input.experienceYears) : null,
+          now,
+          farmerUserId
+        ]
+      );
+    });
     return this.getPrivateProfile(farmerUserId);
   }
   static updateFarmerAvatar(farmerUserId, base64Data) {
@@ -91117,10 +91166,21 @@ var FarmerService = class _FarmerService {
         "UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?",
         [base64Data, now, farmerUserId]
       );
-      Database.run(
-        "UPDATE farmer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
-        [base64Data, now, farmerUserId]
-      );
+      let fp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [farmerUserId]);
+      if (!fp) {
+        const fProfId = `farmer-${v4_default()}`;
+        const user = Database.get("SELECT name FROM users WHERE id = ?", [farmerUserId]);
+        Database.run(
+          `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, avatar, verification_status, rating, total_orders, created_at, updated_at)
+           VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', ?, 'pending', 5.0, 0, ?, ?)`,
+          [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : "Organic Farm", base64Data, now, now]
+        );
+      } else {
+        Database.run(
+          "UPDATE farmer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
+          [base64Data, now, farmerUserId]
+        );
+      }
     });
     return { success: true, avatar: base64Data };
   }
@@ -94564,10 +94624,19 @@ var CustomerProfileService = class {
         "UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?",
         [base64Data, now, customerId]
       );
-      Database.run(
-        "UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
-        [base64Data, now, customerId]
-      );
+      let cp = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
+      if (!cp) {
+        Database.run(
+          `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
+           VALUES (?, ?, '', ?, ?, ?)`,
+          [`cust-prof-${v4_default()}`, customerId, base64Data, now, now]
+        );
+      } else {
+        Database.run(
+          "UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
+          [base64Data, now, customerId]
+        );
+      }
     });
     logAuditEvent(customerId, "customer", "CUSTOMER_AVATAR_UPDATED", "users", customerId);
     return { success: true, avatar: base64Data };
@@ -94908,10 +94977,10 @@ router13.use(authenticateUser);
 router13.use(requireCustomer);
 var updateProfileSchema = external_exports.object({
   name: external_exports.string().min(2).max(100).optional(),
-  phone: external_exports.string().min(10).max(15).optional(),
-  bio: external_exports.string().max(500).optional(),
-  dateOfBirth: external_exports.string().max(20).optional(),
-  gender: external_exports.string().max(20).optional()
+  phone: external_exports.string().max(30).optional().or(external_exports.literal("")),
+  bio: external_exports.string().max(500).optional().or(external_exports.literal("")),
+  dateOfBirth: external_exports.string().max(30).optional().or(external_exports.literal("")),
+  gender: external_exports.string().max(30).optional().or(external_exports.literal(""))
 });
 var avatarSchema = external_exports.object({
   avatar: external_exports.string().min(10)
@@ -99078,11 +99147,11 @@ function runMigrations() {
           DELETE FROM reviews WHERE order_id IN ('order-101', 'order-102') OR id = 'rev-1';
           DELETE FROM delivery_tasks WHERE id = 'task-101' OR order_id IN ('order-101', 'order-102');
           DELETE FROM orders WHERE id IN ('order-101', 'order-102');
-          DELETE FROM inventory_audit_log WHERE product_id LIKE 'prod-%';
-          DELETE FROM product_price_slabs WHERE product_id LIKE 'prod-%';
-          DELETE FROM product_images WHERE product_id LIKE 'prod-%';
-          DELETE FROM favorites WHERE product_id LIKE 'prod-%';
-          DELETE FROM cart_items WHERE product_id LIKE 'prod-%';
+          DELETE FROM inventory_audit_log WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM product_price_slabs WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM product_images WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM favorites WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM cart_items WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
           DELETE FROM group_buy_participants WHERE group_buy_id = 'gb-1';
           DELETE FROM group_buys WHERE id = 'gb-1';
           DELETE FROM scheduled_procurements WHERE id = 'sp-1';

@@ -61,11 +61,11 @@ export function runMigrations() {
           DELETE FROM reviews WHERE order_id IN ('order-101', 'order-102') OR id = 'rev-1';
           DELETE FROM delivery_tasks WHERE id = 'task-101' OR order_id IN ('order-101', 'order-102');
           DELETE FROM orders WHERE id IN ('order-101', 'order-102');
-          DELETE FROM inventory_audit_log WHERE product_id LIKE 'prod-%';
-          DELETE FROM product_price_slabs WHERE product_id LIKE 'prod-%';
-          DELETE FROM product_images WHERE product_id LIKE 'prod-%';
-          DELETE FROM favorites WHERE product_id LIKE 'prod-%';
-          DELETE FROM cart_items WHERE product_id LIKE 'prod-%';
+          DELETE FROM inventory_audit_log WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM product_price_slabs WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM product_images WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM favorites WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
+          DELETE FROM cart_items WHERE product_id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8', 'prod-9', 'prod-10', 'prod-11', 'prod-12');
           DELETE FROM group_buy_participants WHERE group_buy_id = 'gb-1';
           DELETE FROM group_buys WHERE id = 'gb-1';
           DELETE FROM scheduled_procurements WHERE id = 'sp-1';

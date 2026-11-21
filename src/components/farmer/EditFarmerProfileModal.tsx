@@ -19,7 +19,9 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
   onProfileUpdated,
   showToast,
 }) => {
-  const { activeCity } = useApp();
+  const { activeCity, currentUser, updateCurrentUser } = useApp();
+  const [name, setName] = useState(currentProfile?.name || currentUser?.name || '');
+  const [phone, setPhone] = useState(currentProfile?.phone || currentUser?.phone || '');
   const [farmName, setFarmName] = useState(currentProfile?.farmName || '');
   const [description, setDescription] = useState(currentProfile?.description || '');
   const [location, setLocation] = useState(currentProfile?.location || '');
@@ -63,6 +65,10 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) {
+      setError('Farmer name is required.');
+      return;
+    }
     if (!farmName.trim() || !location.trim()) {
       setError('Farm name and location are required.');
       return;
@@ -77,6 +83,8 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
       }
 
       const updated = await ApiClient.updateFarmerProfile({
+        name: name.trim(),
+        phone: phone.trim(),
         farmName: farmName.trim(),
         description: description.trim(),
         location: location.trim(),
@@ -86,8 +94,28 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
         experienceYears: Number(experienceYears),
       });
 
-      showToast('Farmer farm profile updated successfully!', 'success');
-      onProfileUpdated(updated);
+      const finalAvatar = avatarBase64 || updated?.avatar || avatarPreview;
+      const finalName = updated?.name || name.trim();
+      const finalPhone = updated?.phone || phone.trim();
+
+      updateCurrentUser({
+        name: finalName,
+        phone: finalPhone,
+        profile_image: finalAvatar || undefined,
+      });
+
+      showToast('Farmer profile updated successfully!', 'success');
+      onProfileUpdated({
+        ...currentProfile,
+        ...updated,
+        name: finalName,
+        phone: finalPhone,
+        farmName: updated?.farmName || farmName.trim(),
+        description: updated?.description !== undefined ? updated.description : description.trim(),
+        location: updated?.location || location.trim(),
+        city: updated?.city || city.trim(),
+        avatar: finalAvatar,
+      });
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update farmer profile.');
@@ -178,6 +206,35 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* Farmer Personal Name */}
+          <div>
+            <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+              Farmer Full Name (किसान का पूरा नाम) *
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500"
+              placeholder="e.g. Ramesh Singh"
+            />
+          </div>
+
+          {/* Contact Phone */}
+          <div>
+            <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+              Contact Phone (फ़ोन नंबर)
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500"
+              placeholder="+91 98765 43210"
+            />
+          </div>
 
           {/* Farm / Business Name */}
           <div>

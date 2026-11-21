@@ -73,8 +73,18 @@ export const CustomerProfileView: React.FC = () => {
     setIsLoadingProfile(true);
     try {
       const data = await ApiClient.getCustomerProfile();
-      if (data) setProfileData(data);
-    } catch {}
+      if (data) {
+        setProfileData(data);
+        try {
+          localStorage.setItem('halder-customer-profile-cache', JSON.stringify(data));
+        } catch {}
+      }
+    } catch {
+      try {
+        const cached = localStorage.getItem('halder-customer-profile-cache');
+        if (cached) setProfileData(JSON.parse(cached));
+      } catch {}
+    }
     setIsLoadingProfile(false);
   };
 

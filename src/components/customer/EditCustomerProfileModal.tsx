@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useApp } from '../../context/AppContext';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
 import { X, Camera, Loader2, Check, AlertCircle } from 'lucide-react';
@@ -18,6 +19,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
   onProfileUpdated,
   showToast,
 }) => {
+  const { updateCurrentUser } = useApp();
   const [name, setName] = useState(currentProfile?.name || '');
   const [phone, setPhone] = useState(currentProfile?.phone || '');
   const [bio, setBio] = useState(currentProfile?.bio || '');
@@ -76,8 +78,25 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
         bio: bio.trim(),
       });
 
+      const finalAvatar = avatarBase64 || updated?.avatar || avatarPreview;
+      const finalName = updated?.name || name.trim();
+      const finalPhone = updated?.phone || phone.trim();
+
+      updateCurrentUser({
+        name: finalName,
+        phone: finalPhone,
+        profile_image: finalAvatar || undefined,
+      });
+
       showToast('Profile updated successfully!', 'success');
-      onProfileUpdated(updated);
+      onProfileUpdated({
+        ...currentProfile,
+        ...updated,
+        name: finalName,
+        phone: finalPhone,
+        bio: updated?.bio !== undefined ? updated.bio : bio.trim(),
+        avatar: finalAvatar,
+      });
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update profile. Please try again.');

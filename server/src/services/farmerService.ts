@@ -347,10 +347,23 @@ export class FarmerService {
     );
     if (!user) throw AppError.notFound('Farmer user not found');
 
-    const profile = Database.get<any>(
+    let profile = Database.get<any>(
       'SELECT * FROM farmer_profiles WHERE user_id = ?',
       [farmerUserId]
     );
+    if (!profile) {
+      const fProfId = `farmer-${uuidv4()}`;
+      const now = new Date().toISOString();
+      Database.run(
+        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+         VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', 'pending', 5.0, 0, ?, ?)`,
+        [fProfId, farmerUserId, user.name ? `${user.name}'s Organic Farm` : 'Organic Farm', now, now]
+      );
+      profile = Database.get<any>(
+        'SELECT * FROM farmer_profiles WHERE user_id = ?',
+        [farmerUserId]
+      );
+    }
     if (!profile) throw AppError.notFound('Farmer profile not found');
 
     return {
@@ -452,6 +465,8 @@ export class FarmerService {
   }
 
   static updateFarmerProfile(farmerUserId: string, input: {
+    name?: string;
+    phone?: string;
     farmName?: string;
     description?: string;
     location?: string;
@@ -461,39 +476,77 @@ export class FarmerService {
     waterSource?: string;
     experienceYears?: number;
   }) {
-    const profile = Database.get<any>(
+    let profile = Database.get<any>(
       'SELECT id FROM farmer_profiles WHERE user_id = ?',
       [farmerUserId]
     );
-    if (!profile) throw AppError.notFound('Farmer profile not found');
-
     const now = new Date().toISOString();
 
-    Database.run(
-      `UPDATE farmer_profiles SET
-        farm_name = COALESCE(?, farm_name),
-        description = COALESCE(?, description),
-        location = COALESCE(?, location),
-        city = COALESCE(?, city),
-        specialty_crops = COALESCE(?, specialty_crops),
-        farm_size_acres = COALESCE(?, farm_size_acres),
-        water_source = COALESCE(?, water_source),
-        experience_years = COALESCE(?, experience_years),
-        updated_at = ?
-       WHERE user_id = ?`,
-      [
-        input.farmName !== undefined ? sanitizeText(input.farmName.trim()) : null,
-        input.description !== undefined ? sanitizeText(input.description.trim()) : null,
-        input.location !== undefined ? sanitizeText(input.location.trim()) : null,
-        input.city !== undefined ? sanitizeText(input.city.trim()) : null,
-        input.specialtyCrops !== undefined ? JSON.stringify(input.specialtyCrops) : null,
-        input.farmSizeAcres !== undefined ? Number(input.farmSizeAcres) : null,
-        input.waterSource !== undefined ? sanitizeText(input.waterSource.trim()) : null,
-        input.experienceYears !== undefined ? Number(input.experienceYears) : null,
-        now,
-        farmerUserId,
-      ]
-    );
+    if (!profile) {
+      const fProfId = `farmer-${uuidv4()}`;
+      const user = Database.get<any>('SELECT name FROM users WHERE id = ?', [farmerUserId]);
+      Database.run(
+        `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, created_at, updated_at)
+         VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', 'pending', 5.0, 0, ?, ?)`,
+        [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : 'Organic Farm', now, now]
+      );
+      profile = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [farmerUserId]);
+    }
+
+    Database.transaction(() => {
+      // 1. Update personal name and phone in users table
+      if (input.name !== undefined || input.phone !== undefined) {
+        if (input.phone && input.phone.trim()) {
+          const phoneConflict = Database.get<any>(
+            'SELECT id FROM users WHERE phone = ? AND id != ?',
+            [input.phone.trim(), farmerUserId]
+          );
+          if (phoneConflict) {
+            throw AppError.badRequest('This phone number is already registered with another HALDER account.');
+          }
+        }
+        Database.run(
+          `UPDATE users SET
+            name = COALESCE(?, name),
+            phone = COALESCE(?, phone),
+            updated_at = ?
+           WHERE id = ?`,
+          [
+            input.name !== undefined ? sanitizeText(input.name.trim()) : null,
+            input.phone !== undefined ? sanitizeText(input.phone.trim()) : null,
+            now,
+            farmerUserId,
+          ]
+        );
+      }
+
+      // 2. Update farm details in farmer_profiles table
+      Database.run(
+        `UPDATE farmer_profiles SET
+          farm_name = COALESCE(?, farm_name),
+          description = COALESCE(?, description),
+          location = COALESCE(?, location),
+          city = COALESCE(?, city),
+          specialty_crops = COALESCE(?, specialty_crops),
+          farm_size_acres = COALESCE(?, farm_size_acres),
+          water_source = COALESCE(?, water_source),
+          experience_years = COALESCE(?, experience_years),
+          updated_at = ?
+         WHERE user_id = ?`,
+        [
+          input.farmName !== undefined ? sanitizeText(input.farmName.trim()) : null,
+          input.description !== undefined ? sanitizeText(input.description.trim()) : null,
+          input.location !== undefined ? sanitizeText(input.location.trim()) : null,
+          input.city !== undefined ? sanitizeText(input.city.trim()) : null,
+          input.specialtyCrops !== undefined ? JSON.stringify(input.specialtyCrops) : null,
+          input.farmSizeAcres !== undefined ? Number(input.farmSizeAcres) : null,
+          input.waterSource !== undefined ? sanitizeText(input.waterSource.trim()) : null,
+          input.experienceYears !== undefined ? Number(input.experienceYears) : null,
+          now,
+          farmerUserId,
+        ]
+      );
+    });
 
     return this.getPrivateProfile(farmerUserId);
   }
@@ -521,10 +574,21 @@ export class FarmerService {
         'UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?',
         [base64Data, now, farmerUserId]
       );
-      Database.run(
-        'UPDATE farmer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
-        [base64Data, now, farmerUserId]
-      );
+      let fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [farmerUserId]);
+      if (!fp) {
+        const fProfId = `farmer-${uuidv4()}`;
+        const user = Database.get<any>('SELECT name FROM users WHERE id = ?', [farmerUserId]);
+        Database.run(
+          `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, avatar, verification_status, rating, total_orders, created_at, updated_at)
+           VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', ?, 'pending', 5.0, 0, ?, ?)`,
+          [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : 'Organic Farm', base64Data, now, now]
+        );
+      } else {
+        Database.run(
+          'UPDATE farmer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
+          [base64Data, now, farmerUserId]
+        );
+      }
     });
 
     return { success: true, avatar: base64Data };
