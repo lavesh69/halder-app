@@ -177,7 +177,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
       } else {
         const idToLogin = loginIdentifier.trim() || realEmail.trim();
         if (!idToLogin) {
-          showToast('Please enter your username or email', 'error');
+          showToast('Please enter your username, email, or mobile number', 'error');
           setIsSubmittingAuth(false);
           return;
         }
@@ -479,21 +479,33 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               )}
 
               {!isRegisterMode ? (
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                    Username or Email (यूज़रनेम या ईमेल) *
-                  </label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Username, Gmail / Email, or Mobile Number *
+                    </label>
+                    <span className="text-[10px] text-zinc-400">यूज़रनेम / ईमेल / मोबाइल</span>
+                  </div>
                   <div className="relative">
-                    <UserIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                    {loginIdentifier.includes('@') ? (
+                      <Mail className="w-4 h-4 text-emerald-600 absolute left-3 top-3 transition-colors" />
+                    ) : /^\+?\d[\d\s-]{4,}$/.test(loginIdentifier.trim()) ? (
+                      <Phone className="w-4 h-4 text-emerald-600 absolute left-3 top-3 transition-colors" />
+                    ) : (
+                      <UserIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3 transition-colors" />
+                    )}
                     <input
                       type="text"
                       required
                       value={loginIdentifier}
                       onChange={(e) => setLoginIdentifier(e.target.value)}
-                      placeholder="Enter username (e.g. admin or kisan_ramesh)"
+                      placeholder="Enter username, Gmail ID, or 10-digit mobile number"
                       className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
                     />
                   </div>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    💡 यूज़रनेम, रजिस्टर्ड Gmail या मोबाइल नंबर और पासवर्ड से लॉगिन करें
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-1">

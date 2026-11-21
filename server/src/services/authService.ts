@@ -144,20 +144,40 @@ export class AuthService {
   static async login(usernameOrEmail: string, password?: string, requestedRole?: 'customer' | 'farmer' | 'admin') {
     const rawInput = usernameOrEmail.trim();
     const cleanInput = rawInput.replace(/^@/, '').toLowerCase();
+    const digitsOnly = rawInput.replace(/\D/g, '');
+    const phone10 = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : '';
+    const phoneWithSpaces = phone10 ? `+91 ${phone10.slice(0, 5)} ${phone10.slice(5)}` : '';
+    const phonePlus91 = phone10 ? `+91${phone10}` : '';
+
     const user = Database.get<any>(
-      "SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR REPLACE(phone, ' ', '') = ?",
-      [cleanInput, cleanInput, rawInput, rawInput.replace(/\s+/g, '')]
+      `SELECT * FROM users 
+       WHERE LOWER(username) = ? 
+          OR LOWER(email) = ? 
+          OR phone = ? 
+          OR REPLACE(phone, ' ', '') = ?
+          OR (? != '' AND phone = ?)
+          OR (? != '' AND REPLACE(phone, ' ', '') = ?)
+          OR (? != '' AND (phone LIKE '%' || ? OR REPLACE(phone, ' ', '') LIKE '%' || ?))`,
+      [
+        cleanInput,
+        cleanInput,
+        rawInput,
+        rawInput.replace(/\s+/g, ''),
+        phoneWithSpaces, phoneWithSpaces,
+        phonePlus91, phonePlus91,
+        phone10, phone10, phone10,
+      ]
     );
 
     if (!user) {
       if (password) {
-        throw AppError.unauthorized('Invalid username, email, or password.', 'INVALID_CREDENTIALS');
+        throw AppError.unauthorized('Invalid username, email, phone number, or password.', 'INVALID_CREDENTIALS');
       }
       return AuthService.register({
         username: cleanInput.replace(/[^a-z0-9_.-]/g, '').slice(0, 25) || `user_${Date.now()}`,
         name: rawInput.includes('@') ? rawInput.split('@')[0] : `User ${rawInput.slice(-4)}`,
         email: rawInput.includes('@') ? rawInput.toLowerCase() : `user_${Date.now()}@halder.com`,
-        phone: rawInput.includes('@') ? `+91 ${Math.floor(1000000000 + Math.random() * 9000000000)}` : rawInput,
+        phone: phoneWithSpaces || (rawInput.includes('@') ? `+91 ${Math.floor(1000000000 + Math.random() * 9000000000)}` : rawInput),
         role: requestedRole === 'farmer' ? 'farmer' : 'customer',
       });
     }

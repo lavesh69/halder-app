@@ -106,7 +106,7 @@ export class ApiClient {
     const payload =
       typeof identifierOrData === 'object' && identifierOrData !== null
         ? identifierOrData
-        : { usernameOrEmail: identifierOrData, emailOrPhone: identifierOrData, password, role };
+        : { usernameOrEmail: identifierOrData, emailOrPhone: identifierOrData, phone: identifierOrData, identifier: identifierOrData, password, role };
     return this.request('/auth/login', {
       method: 'POST',
       body: payload,

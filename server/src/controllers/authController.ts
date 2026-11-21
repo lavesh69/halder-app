@@ -30,7 +30,7 @@ export class AuthController {
 
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const identifier = req.body.usernameOrEmail || req.body.username || req.body.emailOrPhone;
+      const identifier = req.body.usernameOrEmail || req.body.username || req.body.emailOrPhone || req.body.phone || req.body.identifier;
       const { password, role } = req.body;
       const result = await AuthService.login(identifier, password, role);
 

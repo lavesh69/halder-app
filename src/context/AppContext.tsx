@@ -969,10 +969,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
       .catch((e) => console.warn('[HALDER Auth] Server login fallback:', e.message));
 
+    const digitsOnly = emailOrPhone.replace(/\D/g, '');
+    const phone10 = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : '';
+
     const existing = users.find(
       (u) =>
         u.email.toLowerCase() === emailOrPhone.toLowerCase() ||
         u.phone === emailOrPhone ||
+        u.phone.replace(/\s+/g, '') === emailOrPhone.replace(/\s+/g, '') ||
+        (phone10 && u.phone.replace(/\D/g, '').endsWith(phone10)) ||
         (u.username && u.username.toLowerCase() === emailOrPhone.replace(/^@/, '').toLowerCase())
     );
     if (existing) {

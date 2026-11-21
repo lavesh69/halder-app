@@ -24,10 +24,12 @@ const loginSchema = z.object({
   usernameOrEmail: z.string().min(3).max(120).optional(),
   emailOrPhone: z.string().min(3).max(120).optional(),
   username: z.string().min(3).max(120).optional(),
+  phone: z.string().min(3).max(120).optional(),
+  identifier: z.string().min(3).max(120).optional(),
   password: z.string().max(128).optional(),
   role: z.enum(['customer', 'farmer', 'admin']).optional(),
-}).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username, {
-  message: 'Username or email is required',
+}).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username || data.phone || data.identifier, {
+  message: 'Username, email, or phone number is required',
 });
 
 const googleSchema = z.object({
