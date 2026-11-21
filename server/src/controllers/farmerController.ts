@@ -230,7 +230,13 @@ export class FarmerController {
         return res.status(403).json({ success: false, error: { message: "You are not authorized to modify another farmer's crops" } });
       }
 
-      const { crop_name, season, sowing_date, expected_harvest_date, estimated_yield_kg, farming_method, certifications } = req.body;
+      const crop_name = req.body.crop_name || req.body.cropName;
+      const season = req.body.season || 'Kharif';
+      const sowing_date = req.body.sowing_date || req.body.sowingDate;
+      const expected_harvest_date = req.body.expected_harvest_date || req.body.expectedHarvestDate;
+      const estimated_yield_kg = req.body.estimated_yield_kg || req.body.expectedYieldKg || 1000;
+      const farming_method = req.body.farming_method || req.body.farmingMethod || 'Organic Certified';
+      const certifications = req.body.certifications || req.body.notes || [];
 
       if (!crop_name || !season || !sowing_date || !expected_harvest_date) {
         return res.status(400).json({ success: false, error: { message: 'crop_name, season, sowing_date, and expected_harvest_date are required' } });

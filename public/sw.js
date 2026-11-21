@@ -1,5 +1,5 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v19-multi-identifier-login-username-gmail-phone';
+const CACHE_NAME = 'halder-cache-v20-master-e2e-verified';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.svg',

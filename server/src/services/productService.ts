@@ -604,31 +604,37 @@ export class ProductService {
     let changeAmount = 0;
     let changeType: 'restock' | 'sale' | 'adjustment' | 'sold_out' = 'adjustment';
 
-    if (data.action === 'increase') {
+    let action = data.action;
+    const rawTarget = data.newQuantity !== undefined ? data.newQuantity : (data as any).quantity;
+    if (!action && rawTarget !== undefined) {
+      action = 'set';
+    }
+
+    if (action === 'increase') {
       const amt = Number(data.amount) || 0;
       if (amt <= 0) throw AppError.badRequest('Increase amount must be greater than zero.');
       changeAmount = amt;
       finalQty = previousQty + amt;
       changeType = 'restock';
-    } else if (data.action === 'reduce') {
+    } else if (action === 'reduce') {
       const amt = Number(data.amount) || 0;
       if (amt <= 0) throw AppError.badRequest('Reduction amount must be greater than zero.');
       if (amt > previousQty) throw AppError.badRequest(`Cannot reduce more than remaining stock (${previousQty} ${product.unit}).`);
       changeAmount = -amt;
       finalQty = previousQty - amt;
       changeType = 'sale';
-    } else if (data.action === 'set') {
-      const target = Number(data.newQuantity);
+    } else if (action === 'set') {
+      const target = Number(rawTarget !== undefined ? rawTarget : data.newQuantity);
       if (isNaN(target) || target < 0) throw AppError.badRequest('Quantity cannot be negative.');
       changeAmount = target - previousQty;
       finalQty = target;
       changeType = changeAmount >= 0 ? 'restock' : 'adjustment';
-    } else if (data.action === 'mark_sold_out') {
+    } else if (action === 'mark_sold_out') {
       changeAmount = -previousQty;
       finalQty = 0;
       changeType = 'sold_out';
-    } else if (data.action === 'restore') {
-      const amt = Number(data.amount) || Number(data.newQuantity) || 10;
+    } else if (action === 'restore') {
+      const amt = Number(data.amount) || Number(rawTarget) || 10;
       if (amt <= 0) throw AppError.badRequest('Restoration amount must be greater than zero.');
       changeAmount = amt;
       finalQty = amt;

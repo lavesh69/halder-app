@@ -89701,31 +89701,36 @@ var ProductService = class _ProductService {
     let finalQty = previousQty;
     let changeAmount = 0;
     let changeType = "adjustment";
-    if (data.action === "increase") {
+    let action = data.action;
+    const rawTarget = data.newQuantity !== void 0 ? data.newQuantity : data.quantity;
+    if (!action && rawTarget !== void 0) {
+      action = "set";
+    }
+    if (action === "increase") {
       const amt = Number(data.amount) || 0;
       if (amt <= 0) throw AppError.badRequest("Increase amount must be greater than zero.");
       changeAmount = amt;
       finalQty = previousQty + amt;
       changeType = "restock";
-    } else if (data.action === "reduce") {
+    } else if (action === "reduce") {
       const amt = Number(data.amount) || 0;
       if (amt <= 0) throw AppError.badRequest("Reduction amount must be greater than zero.");
       if (amt > previousQty) throw AppError.badRequest(`Cannot reduce more than remaining stock (${previousQty} ${product.unit}).`);
       changeAmount = -amt;
       finalQty = previousQty - amt;
       changeType = "sale";
-    } else if (data.action === "set") {
-      const target = Number(data.newQuantity);
+    } else if (action === "set") {
+      const target = Number(rawTarget !== void 0 ? rawTarget : data.newQuantity);
       if (isNaN(target) || target < 0) throw AppError.badRequest("Quantity cannot be negative.");
       changeAmount = target - previousQty;
       finalQty = target;
       changeType = changeAmount >= 0 ? "restock" : "adjustment";
-    } else if (data.action === "mark_sold_out") {
+    } else if (action === "mark_sold_out") {
       changeAmount = -previousQty;
       finalQty = 0;
       changeType = "sold_out";
-    } else if (data.action === "restore") {
-      const amt = Number(data.amount) || Number(data.newQuantity) || 10;
+    } else if (action === "restore") {
+      const amt = Number(data.amount) || Number(rawTarget) || 10;
       if (amt <= 0) throw AppError.badRequest("Restoration amount must be greater than zero.");
       changeAmount = amt;
       finalQty = amt;
@@ -91445,7 +91450,13 @@ var FarmerController = class {
       if (req.user.role !== "admin" && farmer.user_id !== req.user.id) {
         return res.status(403).json({ success: false, error: { message: "You are not authorized to modify another farmer's crops" } });
       }
-      const { crop_name, season, sowing_date, expected_harvest_date, estimated_yield_kg, farming_method, certifications } = req.body;
+      const crop_name = req.body.crop_name || req.body.cropName;
+      const season = req.body.season || "Kharif";
+      const sowing_date = req.body.sowing_date || req.body.sowingDate;
+      const expected_harvest_date = req.body.expected_harvest_date || req.body.expectedHarvestDate;
+      const estimated_yield_kg = req.body.estimated_yield_kg || req.body.expectedYieldKg || 1e3;
+      const farming_method = req.body.farming_method || req.body.farmingMethod || "Organic Certified";
+      const certifications = req.body.certifications || req.body.notes || [];
       if (!crop_name || !season || !sowing_date || !expected_harvest_date) {
         return res.status(400).json({ success: false, error: { message: "crop_name, season, sowing_date, and expected_harvest_date are required" } });
       }
