@@ -36,6 +36,13 @@ export const CustomerChatsView: React.FC = () => {
   useEffect(() => {
     setIsLoading(true);
     refreshChatConversations().finally(() => setIsLoading(false));
+
+    // Auto-poll conversations every 3.5 seconds so incoming messages show in real time
+    const pollInterval = setInterval(() => {
+      refreshChatConversations();
+    }, 3500);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const effectiveConversations = chatConversations;

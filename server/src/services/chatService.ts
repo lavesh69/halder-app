@@ -35,39 +35,68 @@ export class ChatService {
   /**
    * Get or create a conversation between a customer and farmer.
    */
-  static getOrCreateConversation(customerId: string, farmerId: string, productId?: string) {
-    if (!customerId || !farmerId) {
+  static getOrCreateConversation(customerIdOrInitiator: string, farmerIdOrTarget: string, productId?: string) {
+    if (!customerIdOrInitiator || !farmerIdOrTarget) {
       throw AppError.badRequest('Both customerId and farmerId are required to initialize a conversation.');
     }
 
-    // Verify customer exists
-    const customer = Database.get<any>('SELECT id, name FROM users WHERE id = ?', [customerId]);
-    if (!customer) {
-      throw AppError.notFound('Customer user not found.');
+    // Resolve initiator user
+    const initiatorUser = Database.get<any>('SELECT id, name, role FROM users WHERE id = ?', [customerIdOrInitiator]);
+    if (!initiatorUser) {
+      throw AppError.notFound('Initiator user not found.');
     }
 
-    // Verify farmer profile exists
-    const farmer = Database.get<any>('SELECT id, farm_name FROM farmer_profiles WHERE id = ?', [farmerId]);
-    if (!farmer) {
-      throw AppError.notFound('Farmer profile not found.');
+    // Resolve target farmer profile / user
+    let targetFp = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [farmerIdOrTarget]);
+    if (!targetFp) {
+      targetFp = Database.get<any>('SELECT * FROM farmer_profiles WHERE user_id = ?', [farmerIdOrTarget]);
     }
 
+    // If target has no farmer profile yet, check if they exist in users table
+    if (!targetFp) {
+      const targetUser = Database.get<any>('SELECT id, name, role FROM users WHERE id = ?', [farmerIdOrTarget]);
+      if (targetUser) {
+        const newFpId = `farmer-${targetUser.id.replace('user-', '')}`;
+        const now = new Date().toISOString();
+        Database.run(
+          `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at)
+           VALUES (?, ?, ?, 'Direct seller on HALDER', 'Dehradun', 'Dehradun', 'verified', 5.0, ?, ?)`,
+          [newFpId, targetUser.id, targetUser.name ? `${targetUser.name}'s Produce` : 'Direct Producer', now, now]
+        );
+        targetFp = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [newFpId]);
+      }
+    }
+
+    if (!targetFp) {
+      throw AppError.notFound('Target seller or farmer profile not found.');
+    }
+
+    if (initiatorUser.id === targetFp.user_id) {
+      throw AppError.badRequest('You cannot start a conversation with yourself.');
+    }
+
+    // Check if conversation already exists in either direction
     let conv = Database.get<any>(
-      'SELECT * FROM conversations WHERE customer_id = ? AND farmer_id = ?',
-      [customerId, farmerId]
+      `SELECT * FROM conversations 
+       WHERE (customer_id = ? AND farmer_id = ?)
+          OR (customer_id = ? AND farmer_id IN (SELECT id FROM farmer_profiles WHERE user_id = ?))`,
+      [initiatorUser.id, targetFp.id, targetFp.user_id, initiatorUser.id]
     );
 
+    const now = new Date().toISOString();
     if (!conv) {
       const convId = `conv-${uuidv4()}`;
-      const now = new Date().toISOString();
       Database.run(
         'INSERT INTO conversations (id, customer_id, farmer_id, product_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-        [convId, customerId, farmerId, productId || null, now, now]
+        [convId, initiatorUser.id, targetFp.id, productId || null, now, now]
       );
       conv = Database.get<any>('SELECT * FROM conversations WHERE id = ?', [convId]);
-    } else if (productId && !conv.product_id) {
-      Database.run('UPDATE conversations SET product_id = ? WHERE id = ?', [productId, conv.id]);
-      conv.product_id = productId;
+    } else {
+      Database.run('UPDATE conversations SET updated_at = ? WHERE id = ?', [now, conv.id]);
+      if (productId && !conv.product_id) {
+        Database.run('UPDATE conversations SET product_id = ? WHERE id = ?', [productId, conv.id]);
+        conv.product_id = productId;
+      }
     }
 
     return {
@@ -100,16 +129,15 @@ export class ChatService {
    * Get all conversations for a specific authenticated user.
    */
   static getUserConversations(userId: string, role: string, farmerProfileId?: string) {
-    // If user is a farmer, resolve their farmer profile if not provided
     let actualFarmerProfileId = farmerProfileId;
-    if (role === 'farmer' && !actualFarmerProfileId) {
+    if (!actualFarmerProfileId) {
       const fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [userId]);
       actualFarmerProfileId = fp?.id;
     }
 
     let rows: any[] = [];
 
-    if (role === 'farmer' && actualFarmerProfileId) {
+    if (role === 'admin') {
       rows = Database.query<any>(
         `SELECT 
           c.id,
@@ -118,51 +146,34 @@ export class ChatService {
           c.product_id,
           c.created_at,
           c.updated_at,
-          u.id AS other_user_id,
-          u.name AS other_name,
-          u.phone AS other_phone,
-          u.email AS other_email,
-          u.profile_image AS other_avatar,
-          u.halder_id AS other_halder_id,
-          'customer' AS other_role,
+          cu.id AS cust_user_id,
+          cu.name AS cust_name,
+          cu.phone AS cust_phone,
+          cu.email AS cust_email,
+          cu.profile_image AS cust_avatar,
+          cu.halder_id AS cust_halder_id,
+          fp.id AS farm_profile_id,
+          fp.user_id AS farm_user_id,
+          fp.farm_name AS farm_name,
+          fp.avatar AS farm_avatar,
+          fp.city AS farm_city,
+          fp.verification_status AS farm_verification_status,
+          fu.name AS farm_owner_name,
+          fu.phone AS farm_phone,
+          fu.email AS farm_email,
+          fu.halder_id AS farm_halder_id,
           p.name AS product_name,
           p.image AS product_image,
           p.price AS product_price,
           p.unit AS product_unit
         FROM conversations c
-        JOIN users u ON c.customer_id = u.id
-        LEFT JOIN products p ON c.product_id = p.id
-        WHERE c.farmer_id = ?
-        ORDER BY c.updated_at DESC`,
-        [actualFarmerProfileId]
-      );
-    } else if (role === 'admin') {
-      rows = Database.query<any>(
-        `SELECT 
-          c.id,
-          c.customer_id,
-          c.farmer_id,
-          c.product_id,
-          c.created_at,
-          c.updated_at,
-          u.id AS cust_user_id,
-          u.name AS cust_name,
-          u.phone AS cust_phone,
-          u.email AS cust_email,
-          fu.name AS farmer_name,
-          fp.farm_name AS farm_name,
-          fp.avatar AS farm_avatar,
-          p.name AS product_name,
-          p.image AS product_image
-        FROM conversations c
-        JOIN users u ON c.customer_id = u.id
-        JOIN farmer_profiles fp ON c.farmer_id = fp.id
-        JOIN users fu ON fp.user_id = fu.id
+        LEFT JOIN users cu ON c.customer_id = cu.id
+        LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+        LEFT JOIN users fu ON fp.user_id = fu.id
         LEFT JOIN products p ON c.product_id = p.id
         ORDER BY c.updated_at DESC`
       );
     } else {
-      // Default: Customer perspective
       rows = Database.query<any>(
         `SELECT 
           c.id,
@@ -171,33 +182,41 @@ export class ChatService {
           c.product_id,
           c.created_at,
           c.updated_at,
-          fp.id AS other_farmer_id,
-          fu.id AS other_user_id,
-          fu.name AS other_name,
-          fp.farm_name AS other_farm_name,
-          fp.avatar AS other_avatar,
-          fp.city AS other_city,
-          fu.phone AS other_phone,
-          fu.email AS other_email,
-          fu.halder_id AS other_halder_id,
-          fp.verification_status AS other_verification_status,
-          'farmer' AS other_role,
+          cu.id AS cust_user_id,
+          cu.name AS cust_name,
+          cu.phone AS cust_phone,
+          cu.email AS cust_email,
+          cu.profile_image AS cust_avatar,
+          cu.halder_id AS cust_halder_id,
+          fp.id AS farm_profile_id,
+          fp.user_id AS farm_user_id,
+          fp.farm_name AS farm_name,
+          fp.avatar AS farm_avatar,
+          fp.city AS farm_city,
+          fp.verification_status AS farm_verification_status,
+          fu.name AS farm_owner_name,
+          fu.phone AS farm_phone,
+          fu.email AS farm_email,
+          fu.halder_id AS farm_halder_id,
           p.name AS product_name,
           p.image AS product_image,
           p.price AS product_price,
           p.unit AS product_unit
         FROM conversations c
-        JOIN farmer_profiles fp ON c.farmer_id = fp.id
-        JOIN users fu ON fp.user_id = fu.id
+        LEFT JOIN users cu ON c.customer_id = cu.id
+        LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+        LEFT JOIN users fu ON fp.user_id = fu.id
         LEFT JOIN products p ON c.product_id = p.id
-        WHERE c.customer_id = ?
+        WHERE c.customer_id = ? OR fp.user_id = ? OR c.farmer_id = ?
         ORDER BY c.updated_at DESC`,
-        [userId]
+        [userId, userId, actualFarmerProfileId || '']
       );
     }
 
     return rows.map((row) => {
-      // Get the last message
+      const isBuyer = row.cust_user_id === userId;
+      const convType = isBuyer ? 'buying' : 'selling';
+
       const lastMsgRaw = Database.get<any>(
         'SELECT id, conversation_id, sender_id, sender_role, message, read_at, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT 1',
         [row.id]
@@ -220,26 +239,37 @@ export class ChatService {
           }
         : null;
 
-      // Count unread messages sent by the other party
       const unreadCountRow = Database.get<{ count: number }>(
         'SELECT COUNT(*) as count FROM messages WHERE conversation_id = ? AND sender_id != ? AND read_at IS NULL',
         [row.id, userId]
       );
-
       const unreadCount = unreadCountRow ? unreadCountRow.count : 0;
 
-      const otherParty: ConversationParticipant = {
-        id: row.other_user_id || row.cust_user_id || row.farmer_id,
-        name: row.other_name || row.cust_name || row.farmer_name || 'User',
-        phone: row.other_phone || row.cust_phone,
-        email: row.other_email || row.cust_email,
-        avatar: row.other_avatar || row.farm_avatar || '',
-        farmName: row.other_farm_name || row.farm_name,
-        city: row.other_city,
-        halderId: row.other_halder_id,
-        role: row.other_role || 'customer',
-        verificationStatus: row.other_verification_status,
-      };
+      const otherParty: ConversationParticipant = isBuyer
+        ? {
+            id: row.farm_user_id || row.farmer_id,
+            name: row.farm_owner_name || row.farm_name || 'Farmer',
+            phone: row.farm_phone,
+            email: row.farm_email,
+            avatar: row.farm_avatar || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
+            farmName: row.farm_name || 'Direct Farm Harvest',
+            city: row.farm_city || 'Dehradun',
+            halderId: row.farm_halder_id,
+            role: 'farmer',
+            verificationStatus: row.farm_verification_status || 'verified',
+          }
+        : {
+            id: row.cust_user_id || row.customer_id,
+            name: row.cust_name || 'Customer',
+            phone: row.cust_phone,
+            email: row.cust_email,
+            avatar: row.cust_avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200',
+            farmName: 'Direct Buyer',
+            city: 'Dehradun',
+            halderId: row.cust_halder_id,
+            role: 'customer',
+            verificationStatus: 'verified',
+          };
 
       const product = row.product_name
         ? {
@@ -259,6 +289,7 @@ export class ChatService {
         farmerId: row.farmer_id,
         product_id: row.product_id,
         productId: row.product_id,
+        type: convType,
         created_at: row.created_at,
         createdAt: row.created_at,
         updated_at: row.updated_at,

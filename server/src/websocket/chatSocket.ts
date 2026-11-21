@@ -163,11 +163,8 @@ export class ChatSocketService {
         return false;
       }
 
-      let farmerProfileId: string | undefined;
-      if (user.role === 'farmer') {
-        const fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [user.id]);
-        farmerProfileId = fp?.id;
-      }
+      const fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [user.id]);
+      const farmerProfileId = fp?.id;
 
       ws.user = {
         id: user.id,
@@ -404,9 +401,13 @@ export class ChatSocketService {
     if (!conv) return false;
 
     const isCustomer = conv.customer_id === user.id;
-    const isFarmer = user.farmerProfileId && conv.farmer_id === user.farmerProfileId;
+    const isFarmerDirect = user.farmerProfileId && conv.farmer_id === user.farmerProfileId;
+    const isFarmerLinked = Database.get<any>(
+      'SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?',
+      [conv.farmer_id, user.id]
+    ) != null;
 
-    return !!(isCustomer || isFarmer);
+    return !!(isCustomer || isFarmerDirect || isFarmerLinked);
   }
 
   /**

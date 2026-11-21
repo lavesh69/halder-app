@@ -1497,6 +1497,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Periodic background check for new incoming messages across the entire app
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    refreshChatConversations();
+    const interval = setInterval(() => {
+      refreshChatConversations();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
+
   const openFarmerChat = (farmer: Farmer, initialMsg?: string, productId?: string) => {
     setChatFarmer(farmer);
     setActiveConversationProductId(productId || null);

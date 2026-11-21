@@ -1,6 +1,8 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { ChatService } from '../services/chatService';
 import { ChatSocketService } from '../websocket/chatSocket';
+import { Database } from '../db/database';
+import { NotificationService } from '../services/notificationService';
 
 export class ChatController {
   /**
@@ -9,16 +11,24 @@ export class ChatController {
    */
   static async getOrCreate(req: Request, res: Response, next: NextFunction) {
     try {
-      let customerId = req.body.customerId;
-      let farmerId = req.body.farmerId;
+      const currentUserId = req.user!.id;
+      const targetPartyId = req.body.farmerId || req.body.customerId || req.body.userId || req.body.partnerId;
 
-      if (req.user!.role === 'customer') {
-        customerId = req.user!.id;
-      } else if (req.user!.role === 'farmer') {
-        farmerId = req.user!.farmerProfileId!;
+      if (!targetPartyId) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Target participant (farmerId or customerId) is required.' },
+        });
       }
 
-      const conv = ChatService.getOrCreateConversation(customerId, farmerId, req.body.productId);
+      if (targetPartyId === currentUserId || (req.user!.farmerProfileId && targetPartyId === req.user!.farmerProfileId)) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'You cannot start a conversation with yourself.' },
+        });
+      }
+
+      const conv = ChatService.getOrCreateConversation(currentUserId, targetPartyId, req.body.productId);
       res.json({
         success: true,
         data: conv,
@@ -83,6 +93,27 @@ export class ChatController {
 
       // Broadcast live to all connected WebSocket clients in the conversation room
       ChatSocketService.broadcastToConversation(req.params.id, 'chat:message', msg);
+
+      // Notify the recipient in-app and via push notification
+      try {
+        const conv = Database.get<any>('SELECT customer_id, farmer_id FROM conversations WHERE id = ?', [req.params.id]);
+        if (conv) {
+          const fp = Database.get<any>('SELECT user_id FROM farmer_profiles WHERE id = ?', [conv.farmer_id]);
+          const recipientUserId = req.user!.id === conv.customer_id ? fp?.user_id : conv.customer_id;
+          if (recipientUserId && recipientUserId !== req.user!.id) {
+            const recipientUser = Database.get<any>('SELECT role FROM users WHERE id = ?', [recipientUserId]);
+            NotificationService.createAndPush({
+              userId: recipientUserId,
+              recipientRole: recipientUser?.role || 'customer',
+              type: 'chat',
+              title: `New message from ${req.user!.name}`,
+              message: req.body.message.slice(0, 120),
+            });
+          }
+        }
+      } catch (notifErr: any) {
+        console.warn('[Chat] Notification dispatch warning:', notifErr.message);
+      }
 
       res.status(201).json({
         success: true,

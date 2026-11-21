@@ -671,7 +671,7 @@ export function useChatSocket({
     if (isConnected) return;
 
     let isPollingActive = true;
-    const pollTimer = setInterval(async () => {
+    const fetchLatest = async () => {
       if (!isPollingActive || !isMountedRef.current) return;
       if (!ApiClient.hasToken()) return;
       try {
@@ -692,7 +692,10 @@ export function useChatSocket({
       } catch {
         // Silent catch during periodic background polling
       }
-    }, 3500);
+    };
+
+    fetchLatest();
+    const pollTimer = setInterval(fetchLatest, 2000);
 
     return () => {
       isPollingActive = false;

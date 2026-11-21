@@ -141,15 +141,13 @@ export const MarketplaceChatModal: React.FC = () => {
   };
 
   const isSenderMe = (msg: ChatWsMessage) => {
-    if (currentUser?.id) {
-      if (msg.sender_id === currentUser.id || msg.senderId === currentUser.id) {
-        return true;
-      }
+    if (currentUser?.id && (msg.sender_id || msg.senderId)) {
+      return (msg.sender_id || msg.senderId) === currentUser.id;
     }
     if (role === 'farmer') {
       return msg.sender_role === 'farmer' || msg.senderRole === 'farmer';
     }
-    return msg.sender_role === 'user' || msg.senderRole === 'user' || (msg as any).sender === 'user';
+    return msg.sender_role === 'user' || msg.senderRole === 'user';
   };
 
   return (

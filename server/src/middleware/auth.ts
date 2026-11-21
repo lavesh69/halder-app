@@ -51,14 +51,11 @@ export function authenticateUser(req: Request, res: Response, next: NextFunction
       return next(AppError.forbidden('Your account has been suspended. Please contact administrator.', 'ACCOUNT_SUSPENDED'));
     }
 
-    let farmerProfileId: string | undefined;
-    if (user.role === 'farmer') {
-      const farmerProfile = Database.get<any>(
-        'SELECT id FROM farmer_profiles WHERE user_id = ?',
-        [user.id]
-      );
-      farmerProfileId = farmerProfile?.id;
-    }
+    const farmerProfile = Database.get<any>(
+      'SELECT id FROM farmer_profiles WHERE user_id = ?',
+      [user.id]
+    );
+    const farmerProfileId = farmerProfile?.id;
 
     req.user = {
       id: user.id,

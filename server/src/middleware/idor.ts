@@ -67,8 +67,14 @@ export function verifyConversationAccess(req: Request, res: Response, next: Next
     return next(AppError.notFound('Conversation not found'));
   }
 
-  const isParticipant = conv.customer_id === user.id || conv.farmer_id === user.farmerProfileId;
-  if (!isParticipant) {
+  const isBuyer = conv.customer_id === user.id;
+  const isFarmerDirect = user.farmerProfileId && conv.farmer_id === user.farmerProfileId;
+  const isFarmerLinked = Database.get<any>(
+    'SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?',
+    [conv.farmer_id, user.id]
+  ) != null;
+
+  if (!isBuyer && !isFarmerDirect && !isFarmerLinked) {
     return next(AppError.forbidden('You are not a participant in this conversation.'));
   }
 
