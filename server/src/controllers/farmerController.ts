@@ -138,7 +138,8 @@ export class FarmerController {
         });
       }
 
-      const result = KycService.submitKYC(farmerId, req.body);
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const result = await KycService.submitKYC(farmerId, req.body, baseUrl);
       res.status(201).json({
         success: true,
         data: result,
@@ -198,7 +199,8 @@ export class FarmerController {
   static async updateAvatar(req: Request, res: Response, next: NextFunction) {
     try {
       const { avatar } = req.body;
-      const result = FarmerService.updateFarmerAvatar(req.user!.id, avatar);
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const result = await FarmerService.updateFarmerAvatar(req.user!.id, avatar, baseUrl);
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);

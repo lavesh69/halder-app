@@ -32,6 +32,22 @@ router.patch('/farmers/:id/kyc', AdminController.reviewKYC);
 router.post('/categories', validateBody(categorySchema), AdminController.addCategory);
 router.get('/audit-logs', AdminController.listAuditLogs);
 
+// Real-Time Cloud Persistence & Sync Status
+router.get('/sync-status', async (req, res, next) => {
+  try {
+    const status = getSupabaseStatus();
+    res.json({
+      success: true,
+      data: {
+        ...status,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Live Backend Database Inspector (reads fresh rows from Supabase/SQLite; strips sensitive hashes)
 router.get('/db-snapshot', async (req, res, next) => {
   try {

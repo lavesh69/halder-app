@@ -92,23 +92,45 @@ export function extractTouchedTable(sql: string): string | null {
   return SYNCED_TABLE_SET.has(tbl) ? tbl : null;
 }
 
-async function callSupabaseRpc<T>(fnName: string, body: Record<string, unknown>): Promise<T> {
+async function callSupabaseRpc<T>(fnName: string, body: Record<string, unknown>, maxRetries = 3): Promise<T> {
   const { url, anonKey } = getConfig();
-  const res = await fetch(`${url}/rest/v1/rpc/${fnName}`, {
-    method: 'POST',
-    headers: {
-      apikey: anonKey,
-      Authorization: `Bearer ${anonKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
+  let attempt = 0;
+  let lastError: any = null;
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`Supabase RPC ${fnName} failed (${res.status}): ${text}`);
+  while (attempt < maxRetries) {
+    attempt++;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const res = await fetch(`${url}/rest/v1/rpc/${fnName}`, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Supabase RPC ${fnName} failed (${res.status}): ${text}`);
+      }
+      return (await res.json()) as T;
+    } catch (err: any) {
+      lastError = err;
+      if (attempt < maxRetries) {
+        const backoffMs = attempt * 350;
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
   }
-  return (await res.json()) as T;
+
+  throw lastError;
 }
 
 export function beginSupabaseTx(): void {
@@ -407,29 +429,41 @@ export async function initSupabaseCloud(
   return initPromise;
 }
 
+let syncPromise: Promise<void> | null = null;
+
 export async function syncFromSupabaseIfNeeded(localDb: DatabaseSync, forceCheck = false): Promise<void> {
   if (!isSupabaseEnabled() || !isSupabaseReady) return;
   const now = Date.now();
   if (!forceCheck && now - lastVersionCheckAt < VERSION_CHECK_TTL_MS) return;
 
-  try {
-    const { syncSecret } = getConfig();
-    const snapshot = await callSupabaseRpc<{
-      up_to_date: boolean;
-      version: number;
-      tables?: Record<string, any[]>;
-    }>('halder_pull_snapshot', {
-      p_secret: syncSecret,
-      p_client_version: localSyncedVersion,
-    });
-
-    lastVersionCheckAt = Date.now();
-    if (!snapshot.up_to_date && snapshot.tables) {
-      hydrateLocalSqlite(localDb, snapshot.tables, Number(snapshot.version || 1));
-    }
-  } catch (err: any) {
-    console.warn('[Supabase] Pre-request sync warning:', err?.message || err);
+  if (syncPromise) {
+    return syncPromise;
   }
+
+  syncPromise = (async () => {
+    try {
+      const { syncSecret } = getConfig();
+      const snapshot = await callSupabaseRpc<{
+        up_to_date: boolean;
+        version: number;
+        tables?: Record<string, any[]>;
+      }>('halder_pull_snapshot', {
+        p_secret: syncSecret,
+        p_client_version: localSyncedVersion,
+      });
+
+      lastVersionCheckAt = Date.now();
+      if (!snapshot.up_to_date && snapshot.tables) {
+        hydrateLocalSqlite(localDb, snapshot.tables, Number(snapshot.version || 1));
+      }
+    } catch (err: any) {
+      console.warn('[Supabase] Pre-request sync warning:', err?.message || err);
+    } finally {
+      syncPromise = null;
+    }
+  })();
+
+  return syncPromise;
 }
 
 export function createSupabaseMiddleware(getLocalDb: () => DatabaseSync) {

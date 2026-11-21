@@ -125,10 +125,11 @@ export class ProductController {
         user.farmerProfileId = farmerId;
       }
 
-      const product = ProductService.create({
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const product = await ProductService.create({
         ...req.body,
         farmerId,
-      });
+      }, baseUrl);
 
       res.status(201).json({
         success: true,
@@ -141,7 +142,8 @@ export class ProductController {
 
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = ProductService.update(req.params.id, req.body);
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const product = await ProductService.update(req.params.id, req.body, baseUrl);
       res.json({
         success: true,
         data: product,

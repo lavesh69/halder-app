@@ -97,15 +97,27 @@ app.use(cookieParser());
 app.use('/api', apiLimiter);
 
 // Serve static uploads with nosniff and isolated CSP
+const activeUploadDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : env.UPLOAD_DIR;
 app.use(
   '/uploads',
-  express.static(env.UPLOAD_DIR, {
+  express.static(activeUploadDir, {
     setHeaders: (res) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Content-Security-Policy', "default-src 'none'");
     },
   })
 );
+if (process.env.VERCEL) {
+  app.use(
+    '/uploads',
+    express.static(env.UPLOAD_DIR, {
+      setHeaders: (res) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Content-Security-Policy', "default-src 'none'");
+      },
+    })
+  );
+}
 
 // Root Health
 app.get('/health', (req, res) => {

@@ -3,6 +3,7 @@ import { AppError } from '../utils/errors';
 import { sanitizeText } from '../utils/sanitize';
 import { logAuditEvent } from '../middleware/audit';
 import { v4 as uuidv4 } from 'uuid';
+import { StorageService } from './storageService';
 
 export interface CustomerProfileUpdateInput {
   name?: string;
@@ -209,7 +210,7 @@ export class CustomerProfileService {
     return this.getProfile(customerId);
   }
 
-  static updateAvatar(customerId: string, base64Data: string) {
+  static async updateAvatar(customerId: string, base64Data: string, baseUrl?: string) {
     if (!base64Data || typeof base64Data !== 'string') {
       throw AppError.badRequest('Avatar image data is required');
     }
@@ -219,38 +220,42 @@ export class CustomerProfileService {
       throw AppError.badRequest('Avatar image size exceeds the 5MB maximum limit.');
     }
 
-    // Validate format (Data URL or HTTP URL)
+    // Validate format (Data URL, HTTP URL, or local path)
     const isDataUrl = base64Data.startsWith('data:image/');
     const isHttpUrl = base64Data.startsWith('http://') || base64Data.startsWith('https://');
+    const isUploadPath = base64Data.startsWith('/uploads/');
 
-    if (!isDataUrl && !isHttpUrl) {
+    if (!isDataUrl && !isHttpUrl && !isUploadPath) {
       throw AppError.badRequest('Invalid image format. Supported formats: JPEG, PNG, WebP.');
     }
+
+    // Automatically optimize base64 images into persistent CDN/storage URLs
+    const processedAvatar = await StorageService.processImagePayload(base64Data, 'avatars', baseUrl);
 
     const now = new Date().toISOString();
 
     Database.transaction(() => {
       Database.run(
         'UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?',
-        [base64Data, now, customerId]
+        [processedAvatar, now, customerId]
       );
       let cp = Database.get<any>('SELECT id FROM customer_profiles WHERE user_id = ?', [customerId]);
       if (!cp) {
         Database.run(
           `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
            VALUES (?, ?, '', ?, ?, ?)`,
-          [`cust-prof-${uuidv4()}`, customerId, base64Data, now, now]
+          [`cust-prof-${uuidv4()}`, customerId, processedAvatar, now, now]
         );
       } else {
         Database.run(
           'UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
-          [base64Data, now, customerId]
+          [processedAvatar, now, customerId]
         );
       }
     });
 
     logAuditEvent(customerId, 'customer', 'CUSTOMER_AVATAR_UPDATED', 'users', customerId);
-    return { success: true, avatar: base64Data };
+    return { success: true, avatar: processedAvatar };
   }
 
   static removeAvatar(customerId: string) {

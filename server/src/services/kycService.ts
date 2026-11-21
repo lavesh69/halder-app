@@ -3,15 +3,20 @@ import { AppError } from '../utils/errors';
 import { sanitizeText } from '../utils/sanitize';
 import { NotificationService } from './notificationService';
 import { logAuditEvent } from '../middleware/audit';
+import { StorageService } from './storageService';
 
 export type KycDocumentType = 'aadhaar' | 'kisan_credit_card' | 'land_record' | 'farmer_id';
 
 export class KycService {
-  static submitKYC(farmerId: string, data: {
-    documentType: string;
-    documentNumber: string;
-    documentUrl: string;
-  }) {
+  static async submitKYC(
+    farmerId: string,
+    data: {
+      documentType: string;
+      documentNumber: string;
+      documentUrl: string;
+    },
+    baseUrl?: string
+  ) {
     const existing = Database.get<any>('SELECT id, user_id, verification_status FROM farmer_profiles WHERE id = ?', [farmerId]);
     if (!existing) {
       throw AppError.notFound('Farmer profile not found');
@@ -29,9 +34,9 @@ export class KycService {
       throw AppError.badRequest('Document proof image/URL is required');
     }
 
+    const cleanDocUrl = await StorageService.processImagePayload(data.documentUrl.trim(), 'kyc', baseUrl);
     const now = new Date().toISOString();
     const cleanDocNum = data.documentNumber.trim();
-    const cleanDocUrl = data.documentUrl.trim();
 
     Database.run(
       `UPDATE farmer_profiles

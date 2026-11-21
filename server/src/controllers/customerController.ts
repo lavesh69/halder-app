@@ -24,7 +24,8 @@ export class CustomerController {
   static async updateAvatar(req: Request, res: Response, next: NextFunction) {
     try {
       const { avatar } = req.body;
-      const result = CustomerProfileService.updateAvatar(req.user!.id, avatar);
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const result = await CustomerProfileService.updateAvatar(req.user!.id, avatar, baseUrl);
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);

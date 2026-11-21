@@ -153,9 +153,9 @@ async function runVerification() {
       { expected: updatedCustBio, got: custData?.bio }
     );
     assertTest(
-      'API GET /customers/me returns updated avatar data URL',
-      custData?.avatar === SAMPLE_AVATAR_BASE64,
-      { avatarLength: custData?.avatar?.length }
+      'API GET /customers/me returns updated avatar URL',
+      Boolean(custData?.avatar && (custData.avatar.startsWith('http') || custData.avatar.startsWith('/uploads/') || custData.avatar.startsWith('data:'))),
+      { avatar: custData?.avatar }
     );
 
     // Direct Database Table Verification for Customer
@@ -174,8 +174,8 @@ async function runVerification() {
     );
     assertTest(
       'Direct DB Check: users.profile_image contains avatar in SQLite',
-      userRow?.profile_image === SAMPLE_AVATAR_BASE64,
-      { len: userRow?.profile_image?.length }
+      Boolean(userRow?.profile_image && (userRow.profile_image.startsWith('http') || userRow.profile_image.startsWith('/uploads/') || userRow.profile_image.startsWith('data:'))),
+      { len: userRow?.profile_image?.length, avatar: userRow?.profile_image }
     );
     assertTest(
       'Direct DB Check: customer_profiles.bio updated in SQLite',
@@ -184,8 +184,8 @@ async function runVerification() {
     );
     assertTest(
       'Direct DB Check: customer_profiles.avatar contains avatar in SQLite',
-      custProfRow?.avatar === SAMPLE_AVATAR_BASE64,
-      { len: custProfRow?.avatar?.length }
+      Boolean(custProfRow?.avatar && custProfRow.avatar === userRow?.profile_image),
+      { len: custProfRow?.avatar?.length, avatar: custProfRow?.avatar }
     );
 
     // =========================================================================
@@ -309,9 +309,9 @@ async function runVerification() {
       { expected: updatedFarmSize, got: farmData?.farmSizeAcres }
     );
     assertTest(
-      'API GET /farmers/me/profile returns updated avatar data URL',
-      farmData?.avatar === SAMPLE_AVATAR_BASE64,
-      { avatarLength: farmData?.avatar?.length }
+      'API GET /farmers/me/profile returns updated avatar URL',
+      Boolean(farmData?.avatar && (farmData.avatar.startsWith('http') || farmData.avatar.startsWith('/uploads/') || farmData.avatar.startsWith('data:'))),
+      { avatar: farmData?.avatar }
     );
 
     // Direct Database Table Verification for Farmer
@@ -330,8 +330,8 @@ async function runVerification() {
     );
     assertTest(
       'Direct DB Check: users.profile_image contains avatar in SQLite',
-      farmUserRow?.profile_image === SAMPLE_AVATAR_BASE64,
-      { len: farmUserRow?.profile_image?.length }
+      Boolean(farmUserRow?.profile_image && (farmUserRow.profile_image.startsWith('http') || farmUserRow.profile_image.startsWith('/uploads/') || farmUserRow.profile_image.startsWith('data:'))),
+      { len: farmUserRow?.profile_image?.length, avatar: farmUserRow?.profile_image }
     );
     assertTest(
       'Direct DB Check: farmer_profiles.farm_name updated in SQLite',
@@ -355,8 +355,8 @@ async function runVerification() {
     );
     assertTest(
       'Direct DB Check: farmer_profiles.avatar contains avatar in SQLite',
-      farmProfRow?.avatar === SAMPLE_AVATAR_BASE64,
-      { len: farmProfRow?.avatar?.length }
+      Boolean(farmProfRow?.avatar && farmProfRow.avatar === farmUserRow?.profile_image),
+      { len: farmProfRow?.avatar?.length, avatar: farmProfRow?.avatar }
     );
 
     // =========================================================================

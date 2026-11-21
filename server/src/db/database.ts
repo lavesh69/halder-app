@@ -26,10 +26,14 @@ export function getDatabase(): DatabaseSync {
     // Support Vercel serverless writable storage (/tmp)
     if (process.env.VERCEL) {
       const tmpPath = path.join('/tmp', 'halder.db');
-      if (!isSupabaseEnabled() && !isTursoEnabled() && !fs.existsSync(tmpPath)) {
+      if (!fs.existsSync(tmpPath)) {
         const sourcePath = path.resolve(process.cwd(), 'server', 'halder.db');
         if (fs.existsSync(sourcePath)) {
-          fs.copyFileSync(sourcePath, tmpPath);
+          try {
+            fs.copyFileSync(sourcePath, tmpPath);
+          } catch {
+            // Ignore fallback copy error
+          }
         }
       }
       dbPath = tmpPath;

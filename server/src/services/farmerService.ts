@@ -2,6 +2,7 @@
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
 import { sanitizeText } from '../utils/sanitize';
+import { StorageService } from './storageService';
 
 export class FarmerService {
   static getProfile(farmerId: string) {
@@ -551,7 +552,7 @@ export class FarmerService {
     return this.getPrivateProfile(farmerUserId);
   }
 
-  static updateFarmerAvatar(farmerUserId: string, base64Data: string) {
+  static async updateFarmerAvatar(farmerUserId: string, base64Data: string, baseUrl?: string) {
     if (!base64Data || typeof base64Data !== 'string') {
       throw AppError.badRequest('Avatar image data is required');
     }
@@ -562,17 +563,21 @@ export class FarmerService {
 
     const isDataUrl = base64Data.startsWith('data:image/');
     const isHttpUrl = base64Data.startsWith('http://') || base64Data.startsWith('https://');
+    const isUploadPath = base64Data.startsWith('/uploads/');
 
-    if (!isDataUrl && !isHttpUrl) {
+    if (!isDataUrl && !isHttpUrl && !isUploadPath) {
       throw AppError.badRequest('Invalid image format. Supported formats: JPEG, PNG, WebP.');
     }
+
+    // Automatically optimize base64 images into persistent CDN/storage URLs
+    const processedAvatar = await StorageService.processImagePayload(base64Data, 'avatars', baseUrl);
 
     const now = new Date().toISOString();
 
     Database.transaction(() => {
       Database.run(
         'UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?',
-        [base64Data, now, farmerUserId]
+        [processedAvatar, now, farmerUserId]
       );
       let fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [farmerUserId]);
       if (!fp) {
@@ -581,17 +586,17 @@ export class FarmerService {
         Database.run(
           `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, avatar, verification_status, rating, total_orders, created_at, updated_at)
            VALUES (?, ?, ?, 'Fresh harvest straight from our family farm.', 'Dehradun, Uttarakhand', 'Dehradun', ?, 'pending', 5.0, 0, ?, ?)`,
-          [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : 'Organic Farm', base64Data, now, now]
+          [fProfId, farmerUserId, user?.name ? `${user.name}'s Organic Farm` : 'Organic Farm', processedAvatar, now, now]
         );
       } else {
         Database.run(
           'UPDATE farmer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?',
-          [base64Data, now, farmerUserId]
+          [processedAvatar, now, farmerUserId]
         );
       }
     });
 
-    return { success: true, avatar: base64Data };
+    return { success: true, avatar: processedAvatar };
   }
 }
 

@@ -91,14 +91,24 @@ export class StorageService {
       }
     }
 
-    // 3. Vercel Serverless Fallback (Base64 data URL avoids read-only filesystem crash)
+    // 3. Vercel Serverless / Writable /tmp Fallback
     if (process.env.VERCEL) {
-      return `data:${mimeType};base64,${buffer.toString('base64')}`;
+      try {
+        const vTmpDir = path.join('/tmp', 'uploads', folder);
+        if (!fs.existsSync(vTmpDir)) {
+          fs.mkdirSync(vTmpDir, { recursive: true });
+        }
+        const vLocalPath = path.join(vTmpDir, path.basename(filename));
+        fs.writeFileSync(vLocalPath, buffer);
+        return `${baseUrl}/uploads/${folder}/${path.basename(filename)}`;
+      } catch {
+        return `data:${mimeType};base64,${buffer.toString('base64')}`;
+      }
     }
 
-    // 4. Local Disk Fallback (Node dev server)
+    // 4. Local Disk Fallback (Node dev server / VPS / Docker / Railway)
     try {
-      const localDir = path.join(process.cwd(), 'uploads', folder);
+      const localDir = path.join(env.UPLOAD_DIR, folder);
       if (!fs.existsSync(localDir)) {
         fs.mkdirSync(localDir, { recursive: true });
       }
@@ -110,6 +120,54 @@ export class StorageService {
     } catch {
       return `data:${mimeType};base64,${buffer.toString('base64')}`;
     }
+  }
+
+  /**
+   * Automatically intercepts raw base64 or Data URLs, writes or uploads them to
+   * cloud CDN / local media storage, and returns a clean image URL.
+   * If already a web link (http:// or https://), returns it unchanged.
+   */
+  static async processImagePayload(
+    imageData: string | undefined | null,
+    folder: 'avatars' | 'produce' | 'kyc' = 'produce',
+    baseUrl: string = env.PUBLIC_SERVER_URL
+  ): Promise<string> {
+    if (!imageData || typeof imageData !== 'string') {
+      return '';
+    }
+
+    const trimmed = imageData.trim();
+    if (!trimmed) return '';
+
+    // If already an HTTP/HTTPS URL or static upload URL, keep as clean URL
+    if (
+      trimmed.startsWith('http://') ||
+      trimmed.startsWith('https://') ||
+      trimmed.startsWith('/uploads/') ||
+      trimmed.startsWith('blob:')
+    ) {
+      return trimmed;
+    }
+
+    // Check if it's a base64 Data URL (e.g. data:image/jpeg;base64,...)
+    const dataUrlMatch = trimmed.match(/^data:([^;]+);base64,(.+)$/s);
+    if (!dataUrlMatch) {
+      // If it doesn't match standard data URL, return trimmed
+      return trimmed;
+    }
+
+    const mimeType = dataUrlMatch[1].toLowerCase();
+    const base64Data = dataUrlMatch[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    let ext = '.jpg';
+    if (mimeType.includes('png')) ext = '.png';
+    else if (mimeType.includes('webp')) ext = '.webp';
+    else if (mimeType.includes('gif')) ext = '.gif';
+    else if (mimeType.includes('pdf')) ext = '.pdf';
+
+    const cleanFilename = `${folder}-${uuidv4().slice(0, 12)}${ext}`;
+    return await this.uploadBuffer(buffer, cleanFilename, mimeType, folder, baseUrl);
   }
 
   /**

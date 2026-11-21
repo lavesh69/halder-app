@@ -3,6 +3,7 @@ import { AppError } from '../utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
 import { SmartAlertService } from './smartAlertService';
+import { StorageService } from './storageService';
 
 export function calculateHaversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth's mean radius in km
@@ -273,7 +274,7 @@ export class ProductService {
     return product;
   }
 
-  static create(data: {
+  static async create(data: {
     farmerId: string;
     categoryId?: string;
     category?: string;
@@ -308,7 +309,7 @@ export class ProductService {
     images?: string[];
     status?: 'active' | 'draft';
     priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number | null; pricePerUnit: number }>;
-  }) {
+  }, baseUrl?: string) {
     if (data.price <= 0 || data.price > 1000000) {
       throw AppError.badRequest('Product price must be between ₹1 and ₹10,00,000.');
     }
@@ -339,6 +340,13 @@ export class ProductService {
     const now = new Date().toISOString();
     const totalQty = data.totalQuantity !== undefined ? data.totalQuantity : data.availableQuantity;
     const listingStatus = data.status === 'draft' ? 'draft' : 'active';
+
+    // Optimize images into clean CDN/storage URLs
+    const primaryImage = await StorageService.processImagePayload(data.image, 'produce', baseUrl);
+    const rawImages = data.images && data.images.length > 0 ? data.images.slice(0, 8) : [primaryImage];
+    const imagesToSave = await Promise.all(
+      rawImages.map((img) => StorageService.processImagePayload(img, 'produce', baseUrl))
+    );
 
     Database.transaction(() => {
       Database.run(
@@ -393,7 +401,7 @@ export class ProductService {
           data.city || data.district || 'Dehradun',
           data.latitude || 30.3165,
           data.longitude || 78.0322,
-          data.image,
+          primaryImage,
           listingStatus,
           data.showPhoneNumber === false ? 0 : 1,
           now,
@@ -402,7 +410,6 @@ export class ProductService {
       );
 
       // Save multiple images (up to 8)
-      const imagesToSave = data.images && data.images.length > 0 ? data.images.slice(0, 8) : [data.image];
       imagesToSave.forEach((imgUrl, idx) => {
         Database.run(
           'INSERT INTO product_images (id, product_id, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?)',
@@ -458,10 +465,14 @@ export class ProductService {
     return ProductService.getById(id);
   }
 
-  static update(id: string, updates: Record<string, any>) {
+  static async update(id: string, updates: Record<string, any>, baseUrl?: string) {
     const existing = Database.get<any>('SELECT * FROM products WHERE id = ?', [id]);
     if (!existing) {
       throw AppError.notFound('Product listing not found');
+    }
+
+    if (updates.image) {
+      updates.image = await StorageService.processImagePayload(updates.image, 'produce', baseUrl);
     }
 
     if (updates.price !== undefined && updates.price <= 0) {
@@ -558,8 +569,11 @@ export class ProductService {
 
     // Update images if provided
     if (updates.images && Array.isArray(updates.images)) {
+      const processedImages = await Promise.all(
+        updates.images.slice(0, 8).map((imgUrl: string) => StorageService.processImagePayload(imgUrl, 'produce', baseUrl))
+      );
       Database.run('DELETE FROM product_images WHERE product_id = ?', [id]);
-      updates.images.slice(0, 8).forEach((imgUrl: string, idx: number) => {
+      processedImages.forEach((imgUrl: string, idx: number) => {
         Database.run(
           'INSERT INTO product_images (id, product_id, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?)',
           [`img-${uuidv4().slice(0, 8)}`, id, imgUrl, idx, new Date().toISOString()]
