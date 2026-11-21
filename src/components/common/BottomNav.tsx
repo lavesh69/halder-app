@@ -22,6 +22,7 @@ import {
   Truck,
   CreditCard,
   Database,
+  LogOut,
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
@@ -43,6 +44,7 @@ export const BottomNav: React.FC = () => {
     unreadChatCount,
     currentUser,
     isLoggedIn,
+    logout,
   } = useApp();
 
   const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -165,6 +167,19 @@ export const BottomNav: React.FC = () => {
           >
             <Settings className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('nav.settings')}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (window.confirm('Do you want to log out of Admin session? / क्या आप एडमिन सत्र से बाहर निकलना चाहते हैं?')) {
+                logout();
+              }
+            }}
+            className="min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 text-red-500 hover:text-red-700"
+            title="Log Out"
+          >
+            <LogOut className="w-5 h-5 text-red-500" />
+            <span className="text-[10px] mt-0.5 text-red-500 font-bold">{t('auth.logout') || 'Logout'}</span>
           </button>
         </div>
       </nav>

@@ -23,6 +23,7 @@
     "server:chat-i18n": "node --import tsx server/tests/chat_i18n.test.ts",
     "server:chat-adversarial": "node --import tsx server/tests/adversarial_chat_stress.test.ts",
     "server:profile": "node --import tsx server/tests/profile_system.test.ts",
+    "server:verify-profiles": "node --import tsx server/tests/verify_profiles_e2e.ts",
     "server:phonepe": "node --import tsx server/tests/phonepe_payment.test.ts",
     "server:multi-gateway": "node --import tsx server/tests/multi_gateway_payment.test.ts",
     "server:production": "node --import tsx server/tests/production_phases.test.ts",

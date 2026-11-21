@@ -86934,11 +86934,28 @@ var IdentityService = class {
     `);
     const now = (/* @__PURE__ */ new Date()).toISOString();
     for (const [role, prefix] of Object.entries(ROLE_PREFIX_MAP)) {
-      const existing = Database.get("SELECT role FROM identity_sequences WHERE role = ?", [role]);
+      const usersWithPrefix = Database.query(
+        `SELECT halder_id FROM users WHERE halder_id LIKE ?`,
+        [`${prefix}%`]
+      );
+      let maxNum = 0;
+      for (const u of usersWithPrefix) {
+        const match = u.halder_id.match(/(\d+)$/);
+        if (match) {
+          const n3 = parseInt(match[1], 10);
+          if (!isNaN(n3) && n3 > maxNum) maxNum = n3;
+        }
+      }
+      const existing = Database.get("SELECT current_seq FROM identity_sequences WHERE role = ?", [role]);
       if (!existing) {
         Database.run(
-          "INSERT INTO identity_sequences (role, prefix, current_seq, updated_at) VALUES (?, ?, 0, ?)",
-          [role, prefix, now]
+          "INSERT INTO identity_sequences (role, prefix, current_seq, updated_at) VALUES (?, ?, ?, ?)",
+          [role, prefix, maxNum, now]
+        );
+      } else if (existing.current_seq < maxNum) {
+        Database.run(
+          "UPDATE identity_sequences SET current_seq = ?, updated_at = ? WHERE role = ?",
+          [maxNum, now, role]
         );
       }
     }
@@ -86966,6 +86983,15 @@ var IdentityService = class {
       const row = Database.get("SELECT current_seq FROM identity_sequences WHERE role = ?", [role]);
       if (row && typeof row.current_seq === "number") {
         nextSeq = row.current_seq;
+      }
+      let candidate = this.formatId(role, nextSeq);
+      while (Database.get("SELECT 1 FROM users WHERE halder_id = ?", [candidate])) {
+        nextSeq++;
+        candidate = this.formatId(role, nextSeq);
+        Database.run(
+          "UPDATE identity_sequences SET current_seq = ?, updated_at = ? WHERE role = ?",
+          [nextSeq, now, role]
+        );
       }
     });
     return this.formatId(role, nextSeq);

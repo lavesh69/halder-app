@@ -61,6 +61,7 @@ import {
   HelpCircle,
   Truck,
   KeyRound,
+  LogOut,
 } from 'lucide-react';
 
 const getExportTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -94,11 +95,15 @@ export const AdminDashboard: React.FC = () => {
     setRole,
     platformSettings,
     updatePlatformSettings,
+    currentUser,
+    logout,
   } = useApp();
 
   // Navigation tab is directly bound to adminTab from AppContext
   const activeTab = adminTab || 'overview';
   const setActiveTab = setAdminTab;
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Real-time server states
   const [pendingKyc, setPendingKyc] = useState<any[]>([]);
@@ -585,6 +590,16 @@ export const AdminDashboard: React.FC = () => {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
             <span>{isRefreshing ? 'Syncing...' : 'Sync Data'}</span>
+          </button>
+
+          {/* Admin Logout Button */}
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all shadow-2xs text-xs"
+            title="Sign out of Administrator Session"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
           </button>
         </div>
       </div>
@@ -2176,6 +2191,46 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 3. Administrator Account & Session Security */}
+            <div className="p-4 bg-red-50/50 dark:bg-red-950/20 rounded-2xl border border-red-200 dark:border-red-900/60 space-y-4 md:col-span-2">
+              <div className="flex items-center justify-between pb-2 border-b border-red-200/80 dark:border-red-900/50">
+                <div className="flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-red-600" />
+                  <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                    Administrator Account & Session Security (एडमिन खाता व सुरक्षा सत्र)
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded">
+                  Active Admin Session
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1 text-xs">
+                  <p className="font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                    <span>Logged in as:</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-black">{currentUser?.name || 'Administrator'}</span>
+                    <span className="text-zinc-500 font-mono">({currentUser?.email || 'admin@halder.com'})</span>
+                  </p>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    Role: <span className="font-bold text-purple-600 dark:text-purple-400">System Administrator</span> • ID: <span className="font-mono">{currentUser?.halder_id || 'HAL-ADM-90000001'}</span>
+                  </p>
+                  <p className="text-[11px] text-zinc-400">
+                    Signing out will invalidate current administrative JWT tokens and return to the login screen.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(true)}
+                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow-xs flex items-center gap-2 shrink-0 text-xs"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out of Admin Account</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -2756,6 +2811,52 @@ export const AdminDashboard: React.FC = () => {
             >
               Close Profile
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADMIN LOGOUT CONFIRMATION */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-600">
+                <LogOut className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-black text-base text-zinc-900 dark:text-white">
+                  Confirm Admin Logout
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  एडमिन सत्र से लॉगआउट की पुष्टि करें
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
+              Are you sure you want to end your Administrator session? You will be signed out and redirected to the HALDER sign-in screen.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  logout();
+                }}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition shadow-xs flex items-center gap-1.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out Now</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
