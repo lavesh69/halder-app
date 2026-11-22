@@ -389,7 +389,7 @@ export const hiTranslations: TranslationDictionary = {
   'my_ads.boost': 'विज्ञापन बूस्ट करें',
   'my_ads.delete_confirm': 'क्या आप वाकई इस विज्ञापन को हटाना चाहते हैं?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'कदम {current} / {total}',
   'post_ad.kisan_mandi_badge': 'किसान मंडी विज्ञापन (0% कमीशन)',
   'post_ad.classifieds_badge': 'किसान क्लासिफाइड्स',

@@ -350,7 +350,7 @@ export const mlTranslations: TranslationDictionary = {
   'my_ads.boost': 'പരസ്യം ബൂസ്റ്റ് ചെയ്യുക',
   'my_ads.delete_confirm': 'ഈ പരസ്യം തീർച്ചയായും നീക്കംചെയ്യണമെന്നുണ്ടോ?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'ഘട്ടം {current} / {total}',
   'post_ad.kisan_mandi_badge': 'കിസാൻ മണ്ടി പരസ്യം (0% കമ്മീഷൻ)',
   'post_ad.classifieds_badge': 'കിസാൻ ക്ലാസിഫൈഡ്സ്',

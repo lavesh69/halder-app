@@ -380,7 +380,7 @@ export const bhoTranslations: TranslationDictionary = {
   'farmer.post_ad_hero_desc': 'थोक व्यापारी आ खुदरा ग्राहक से सीधे जुड़ीं। 0% दलाली, सीधा फोन आ व्हाट्सएप।',
   'farmer.post_ad_hero_btn': '+ अभी विज्ञापन डालीं',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'कदम {current} / {total}',
   'post_ad.kisan_mandi_badge': 'किसान मंडी विज्ञापन (0% दलाली)',
   'post_ad.classifieds_badge': 'किसान क्लासिफाइड्स',

@@ -350,7 +350,7 @@ export const urTranslations: TranslationDictionary = {
   'my_ads.boost': 'اشتہار بوسٹ کریں',
   'my_ads.delete_confirm': 'کیا آپ واقعی اس اشتہار کو حذف کرنا چاہتے ہیں؟',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'مرحلہ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'کسان منڈی اشتہار (0% کمیشن)',
   'post_ad.classifieds_badge': 'کسان کلاسیفائیڈز',

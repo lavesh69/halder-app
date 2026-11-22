@@ -380,7 +380,7 @@ export const orTranslations: TranslationDictionary = {
   'farmer.post_ad_hero_desc': 'ପାଇକାରୀ ବ୍ୟବସାୟୀ ଓ ଗ୍ରାହକଙ୍କ ସହ ସିଧାସଳଖ ଯୋଡ଼ି ହୁଅନ୍ତୁ। ୦% କମିଶନ, ଡାଇରେକ୍ଟ କଲ୍ ଓ ହ୍ୱାଟ୍ସଆପ୍।',
   'farmer.post_ad_hero_btn': '+ ଏବେ ବିଜ୍ଞାପନ ଦିଅନ୍ତୁ',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'ପଦକ୍ଷେପ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'କୃଷକ ମଣ୍ଡି ବିଜ୍ଞାପନ (0% କମିଶନ)',
   'post_ad.classifieds_badge': 'କିଷାନ କ୍ଲାସିଫାଏଡ୍ସ',

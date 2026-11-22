@@ -341,7 +341,7 @@ export const ListingDetailModal: React.FC = () => {
               <h2 className="text-xl font-heading font-bold text-zinc-900 dark:text-white mt-1">
                 {selectedProduct.name}
               </h2>
-              {/* OLX Location Breadcrumb Path */}
+              {/* Location Breadcrumb Path */}
               <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 <span>📍 India</span>
                 <span>›</span>
@@ -553,7 +553,7 @@ export const ListingDetailModal: React.FC = () => {
             </p>
           </div>
 
-          {/* OLX-Style Buyer Safety Tips (सुरक्षा सुझाव) */}
+          {/* Buyer Safety Tips (सुरक्षा सुझाव) */}
           <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
             <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold text-xs">
               <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
@@ -566,7 +566,7 @@ export const ListingDetailModal: React.FC = () => {
             </ul>
           </div>
 
-          {/* OLX Ad Metadata & Report Button */}
+          {/* Ad Metadata & Report Button */}
           <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800 text-[11px]">
             <span className="text-zinc-400 font-mono">
               AD ID: HAL-{selectedProduct.id.slice(-6).toUpperCase()}
@@ -580,7 +580,7 @@ export const ListingDetailModal: React.FC = () => {
             </button>
           </div>
 
-          {/* OLX-Style Similar Advertisements Carousel */}
+          {/* Similar Advertisements Carousel */}
           {similarProducts.length > 0 && (
             <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
@@ -690,7 +690,7 @@ export const ListingDetailModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* OLX Direct Classifieds Safety Tip */}
+              {/* Direct Classifieds Safety Tip */}
               <div className="flex items-center justify-center pt-1 px-1 text-[11px] text-zinc-500 dark:text-zinc-400 text-center font-medium">
                 <span>🛡️ {t('ads.safety_tip')}</span>
               </div>
@@ -698,7 +698,7 @@ export const ListingDetailModal: React.FC = () => {
           )}
         </div>
 
-        {/* OLX-Style Report Advertisement Modal */}
+        {/* Report Advertisement Modal */}
         {showReportModal && (
           <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowReportModal(false)}>
             <div className="w-full max-w-sm bg-white dark:bg-[#1E2420] rounded-3xl p-5 border border-zinc-200 dark:border-zinc-700 shadow-2xl space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>
@@ -768,7 +768,7 @@ export const ListingDetailModal: React.FC = () => {
           </div>
         )}
 
-        {/* OLX Phone Call / Reveal Number Modal */}
+        {/* Phone Call / Reveal Number Modal */}
         {showPhoneModal && (
           <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPhoneModal(false)}>
             <div className="w-full max-w-sm bg-white dark:bg-[#1E2420] rounded-3xl p-5 border border-zinc-200 dark:border-zinc-700 shadow-2xl space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>
@@ -853,7 +853,7 @@ export const ListingDetailModal: React.FC = () => {
           </div>
         )}
 
-        {/* OLX Full-Screen Photo Lightbox */}
+        {/* Full-Screen Photo Lightbox */}
         {showLightbox && (
           <div className="fixed inset-0 z-70 bg-black/95 flex flex-col items-center justify-between p-4 animate-fade-in" onClick={() => setShowLightbox(false)}>
             {/* Top Bar */}

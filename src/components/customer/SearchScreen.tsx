@@ -163,7 +163,7 @@ export const SearchScreen: React.FC = () => {
     return true;
   });
 
-  // Sort (OLX Priority: Featured & Urgent ads at top)
+  // Sort (Priority: Featured & Urgent ads at top)
   const sortedListings = [...matchingListings].sort((a, b) => {
     if (a.isFeatured && !b.isFeatured) return -1;
     if (!a.isFeatured && b.isFeatured) return 1;
@@ -261,7 +261,7 @@ export const SearchScreen: React.FC = () => {
       {/* Body: Suggestions vs Results */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {!inputVal.trim() ? (
-          /* OLX Recent Searches & Popular Suggestions */
+          /* Recent Searches & Popular Suggestions */
           <div className="space-y-4 pt-2">
             {recentSearches.length > 0 && (
               <div className="space-y-2">

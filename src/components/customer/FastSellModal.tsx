@@ -1043,7 +1043,7 @@ export const FastSellModal: React.FC = () => {
                     </div>
                   </label>
 
-                  {/* OLX Phone Privacy Toggle */}
+                  {/* Phone Privacy Toggle */}
                   <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 cursor-pointer col-span-2">
                     <input
                       type="checkbox"

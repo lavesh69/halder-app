@@ -389,7 +389,7 @@ export const bnTranslations: TranslationDictionary = {
   'my_ads.boost': 'বিজ্ঞাপন বুস্ট করুন',
   'my_ads.delete_confirm': 'আপনি কি সত্যিই এই বিজ্ঞাপনটি মুছে ফেলতে চান?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'ধাপ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'কৃষক মান্ডি বিজ্ঞাপন (০% কমিশন)',
   'post_ad.classifieds_badge': 'কৃষক ক্লাসিফাইডস',

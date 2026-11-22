@@ -380,7 +380,7 @@ export const teTranslations: TranslationDictionary = {
   'farmer.post_ad_hero_desc': 'హోల్‌సేల్ వ్యాపారులు మరియు వినియోగదారులతో నేరుగా కనెక్ట్ అవ్వండి. 0% కమీషన్, డైరెక్ట్ కాల్ & వాట్సాప్.',
   'farmer.post_ad_hero_btn': '+ ఇప్పుడే ప్రకటన ఇవ్వండి',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'దశ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'రైతు మండి ప్రకటన (0% కమీషన్)',
   'post_ad.classifieds_badge': 'కిసాన్ క్లాసిఫైడ్స్',

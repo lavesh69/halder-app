@@ -350,7 +350,7 @@ export const knTranslations: TranslationDictionary = {
   'my_ads.boost': 'ಜಾಹೀರಾತು ಬೂಸ್ಟ್ ಮಾಡಿ',
   'my_ads.delete_confirm': 'ನೀವು ಖಚಿತವಾಗಿ ಈ ಜಾಹೀರಾತನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'ಹಂತ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'ರೈತ ಮಂಡಿ ಜಾಹೀರಾತು (0% ಕಮಿಷನ್)',
   'post_ad.classifieds_badge': 'ಕಿಸಾನ್ ಕ್ಲಾಸಿಫೈಡ್ಸ್',

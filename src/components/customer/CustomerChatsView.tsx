@@ -112,7 +112,7 @@ export const CustomerChatsView: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            OLX-style messaging with local sellers and buyers
+            Direct Mandi messaging with local sellers and buyers
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export const CustomerChatsView: React.FC = () => {
         </button>
       </div>
 
-      {/* OLX-Style Chat Sub-Tabs (All / Buying / Selling) */}
+      {/* Mandi Chat Sub-Tabs (All / Buying / Selling) */}
       <div className="flex border-b border-zinc-200 dark:border-zinc-800">
         <button
           onClick={() => setChatTab('all')}

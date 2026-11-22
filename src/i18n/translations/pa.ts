@@ -389,7 +389,7 @@ export const paTranslations: TranslationDictionary = {
   'my_ads.boost': 'ਇਸ਼ਤਿਹਾਰ ਬੂਸਟ ਕਰੋ',
   'my_ads.delete_confirm': 'ਕੀ ਤੁਸੀਂ ਵਾਕਈ ਇਹ ਇਸ਼ਤਿਹਾਰ ਹਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'ਕਦਮ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'ਕਿਸਾਨ ਮੰਡੀ ਇਸ਼ਤਿਹਾਰ (0% ਕਮਿਸ਼ਨ)',
   'post_ad.classifieds_badge': 'ਕਿਸਾਨ ਕਲਾਸੀਫਾਈਡ',

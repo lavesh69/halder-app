@@ -350,7 +350,7 @@ export const taTranslations: TranslationDictionary = {
   'my_ads.boost': 'விளம்பரத்தை பூஸ்ட் செய்',
   'my_ads.delete_confirm': 'இந்த விளம்பரத்தை நிச்சயமாக நீக்க விரும்புகிறீர்களா?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'படி {current} / {total}',
   'post_ad.kisan_mandi_badge': 'விவசாயி மண்டி விளம்பரம் (0% கமிஷன்)',
   'post_ad.classifieds_badge': 'கிசான் விளம்பரங்கள்',

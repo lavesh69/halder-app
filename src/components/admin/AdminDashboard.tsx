@@ -1477,7 +1477,7 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* SECTION 4: LISTINGS & CLASSIFIEDS MODERATION (OLX STYLE) */}
+      {/* SECTION 4: LISTINGS & CLASSIFIEDS MODERATION (HALDER MANDI) */}
       {/* ========================================================================= */}
       {activeTab === 'products' && (
         <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
@@ -1623,7 +1623,7 @@ export const AdminDashboard: React.FC = () => {
                       <button
                         onClick={() => setSelectedProduct(prod)}
                         className="p-1.5 bg-white dark:bg-zinc-700 hover:bg-zinc-100 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-bold transition shadow-2xs"
-                        title="Preview Public OLX Ad"
+                        title="Preview Public Mandi Ad"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>

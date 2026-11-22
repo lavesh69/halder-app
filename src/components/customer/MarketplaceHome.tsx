@@ -424,7 +424,7 @@ export const MarketplaceHome: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. OLX-Style Browse Categories Circular Story Carousel */}
+      {/* 2. Browse Categories Circular Story Carousel */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5">
@@ -549,7 +549,7 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        {/* OLX Quick Filter Chips Bar */}
+        {/* Quick Filter Chips Bar */}
         <div className="w-full max-w-full overflow-hidden min-w-0">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           <button

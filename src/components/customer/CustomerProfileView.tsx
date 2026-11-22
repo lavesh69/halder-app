@@ -218,7 +218,7 @@ export const CustomerProfileView: React.FC = () => {
 
       {/* Menu List */}
       <div className="bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/80 shadow-soft">
-        {/* My Advertisements (OLX style) */}
+        {/* My Advertisements */}
         <button
           onClick={() => setCustomerTab('my-ads')}
           className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
@@ -246,7 +246,7 @@ export const CustomerProfileView: React.FC = () => {
           <ChevronRight className="w-4 h-4 text-zinc-400" />
         </button>
 
-        {/* Saved / Favorites (OLX Wishlist) */}
+        {/* Saved / Favorites (Wishlist) */}
         <button
           onClick={() => setCustomerTab('favorites')}
           className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"

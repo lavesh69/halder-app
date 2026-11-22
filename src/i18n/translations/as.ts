@@ -380,7 +380,7 @@ export const asTranslations: TranslationDictionary = {
   'farmer.post_ad_hero_desc': 'পাইকাৰী ব্যৱসায়ী আৰু গ্ৰাহকৰ সৈতে পোনপটীয়া সংযোগ। ০% কমিছন, পোনপটীয়া ফোন আৰু হোৱাটছএপ।',
   'farmer.post_ad_hero_btn': '+ এতিয়াই বিজ্ঞাপন দিয়ক',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'স্তৰ {current} / {total}',
   'post_ad.kisan_mandi_badge': 'কৃষক মাণ্ডি বিজ্ঞাপন (০% কমিচন)',
   'post_ad.classifieds_badge': 'কিষাণ ক্লাসিফাইডছ',

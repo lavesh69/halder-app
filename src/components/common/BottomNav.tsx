@@ -296,7 +296,7 @@ export const BottomNav: React.FC = () => {
     );
   }
 
-  // Farmer Bottom Nav (5 Signature OLX Tabs - Zero Overcrowding)
+  // Farmer Bottom Nav (5 Signature Mandi Tabs - Zero Overcrowding)
   return (
     <nav className="fixed bottom-0 inset-x-0 w-full z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
       <div className="max-w-xl md:max-w-2xl mx-auto flex items-center justify-between px-2 sm:px-4 py-1">
@@ -333,7 +333,7 @@ export const BottomNav: React.FC = () => {
           <span className="text-[10px] mt-0.5">{t('nav.chats')}</span>
         </button>
 
-        {/* 3. Center Elevated + Post Ad Button (OLX Ring) */}
+        {/* 3. Center Elevated + Post Ad Button (HALDER Ring) */}
         <button
           onClick={() => {
             setEditingListing(null);

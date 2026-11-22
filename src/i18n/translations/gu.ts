@@ -350,7 +350,7 @@ export const guTranslations: TranslationDictionary = {
   'my_ads.boost': 'જાહેરાત બૂસ્ટ કરો',
   'my_ads.delete_confirm': 'શું તમે ખરેખર આ જાહેરાત કાઢી નાખવા માંગો છો?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'પગલું {current} / {total}',
   'post_ad.kisan_mandi_badge': 'કિસાન મંડી જાહેરાત (0% કમિશન)',
   'post_ad.classifieds_badge': 'કિસાન ક્લાસિફાઇડ્સ',

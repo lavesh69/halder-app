@@ -66,7 +66,7 @@ describe('HALDER — Agricultural Classifieds Marketplace Test Suite', () => {
     assert.ok(farmerToken);
   });
 
-  // --- MODULE 1: OLX-Style Post an Ad System ---
+  // --- MODULE 1: Direct Mandi Post an Ad System ---
   it('Module 1: Farmer publishes an agricultural advertisement with price slabs and multi-images', async () => {
     const postRes = await request('/products', {
       method: 'POST',

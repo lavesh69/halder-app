@@ -163,7 +163,7 @@ export const CustomerMyAdsView: React.FC = () => {
         </div>
       </div>
 
-      {/* OLX-style Sub-Tabs (Active / Sold) */}
+      {/* Classified Sub-Tabs (Active / Sold) */}
       <div className="flex border-b border-zinc-200 dark:border-zinc-800">
         <button
           onClick={() => setActiveTab('active')}
@@ -355,7 +355,7 @@ export const CustomerMyAdsView: React.FC = () => {
                   </div>
                 )}
 
-                {/* Inline Confirmation or OLX Action Buttons */}
+                {/* Inline Confirmation or Action Buttons */}
                 {isConfirming ? (
                   <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 flex items-center justify-between gap-2 animate-fade-in">
                     <div className="flex items-center gap-1.5 text-xs text-red-700 dark:text-red-400 font-medium">
@@ -415,12 +415,12 @@ export const CustomerMyAdsView: React.FC = () => {
                         <span>Stock ({ad.availableQuantity})</span>
                       </button>
 
-                      {/* OLX Boost Ad button */}
+                      {/* Boost Ad button */}
                       {!isSold && (
                         <button
                           onClick={() => setBoostingAd(ad)}
                           className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold transition flex items-center gap-1 shadow-2xs"
-                          title="Sell faster with OLX Feature/Urgent boost"
+                          title="Sell faster with Featured/Urgent boost"
                         >
                           <Zap className="w-3.5 h-3.5 fill-white" />
                           <span>Boost Ad</span>
@@ -453,7 +453,7 @@ export const CustomerMyAdsView: React.FC = () => {
         )}
       </div>
 
-      {/* OLX Boost Ad Modal */}
+      {/* Boost Ad Modal */}
       {boostingAd && (
         <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-fade-in" onClick={() => setBoostingAd(null)}>
           <div className="w-full max-w-sm bg-white dark:bg-[#1E2420] rounded-3xl p-5 border border-zinc-200 dark:border-zinc-700 shadow-2xl space-y-4 animate-scale-up" onClick={(e) => e.stopPropagation()}>

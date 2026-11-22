@@ -389,7 +389,7 @@ export const mrTranslations: TranslationDictionary = {
   'my_ads.boost': 'जाहिरात बूस्ट करा',
   'my_ads.delete_confirm': 'आपण खरोखर ही जाहिरात हटवू इच्छिता?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'पायरी {current} / {total}',
   'post_ad.kisan_mandi_badge': 'शेतकरी मंडी जाहिरात (०% कमिशन)',
   'post_ad.classifieds_badge': 'किसान क्लासिफाइड्स',

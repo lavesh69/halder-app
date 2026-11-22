@@ -378,7 +378,7 @@ export const enTranslations = {
 
   // My Ads View
   'my_ads.title': 'My Ads',
-  'my_ads.subtitle': 'OLX-style classified ad manager & real-time controls',
+  'my_ads.subtitle': 'Direct Mandi classified ad manager & real-time controls',
   'my_ads.active_tab': 'Active Ads',
   'my_ads.sold_tab': 'Sold / Inactive',
   'my_ads.views': 'Total Views',
@@ -387,7 +387,7 @@ export const enTranslations = {
   'my_ads.boost': 'Boost Ad',
   'my_ads.delete_confirm': 'Are you sure you want to delete this ad?',
 
-  // OLX Classifieds & Fast Sell Extensions
+  // Mandi Classifieds & Fast Sell Extensions
   'post_ad.step_counter': 'Step {current} of {total}',
   'post_ad.kisan_mandi_badge': 'Kisan Mandi Ad (0% Commission)',
   'post_ad.classifieds_badge': 'Kisan Classifieds',

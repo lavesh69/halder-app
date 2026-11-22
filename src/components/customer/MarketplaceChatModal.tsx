@@ -224,7 +224,7 @@ export const MarketplaceChatModal: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Context Banner (OLX In-Chat Clickable Ad Card) */}
+        {/* Product Context Banner (In-Chat Clickable Ad Card) */}
         {productContext && (
           <div
             onClick={() => setSelectedProduct(productContext)}
@@ -331,7 +331,7 @@ export const MarketplaceChatModal: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* OLX Quick Action Shortcuts */}
+        {/* Mandi Quick Action Shortcuts */}
         <div className="px-3.5 pt-2 pb-1 bg-zinc-50/70 dark:bg-zinc-900/40 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 border-t border-zinc-100 dark:border-zinc-800">
           <button
             onClick={() => handleSend(`📍 My inspection location is: ${currentLocation}. When can we arrange to meet?`)}

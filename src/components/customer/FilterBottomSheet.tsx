@@ -161,7 +161,7 @@ export const FilterBottomSheet: React.FC = () => {
             </div>
           </div>
 
-          {/* Sort By Selector (OLX Standard) */}
+          {/* Sort By Selector */}
           <div className="space-y-2">
             <label className="font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
               Sort By
