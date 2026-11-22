@@ -8,6 +8,7 @@ const router = Router();
 router.get('/me/profile', authenticateUser, requireFarmer, FarmerController.getPrivateProfile);
 router.patch('/me/profile', authenticateUser, requireFarmer, FarmerController.updateProfile);
 router.post('/me/avatar', authenticateUser, requireFarmer, FarmerController.updateAvatar);
+router.delete('/me/avatar', authenticateUser, requireFarmer, FarmerController.removeAvatar);
 router.get('/:id/public', optionalAuth, FarmerController.getPublicProfile);
 
 router.get('/', optionalAuth, FarmerController.list);

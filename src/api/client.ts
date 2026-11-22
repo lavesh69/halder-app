@@ -824,6 +824,13 @@ export class ApiClient {
     return res?.data !== undefined ? res.data : res;
   }
 
+  static async removeFarmerAvatar(): Promise<any> {
+    const res = await this.request<any>('/farmers/me/avatar', {
+      method: 'DELETE',
+    });
+    return res?.data !== undefined ? res.data : res;
+  }
+
   // ==========================================
   // MODULE 2: FARM CROPS & BUSINESS INSIGHTS
   // ==========================================

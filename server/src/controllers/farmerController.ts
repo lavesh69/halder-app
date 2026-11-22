@@ -207,6 +207,15 @@ export class FarmerController {
     }
   }
 
+  static async removeAvatar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = FarmerService.removeFarmerAvatar(req.user!.id);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // --- FARM CROPS & HARVEST CALENDAR (MODULE 2) ---
   static async getCrops(req: Request, res: Response, next: NextFunction) {
     try {

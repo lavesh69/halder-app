@@ -598,5 +598,20 @@ export class FarmerService {
 
     return { success: true, avatar: processedAvatar };
   }
+
+  static removeFarmerAvatar(farmerUserId: string) {
+    const now = new Date().toISOString();
+    Database.transaction(() => {
+      Database.run(
+        'UPDATE users SET profile_image = "", updated_at = ? WHERE id = ?',
+        [now, farmerUserId]
+      );
+      Database.run(
+        'UPDATE farmer_profiles SET avatar = "", updated_at = ? WHERE user_id = ?',
+        [now, farmerUserId]
+      );
+    });
+    return { success: true, avatar: '' };
+  }
 }
 

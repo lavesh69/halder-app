@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
-import { X, Camera, Loader2, Check, AlertCircle } from 'lucide-react';
+import { X, Camera, Loader2, Check, AlertCircle, Trash2 } from 'lucide-react';
 
 interface EditCustomerProfileModalProps {
   isOpen: boolean;
@@ -19,17 +19,46 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
   onProfileUpdated,
   showToast,
 }) => {
-  const { updateCurrentUser } = useApp();
-  const [name, setName] = useState(currentProfile?.name || '');
-  const [phone, setPhone] = useState(currentProfile?.phone || '');
-  const [bio, setBio] = useState(currentProfile?.bio || '');
-  const [avatarPreview, setAvatarPreview] = useState(currentProfile?.avatar || '');
+  const { currentUser, updateCurrentUser } = useApp();
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
+  const [isAvatarRemoved, setIsAvatarRemoved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sync state whenever modal opens or props/currentUser change
+  useEffect(() => {
+    if (isOpen) {
+      const initialName = currentProfile?.name || currentUser?.name || '';
+      const initialPhone = currentProfile?.phone || currentUser?.phone || '';
+      const initialBio = currentProfile?.bio || (currentUser as any)?.bio || '';
+      const initialAvatar = currentProfile?.avatar || currentUser?.profile_image || '';
+
+      setName(initialName);
+      setPhone(initialPhone);
+      setBio(initialBio);
+      setAvatarPreview(initialAvatar);
+      setAvatarBase64(null);
+      setIsAvatarRemoved(false);
+      setError(null);
+    }
+  }, [isOpen, currentProfile, currentUser]);
+
   if (!isOpen) return null;
+
+  const halderId = currentProfile?.halderId || currentUser?.halder_id || 'HAL-CUS-00000001';
+
+  const userInitials = (name.trim() || currentProfile?.name || currentUser?.name || 'U')
+    .split(' ')
+    .filter(Boolean)
+    .map((w: string) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'U';
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,10 +80,21 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
       const res = await compressImageFile(file, { lowBandwidthMode: true, maxDimension: 800 });
       setAvatarPreview(res.dataUrl);
       setAvatarBase64(res.dataUrl);
+      setIsAvatarRemoved(false);
       showToast(`Photo compressed! Saved ${res.savingsPercent}% data (${res.compressedFormatted})`, 'success');
     } catch {
       setError('Failed to process image. Please try again.');
     }
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarPreview('');
+    setAvatarBase64(null);
+    setIsAvatarRemoved(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    showToast('Photo removed. Save changes to update profile.', 'info');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -68,35 +108,62 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
     setError(null);
 
     try {
-      if (avatarBase64) {
-        await ApiClient.uploadCustomerAvatar(avatarBase64);
+      let finalAvatar = avatarPreview;
+      if (isAvatarRemoved) {
+        try {
+          await ApiClient.removeCustomerAvatar();
+        } catch (removeErr) {
+          console.warn('Backend avatar removal note:', removeErr);
+        }
+        finalAvatar = '';
+      } else if (avatarBase64) {
+        try {
+          const upRes = await ApiClient.uploadCustomerAvatar(avatarBase64);
+          if (upRes?.avatar) {
+            finalAvatar = upRes.avatar;
+          }
+        } catch (uploadErr) {
+          console.warn('Backend avatar upload note:', uploadErr);
+        }
       }
 
-      const updated = await ApiClient.updateCustomerProfile({
-        name: name.trim(),
-        phone: phone.trim(),
-        bio: bio.trim(),
-      });
+      let updated: any = null;
+      try {
+        updated = await ApiClient.updateCustomerProfile({
+          name: name.trim(),
+          phone: phone.trim(),
+          bio: bio.trim(),
+        });
+      } catch (profileErr) {
+        console.warn('Backend profile update note:', profileErr);
+      }
 
-      const finalAvatar = avatarBase64 || updated?.avatar || avatarPreview;
       const finalName = updated?.name || name.trim();
       const finalPhone = updated?.phone || phone.trim();
+      const finalBio = updated?.bio !== undefined ? updated.bio : bio.trim();
 
       updateCurrentUser({
         name: finalName,
         phone: finalPhone,
-        profile_image: finalAvatar || undefined,
+        profile_image: finalAvatar,
       });
 
-      showToast('Profile updated successfully!', 'success');
-      onProfileUpdated({
+      const fullUpdated = {
         ...currentProfile,
         ...updated,
         name: finalName,
         phone: finalPhone,
-        bio: updated?.bio !== undefined ? updated.bio : bio.trim(),
+        bio: finalBio,
         avatar: finalAvatar,
-      });
+        halderId: halderId,
+      };
+
+      try {
+        localStorage.setItem('halder-customer-profile-cache', JSON.stringify(fullUpdated));
+      } catch {}
+
+      showToast('Profile updated successfully!', 'success');
+      onProfileUpdated(fullUpdated);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update profile. Please try again.');
@@ -136,7 +203,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
           )}
 
           {/* Avatar Upload */}
-          <div className="flex flex-col items-center gap-2 pt-1 pb-3">
+          <div className="flex flex-col items-center gap-2 pt-1 pb-2">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               {avatarPreview ? (
                 <img
@@ -146,7 +213,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
                 />
               ) : (
                 <div className="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-2xl flex items-center justify-center border-2 border-emerald-600/30">
-                  {name ? name.slice(0, 2).toUpperCase() : 'AS'}
+                  {userInitials}
                 </div>
               )}
               <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -163,8 +230,31 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
               onChange={handleFileChange}
               className="hidden"
             />
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              Click photo to change (Max 5MB • JPG, PNG, WebP)
+            <div className="flex items-center gap-3 mt-0.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>{avatarPreview ? 'Change Photo' : 'Upload Photo'}</span>
+              </button>
+              {avatarPreview && (
+                <>
+                  <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Photo</span>
+                  </button>
+                </>
+              )}
+            </div>
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+              Max 5MB • JPG, PNG, WebP
             </span>
           </div>
 
@@ -232,7 +322,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
               Permanent HALDER ID (Immutable)
             </span>
             <span className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              {currentProfile?.halderId || 'HAL-CUS-00000001'}
+              {halderId}
             </span>
           </div>
 

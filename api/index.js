@@ -91452,6 +91452,20 @@ var FarmerService = class _FarmerService {
     });
     return { success: true, avatar: processedAvatar };
   }
+  static removeFarmerAvatar(farmerUserId) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.transaction(() => {
+      Database.run(
+        'UPDATE users SET profile_image = "", updated_at = ? WHERE id = ?',
+        [now, farmerUserId]
+      );
+      Database.run(
+        'UPDATE farmer_profiles SET avatar = "", updated_at = ? WHERE user_id = ?',
+        [now, farmerUserId]
+      );
+    });
+    return { success: true, avatar: "" };
+  }
 };
 
 // server/src/controllers/farmerController.ts
@@ -91636,6 +91650,14 @@ var FarmerController = class {
       const { avatar } = req.body;
       const baseUrl = `${req.protocol}://${req.get("host")}`;
       const result = await FarmerService.updateFarmerAvatar(req.user.id, avatar, baseUrl);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async removeAvatar(req, res, next) {
+    try {
+      const result = FarmerService.removeFarmerAvatar(req.user.id);
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -91834,6 +91856,7 @@ var router5 = (0, import_express5.Router)();
 router5.get("/me/profile", authenticateUser, requireFarmer, FarmerController.getPrivateProfile);
 router5.patch("/me/profile", authenticateUser, requireFarmer, FarmerController.updateProfile);
 router5.post("/me/avatar", authenticateUser, requireFarmer, FarmerController.updateAvatar);
+router5.delete("/me/avatar", authenticateUser, requireFarmer, FarmerController.removeAvatar);
 router5.get("/:id/public", optionalAuth, FarmerController.getPublicProfile);
 router5.get("/", optionalAuth, FarmerController.list);
 router5.get("/:id", optionalAuth, FarmerController.getProfile);

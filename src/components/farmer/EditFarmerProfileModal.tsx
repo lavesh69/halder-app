@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
-import { X, Camera, Loader2, Check, AlertCircle, Sparkles } from 'lucide-react';
+import { X, Camera, Loader2, Check, AlertCircle, Sparkles, Trash2 } from 'lucide-react';
 
 interface EditFarmerProfileModalProps {
   isOpen: boolean;
@@ -20,22 +20,52 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
   showToast,
 }) => {
   const { activeCity, currentUser, updateCurrentUser } = useApp();
-  const [name, setName] = useState(currentProfile?.name || currentUser?.name || '');
-  const [phone, setPhone] = useState(currentProfile?.phone || currentUser?.phone || '');
-  const [farmName, setFarmName] = useState(currentProfile?.farmName || '');
-  const [description, setDescription] = useState(currentProfile?.description || '');
-  const [location, setLocation] = useState(currentProfile?.location || '');
-  const [city, setCity] = useState(currentProfile?.city || activeCity || 'Local Mandi');
-  const [farmSizeAcres, setFarmSizeAcres] = useState(currentProfile?.farmSizeAcres || 5);
-  const [waterSource, setWaterSource] = useState(currentProfile?.waterSource || 'Natural Rainwater & Deep Aquifer');
-  const [experienceYears, setExperienceYears] = useState(currentProfile?.experienceYears || 10);
-  const [avatarPreview, setAvatarPreview] = useState(currentProfile?.avatar || '');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [farmName, setFarmName] = useState('');
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [farmSizeAcres, setFarmSizeAcres] = useState(5);
+  const [waterSource, setWaterSource] = useState('Natural Rainwater & Deep Aquifer');
+  const [experienceYears, setExperienceYears] = useState(10);
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
+  const [isAvatarRemoved, setIsAvatarRemoved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sync state whenever modal opens or props/currentUser change
+  useEffect(() => {
+    if (isOpen) {
+      setName(currentProfile?.name || currentUser?.name || '');
+      setPhone(currentProfile?.phone || currentUser?.phone || '');
+      setFarmName(currentProfile?.farmName || (currentUser?.name ? `${currentUser.name}'s Farm` : ''));
+      setDescription(currentProfile?.description || '');
+      setLocation(currentProfile?.location || '');
+      setCity(currentProfile?.city || activeCity || 'Dehradun');
+      setFarmSizeAcres(currentProfile?.farmSizeAcres || 5);
+      setWaterSource(currentProfile?.waterSource || 'Natural Rainwater & Deep Aquifer');
+      setExperienceYears(currentProfile?.experienceYears || 10);
+      setAvatarPreview(currentProfile?.avatar || currentUser?.profile_image || '');
+      setAvatarBase64(null);
+      setIsAvatarRemoved(false);
+      setError(null);
+    }
+  }, [isOpen, currentProfile, currentUser, activeCity]);
+
   if (!isOpen) return null;
+
+  const halderId = currentProfile?.halderId || currentUser?.halder_id || 'HAL-FRM-00000001';
+
+  const farmerInitials = (name.trim() || currentProfile?.name || currentUser?.name || 'K')
+    .split(' ')
+    .filter(Boolean)
+    .map((w: string) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || '🌾';
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,10 +87,21 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
       const res = await compressImageFile(file, { lowBandwidthMode: true, maxDimension: 800 });
       setAvatarPreview(res.dataUrl);
       setAvatarBase64(res.dataUrl);
+      setIsAvatarRemoved(false);
       showToast(`Photo compressed! Saved ${res.savingsPercent}% data (${res.compressedFormatted})`, 'success');
     } catch {
       setError('Failed to process image. Please try again.');
     }
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarPreview('');
+    setAvatarBase64(null);
+    setIsAvatarRemoved(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    showToast('Photo removed. Save changes to update profile.', 'info');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -78,8 +119,23 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
     setError(null);
 
     try {
-      if (avatarBase64) {
-        await ApiClient.uploadFarmerAvatar(avatarBase64);
+      let finalAvatar = avatarPreview;
+      if (isAvatarRemoved) {
+        try {
+          await ApiClient.removeFarmerAvatar();
+        } catch (removeErr) {
+          console.warn('Backend farmer avatar removal note:', removeErr);
+        }
+        finalAvatar = '';
+      } else if (avatarBase64) {
+        try {
+          const upRes = await ApiClient.uploadFarmerAvatar(avatarBase64);
+          if (upRes?.avatar) {
+            finalAvatar = upRes.avatar;
+          }
+        } catch (uploadErr) {
+          console.warn('Backend farmer avatar upload note:', uploadErr);
+        }
       }
 
       const updated = await ApiClient.updateFarmerProfile({
@@ -94,18 +150,16 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
         experienceYears: Number(experienceYears),
       });
 
-      const finalAvatar = avatarBase64 || updated?.avatar || avatarPreview;
       const finalName = updated?.name || name.trim();
       const finalPhone = updated?.phone || phone.trim();
 
       updateCurrentUser({
         name: finalName,
         phone: finalPhone,
-        profile_image: finalAvatar || undefined,
+        profile_image: finalAvatar,
       });
 
-      showToast('Farmer profile updated successfully!', 'success');
-      onProfileUpdated({
+      const fullUpdated = {
         ...currentProfile,
         ...updated,
         name: finalName,
@@ -115,7 +169,15 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
         location: updated?.location || location.trim(),
         city: updated?.city || city.trim(),
         avatar: finalAvatar,
-      });
+        halderId: halderId,
+      };
+
+      try {
+        localStorage.setItem('halder-farmer-profile-cache', JSON.stringify(fullUpdated));
+      } catch {}
+
+      showToast('Farmer profile updated successfully!', 'success');
+      onProfileUpdated(fullUpdated);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update farmer profile.');
@@ -170,7 +232,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
                 />
               ) : (
                 <div className="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-2xl flex items-center justify-center border-2 border-emerald-600/30">
-                  🌾
+                  {farmerInitials}
                 </div>
               )}
               <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -187,8 +249,31 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
               onChange={handleFileChange}
               className="hidden"
             />
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              Tap photo to change (Max 5MB • JPG, PNG, WebP)
+            <div className="flex items-center gap-3 mt-0.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>{avatarPreview ? 'Change Photo' : 'Upload Photo'}</span>
+              </button>
+              {avatarPreview && (
+                <>
+                  <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Photo</span>
+                  </button>
+                </>
+              )}
+            </div>
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+              Max 5MB • JPG, PNG, WebP
             </span>
           </div>
 
@@ -346,7 +431,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
               HALDER Farmer ID
             </span>
             <span className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              {currentProfile?.halderId || 'HAL-FRM-00000001'}
+              {halderId}
             </span>
           </div>
 

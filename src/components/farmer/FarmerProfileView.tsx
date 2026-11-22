@@ -107,8 +107,7 @@ export const FarmerProfileView: React.FC = () => {
   const displayPhone = profile?.phone || currentUser?.phone || '';
   const displayLocation = profile?.location || '';
   const displayAvatar =
-    profile?.avatar ||
-    currentUser?.profile_image ||
+    (profile?.avatar !== undefined ? profile.avatar : (currentUser?.profile_image || '')) ||
     DEFAULT_AVATAR_IMAGE;
 
   return (
@@ -462,7 +461,13 @@ export const FarmerProfileView: React.FC = () => {
       <EditFarmerProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        currentProfile={profile}
+        currentProfile={profile || {
+          name: currentUser?.name,
+          phone: currentUser?.phone,
+          avatar: currentUser?.profile_image,
+          halderId: currentUser?.halder_id,
+          username: currentUser?.username,
+        }}
         onProfileUpdated={(updated) => {
           setProfile(updated);
         }}

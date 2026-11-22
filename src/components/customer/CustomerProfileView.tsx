@@ -102,7 +102,7 @@ export const CustomerProfileView: React.FC = () => {
   const displayId = profileData?.halderId || currentUser?.halder_id || 'HAL-CUS-00000001';
   const displayPhone = profileData?.phone || currentUser?.phone || '';
   const displayEmail = profileData?.email || currentUser?.email || '';
-  const displayAvatar = profileData?.avatar || currentUser?.profile_image || '';
+  const displayAvatar = profileData?.avatar !== undefined ? profileData.avatar : (currentUser?.profile_image || '');
   const defaultAddressStr = profileData?.defaultAddress
     ? `${profileData.defaultAddress.house_building}, ${profileData.defaultAddress.street_locality}, ${profileData.defaultAddress.city}`
     : '';
@@ -427,7 +427,14 @@ export const CustomerProfileView: React.FC = () => {
       <EditCustomerProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        currentProfile={profileData}
+        currentProfile={profileData || {
+          name: currentUser?.name,
+          phone: currentUser?.phone,
+          bio: (currentUser as any)?.bio,
+          avatar: currentUser?.profile_image,
+          halderId: currentUser?.halder_id,
+          username: currentUser?.username,
+        }}
         onProfileUpdated={(updated) => {
           setProfileData(updated);
         }}
