@@ -13,6 +13,7 @@ export function usePullToRefresh({
 }: UsePullToRefreshOptions) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const startXRef = useRef(0);
   const startYRef = useRef(0);
   const isPullingRef = useRef(false);
 
@@ -22,6 +23,7 @@ export function usePullToRefresh({
     const handleTouchStart = (e: TouchEvent) => {
       // Only initiate pull when scroll is at top
       if (window.scrollY <= 4) {
+        startXRef.current = e.touches[0].clientX;
         startYRef.current = e.touches[0].clientY;
         isPullingRef.current = true;
       }
@@ -35,11 +37,21 @@ export function usePullToRefresh({
         return;
       }
 
+      const currentX = e.touches[0].clientX;
       const currentY = e.touches[0].clientY;
-      const diff = currentY - startYRef.current;
-      if (diff > 0) {
+      const diffX = currentX - startXRef.current;
+      const diffY = currentY - startYRef.current;
+
+      // If user is swiping horizontally (e.g. across category or product carousels), cancel vertical pull
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        isPullingRef.current = false;
+        setPullDistance(0);
+        return;
+      }
+
+      if (diffY > 0) {
         // Elastic resistance damping
-        const damped = Math.min(maxPull, diff * 0.42);
+        const damped = Math.min(maxPull, diffY * 0.42);
         setPullDistance(damped);
       } else {
         setPullDistance(0);

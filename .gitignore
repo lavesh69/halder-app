@@ -36,6 +36,8 @@ server/uploads/*
 android/.gradle
 android/app/build
 android/build
+*.apk
+*.aab
 
 # Binary executables and tools
 *.exe

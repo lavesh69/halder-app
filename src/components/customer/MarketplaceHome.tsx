@@ -260,7 +260,7 @@ export const MarketplaceHome: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6 pb-24 animate-fade-in relative">
+    <div className="space-y-6 pb-24 animate-fade-in relative w-full max-w-full min-w-0 overflow-x-hidden">
       {/* Mobile Pull-to-Refresh Indicator */}
       {(pullDistance > 0 || isRefreshing) && (
         <div
@@ -445,7 +445,8 @@ export const MarketplaceHome: React.FC = () => {
         </div>
 
         {/* Circular Story-Style Category Cards */}
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1 px-1">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1 px-1">
           {categories.map((item) => {
             const isSelected = selectedCategory === item.cat;
             const categoryCount = item.cat === 'All' 
@@ -484,6 +485,7 @@ export const MarketplaceHome: React.FC = () => {
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 
@@ -518,7 +520,8 @@ export const MarketplaceHome: React.FC = () => {
       {/* 3. Main Nearby Feed */}
       <div className="space-y-3.5">
         {/* Quick Distance Radius Filter Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           <span className="text-[11px] font-bold text-[#89948C] shrink-0 mr-1">{t('home.radius')}</span>
           {[5, 10, 20, 50].map((km) => (
             <button
@@ -543,10 +546,12 @@ export const MarketplaceHome: React.FC = () => {
           >
             {t('home.all_areas')}
           </button>
+          </div>
         </div>
 
         {/* OLX Quick Filter Chips Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           <button
             onClick={() => {
               setFilterState((prev) => ({
@@ -601,6 +606,7 @@ export const MarketplaceHome: React.FC = () => {
             <span>🛡️</span>
             <span>Verified Farmers (सत्यापित)</span>
           </button>
+          </div>
         </div>
 
         {/* Section Header with View Toggle, Filter & Sort Buttons */}
@@ -776,7 +782,8 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
           {farmers.map((farmer) => (
             <div
               key={farmer.id}
@@ -813,6 +820,7 @@ export const MarketplaceHome: React.FC = () => {
               </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
 
@@ -827,10 +835,12 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
           {bestPrices.map((product) => (
             <ListingCard key={`price-${product.id}`} product={product} variant="horizontal" />
           ))}
+          </div>
         </div>
       </div>
 
@@ -845,10 +855,12 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
           {organicListings.map((product) => (
             <ListingCard key={`org-${product.id}`} product={product} variant="horizontal" />
           ))}
+          </div>
         </div>
       </div>
 
@@ -863,10 +875,12 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
           {freshToday.map((product) => (
             <ListingCard key={`today-${product.id}`} product={product} variant="horizontal" />
           ))}
+          </div>
         </div>
       </div>
 

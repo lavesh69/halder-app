@@ -192,7 +192,7 @@ export const MainApp: React.FC = () => {
   };
 
   const appContent = (
-    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0F1411] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F7F9F6] dark:bg-[#0F1411] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-200">
       {/* Global Toast */}
       <Toast />
 
@@ -207,7 +207,7 @@ export const MainApp: React.FC = () => {
       <Header />
 
       {/* Main Screen Feed */}
-      <main className="flex-1 max-w-7xl px-2.5 sm:px-6 md:px-8 w-full mx-auto pt-3 sm:pt-4 pb-24 transition-all duration-200">
+      <main className="flex-1 max-w-7xl px-2.5 sm:px-6 md:px-8 w-full min-w-0 max-w-full overflow-x-hidden mx-auto pt-3 sm:pt-4 pb-24 transition-all duration-200">
         {renderScreen()}
       </main>
 

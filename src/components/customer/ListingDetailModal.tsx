@@ -589,7 +589,8 @@ export const ListingDetailModal: React.FC = () => {
                 </span>
                 <span className="text-[11px] text-emerald-600 font-semibold">{similarProducts.length} more</span>
               </div>
-              <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-1">
+              <div className="w-full max-w-full overflow-hidden min-w-0">
+                <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-1">
                 {similarProducts.map((simProd) => (
                   <div
                     key={simProd.id}
@@ -617,6 +618,7 @@ export const ListingDetailModal: React.FC = () => {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             </div>
           )}

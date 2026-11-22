@@ -45,7 +45,14 @@ export const BottomNav: React.FC = () => {
     currentUser,
     isLoggedIn,
     logout,
+    selectedProduct,
   } = useApp();
+
+  // When an ad modal is open, it has its own sticky CTA bar (Chat, Call, WhatsApp)
+  // Hide bottom nav to prevent overlapping bars and touch conflicts
+  if (selectedProduct) {
+    return null;
+  }
 
   const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
   const farmerAdsCount = products.filter(

@@ -98,6 +98,13 @@ export default {
         'soft-lg': '0 12px 28px -4px rgba(18, 76, 54, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04)',
         'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.45)',
       },
+      zIndex: {
+        '60': '60',
+        '70': '70',
+        '80': '80',
+        '90': '90',
+        '100': '100',
+      },
     },
   },
   plugins: [],

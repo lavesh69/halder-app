@@ -45,7 +45,11 @@
     --semantic-info: #38bdf8;
   }
   
-  html {
+  html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
@@ -54,6 +58,15 @@
     @apply antialiased font-sans bg-[#F7F9F6] dark:bg-[#0F1411] text-[#202923] dark:text-[#F2F5F3];
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overscroll-behavior-x: none;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
   }
 
   /* Safe touch targets for WCAG 2.2 AA (min 44px on primary mobile controls) */
