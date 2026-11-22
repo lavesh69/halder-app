@@ -32,6 +32,11 @@ router.patch('/farmers/:id/kyc', AdminController.reviewKYC);
 router.post('/categories', validateBody(categorySchema), AdminController.addCategory);
 router.get('/audit-logs', AdminController.listAuditLogs);
 
+// Device Ban Security Management
+router.post('/devices/ban', AdminController.banDevice);
+router.get('/devices/banned', AdminController.listBannedDevices);
+router.post('/devices/unban/:id', AdminController.unbanDevice);
+
 // Real-Time Cloud Persistence & Sync Status
 router.get('/sync-status', async (req, res, next) => {
   try {

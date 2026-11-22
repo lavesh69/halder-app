@@ -2,6 +2,7 @@
  * HALDER Production API Client
  * Connects frontend UI to backend REST endpoints (/api/v1/...) with JWT auth and seamless error handling.
  */
+import { getDeviceSecurityProfile } from '../utils/deviceFingerprint';
 
 export function getApiBaseUrl(): string {
   if (import.meta.env.VITE_API_URL) {
@@ -77,6 +78,16 @@ export class ApiClient {
       ...options.headers,
     };
 
+    try {
+      const devProfile = await getDeviceSecurityProfile();
+      if (devProfile) {
+        headers['X-Device-Id'] = devProfile.deviceId;
+        headers['X-Device-Fingerprint'] = devProfile.fingerprint;
+        headers['X-Device-Model'] = devProfile.model;
+        headers['X-Device-Platform'] = devProfile.platform;
+      }
+    } catch {}
+
     const token = this.getToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -108,6 +119,12 @@ export class ApiClient {
       this.clearToken();
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('halder:auth-expired'));
+      }
+    }
+
+    if (response.status === 403 && data?.error?.code === 'DEVICE_PERMANENTLY_BANNED') {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('halder:device-banned', { detail: data?.error }));
       }
     }
 
@@ -279,6 +296,24 @@ export class ApiClient {
     return this.request(`/admin/farmers/${farmerId}/verify`, {
       method: 'PATCH',
       body: { status },
+    });
+  }
+
+  // Permanent Hardware Device Ban Management
+  static banDevice(params: { userId?: string; deviceId?: string; fingerprint?: string; reason: string; notes?: string }) {
+    return this.request('/admin/devices/ban', {
+      method: 'POST',
+      body: params,
+    });
+  }
+
+  static getBannedDevices() {
+    return this.request('/admin/devices/banned');
+  }
+
+  static unbanDevice(banId: string) {
+    return this.request(`/admin/devices/unban/${banId}`, {
+      method: 'POST',
     });
   }
 

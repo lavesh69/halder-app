@@ -31,7 +31,7 @@ import { PushNotificationClient } from '../services/pushNotificationClient';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
-export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'reports' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance';
+export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'reports' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance' | 'device-bans';
 
 export interface ToastInfo {
   id: string;

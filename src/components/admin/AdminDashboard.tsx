@@ -191,6 +191,64 @@ export const AdminDashboard: React.FC = () => {
 
   const [isKillSwitchModalOpen, setIsKillSwitchModalOpen] = useState(false);
 
+  // Permanent Hardware Device Ban State
+  const [bannedDevicesList, setBannedDevicesList] = useState<any[]>([]);
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
+  const [banTarget, setBanTarget] = useState<{ id?: string; name?: string; deviceId?: string; role?: string } | null>(null);
+  const [banReasonInput, setBanReasonInput] = useState('Severe terms of service violation / Fraudulent activity');
+  const [banNotesInput, setBanNotesInput] = useState('');
+  const [isBanningInProgress, setIsBanningInProgress] = useState(false);
+  const [manualDeviceIdInput, setManualDeviceIdInput] = useState('');
+  const [deviceBanSearch, setDeviceBanSearch] = useState('');
+
+  const loadBannedDevices = async () => {
+    try {
+      const res = await ApiClient.getBannedDevices();
+      if (Array.isArray(res)) setBannedDevicesList(res);
+      else if (res?.data && Array.isArray(res.data)) setBannedDevicesList(res.data);
+    } catch {}
+  };
+
+  useEffect(() => {
+    loadBannedDevices();
+  }, []);
+
+  const handleConfirmDeviceBan = async () => {
+    if (!banTarget?.id && !manualDeviceIdInput.trim()) {
+      showToast('Please provide a User ID or Device ID to ban.', 'error');
+      return;
+    }
+    setIsBanningInProgress(true);
+    try {
+      await ApiClient.banDevice({
+        userId: banTarget?.id,
+        deviceId: manualDeviceIdInput.trim() || undefined,
+        reason: banReasonInput,
+        notes: banNotesInput,
+      });
+      showToast(`Hardware Device permanently blacklisted for ${banTarget?.name || 'Device'}.`, 'success');
+      setIsBanModalOpen(false);
+      setBanTarget(null);
+      setManualDeviceIdInput('');
+      setBanNotesInput('');
+      loadBannedDevices();
+    } catch (e: any) {
+      showToast(`Ban failed: ${e.message}`, 'error');
+    } finally {
+      setIsBanningInProgress(false);
+    }
+  };
+
+  const handleUnbanDevice = async (banId: string) => {
+    try {
+      await ApiClient.unbanDevice(banId);
+      showToast('Hardware device unbanned successfully.', 'success');
+      loadBannedDevices();
+    } catch (e: any) {
+      showToast(`Unban failed: ${e.message}`, 'error');
+    }
+  };
+
   // New Category Form
   const [newCatName, setNewCatName] = useState('');
   const [newCatEmoji, setNewCatEmoji] = useState('🌾');
@@ -616,6 +674,7 @@ export const AdminDashboard: React.FC = () => {
           { id: 'categories', label: 'Categories Taxonomy', icon: Layers, badge: categories.length },
           { id: 'audit', label: 'System Audit Logs', icon: Activity, badge: auditLogs.length || undefined },
           { id: 'settings', label: 'Platform Settings', icon: Settings },
+          { id: 'device-bans', label: 'Hardware Device Bans', icon: Lock, badge: bannedDevicesList.length || undefined, alert: bannedDevicesList.length > 0 },
         ].map((tab) => {
           const Icon = tab.icon;
           const isSelected = activeTab === tab.id;
@@ -1222,6 +1281,22 @@ export const AdminDashboard: React.FC = () => {
                         </button>
                       )}
 
+                      {/* Permanent Device Ban */}
+                      {!isAdmin && (
+                        <button
+                          onClick={() => {
+                            setBanTarget({ id: u.id, name: u.name || u.email, role: u.role });
+                            setBanReasonInput('Severe terms of service violation / Fraudulent activity');
+                            setIsBanModalOpen(true);
+                          }}
+                          className="px-2.5 py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-600 hover:text-white text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-bold rounded-xl text-[11px] transition-colors flex items-center gap-1"
+                          title="Permanently Blacklist Device Hardware"
+                        >
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>Ban Device</span>
+                        </button>
+                      )}
+
                       {/* View Profile Drawer */}
                       <button
                         onClick={() => setInspectingUser(u)}
@@ -1466,6 +1541,19 @@ export const AdminDashboard: React.FC = () => {
                             Revoke
                           </button>
                         )}
+
+                        <button
+                          onClick={() => {
+                            setBanTarget({ id: farmer.user_id || farmer.id, name: farmer.name, role: 'farmer' });
+                            setBanReasonInput('Fraudulent farmer profile / Produce scam violation');
+                            setIsBanModalOpen(true);
+                          }}
+                          className="px-2.5 py-1 bg-red-50 dark:bg-red-950/40 hover:bg-red-600 hover:text-white text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-bold rounded-xl text-xs transition flex items-center gap-1"
+                          title="Permanently Ban Farmer Hardware Device"
+                        >
+                          <Lock className="w-3 h-3" />
+                          <span>Ban</span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -2236,6 +2324,186 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
+      {/* SECTION 9: HARDWARE DEVICE BAN & CYBERSECURITY BLACKLIST */}
+      {/* ========================================================================= */}
+      {activeTab === 'device-bans' && (
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Lock className="w-5 h-5 text-red-600" />
+                <span>Permanent Hardware Device Bans & Blacklist</span>
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Block fraudulent phones and browsers at the hardware level. Survives app re-installation, cache wipes, and account recreation.
+              </p>
+            </div>
+
+            <button
+              onClick={loadBannedDevices}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs self-start sm:self-auto"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Refresh Blacklist</span>
+            </button>
+          </div>
+
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="p-4 bg-red-50/70 dark:bg-red-950/30 border border-red-200/80 dark:border-red-800/60 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 block tracking-wider">
+                Total Banned Devices
+              </span>
+              <span className="text-2xl font-black text-red-900 dark:text-red-200 mt-1 block">
+                {bannedDevicesList.length}
+              </span>
+              <span className="text-[11px] text-red-600 dark:text-red-400 mt-0.5 block">
+                Physical hardware banned permanently
+              </span>
+            </div>
+
+            <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 block tracking-wider">
+                Reinstall Shield
+              </span>
+              <span className="text-2xl font-black text-emerald-900 dark:text-emerald-200 mt-1 block">
+                Active 🛡️
+              </span>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                SSAID & Multi-Store Fingerprinting
+              </span>
+            </div>
+
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-zinc-500 block tracking-wider">
+                Enforcement Gate
+              </span>
+              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1 block">
+                Global Gateway
+              </span>
+              <span className="text-[11px] text-zinc-500 mt-0.5 block">
+                Blocks API & Socket requests at Edge
+              </span>
+            </div>
+          </div>
+
+          {/* Manual Device Ban Form */}
+          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/70 dark:border-zinc-700/70 space-y-3">
+            <h3 className="font-black text-xs uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-red-600" />
+              <span>Quick Hardware Ban Tool</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <input
+                type="text"
+                placeholder="Hardware Device ID or User ID (e.g. user-xxx or hal-dev-xxx)..."
+                value={manualDeviceIdInput}
+                onChange={(e) => setManualDeviceIdInput(e.target.value)}
+                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+
+              <input
+                type="text"
+                placeholder="Reason for ban (e.g. Payment fraud, fake produce)..."
+                value={banReasonInput}
+                onChange={(e) => setBanReasonInput(e.target.value)}
+                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+
+              <button
+                type="button"
+                disabled={isBanningInProgress || (!manualDeviceIdInput.trim() && !banTarget?.id)}
+                onClick={handleConfirmDeviceBan}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{isBanningInProgress ? 'Enforcing...' : 'Ban Hardware Device Now'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Search & List of Banned Devices */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                Active Banned Hardware List ({bannedDevicesList.length})
+              </h3>
+
+              <div className="relative w-full sm:w-72">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="Search banned ID, user, phone..."
+                  value={deviceBanSearch}
+                  onChange={(e) => setDeviceBanSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400"
+                />
+              </div>
+            </div>
+
+            {bannedDevicesList.length === 0 ? (
+              <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
+                <ShieldCheck className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                <span className="font-bold text-xs block text-zinc-700 dark:text-zinc-300">No Banned Devices</span>
+                <span className="text-[11px] text-zinc-500">Your marketplace is clean. Any banned hardware devices will appear here.</span>
+              </div>
+            ) : (
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/40">
+                {bannedDevicesList
+                  .filter((b) => {
+                    const q = deviceBanSearch.toLowerCase();
+                    return (
+                      (b.device_id || '').toLowerCase().includes(q) ||
+                      (b.user_name || '').toLowerCase().includes(q) ||
+                      (b.user_phone || '').toLowerCase().includes(q) ||
+                      (b.reason || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((ban) => (
+                    <div key={ban.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-red-600 dark:text-red-400 truncate max-w-xs sm:max-w-md">
+                            {ban.device_id}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 uppercase">
+                            Banned
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                          {ban.user_name && (
+                            <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                              User: {ban.user_name}
+                            </span>
+                          )}
+                          {ban.user_phone && <span>• {ban.user_phone}</span>}
+                          {ban.device_model && <span>• Model: {ban.device_model}</span>}
+                          <span>• Date: {new Date(ban.banned_at).toLocaleDateString()}</span>
+                        </div>
+
+                        <p className="text-[11px] text-red-700 dark:text-red-400 font-medium">
+                          Reason: {ban.reason}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => handleUnbanDevice(ban.id)}
+                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 hover:text-emerald-700 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 transition self-end md:self-center shrink-0"
+                      >
+                        Unban Hardware
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* MODAL 1: INTERACTIVE KYC PROOF DOCUMENT VIEWER */}
       {/* ========================================================================= */}
       {inspectingKycDoc && (
@@ -2375,6 +2643,186 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION 9: HARDWARE DEVICE BAN & CYBERSECURITY BLACKLIST */}
+      {/* ========================================================================= */}
+      {activeTab === 'device-bans' && (
+        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Lock className="w-5 h-5 text-red-600" />
+                <span>Permanent Hardware Device Bans & Blacklist</span>
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Block fraudulent phones and browsers at the hardware level. Survives app re-installation, cache wipes, and account recreation.
+              </p>
+            </div>
+
+            <button
+              onClick={loadBannedDevices}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs self-start sm:self-auto"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Refresh Blacklist</span>
+            </button>
+          </div>
+
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="p-4 bg-red-50/70 dark:bg-red-950/30 border border-red-200/80 dark:border-red-800/60 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 block tracking-wider">
+                Total Banned Devices
+              </span>
+              <span className="text-2xl font-black text-red-900 dark:text-red-200 mt-1 block">
+                {bannedDevicesList.length}
+              </span>
+              <span className="text-[11px] text-red-600 dark:text-red-400 mt-0.5 block">
+                Physical hardware banned permanently
+              </span>
+            </div>
+
+            <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 block tracking-wider">
+                Reinstall Shield
+              </span>
+              <span className="text-2xl font-black text-emerald-900 dark:text-emerald-200 mt-1 block">
+                Active 🛡️
+              </span>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                SSAID & Multi-Store Fingerprinting
+              </span>
+            </div>
+
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl">
+              <span className="text-[10px] uppercase font-bold text-zinc-500 block tracking-wider">
+                Enforcement Gate
+              </span>
+              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1 block">
+                Global Gateway
+              </span>
+              <span className="text-[11px] text-zinc-500 mt-0.5 block">
+                Blocks API & Socket requests at Edge
+              </span>
+            </div>
+          </div>
+
+          {/* Manual Device Ban Form */}
+          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/70 dark:border-zinc-700/70 space-y-3">
+            <h3 className="font-black text-xs uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-red-600" />
+              <span>Quick Hardware Ban Tool</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <input
+                type="text"
+                placeholder="Hardware Device ID or User ID (e.g. user-xxx or hal-dev-xxx)..."
+                value={manualDeviceIdInput}
+                onChange={(e) => setManualDeviceIdInput(e.target.value)}
+                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+
+              <input
+                type="text"
+                placeholder="Reason for ban (e.g. Payment fraud, fake produce)..."
+                value={banReasonInput}
+                onChange={(e) => setBanReasonInput(e.target.value)}
+                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+
+              <button
+                type="button"
+                disabled={isBanningInProgress || (!manualDeviceIdInput.trim() && !banTarget?.id)}
+                onClick={handleConfirmDeviceBan}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{isBanningInProgress ? 'Enforcing...' : 'Ban Hardware Device Now'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Search & List of Banned Devices */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                Active Banned Hardware List ({bannedDevicesList.length})
+              </h3>
+
+              <div className="relative w-full sm:w-72">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="Search banned ID, user, phone..."
+                  value={deviceBanSearch}
+                  onChange={(e) => setDeviceBanSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400"
+                />
+              </div>
+            </div>
+
+            {bannedDevicesList.length === 0 ? (
+              <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
+                <ShieldCheck className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                <span className="font-bold text-xs block text-zinc-700 dark:text-zinc-300">No Banned Devices</span>
+                <span className="text-[11px] text-zinc-500">Your marketplace is clean. Any banned hardware devices will appear here.</span>
+              </div>
+            ) : (
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/40">
+                {bannedDevicesList
+                  .filter((b) => {
+                    const q = deviceBanSearch.toLowerCase();
+                    return (
+                      (b.device_id || '').toLowerCase().includes(q) ||
+                      (b.user_name || '').toLowerCase().includes(q) ||
+                      (b.user_phone || '').toLowerCase().includes(q) ||
+                      (b.reason || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((ban) => (
+                    <div key={ban.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-red-600 dark:text-red-400 truncate max-w-xs sm:max-w-md">
+                            {ban.device_id}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 uppercase">
+                            Banned
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                          {ban.user_name && (
+                            <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                              User: {ban.user_name}
+                            </span>
+                          )}
+                          {ban.user_phone && <span>• {ban.user_phone}</span>}
+                          {ban.device_model && <span>• Model: {ban.device_model}</span>}
+                          <span>• Date: {new Date(ban.banned_at).toLocaleDateString()}</span>
+                        </div>
+
+                        <p className="text-[11px] text-red-700 dark:text-red-400 font-medium">
+                          Reason: {ban.reason}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => handleUnbanDevice(ban.id)}
+                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 hover:text-emerald-700 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 transition self-end md:self-center shrink-0"
+                      >
+                        Unban Hardware
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -2855,6 +3303,82 @@ export const AdminDashboard: React.FC = () => {
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Log Out Now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: PERMANENT DEVICE BAN CONFIRMATION */}
+      {isBanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
+          <div
+            className="w-full max-w-md bg-white dark:bg-[#181F1A] rounded-3xl p-6 shadow-2xl border border-red-500/30 space-y-4 animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 flex items-center justify-center text-red-600 shrink-0">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-black text-base text-zinc-900 dark:text-white">
+                  Permanently Ban Device Hardware
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Target: <strong className="text-red-600">{banTarget?.name || 'Device Hardware'}</strong>
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
+              This will permanently blacklist the physical phone / hardware identifier. The user will be immediately logged out and cannot re-register or use HALDHAR even after clearing app data or reinstalling the APK.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block">
+                Reason for Permanent Hardware Ban *
+              </label>
+              <input
+                type="text"
+                value={banReasonInput}
+                onChange={(e) => setBanReasonInput(e.target.value)}
+                className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="e.g. Repeated scamming, fake produce ads, payment fraud"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block">
+                Internal Security Notes (Optional)
+              </label>
+              <textarea
+                value={banNotesInput}
+                onChange={(e) => setBanNotesInput(e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="Audit notes for administrative records..."
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsBanModalOpen(false);
+                  setBanTarget(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isBanningInProgress || !banReasonInput.trim()}
+                onClick={handleConfirmDeviceBan}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{isBanningInProgress ? 'Enforcing Ban...' : 'Confirm & Ban Device'}</span>
               </button>
             </div>
           </div>

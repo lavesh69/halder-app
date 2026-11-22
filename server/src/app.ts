@@ -8,6 +8,7 @@ import apiRouter from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
 import { sanitizeRequestInputs } from './middleware/sanitizeMiddleware';
+import { deviceBanMiddleware } from './middleware/deviceBanMiddleware';
 import { getDatabase } from './db/database';
 import { createTursoMiddleware } from './db/turso';
 import { createSupabaseMiddleware } from './db/supabaseSync';
@@ -105,6 +106,9 @@ app.use(sanitizeRequestInputs);
 
 // Rate Limiting on API
 app.use('/api', apiLimiter);
+
+// Global Permanent Hardware Device Ban Enforcement
+app.use('/api', deviceBanMiddleware);
 
 // Serve static uploads with nosniff and isolated CSP
 const activeUploadDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : env.UPLOAD_DIR;

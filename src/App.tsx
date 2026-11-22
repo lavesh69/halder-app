@@ -35,6 +35,7 @@ const FarmerProfileView = React.lazy(() => import('./components/farmer/FarmerPro
 // Admin dashboard & Notifications
 const AdminDashboard = React.lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 import { NotificationModal } from './components/common/NotificationModal';
+import { DeviceBanScreen } from './components/common/DeviceBanScreen';
 import { useAndroidHardware } from './hooks/useAndroidHardware';
 
 export const MainApp: React.FC = () => {
@@ -62,6 +63,33 @@ export const MainApp: React.FC = () => {
     isPostRequirementOpen,
     setIsPostRequirementOpen,
   } = useApp();
+
+  // Global Device Hardware Ban Enforcement
+  const [bannedDetail, setBannedDetail] = useState<any>(() => {
+    try {
+      const saved = localStorage.getItem('halder_banned_device_cache');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const handleBanned = (e: any) => {
+      const detail = e.detail || { reason: 'Permanent hardware suspension' };
+      setBannedDetail(detail);
+      try {
+        localStorage.setItem('halder_banned_device_cache', JSON.stringify(detail));
+      } catch {}
+    };
+
+    window.addEventListener('halder:device-banned', handleBanned);
+    return () => window.removeEventListener('halder:device-banned', handleBanned);
+  }, []);
+
+  if (bannedDetail) {
+    return <DeviceBanScreen banDetail={bannedDetail} />;
+  }
 
   // Proactively clear any legacy lockout or PIN artifacts from client storage
   useEffect(() => {

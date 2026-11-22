@@ -93148,6 +93148,216 @@ var AdminService = class {
   }
 };
 
+// server/src/services/deviceBanService.ts
+init_database();
+init_errors3();
+init_esm();
+var DeviceBanService = class {
+  /**
+   * Initializes the banned_devices table if not present.
+   */
+  static initTable() {
+    try {
+      Database.run(`
+        CREATE TABLE IF NOT EXISTS banned_devices (
+          id TEXT PRIMARY KEY,
+          device_id TEXT NOT NULL,
+          fingerprint_hash TEXT,
+          user_id TEXT,
+          user_name TEXT,
+          user_phone TEXT,
+          device_model TEXT DEFAULT 'Unknown Device',
+          ip_address TEXT DEFAULT '',
+          reason TEXT NOT NULL,
+          banned_by TEXT NOT NULL DEFAULT 'admin',
+          banned_at TEXT NOT NULL,
+          is_active INTEGER NOT NULL DEFAULT 1,
+          notes TEXT DEFAULT ''
+        );
+      `);
+      Database.run(`CREATE INDEX IF NOT EXISTS idx_banned_devices_id ON banned_devices(device_id);`);
+      Database.run(`CREATE INDEX IF NOT EXISTS idx_banned_devices_fp ON banned_devices(fingerprint_hash);`);
+      Database.run(`CREATE INDEX IF NOT EXISTS idx_banned_devices_user ON banned_devices(user_id);`);
+      const db = Database.getDB();
+      const userCols = db.prepare(`PRAGMA table_info(users)`).all().map((c5) => c5.name);
+      if (!userCols.includes("last_device_id")) {
+        db.exec(`ALTER TABLE users ADD COLUMN last_device_id TEXT DEFAULT ''`);
+      }
+      if (!userCols.includes("last_device_fingerprint")) {
+        db.exec(`ALTER TABLE users ADD COLUMN last_device_fingerprint TEXT DEFAULT ''`);
+      }
+      if (!userCols.includes("last_device_model")) {
+        db.exec(`ALTER TABLE users ADD COLUMN last_device_model TEXT DEFAULT ''`);
+      }
+    } catch (e5) {
+      console.warn("[DeviceBanService] Table init notice:", e5.message);
+    }
+  }
+  /**
+   * Fast check if a device is permanently banned.
+   */
+  static isDeviceBanned(deviceId, fingerprintHash) {
+    if (!deviceId && !fingerprintHash) {
+      return { banned: false };
+    }
+    this.initTable();
+    if (deviceId) {
+      const match = Database.get(
+        `SELECT * FROM banned_devices WHERE device_id = ? AND is_active = 1 LIMIT 1`,
+        [deviceId]
+      );
+      if (match) {
+        return { banned: true, banInfo: match };
+      }
+    }
+    if (fingerprintHash && fingerprintHash !== "server-env") {
+      const match = Database.get(
+        `SELECT * FROM banned_devices WHERE fingerprint_hash = ? AND is_active = 1 LIMIT 1`,
+        [fingerprintHash]
+      );
+      if (match) {
+        return { banned: true, banInfo: match };
+      }
+    }
+    return { banned: false };
+  }
+  /**
+   * Bans a device permanently by user ID or direct hardware identifier.
+   */
+  static banDevice(params) {
+    this.initTable();
+    const {
+      userId,
+      reason,
+      bannedBy = "security_admin",
+      notes = ""
+    } = params;
+    let targetDeviceId = params.deviceId;
+    let targetFp = params.fingerprint;
+    let targetModel = params.deviceModel || "Unknown Device";
+    let targetIp = params.ipAddress || "";
+    let targetUserName = "";
+    let targetUserPhone = "";
+    if (userId) {
+      const user = Database.get(
+        `SELECT id, name, phone, email, last_device_id, last_device_fingerprint, last_device_model FROM users WHERE id = ?`,
+        [userId]
+      );
+      if (user) {
+        targetUserName = user.name || "";
+        targetUserPhone = user.phone || "";
+        if (!targetDeviceId && user.last_device_id) {
+          targetDeviceId = user.last_device_id;
+        }
+        if (!targetFp && user.last_device_fingerprint) {
+          targetFp = user.last_device_fingerprint;
+        }
+        if (user.last_device_model) {
+          targetModel = user.last_device_model;
+        }
+        Database.run(
+          `UPDATE users SET status = 'suspended', updated_at = ? WHERE id = ?`,
+          [(/* @__PURE__ */ new Date()).toISOString(), userId]
+        );
+      }
+    }
+    if (!targetDeviceId && !targetFp) {
+      throw AppError.badRequest("Cannot ban device: No hardware device ID or fingerprint provided or found for this user.");
+    }
+    const banId = `ban-${v4_default()}`;
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `INSERT OR REPLACE INTO banned_devices 
+       (id, device_id, fingerprint_hash, user_id, user_name, user_phone, device_model, ip_address, reason, banned_by, banned_at, is_active, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+      [
+        banId,
+        targetDeviceId || `fp-${targetFp}`,
+        targetFp || null,
+        userId || null,
+        targetUserName,
+        targetUserPhone,
+        targetModel,
+        targetIp,
+        reason,
+        bannedBy,
+        now,
+        notes
+      ]
+    );
+    return {
+      success: true,
+      banId,
+      deviceId: targetDeviceId || `fp-${targetFp}`,
+      fingerprint: targetFp,
+      bannedAt: now,
+      reason
+    };
+  }
+  /**
+   * Revokes a device ban (Unban).
+   */
+  static unbanDevice(banIdOrDeviceId) {
+    this.initTable();
+    const record = Database.get(
+      `SELECT * FROM banned_devices WHERE id = ? OR device_id = ?`,
+      [banIdOrDeviceId, banIdOrDeviceId]
+    );
+    if (!record) {
+      throw AppError.notFound("Banned device record not found.");
+    }
+    Database.run(
+      `UPDATE banned_devices SET is_active = 0 WHERE id = ?`,
+      [record.id]
+    );
+    if (record.user_id) {
+      Database.run(
+        `UPDATE users SET status = 'active', updated_at = ? WHERE id = ? AND status = 'suspended'`,
+        [(/* @__PURE__ */ new Date()).toISOString(), record.user_id]
+      );
+    }
+    return { success: true, message: `Device ${record.device_id} unbanned successfully.` };
+  }
+  /**
+   * Lists all permanently banned devices.
+   */
+  static listBannedDevices() {
+    this.initTable();
+    return Database.query(
+      `SELECT * FROM banned_devices WHERE is_active = 1 ORDER BY banned_at DESC`
+    );
+  }
+  /**
+   * Records device information on authentication / request.
+   */
+  static recordDeviceActivity(userId, deviceId, fingerprint, model) {
+    if (!userId || !deviceId && !fingerprint) return;
+    try {
+      this.initTable();
+      const updates = ["updated_at = ?"];
+      const values = [(/* @__PURE__ */ new Date()).toISOString()];
+      if (deviceId) {
+        updates.push("last_device_id = ?");
+        values.push(deviceId);
+      }
+      if (fingerprint) {
+        updates.push("last_device_fingerprint = ?");
+        values.push(fingerprint);
+      }
+      if (model) {
+        updates.push("last_device_model = ?");
+        values.push(model);
+      }
+      values.push(userId);
+      Database.run(
+        `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
+        values
+      );
+    } catch {
+    }
+  }
+};
+
 // server/src/controllers/adminController.ts
 var AdminController = class {
   static async getKPIs(req, res, next) {
@@ -93240,6 +93450,38 @@ var AdminController = class {
         success: true,
         data: result
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async banDevice(req, res, next) {
+    try {
+      const { userId, deviceId, fingerprint, reason, notes } = req.body;
+      const result = DeviceBanService.banDevice({
+        userId,
+        deviceId,
+        fingerprint,
+        reason: reason || "Violation of HALDHAR Marketplace Rules",
+        bannedBy: req.user?.name || "Administrator",
+        notes
+      });
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listBannedDevices(req, res, next) {
+    try {
+      const list2 = DeviceBanService.listBannedDevices();
+      res.json({ success: true, data: list2 });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async unbanDevice(req, res, next) {
+    try {
+      const result = DeviceBanService.unbanDevice(req.params.id);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }
@@ -93338,6 +93580,9 @@ router9.get("/kyc/pending", AdminController.listPendingKYC);
 router9.patch("/farmers/:id/kyc", AdminController.reviewKYC);
 router9.post("/categories", validateBody(categorySchema), AdminController.addCategory);
 router9.get("/audit-logs", AdminController.listAuditLogs);
+router9.post("/devices/ban", AdminController.banDevice);
+router9.get("/devices/banned", AdminController.listBannedDevices);
+router9.post("/devices/unban/:id", AdminController.unbanDevice);
 router9.get("/sync-status", async (req, res, next) => {
   try {
     const status = getSupabaseStatus();
@@ -98599,6 +98844,39 @@ function sanitizeRequestInputs(req, _res, next) {
   next();
 }
 
+// server/src/middleware/deviceBanMiddleware.ts
+function deviceBanMiddleware(req, res, next) {
+  if (req.path === "/health" || req.path === "/api/v1/health" || req.path.startsWith("/api/v1/payments/webhook")) {
+    return next();
+  }
+  if (req.path.startsWith("/api/v1/admin/devices/unban")) {
+    return next();
+  }
+  const deviceId = req.headers["x-device-id"] || null;
+  const fingerprint = req.headers["x-device-fingerprint"] || null;
+  const deviceModel = req.headers["x-device-model"] || null;
+  const { banned, banInfo } = DeviceBanService.isDeviceBanned(deviceId, fingerprint);
+  if (banned && banInfo) {
+    return res.status(403).json({
+      success: false,
+      error: {
+        code: "DEVICE_PERMANENTLY_BANNED",
+        message: "This device has been permanently suspended by HALDHAR Cyber-Security due to policy violations.",
+        reason: banInfo.reason || "Hardware blacklist enforced",
+        deviceId: banInfo.device_id,
+        bannedAt: banInfo.banned_at
+      }
+    });
+  }
+  if (req.user?.id && (deviceId || fingerprint)) {
+    try {
+      DeviceBanService.recordDeviceActivity(req.user.id, deviceId || void 0, fingerprint || void 0, deviceModel || void 0);
+    } catch {
+    }
+  }
+  next();
+}
+
 // server/src/app.ts
 init_database();
 init_turso();
@@ -98683,6 +98961,7 @@ app.use(import_express25.default.urlencoded({ extended: true, limit: "10mb" }));
 app.use((0, import_cookie_parser.default)());
 app.use(sanitizeRequestInputs);
 app.use("/api", apiLimiter);
+app.use("/api", deviceBanMiddleware);
 var activeUploadDir = process.env.VERCEL ? path5.join("/tmp", "uploads") : env.UPLOAD_DIR;
 app.use(
   "/uploads",

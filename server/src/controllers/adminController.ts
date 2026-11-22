@@ -1,5 +1,6 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { AdminService } from '../services/adminService';
+import { DeviceBanService } from '../services/deviceBanService';
 
 export class AdminController {
   static async getKPIs(req: Request, res: Response, next: NextFunction) {
@@ -99,6 +100,41 @@ export class AdminController {
         success: true,
         data: result,
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async banDevice(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, deviceId, fingerprint, reason, notes } = req.body;
+      const result = DeviceBanService.banDevice({
+        userId,
+        deviceId,
+        fingerprint,
+        reason: reason || 'Violation of HALDHAR Marketplace Rules',
+        bannedBy: req.user?.name || 'Administrator',
+        notes,
+      });
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async listBannedDevices(req: Request, res: Response, next: NextFunction) {
+    try {
+      const list = DeviceBanService.listBannedDevices();
+      res.json({ success: true, data: list });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async unbanDevice(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = DeviceBanService.unbanDevice(req.params.id);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }
