@@ -247,6 +247,7 @@ interface AppContextType {
   boostProduct: (productId: string, plan: 'featured' | 'urgent' | 'combo') => void;
   deleteProduct: (productId: string) => void;
   resetDemoData: () => void;
+  clearAllDummyAccounts: () => Promise<void>;
 
   // Platform Governance & Settings
   platformSettings: PlatformSettings;
@@ -287,6 +288,48 @@ const initialDisputes: DisputeRecord[] = [];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+export const isDummyOrTestAccount = (u: any): boolean => {
+  if (!u) return false;
+  const name = String(u.name || '').toLowerCase();
+  const email = String(u.email || '').toLowerCase();
+  const phone = String(u.phone || '').toLowerCase();
+  const id = String(u.id || '').toLowerCase();
+  const farmName = String(u.farmName || u.farm_name || '').toLowerCase();
+
+  // Whitelist core seed users & genuine farmers
+  if (['user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1'].includes(id)) {
+    return false;
+  }
+  if (['farmer-1', 'farmer-2', 'farmer-3'].includes(id)) {
+    return false;
+  }
+
+  // Preserve user's own genuine account (e.g. lavesh)
+  if (email.includes('laveshdob') || phone.includes('7579406954') || name === 'lavesh') {
+    return false;
+  }
+
+  // Detect test patterns and fixture accounts
+  return (
+    name.includes('test') ||
+    email.includes('test') ||
+    id.includes('test') ||
+    email.includes('1795') ||
+    email.includes('buyer_test') ||
+    name.includes('ramesh negi') ||
+    name.includes('rohit verma') ||
+    name.includes('storage test') ||
+    name.includes('live kisan') ||
+    farmName.includes('storage test') ||
+    farmName.includes('live kisan') ||
+    name.includes('suresh chandra') ||
+    name.includes('kishore singh') ||
+    name.includes('vikas rawat') ||
+    name.includes('balwant singh negi') ||
+    name === 'ramesh singh'
+  );
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>(() => {
     return (localStorage.getItem('halder-role') as Role) || 'customer';
@@ -298,7 +341,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [users, setUsers] = useState<User[]>(() => {
     const saved = localStorage.getItem('halder-users-v2');
-    return saved ? JSON.parse(saved) : initialUsers;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((u: any) => !isDummyOrTestAccount(u));
+          localStorage.setItem('halder-users-v2', JSON.stringify(clean));
+          return clean.length > 0 ? clean : initialUsers;
+        }
+      } catch {}
+    }
+    return initialUsers;
   });
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -336,7 +389,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return Array.isArray(parsed) ? parsed.filter((f: any) => !f.id?.startsWith('farmer-')) : [];
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((f: any) => !isDummyOrTestAccount(f));
+          safeStorageSet('halder-farmers-v2', JSON.stringify(clean));
+          return clean.length > 0 ? clean : initialFarmers;
+        }
       } catch {
         return initialFarmers;
       }
@@ -2011,6 +2068,95 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('Marketplace demo data restored!', 'info');
   };
 
+  const clearAllDummyAccounts = async () => {
+    setUsers((prev) => prev.filter((u) => !isDummyOrTestAccount(u)));
+    setFarmers((prev) => prev.filter((f) => !isDummyOrTestAccount(f)));
+
+    try {
+      const uRaw = localStorage.getItem('halder-users-v2');
+      if (uRaw) {
+        const uParsed = JSON.parse(uRaw);
+        if (Array.isArray(uParsed)) {
+          localStorage.setItem('halder-users-v2', JSON.stringify(uParsed.filter((u: any) => !isDummyOrTestAccount(u))));
+        }
+      }
+      const fRaw = localStorage.getItem('halder-farmers-v2');
+      if (fRaw) {
+        const fParsed = JSON.parse(fRaw);
+        if (Array.isArray(fParsed)) {
+          safeStorageSet('halder-farmers-v2', JSON.stringify(fParsed.filter((f: any) => !isDummyOrTestAccount(f))));
+        }
+      }
+    } catch {}
+
+    try {
+      await ApiClient.purgeTestAccounts();
+    } catch (e: any) {
+      console.warn('[HALDER Sync] purgeTestAccounts server sync warning:', e.message);
+    }
+
+    try {
+      const [freshUsers, freshFarmers] = await Promise.all([
+        ApiClient.getAdminUsers().catch(() => null),
+        ApiClient.getFarmers().catch(() => null),
+      ]);
+      if (Array.isArray(freshUsers?.data)) {
+        setUsers(freshUsers.data.filter((u: any) => !isDummyOrTestAccount(u)));
+      } else if (Array.isArray(freshUsers)) {
+        setUsers(freshUsers.filter((u: any) => !isDummyOrTestAccount(u)));
+      }
+      if (Array.isArray(freshFarmers) && freshFarmers.length > 0) {
+        setFarmers(freshFarmers.filter((f: any) => !isDummyOrTestAccount(f)).map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          farmName: f.farm_name,
+          location: f.location,
+          city: f.city,
+          distanceKm: 2.3,
+          rating: f.rating,
+          totalOrders: f.total_orders,
+          totalListingsCount: f.total_listings_count,
+          responseRate: f.response_rate,
+          joinedYear: f.joined_year,
+          avatar: f.avatar,
+          coverImage: f.cover_image,
+          verificationStatus: f.verification_status,
+          description: f.description,
+        })) as any);
+      }
+    } catch {}
+
+    showToast('All dummy and test accounts permanently cleared!', 'success');
+  };
+
+  // Proactive scrub of dummy and test accounts on application startup
+  useEffect(() => {
+    try {
+      const uRaw = localStorage.getItem('halder-users-v2');
+      if (uRaw) {
+        const uParsed = JSON.parse(uRaw);
+        if (Array.isArray(uParsed)) {
+          const uClean = uParsed.filter((u: any) => !isDummyOrTestAccount(u));
+          if (uClean.length !== uParsed.length) {
+            localStorage.setItem('halder-users-v2', JSON.stringify(uClean));
+            setUsers(uClean.length > 0 ? uClean : initialUsers);
+          }
+        }
+      }
+      const fRaw = localStorage.getItem('halder-farmers-v2');
+      if (fRaw) {
+        const fParsed = JSON.parse(fRaw);
+        if (Array.isArray(fParsed)) {
+          const fClean = fParsed.filter((f: any) => !isDummyOrTestAccount(f));
+          if (fClean.length !== fParsed.length) {
+            safeStorageSet('halder-farmers-v2', JSON.stringify(fClean));
+            setFarmers(fClean.length > 0 ? fClean : initialFarmers);
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -2149,6 +2295,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         boostProduct,
         deleteProduct,
         resetDemoData,
+        clearAllDummyAccounts,
         platformSettings,
         updatePlatformSettings,
         disputes,

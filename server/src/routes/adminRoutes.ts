@@ -36,6 +36,7 @@ router.get('/audit-logs', AdminController.listAuditLogs);
 router.post('/devices/ban', AdminController.banDevice);
 router.get('/devices/banned', AdminController.listBannedDevices);
 router.post('/devices/unban/:id', AdminController.unbanDevice);
+router.post('/purge-test-accounts', AdminController.purgeTestAccounts);
 
 // Real-Time Cloud Persistence & Sync Status
 router.get('/sync-status', async (req, res, next) => {

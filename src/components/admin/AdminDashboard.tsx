@@ -92,6 +92,7 @@ export const AdminDashboard: React.FC = () => {
     toggleCategoryActive,
     showToast,
     resetDemoData,
+    clearAllDummyAccounts,
     setRole,
     platformSettings,
     updatePlatformSettings,
@@ -999,6 +1000,15 @@ export const AdminDashboard: React.FC = () => {
 
             <div className="flex items-center gap-2 shrink-0">
               <button
+                onClick={clearAllDummyAccounts}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl transition text-xs shadow-2xs"
+                title="Purge all test/dummy fixtures from database and local storage"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear Dummy Accounts</span>
+              </button>
+
+              <button
                 onClick={exportUsersToCSV}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs"
                 title="Download users export as CSV"
@@ -1455,7 +1465,15 @@ export const AdminDashboard: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={clearAllDummyAccounts}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl transition text-xs shadow-2xs"
+                  title="Purge all test/dummy fixtures from database and local storage"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Dummy Accounts</span>
+                </button>
                 <input
                   type="text"
                   placeholder="Filter farmer name, farm, city..."

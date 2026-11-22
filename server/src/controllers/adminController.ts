@@ -139,4 +139,13 @@ export class AdminController {
       next(err);
     }
   }
+
+  static async purgeTestAccounts(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = AdminService.purgeTestAccounts();
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

@@ -90,4 +90,44 @@ export class AdminService {
   static listAuditLogs() {
     return Database.query<any>('SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100');
   }
+
+  static purgeTestAccounts() {
+    Database.run(`DELETE FROM banned_devices WHERE device_id LIKE 'test-%'`);
+
+    const testPatterns = [
+      'Ramesh Negi %',
+      'Rohit Verma %',
+      'Storage Test Farmer%',
+      'Live Kisan Test%',
+      '%test%@test.com',
+      '%test_chat%',
+      '%farmer_test_%',
+      'buyer_test_%',
+      'Ramesh Singh%',
+      'Kishore Singh%',
+      'Suresh Chandra%',
+      'Vikas Rawat%',
+      'Balwant Singh Negi%',
+    ];
+
+    let totalDeleted = 0;
+    for (const pattern of testPatterns) {
+      Database.run(
+        `DELETE FROM farmer_profiles WHERE user_id IN (SELECT id FROM users WHERE (name LIKE ? OR email LIKE ?) AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1'))`,
+        [pattern, pattern]
+      );
+      const res = Database.run(
+        `DELETE FROM users WHERE (name LIKE ? OR email LIKE ?) AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`,
+        [pattern, pattern]
+      );
+      totalDeleted += res.changes;
+    }
+
+    const res2 = Database.run(
+      `DELETE FROM users WHERE (email LIKE '%1795%' OR email LIKE 'ramesh_%@gmail.com' OR email LIKE '%@test.com') AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`
+    );
+    totalDeleted += res2.changes;
+
+    return { purgedCount: totalDeleted };
+  }
 }

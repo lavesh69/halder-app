@@ -317,6 +317,12 @@ export class ApiClient {
     });
   }
 
+  static purgeTestAccounts() {
+    return this.request('/admin/purge-test-accounts', {
+      method: 'POST',
+    });
+  }
+
   static adminGetPendingKYC() {
     return this.request('/admin/kyc/pending');
   }
