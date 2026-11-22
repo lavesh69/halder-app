@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ListingCard } from '../common/ListingCard';
+import { ListingCardSkeleton } from '../common/ListingCardSkeleton';
 import { ApiClient } from '../../api/client';
 import { matchesSearchQuery } from '../../utils/formatters';
 import {
@@ -47,6 +48,7 @@ export const SearchScreen: React.FC = () => {
   } = useApp();
 
   const [inputVal, setInputVal] = useState(searchQuery);
+  const [isSearching, setIsSearching] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [searchViewMode, setSearchViewMode] = useState<"grid" | "list">("grid");
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
@@ -80,6 +82,16 @@ export const SearchScreen: React.FC = () => {
   useEffect(() => {
     setInputVal(searchQuery);
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (inputVal.trim()) {
+      setIsSearching(true);
+      const timer = setTimeout(() => setIsSearching(false), 160);
+      return () => clearTimeout(timer);
+    } else {
+      setIsSearching(false);
+    }
+  }, [inputVal]);
 
   const handleSearch = (term: string) => {
     setInputVal(term);
@@ -364,7 +376,17 @@ export const SearchScreen: React.FC = () => {
               </div>
             </div>
 
-            {sortedListings.length === 0 ? (
+            {isSearching ? (
+              searchViewMode === 'grid' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                  <ListingCardSkeleton variant="compact-grid" count={6} />
+                </div>
+              ) : (
+                <div className="space-y-3.5">
+                  <ListingCardSkeleton variant="vertical-feed" count={4} />
+                </div>
+              )
+            ) : sortedListings.length === 0 ? (
               <div className="p-5 sm:p-8 text-center bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-3 mt-4">
                 <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
                   <Search className="w-6 h-6" />

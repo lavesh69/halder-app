@@ -13,7 +13,7 @@ const registerSchema = z.object({
   }).optional(),
   name: z.string().min(2).max(100),
   email: z.string().email().max(120),
-  phone: z.string().min(10).max(15),
+  phone: z.string().min(6).max(30).optional().or(z.literal('')),
   password: z.string().min(6).max(128).optional(),
   role: z.enum(['customer', 'farmer']),
   farmName: z.string().max(120).optional(),

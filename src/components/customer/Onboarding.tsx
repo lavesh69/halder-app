@@ -158,21 +158,35 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           setIsSubmittingAuth(false);
           return;
         }
+        const digits = realPhone.replace(/\D/g, '');
+        const cleanPhone = digits.length >= 10
+          ? digits.slice(-10)
+          : (realPhone.trim() || `98${Math.floor(10000000 + Math.random() * 90000000)}`);
+
         const res: any = await ApiClient.register({
           username: cleanUsername,
           name: realName.trim(),
           email: realEmail.trim().toLowerCase(),
-          phone: realPhone.trim() || `+91 ${Math.floor(6000000000 + Math.random() * 3000000000)}`,
+          phone: cleanPhone,
           password: realPassword,
           role: selectedRole,
         });
-        if (res?.token) ApiClient.setToken(res.token);
-        signup(
-          res?.user?.name || realName.trim(),
-          res?.user?.email || realEmail.trim().toLowerCase(),
-          res?.user?.phone || realPhone.trim() || '+91 98765 43210',
-          selectedRole
-        );
+
+        const user = res?.user || res?.data?.user;
+        const token = res?.token || res?.data?.token;
+
+        if (user && token) {
+          setAuthenticatedSession(user, token);
+        } else {
+          signup(
+            user?.name || realName.trim(),
+            user?.email || realEmail.trim().toLowerCase(),
+            user?.phone || cleanPhone,
+            selectedRole
+          );
+          setHasSeenOnboarding(true);
+          setIsLoggedIn(true);
+        }
         showToast(`Welcome, @${cleanUsername}! Account successfully created.`, 'success');
       } else {
         const idToLogin = loginIdentifier.trim() || realEmail.trim();

@@ -27,7 +27,8 @@ export class AuthService {
     }
 
     const cleanEmail = data.email.toLowerCase().trim();
-    const cleanPhone = data.phone.trim();
+    const digits = (data.phone || '').replace(/\D/g, '');
+    let cleanPhone = digits.length >= 10 ? digits.slice(-10) : (data.phone?.trim() || `98${Math.floor(10000000 + Math.random() * 90000000)}`);
 
     // Unique Username Validation & Derivation
     let cleanUsername = (data.username || '').toLowerCase().trim().replace(/^@/, '');
@@ -58,7 +59,11 @@ export class AuthService {
 
     const existingPhone = Database.get('SELECT id FROM users WHERE phone = ?', [cleanPhone]);
     if (existingPhone) {
-      throw AppError.conflict('An account with this phone number already exists.', 'PHONE_ALREADY_EXISTS');
+      if (!data.phone || data.phone.trim() === '') {
+        cleanPhone = `98${Math.floor(10000000 + Math.random() * 90000000)}`;
+      } else {
+        throw AppError.conflict('An account with this phone number already exists.', 'PHONE_ALREADY_EXISTS');
+      }
     }
 
     const userId = `user-${uuidv4()}`;

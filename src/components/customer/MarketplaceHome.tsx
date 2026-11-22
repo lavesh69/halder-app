@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ListingCardSkeleton } from '../common/ListingCardSkeleton';
 import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import { ExploreCategoriesModal } from './ExploreCategoriesModal';
 import { ProductCategory } from '../../types';
 import {
@@ -29,6 +30,8 @@ import {
   Plus,
   X,
   Check,
+  RefreshCw,
+  ArrowDown,
 } from 'lucide-react';
 
 const categories: { label: string; cat: ProductCategory; emoji: string }[] = [
@@ -72,6 +75,7 @@ export const MarketplaceHome: React.FC = () => {
   const {
     products,
     isLoadingProducts,
+    refreshProducts,
     farmers,
     selectedCategory,
     setSelectedCategory,
@@ -247,8 +251,43 @@ export const MarketplaceHome: React.FC = () => {
   const organicListings = products.filter((p) => p.isOrganic).slice(0, 4);
   const freshToday = products.filter((p) => p.isAvailableToday).slice(0, 4);
 
+  // Mobile Pull-to-Refresh Gesture
+  const { pullDistance, isRefreshing } = usePullToRefresh({
+    onRefresh: async () => {
+      await refreshProducts();
+      showToast('🌾 Mandi rates & crop listings refreshed!', 'success');
+    },
+  });
+
   return (
-    <div className="space-y-6 pb-24 animate-fade-in">
+    <div className="space-y-6 pb-24 animate-fade-in relative">
+      {/* Mobile Pull-to-Refresh Indicator */}
+      {(pullDistance > 0 || isRefreshing) && (
+        <div
+          className="flex items-center justify-center transition-all duration-150 overflow-hidden"
+          style={{ height: `${pullDistance}px` }}
+        >
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80 text-xs font-bold shadow-md">
+            {isRefreshing ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
+                <span>Refreshing mandi rates... / ताजा भाव लोड हो रहे हैं...</span>
+              </>
+            ) : pullDistance >= 65 ? (
+              <>
+                <ArrowDown className="w-4 h-4 rotate-180 transition-transform text-emerald-600" />
+                <span>Release to refresh / छोड़ें</span>
+              </>
+            ) : (
+              <>
+                <ArrowDown className="w-4 h-4 text-emerald-600 transition-transform" />
+                <span>Pull down to refresh / नीचे खींचें</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 1. Location Banner & Prominent Classifieds Search Bar */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">

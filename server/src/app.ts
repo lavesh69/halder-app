@@ -12,6 +12,7 @@ import { createTursoMiddleware } from './db/turso';
 import { createSupabaseMiddleware } from './db/supabaseSync';
 
 export const app = express();
+app.set('trust proxy', 1);
 
 // Security Headers & Content Security Policy
 app.use(

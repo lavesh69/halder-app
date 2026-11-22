@@ -87231,7 +87231,8 @@ var AuthService = class _AuthService {
       throw AppError.forbidden("Administrative accounts cannot be registered via public API.", "ADMIN_REGISTRATION_PROHIBITED");
     }
     const cleanEmail = data.email.toLowerCase().trim();
-    const cleanPhone = data.phone.trim();
+    const digits = (data.phone || "").replace(/\D/g, "");
+    let cleanPhone = digits.length >= 10 ? digits.slice(-10) : data.phone?.trim() || `98${Math.floor(1e7 + Math.random() * 9e7)}`;
     let cleanUsername = (data.username || "").toLowerCase().trim().replace(/^@/, "");
     if (!cleanUsername) {
       const base = cleanEmail.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 20) || "user";
@@ -87258,7 +87259,11 @@ var AuthService = class _AuthService {
     }
     const existingPhone = Database.get("SELECT id FROM users WHERE phone = ?", [cleanPhone]);
     if (existingPhone) {
-      throw AppError.conflict("An account with this phone number already exists.", "PHONE_ALREADY_EXISTS");
+      if (!data.phone || data.phone.trim() === "") {
+        cleanPhone = `98${Math.floor(1e7 + Math.random() * 9e7)}`;
+      } else {
+        throw AppError.conflict("An account with this phone number already exists.", "PHONE_ALREADY_EXISTS");
+      }
     }
     const userId = `user-${v4_default()}`;
     const halderId = IdentityService.generateNextId(data.role);
@@ -89002,7 +89007,7 @@ var lib_default = rateLimit;
 var authLimiter = lib_default({
   windowMs: 15 * 60 * 1e3,
   // 15 mins
-  max: 15,
+  max: 300,
   skip: () => process.env.NODE_ENV === "test",
   standardHeaders: true,
   legacyHeaders: false,
@@ -89140,7 +89145,7 @@ var registerSchema = external_exports.object({
   }).optional(),
   name: external_exports.string().min(2).max(100),
   email: external_exports.string().email().max(120),
-  phone: external_exports.string().min(10).max(15),
+  phone: external_exports.string().min(6).max(30).optional().or(external_exports.literal("")),
   password: external_exports.string().min(6).max(128).optional(),
   role: external_exports.enum(["customer", "farmer"]),
   farmName: external_exports.string().max(120).optional(),
@@ -98453,6 +98458,7 @@ init_database();
 init_turso();
 init_supabaseSync();
 var app = (0, import_express25.default)();
+app.set("trust proxy", 1);
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },

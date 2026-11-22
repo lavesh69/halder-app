@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   Product,
   Farmer,
@@ -125,6 +125,7 @@ interface AppContextType {
   // Marketplace Data
   products: Product[];
   isLoadingProducts: boolean;
+  refreshProducts: () => Promise<void>;
   farmers: Farmer[];
   orders: Order[];
   cart: CartItem[];
@@ -632,16 +633,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {}
   }, [selectedProduct]);
 
+  const attemptedDeepLinkRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       const params = new URLSearchParams(window.location.search);
       const adId = params.get('ad');
-      if (adId && products.length > 0 && !selectedProduct) {
+      if (adId && attemptedDeepLinkRef.current !== adId) {
+        attemptedDeepLinkRef.current = adId;
+
+        // 1. Check if already present in local products state
         const matched = products.find((p) => p.id === adId);
         if (matched) {
           setSelectedProduct(matched);
+          return;
         }
+
+        // 2. Fallback: Fetch directly from backend server for WhatsApp shared deep links
+        ApiClient.getProductById(adId)
+          .then((backendProd: any) => {
+            const raw = backendProd?.product || backendProd?.data || backendProd;
+            if (raw && (raw.id || raw.name)) {
+              const mapped = mapBackendProduct(raw);
+              setProducts((prev) => (prev.some((p) => p.id === mapped.id) ? prev : [mapped, ...prev]));
+              setSelectedProduct(mapped);
+            }
+          })
+          .catch((err) => {
+            console.warn('[HALDER DeepLink] Failed to load shared ad from server:', err);
+          });
       }
     } catch {}
   }, [products]);
@@ -709,49 +730,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // Live Server Backend Synchronization
+  const refreshProducts = async () => {
+    setIsLoadingProducts(true);
+    try {
+      const prodRes = await ApiClient.getProducts({
+        limit: 50,
+        latitude: 30.3165,
+        longitude: 78.0322,
+        radiusKm: searchRadiusKm,
+      });
+      if (prodRes?.products?.length > 0) {
+        const mappedProducts: Product[] = prodRes.products.map(mapBackendProduct);
+        setProducts(mappedProducts);
+      }
+    } catch (e) {
+      console.warn('[HALDER Sync] Using cached local products:', e);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+
+    try {
+      const farmRes = await ApiClient.getFarmers();
+      if (farmRes?.length > 0) {
+        setFarmers(farmRes.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          farmName: f.farm_name,
+          location: f.location,
+          city: f.city,
+          distanceKm: 2.3,
+          rating: f.rating,
+          totalOrders: f.total_orders,
+          totalListingsCount: f.total_listings_count,
+          responseRate: f.response_rate,
+          joinedYear: f.joined_year,
+          avatar: f.avatar,
+          coverImage: f.cover_image,
+          verificationStatus: f.verification_status,
+          description: f.description,
+        })));
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     let isMounted = true;
-    async function syncBackendData() {
-      try {
-        const prodRes = await ApiClient.getProducts({
-          limit: 50,
-          latitude: 30.3165,
-          longitude: 78.0322,
-          radiusKm: searchRadiusKm,
-        });
-        if (isMounted && prodRes?.products?.length > 0) {
-          const mappedProducts: Product[] = prodRes.products.map(mapBackendProduct);
-          setProducts(mappedProducts);
-        }
-      } catch (e) {
-        console.warn('[HALDER Sync] Using cached local products:', e);
-      } finally {
-        if (isMounted) setIsLoadingProducts(false);
-      }
-
-      try {
-        const farmRes = await ApiClient.getFarmers();
-        if (isMounted && farmRes?.length > 0) {
-          setFarmers(farmRes.map((f: any) => ({
-            id: f.id,
-            name: f.name,
-            farmName: f.farm_name,
-            location: f.location,
-            city: f.city,
-            distanceKm: 2.3,
-            rating: f.rating,
-            totalOrders: f.total_orders,
-            totalListingsCount: f.total_listings_count,
-            responseRate: f.response_rate,
-            joinedYear: f.joined_year,
-            avatar: f.avatar,
-            coverImage: f.cover_image,
-            verificationStatus: f.verification_status,
-            description: f.description,
-          })));
-        }
-      } catch {}
-    }
+    refreshProducts();
 
     async function syncUserData() {
       let token = localStorage.getItem('halder-auth-token');
@@ -875,7 +899,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch {}
     }
 
-    syncBackendData();
+    refreshProducts();
     syncUserData();
     return () => { isMounted = false; };
   }, []);
@@ -1010,13 +1034,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const signup = (name: string, email: string, phone: string, newRole: Role) => {
-    ApiClient.register({ name, email, phone, role: newRole })
-      .then((res) => {
-        if (res?.token) ApiClient.setToken(res.token);
-        if (res?.user) setCurrentUser(res.user);
-      })
-      .catch((e) => console.warn('[HALDER Auth] Registration queued:', e.message));
-
     const newUser: User = {
       id: `user-${Date.now()}`,
       name,
@@ -1033,6 +1050,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRoleState(newRole);
     setIsLoggedIn(true);
     setHasSeenOnboarding(true);
+    localStorage.setItem('halder-loggedin', 'true');
+    localStorage.setItem('halder-onboarded', 'true');
+    localStorage.setItem('halder-role', newRole);
+    localStorage.setItem('halder-current-user-v2', JSON.stringify(newUser));
+
+    ApiClient.register({ name, email, phone, role: newRole })
+      .then((res) => {
+        const u = res?.user || res?.data?.user;
+        const t = res?.token || res?.data?.token;
+        if (u && t) {
+          setAuthenticatedSession(u, t);
+        }
+      })
+      .catch((e) => console.warn('[HALDER Auth] Registration queued:', e.message));
+
     if (newRole === 'farmer') {
       setFarmerTab('dashboard');
     } else {
@@ -1999,6 +2031,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sendNotification,
         products,
         isLoadingProducts,
+        refreshProducts,
         farmers,
         orders,
         cart,
