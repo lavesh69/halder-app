@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ApiClient } from '../api/client';
+import { ApiClient, getApiBaseUrl } from '../api/client';
 
 export interface ChatWsMessage {
   id: string;
@@ -51,15 +51,13 @@ export function getWebSocketUrl(token?: string | null): string {
   if (import.meta.env.VITE_WS_URL) {
     wsUrl = import.meta.env.VITE_WS_URL;
   } else {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+    const apiUrl = getApiBaseUrl();
     try {
       const parsed = new URL(apiUrl);
       const wsProto = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
       wsUrl = `${wsProto}//${parsed.host}/ws`;
     } catch {
-      const wsProto = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = typeof window !== 'undefined' ? window.location.host : 'localhost:5000';
-      wsUrl = `${wsProto}//${host}/ws`;
+      wsUrl = 'wss://halder-app.vercel.app/ws';
     }
   }
 
@@ -101,6 +99,7 @@ export function useChatSocket({
   autoConnect = true,
 }: UseChatSocketOptions = {}): UseChatSocketReturn {
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isHttpOnline, setIsHttpOnline] = useState<boolean>(false);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatWsMessage[]>([]);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState<boolean>(false);
@@ -123,22 +122,43 @@ export function useChatSocket({
     return token || (typeof localStorage !== 'undefined' ? localStorage.getItem('halder-auth-token') : null);
   }, [token]);
 
-  // Load message history via REST API
+  // Load message history via REST API and localStorage cache
   const loadHistory = useCallback(async (convId?: string): Promise<ChatWsMessage[]> => {
     const targetConvId = convId || activeConversationIdRef.current;
-    if (!targetConvId || !ApiClient.hasToken()) return [];
+    if (!targetConvId) return [];
+
+    // 1. Instantly hydrate from local storage cache so chat is NEVER blank
+    let cachedList: ChatWsMessage[] = [];
+    try {
+      const saved = localStorage.getItem(`halder-chat-${targetConvId}`);
+      if (saved) {
+        cachedList = JSON.parse(saved).map(normalizeMessage);
+        if (cachedList.length > 0 && isMountedRef.current) {
+          setMessages(cachedList);
+        }
+      }
+    } catch {}
+
+    if (!ApiClient.hasToken()) return cachedList;
 
     try {
       const res = await ApiClient.getMessages(targetConvId);
       const rawList = Array.isArray(res) ? res : (res?.messages || res?.data || []);
-      const normalized = rawList.map(normalizeMessage);
-      if (isMountedRef.current) {
-        setMessages(normalized);
+      if (Array.isArray(rawList)) {
+        const normalized = rawList.map(normalizeMessage);
+        if (isMountedRef.current) {
+          setMessages(normalized);
+          setIsHttpOnline(true);
+          try {
+            localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(normalized.slice(-50)));
+          } catch {}
+        }
+        return normalized;
       }
-      return normalized;
+      return cachedList;
     } catch (err: any) {
       console.warn('[useChatSocket] Failed to load message history via REST:', err.message);
-      return [];
+      return cachedList;
     }
   }, []);
 
@@ -266,7 +286,13 @@ export function useChatSocket({
         };
 
         if (isMountedRef.current) {
-          setMessages((prev) => [...prev, optimisticMsg]);
+          setMessages((prev) => {
+            const next = [...prev, optimisticMsg];
+            try {
+              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
+            } catch {}
+            return next;
+          });
         }
 
         return optimisticMsg;
@@ -281,7 +307,11 @@ export function useChatSocket({
         if (isMountedRef.current) {
           setMessages((prev) => {
             if (prev.some((m) => m.id === normalized.id)) return prev;
-            return [...prev, normalized];
+            const next = [...prev, normalized];
+            try {
+              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
+            } catch {}
+            return next;
           });
         }
         return normalized;
@@ -303,7 +333,13 @@ export function useChatSocket({
         };
 
         if (isMountedRef.current) {
-          setMessages((prev) => [...prev, localMsg]);
+          setMessages((prev) => {
+            const next = [...prev, localMsg];
+            try {
+              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
+            } catch {}
+            return next;
+          });
         }
 
         // Automatic simulated response from farmer for local/guest preview
@@ -343,7 +379,13 @@ export function useChatSocket({
             createdAt: new Date().toISOString(),
           };
 
-          setMessages((prev) => [...prev, replyMsg]);
+          setMessages((prev) => {
+            const next = [...prev, replyMsg];
+            try {
+              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
+            } catch {}
+            return next;
+          });
         }, 800);
 
         return localMsg;
@@ -690,18 +732,33 @@ export function useChatSocket({
       if (!isPollingActive || !isMountedRef.current) return;
       if (!ApiClient.hasToken()) return;
       try {
-        const history = await ApiClient.getMessages(conversationId);
-        if (Array.isArray(history) && isMountedRef.current) {
-          const normalized = history.map(normalizeMessage);
+        const res = await ApiClient.getMessages(conversationId);
+        const rawList = Array.isArray(res) ? res : (res?.messages || res?.data || []);
+        if (Array.isArray(rawList) && isMountedRef.current) {
+          const normalized = rawList.map(normalizeMessage);
+          setIsHttpOnline(true);
           setMessages((prev) => {
-            if (prev.length === normalized.length) {
+            // Check if identical to prevent re-render
+            if (prev.length === normalized.length && prev.length > 0) {
               const lastOld = prev[prev.length - 1];
               const lastNew = normalized[normalized.length - 1];
-              if (lastOld?.id === lastNew?.id && lastOld?.readAt === lastNew?.readAt) {
+              if (
+                lastOld?.id === lastNew?.id &&
+                (lastOld?.readAt || lastOld?.read_at) === (lastNew?.readAt || lastNew?.read_at)
+              ) {
                 return prev;
               }
             }
-            return normalized;
+            // Preserve any pending optimistic messages that haven't been echoed yet
+            const serverIds = new Set(normalized.map((m) => m.id));
+            const pendingOptimistic = prev.filter(
+              (m) => (m.id.startsWith('msg-') || m.id.startsWith('opt-') || m.id.startsWith('local-')) && !serverIds.has(m.id)
+            );
+            const merged = [...normalized, ...pendingOptimistic];
+            try {
+              localStorage.setItem(`halder-chat-${conversationId}`, JSON.stringify(merged.slice(-50)));
+            } catch {}
+            return merged;
           });
         }
       } catch {
@@ -721,7 +778,7 @@ export function useChatSocket({
   const clearError = useCallback(() => setError(null), []);
 
   return {
-    isConnected,
+    isConnected: isConnected || isHttpOnline,
     isConnecting,
     messages,
     isOtherUserTyping,

@@ -3,11 +3,36 @@
  * Connects frontend UI to backend REST endpoints (/api/v1/...) with JWT auth and seamless error handling.
  */
 
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' && window.location.origin
-    ? `${window.location.origin}/api/v1`
-    : 'http://localhost:5000/api/v1');
+export function getApiBaseUrl(): string {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin || '';
+    const hostname = window.location.hostname || '';
+    const port = window.location.port || '';
+
+    // Check for native Capacitor / mobile app WebView (capacitor://, ionic://, or localhost with port 80/no port)
+    const isCapacitor =
+      Boolean((window as any).Capacitor?.isNativePlatform?.()) ||
+      origin.startsWith('capacitor://') ||
+      origin.startsWith('ionic://') ||
+      (hostname === 'localhost' && (!port || port === '80' || port === '443'));
+
+    if (isCapacitor) {
+      return 'https://halder-app.vercel.app/api/v1';
+    }
+
+    // Hosted production or preview website
+    if (origin && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
+      return `${origin}/api/v1`;
+    }
+  }
+  // Local development fallback
+  return 'http://localhost:5000/api/v1';
+}
+
+const BASE_URL = getApiBaseUrl();
 
 export class ApiClient {
   static getToken(): string | null {
@@ -35,7 +60,7 @@ export class ApiClient {
       headers?: Record<string, string>;
     } = {}
   ): Promise<T> {
-    let url = `${BASE_URL}${endpoint}`;
+    let url = `${getApiBaseUrl()}${endpoint}`;
     if (options.params) {
       const query = new URLSearchParams();
       for (const [k, v] of Object.entries(options.params)) {

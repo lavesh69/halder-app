@@ -71,10 +71,6 @@ export class ChatService {
       throw AppError.notFound('Target seller or farmer profile not found.');
     }
 
-    if (initiatorUser.id === targetFp.user_id) {
-      throw AppError.badRequest('You cannot start a conversation with yourself.');
-    }
-
     // Check if conversation already exists in either direction
     let conv = Database.get<any>(
       `SELECT * FROM conversations 

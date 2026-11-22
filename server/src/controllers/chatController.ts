@@ -21,13 +21,6 @@ export class ChatController {
         });
       }
 
-      if (targetPartyId === currentUserId || (req.user!.farmerProfileId && targetPartyId === req.user!.farmerProfileId)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'You cannot start a conversation with yourself.' },
-        });
-      }
-
       const conv = ChatService.getOrCreateConversation(currentUserId, targetPartyId, req.body.productId);
       res.json({
         success: true,

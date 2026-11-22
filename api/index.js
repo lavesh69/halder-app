@@ -92014,9 +92014,6 @@ var ChatService = class {
     if (!targetFp) {
       throw AppError.notFound("Target seller or farmer profile not found.");
     }
-    if (initiatorUser.id === targetFp.user_id) {
-      throw AppError.badRequest("You cannot start a conversation with yourself.");
-    }
     let conv = Database.get(
       `SELECT * FROM conversations 
        WHERE (customer_id = ? AND farmer_id = ?)
@@ -92766,12 +92763,6 @@ var ChatController = class {
         return res.status(400).json({
           success: false,
           error: { message: "Target participant (farmerId or customerId) is required." }
-        });
-      }
-      if (targetPartyId === currentUserId || req.user.farmerProfileId && targetPartyId === req.user.farmerProfileId) {
-        return res.status(400).json({
-          success: false,
-          error: { message: "You cannot start a conversation with yourself." }
         });
       }
       const conv = ChatService.getOrCreateConversation(currentUserId, targetPartyId, req.body.productId);

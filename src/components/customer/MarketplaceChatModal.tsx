@@ -204,11 +204,19 @@ export const MarketplaceChatModal: React.FC = () => {
                 <Phone className="w-4 h-4" />
               </a>
             )}
-            {!isConnected && !isConnecting && (
+            {isConnected ? (
+              <span className="p-2 rounded-full text-emerald-600 dark:text-emerald-400 inline-flex items-center justify-center" title="Real-Time Active">
+                <Wifi className="w-4 h-4" />
+              </span>
+            ) : isConnecting ? (
+              <span className="p-2 rounded-full text-amber-500 animate-pulse inline-flex items-center justify-center" title="Connecting...">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </span>
+            ) : (
               <button
                 onClick={() => reconnect()}
-                className="p-2 rounded-full text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors"
-                title="Reconnect WebSocket"
+                className="p-2 rounded-full text-zinc-400 hover:text-emerald-600 transition-colors"
+                title="Refresh Connection"
               >
                 <WifiOff className="w-4 h-4" />
               </button>
