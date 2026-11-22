@@ -372,53 +372,35 @@ export const MarketplaceHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Direct Agricultural Discovery Quick Actions */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 pt-1">
-          <button
-            onClick={() => {
-              setEditingListing(null);
-              setIsFastSellOpen(true);
-            }}
-            className="p-2 sm:p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
-          >
-            <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-600 text-white shrink-0 group-hover:scale-105 transition">
-              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-[11px] sm:text-xs font-black text-emerald-900 dark:text-emerald-200 block truncate">
-                {t('home.post_ad')}
-              </span>
-              <span className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">{t('home.sell_free')}</span>
-            </div>
-          </button>
-
+        {/* Direct Agricultural Discovery Quick Actions for Buyers */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
           <button
             onClick={() => setIsPostRequirementOpen(true)}
-            className="p-2 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
+            className="p-2.5 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-2 sm:gap-2.5 transition shadow-soft group cursor-pointer text-left min-w-0"
           >
-            <div className="p-1.5 sm:p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
-              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
+              <FileText className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-[11px] sm:text-xs font-black text-blue-900 dark:text-blue-200 block truncate">
+              <span className="text-xs sm:text-sm font-black text-blue-900 dark:text-blue-200 block truncate">
                 {t('home.post_requirement')}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-blue-700 dark:text-blue-400 block truncate">{t('home.post_requirement_sub')}</span>
+              <span className="text-[10px] text-blue-700 dark:text-blue-400 block truncate">{t('home.post_requirement_sub')}</span>
             </div>
           </button>
 
           <button
             onClick={() => setIsSavedSearchesOpen(true)}
-            className="p-2 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
+            className="p-2.5 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2 sm:gap-2.5 transition shadow-soft group cursor-pointer text-left min-w-0"
           >
-            <div className="p-1.5 sm:p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
-              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
+              <Bell className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-[11px] sm:text-xs font-black text-zinc-900 dark:text-white block truncate">
+              <span className="text-xs sm:text-sm font-black text-zinc-900 dark:text-white block truncate">
                 {t('home.crop_alerts')}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-zinc-500 block truncate">{t('home.crop_alerts_sub')}</span>
+              <span className="text-[10px] text-zinc-500 block truncate">{t('home.crop_alerts_sub')}</span>
             </div>
           </button>
         </div>
@@ -486,34 +468,6 @@ export const MarketplaceHome: React.FC = () => {
             );
           })}
           </div>
-        </div>
-      </div>
-
-      {/* Stitch Hero: 0% Commission Direct Kisan Selling Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 text-white p-4 sm:p-5 shadow-soft-md border border-emerald-800/80">
-        <div className="relative z-10 max-w-[80%] space-y-1.5">
-          <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-400/30 text-[10px] font-bold text-emerald-200 uppercase tracking-wider">
-            {t('home.hero_badge')}
-          </span>
-          <h3 className="font-heading font-black text-base sm:text-lg leading-snug">
-            {t('home.hero_title')}
-          </h3>
-          <p className="text-xs text-emerald-100/90 font-medium leading-relaxed">
-            {t('home.hero_sub')}
-          </p>
-          <button
-            onClick={() => {
-              setEditingListing(null);
-              setIsFastSellOpen(true);
-            }}
-            className="mt-2 flex items-center gap-1.5 bg-white text-emerald-800 px-3.5 py-2 rounded-xl font-heading font-black text-xs shadow-md hover:bg-emerald-50 active:scale-95 transition-transform cursor-pointer"
-          >
-            <Camera className="w-4 h-4 text-emerald-700" />
-            <span>{t('home.snap_and_list')}</span>
-          </button>
-        </div>
-        <div className="absolute -right-3 -bottom-5 opacity-20 pointer-events-none text-white">
-          <Sprout className="w-28 h-28" />
         </div>
       </div>
 
