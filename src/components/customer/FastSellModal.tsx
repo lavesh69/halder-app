@@ -81,7 +81,7 @@ export const FastSellModal: React.FC = () => {
   } = useApp();
 
   const [step, setStep] = useState<number>(1);
-  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([photoPresets[0].url]);
+  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [lowBandwidthMode, setLowBandwidthMode] = useState<boolean>(true);
   const [compressionStats, setCompressionStats] = useState<{
     originalTotal: number;
@@ -162,7 +162,7 @@ export const FastSellModal: React.FC = () => {
           ? editingListing.images
           : editingListing.image
           ? [editingListing.image]
-          : [photoPresets[0].url];
+          : [];
       setUploadedPhotos(existingPhotos);
       setStep(1);
     } else {
@@ -191,7 +191,7 @@ export const FastSellModal: React.FC = () => {
       setFarmLocation((currentUser as any)?.location || currentLocation || 'Local Farm');
       setPickupAvailable(true);
       setFarmerDeliveryAvailable(true);
-      setUploadedPhotos([photoPresets[0].url]);
+      setUploadedPhotos([]);
       setStep(1);
     }
   }, [isFastSellOpen, editingListing]);
@@ -287,11 +287,8 @@ export const FastSellModal: React.FC = () => {
   };
 
   const removePhoto = (index: number) => {
-    if (uploadedPhotos.length <= 1) {
-      showToast(t('post_ad.err_min_photos'));
-      return;
-    }
     setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
+    showToast('Photo removed', 'info');
   };
 
   const addPriceSlab = () => {
@@ -568,11 +565,14 @@ export const FastSellModal: React.FC = () => {
 
                           <button
                             type="button"
-                            onClick={() => removePhoto(idx)}
-                            className="p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors opacity-90 group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removePhoto(idx);
+                            }}
+                            className="p-1.5 bg-red-600 hover:bg-red-700 active:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer"
                             title="Remove photo"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
@@ -1072,7 +1072,7 @@ export const FastSellModal: React.FC = () => {
                 {/* Image Cover */}
                 <div className="relative aspect-video w-full bg-zinc-200 dark:bg-zinc-800">
                   <img
-                    src={uploadedPhotos[0]}
+                    src={uploadedPhotos[0] || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80'}
                     alt={name}
                     className="w-full h-full object-cover"
                   />
