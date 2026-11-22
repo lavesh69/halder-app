@@ -371,39 +371,6 @@ export const MarketplaceHome: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Direct Agricultural Discovery Quick Actions for Buyers */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
-          <button
-            onClick={() => setIsPostRequirementOpen(true)}
-            className="p-2.5 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-2 sm:gap-2.5 transition shadow-soft group cursor-pointer text-left min-w-0"
-          >
-            <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm font-black text-blue-900 dark:text-blue-200 block truncate">
-                {t('home.post_requirement')}
-              </span>
-              <span className="text-[10px] text-blue-700 dark:text-blue-400 block truncate">{t('home.post_requirement_sub')}</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setIsSavedSearchesOpen(true)}
-            className="p-2.5 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2 sm:gap-2.5 transition shadow-soft group cursor-pointer text-left min-w-0"
-          >
-            <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
-              <Bell className="w-4 h-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm font-black text-zinc-900 dark:text-white block truncate">
-                {t('home.crop_alerts')}
-              </span>
-              <span className="text-[10px] text-zinc-500 block truncate">{t('home.crop_alerts_sub')}</span>
-            </div>
-          </button>
-        </div>
       </div>
 
       {/* 2. Browse Categories Circular Story Carousel */}
