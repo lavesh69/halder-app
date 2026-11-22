@@ -73,8 +73,9 @@ export function verifyConversationAccess(req: Request, res: Response, next: Next
     'SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?',
     [conv.farmer_id, user.id]
   ) != null;
+  const isFarmerDirectId = conv.farmer_id === user.id;
 
-  if (!isBuyer && !isFarmerDirect && !isFarmerLinked) {
+  if (!isBuyer && !isFarmerDirect && !isFarmerLinked && !isFarmerDirectId) {
     return next(AppError.forbidden('You are not a participant in this conversation.'));
   }
 

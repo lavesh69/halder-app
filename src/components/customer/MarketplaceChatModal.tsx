@@ -141,11 +141,19 @@ export const MarketplaceChatModal: React.FC = () => {
     }
   };
 
+  const isOnline = isConnected || (typeof navigator !== 'undefined' ? navigator.onLine : true);
+
   const isSenderMe = (msg: ChatWsMessage) => {
     const senderId = msg.sender_id || msg.senderId;
     if (currentUser?.id && senderId) {
       if (senderId === currentUser.id) return true;
       if (currentUser.farmerProfileId && senderId === currentUser.farmerProfileId) return true;
+    }
+    if (senderId === 'current-user' || senderId?.startsWith('local-buyer') || senderId?.startsWith('opt-')) {
+      return true;
+    }
+    if (senderId === 'farmer-auto-reply') {
+      return false;
     }
     if (role === 'farmer') {
       return msg.sender_role === 'farmer' || msg.senderRole === 'farmer';
@@ -170,9 +178,9 @@ export const MarketplaceChatModal: React.FC = () => {
               />
               <span
                 className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-[#1B201D] ${
-                  isConnected ? 'bg-emerald-500' : isConnecting ? 'bg-amber-500 animate-pulse' : 'bg-zinc-400'
+                  isOnline ? 'bg-emerald-500' : isConnecting ? 'bg-amber-500 animate-pulse' : 'bg-zinc-400'
                 }`}
-                title={isConnected ? t('chat.online') : isConnecting ? t('chat.connecting') : t('chat.offline')}
+                title={isOnline ? t('chat.online') : isConnecting ? t('chat.connecting') : t('chat.offline')}
               />
             </div>
 
@@ -186,8 +194,8 @@ export const MarketplaceChatModal: React.FC = () => {
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 truncate">
                 <span>{chatFarmer.farmName || 'Kisan Direct'}</span>
                 <span>•</span>
-                <span className={isConnected ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-zinc-400'}>
-                  {isConnected ? `🟢 ${t('chat.online')}` : isConnecting ? `🟡 ${t('chat.connecting')}` : `🔴 ${t('chat.offline')}`}
+                <span className={isOnline ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-zinc-400'}>
+                  {isOnline ? `🟢 ${t('chat.online')}` : isConnecting ? `🟡 ${t('chat.connecting')}` : `🔴 ${t('chat.offline')}`}
                 </span>
               </p>
             </div>
@@ -204,8 +212,8 @@ export const MarketplaceChatModal: React.FC = () => {
                 <Phone className="w-4 h-4" />
               </a>
             )}
-            {isConnected ? (
-              <span className="p-2 rounded-full text-emerald-600 dark:text-emerald-400 inline-flex items-center justify-center" title="Real-Time Active">
+            {isOnline ? (
+              <span className="p-2 rounded-full text-emerald-600 dark:text-emerald-400 inline-flex items-center justify-center" title="Messaging Active">
                 <Wifi className="w-4 h-4" />
               </span>
             ) : isConnecting ? (

@@ -99,7 +99,7 @@ export function useChatSocket({
   autoConnect = true,
 }: UseChatSocketOptions = {}): UseChatSocketReturn {
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [isHttpOnline, setIsHttpOnline] = useState<boolean>(false);
+  const [isHttpOnline, setIsHttpOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatWsMessage[]>([]);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState<boolean>(false);
