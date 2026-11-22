@@ -373,52 +373,52 @@ export const MarketplaceHome: React.FC = () => {
         </div>
 
         {/* Direct Agricultural Discovery Quick Actions */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 pt-1">
           <button
             onClick={() => {
               setEditingListing(null);
               setIsFastSellOpen(true);
             }}
-            className="p-2.5 sm:p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
+            className="p-2 sm:p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
           >
-            <div className="p-2 rounded-xl bg-emerald-600 text-white shrink-0 group-hover:scale-105 transition">
-              <Plus className="w-4 h-4 stroke-[3]" />
+            <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-600 text-white shrink-0 group-hover:scale-105 transition">
+              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
             </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block truncate">
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-black text-emerald-900 dark:text-emerald-200 block truncate">
                 + Post Ad
               </span>
-              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">बेचना है (Free)</span>
+              <span className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">बेचना है (Free)</span>
             </div>
           </button>
 
           <button
             onClick={() => setIsPostRequirementOpen(true)}
-            className="p-2.5 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
+            className="p-2 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 hover:border-blue-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
           >
-            <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
-              <FileText className="w-4 h-4" />
+            <div className="p-1.5 sm:p-2 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-105 transition">
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-blue-900 dark:text-blue-200 block truncate">
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-black text-blue-900 dark:text-blue-200 block truncate">
                 Need Crop?
               </span>
-              <span className="text-[10px] text-blue-700 dark:text-blue-400 block truncate">मांग भेजें (B2B)</span>
+              <span className="text-[9px] sm:text-[10px] text-blue-700 dark:text-blue-400 block truncate">मांग भेजें (B2B)</span>
             </div>
           </button>
 
           <button
             onClick={() => setIsSavedSearchesOpen(true)}
-            className="p-2.5 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-2 transition shadow-soft group cursor-pointer text-left"
+            className="p-2 sm:p-3 bg-white dark:bg-[#181F1A] border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 rounded-2xl flex items-center gap-1.5 sm:gap-2 transition shadow-soft group cursor-pointer text-left min-w-0"
           >
-            <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
-              <Bell className="w-4 h-4" />
+            <div className="p-1.5 sm:p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shrink-0 group-hover:scale-105 transition">
+              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-zinc-900 dark:text-white block truncate">
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-black text-zinc-900 dark:text-white block truncate">
                 {t('home.crop_alerts')}
               </span>
-              <span className="text-[10px] text-zinc-500 block truncate">अलर्ट्स</span>
+              <span className="text-[9px] sm:text-[10px] text-zinc-500 block truncate">अलर्ट्स</span>
             </div>
           </button>
         </div>
@@ -724,7 +724,7 @@ export const MarketplaceHome: React.FC = () => {
         {/* Listings Feed */}
         {isLoadingProducts && sortedProducts.length === 0 ? (
           viewMode === 'grid' ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4.5">
               <ListingCardSkeleton variant="compact-grid" count={8} />
             </div>
           ) : (
@@ -751,7 +751,7 @@ export const MarketplaceHome: React.FC = () => {
             </button>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4.5">
             {sortedProducts.map((product) => (
               <ListingCard key={product.id} product={product} variant="compact-grid" />
             ))}
@@ -781,7 +781,7 @@ export const MarketplaceHome: React.FC = () => {
             <div
               key={farmer.id}
               onClick={() => setSelectedFarmer(farmer)}
-              className="shrink-0 w-64 p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md cursor-pointer transition-all flex flex-col justify-between"
+              className="shrink-0 w-56 xs:w-64 sm:w-72 p-3.5 sm:p-4 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md cursor-pointer transition-all flex flex-col justify-between"
             >
               <div className="flex items-center gap-3">
                 <img

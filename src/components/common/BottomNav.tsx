@@ -57,8 +57,8 @@ export const BottomNav: React.FC = () => {
   if (role === 'admin') {
     if (!isLoggedIn || currentUser?.role !== 'admin') return null;
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="flex items-center justify-between overflow-x-auto no-scrollbar px-1.5 py-1 gap-0.5">
+      <nav className="fixed bottom-0 inset-x-0 w-full z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="max-w-xl md:max-w-2xl mx-auto flex items-center justify-between overflow-x-auto no-scrollbar px-1.5 sm:px-3 py-1 gap-0.5">
           <button
             onClick={() => setAdminTab('overview')}
             className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 ${
@@ -188,8 +188,8 @@ export const BottomNav: React.FC = () => {
 
   if (role === 'customer' || (role === 'farmer' && (!isLoggedIn || currentUser?.role !== 'farmer'))) {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="flex items-center justify-around px-2 py-1">
+      <nav className="fixed bottom-0 inset-x-0 w-full z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="max-w-xl md:max-w-2xl mx-auto flex items-center justify-around px-2 sm:px-4 py-1">
           {/* 1. Home (Explore) */}
           <button
             onClick={() => {
@@ -291,8 +291,8 @@ export const BottomNav: React.FC = () => {
 
   // Farmer Bottom Nav (5 Signature OLX Tabs - Zero Overcrowding)
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] max-w-2xl mx-auto transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="flex items-center justify-between px-2 sm:px-4 py-1">
+    <nav className="fixed bottom-0 inset-x-0 w-full z-40 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-t border-[#E5EBE6] dark:border-[#29352D] transition-colors shadow-soft-lg pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="max-w-xl md:max-w-2xl mx-auto flex items-center justify-between px-2 sm:px-4 py-1">
         {/* 1. Dashboard (Mandi) */}
         <button
           onClick={() => setFarmerTab('dashboard')}

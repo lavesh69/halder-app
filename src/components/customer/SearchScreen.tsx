@@ -198,9 +198,9 @@ export const SearchScreen: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F7F9F6] dark:bg-[#0F1411] flex flex-col max-w-5xl mx-auto overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-[#F7F9F6] dark:bg-[#0F1411] flex flex-col max-w-5xl mx-auto overflow-hidden animate-fade-in pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]">
       {/* Search Header Bar */}
-      <div className="p-4 bg-white dark:bg-[#1B201D] border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-2.5 shadow-xs">
+      <div className="p-3 sm:p-4 bg-white dark:bg-[#1B201D] border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-2 sm:gap-2.5 shadow-xs">
         <button
           onClick={() => {
             setIsSearchScreenOpen(false);
@@ -222,7 +222,7 @@ export const SearchScreen: React.FC = () => {
             value={inputVal}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="What are you looking for?"
-            className="w-full min-h-[48px] pl-10 pr-16 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            className="w-full min-h-[48px] pl-10 pr-16 py-2.5 text-base sm:text-sm bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           />
 
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -378,7 +378,7 @@ export const SearchScreen: React.FC = () => {
 
             {isSearching ? (
               searchViewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4.5">
                   <ListingCardSkeleton variant="compact-grid" count={6} />
                 </div>
               ) : (
@@ -405,7 +405,7 @@ export const SearchScreen: React.FC = () => {
                 </button>
               </div>
             ) : searchViewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4.5">
                 {sortedListings.map((product) => (
                   <div key={product.id} onClick={() => setIsSearchScreenOpen(false)}>
                     <ListingCard product={product} variant="compact-grid" />

@@ -142,7 +142,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
         </div>
 
         {/* Notifications List */}
-        <div className="p-4 space-y-2.5 overflow-y-auto flex-1">
+        <div className="p-4 space-y-2.5 overflow-y-auto flex-1 pb-[max(1rem,env(safe-area-inset-bottom,1rem))]">
           {filteredNotifications.length === 0 ? (
             <div className="p-6 sm:p-8 text-center space-y-2">
               <Bell className="w-8 h-8 text-zinc-300 mx-auto" />

@@ -114,12 +114,12 @@ export const FarmerProfileView: React.FC = () => {
   return (
     <div className="space-y-6 pb-24 animate-fade-in max-w-3xl mx-auto">
       {/* Farmer Card */}
-      <div className="p-5 bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-soft flex items-center gap-4 relative overflow-hidden">
-        <div className="relative group cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+      <div className="p-3.5 sm:p-5 bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-soft flex items-center gap-3 sm:gap-4 relative overflow-hidden">
+        <div className="relative group cursor-pointer shrink-0" onClick={() => setIsEditModalOpen(true)}>
           <img
             src={displayAvatar}
             alt={displayName}
-            className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-600/30 shadow-xs"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-emerald-600/30 shadow-xs"
             onError={handleAvatarError}
           />
           <div className="absolute -bottom-1 -right-1 p-1 bg-emerald-600 text-white rounded-lg shadow-xs hover:bg-emerald-700 transition">

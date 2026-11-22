@@ -153,7 +153,7 @@ export const MarketplaceChatModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 h-[85vh] max-h-[750px] flex flex-col overflow-hidden animate-slide-up"
+        className="w-full max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 h-[88vh] sm:h-[80vh] max-h-[750px] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -373,7 +373,7 @@ export const MarketplaceChatModal: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D] flex items-center gap-2 shrink-0">
+        <div className="p-3 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D] flex items-center gap-2 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
           <input
             type="text"
             value={inputMsg}
@@ -386,7 +386,7 @@ export const MarketplaceChatModal: React.FC = () => {
               }
             }}
             placeholder={t('chat.type_a_message', { name: chatFarmer.name })}
-            className="flex-1 px-4 py-2.5 text-xs bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-zinc-400"
+            className="flex-1 px-4 py-2.5 text-base sm:text-xs bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-zinc-400"
           />
           <button
             onClick={() => handleSend()}

@@ -178,7 +178,7 @@ export const ListingDetailModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-60 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[92vh] flex flex-col overflow-hidden animate-slide-up"
+        className="w-full max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[92vh] sm:max-h-[88vh] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Photo Gallery Carousel */}
@@ -623,7 +623,7 @@ export const ListingDetailModal: React.FC = () => {
         </div>
 
         {/* Sticky Fast Dual Action Buttons (Buy Now & Add to Cart or Owner Delete) */}
-        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D]">
+        <div className="p-3.5 sm:p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D] pb-[max(1rem,env(safe-area-inset-bottom,1rem))]">
           {isOwner ? (
             <div className="flex items-center gap-2">
               <button

@@ -54,16 +54,16 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
-      <div className="max-w-7xl px-2 sm:px-6 mx-auto py-2 transition-all duration-200">
-        <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+      <div className="max-w-7xl px-2.5 sm:px-4 md:px-6 mx-auto py-2 transition-all duration-200">
+        <div className="flex items-center justify-between gap-1 sm:gap-2">
           {/* Logo & Location Selector */}
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             <Logo size="sm" />
 
             {/* Location Selector Pill (Clickable) */}
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[100px] xs:max-w-[125px] sm:max-w-[155px] truncate shadow-soft focus-visible:ring-2"
+              className="flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[95px] xs:max-w-[125px] sm:max-w-[160px] truncate shadow-soft focus-visible:ring-2"
               title={t('location.change_location')}
               aria-label="Change current location"
             >
@@ -74,8 +74,8 @@ export const Header: React.FC = () => {
               <ChevronDown className="w-3 h-3 text-[#89948C] shrink-0 ml-0.5" />
             </button>
 
-            {/* Live Mandi Active Indicator (Stitch Agritech Feature) */}
-            <span className="hidden xs:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
+            {/* Live Mandi Active Indicator (Tablet & Desktop) */}
+            <span className="hidden md:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
               <span>Mandi Open</span>
             </span>
@@ -86,10 +86,10 @@ export const Header: React.FC = () => {
             {/* Multilingual Language Selector */}
             <LanguageSelector variant="compact" />
 
-            {/* Search Trigger */}
+            {/* Search Trigger (Hidden on small phone to prevent crowding, available in feed & bottom bar) */}
             <button
               onClick={() => setIsSearchScreenOpen(true)}
-              className="p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+              className="hidden sm:flex p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
               title={t('nav.search')}
               aria-label="Search produce"
             >
@@ -128,24 +128,42 @@ export const Header: React.FC = () => {
               </button>
             )}
 
-            {/* Locked Persona Badge when Logged In */}
+            {/* Persona Badge when Logged In (Compact on mobile, full on tablet/desktop) */}
             {isLoggedIn && currentUser && (
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs max-w-[130px] sm:max-w-[160px] truncate"
-                style={{
-                  borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
-                  backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.08)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.08)' : 'rgba(5, 150, 105, 0.08)',
-                  color: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#b45309' : '#047857',
-                }}
-                title={`Logged in as ${currentUser.name || currentUser.username} (${role})`}
-              >
-                {role === 'admin' && <Shield className="w-3.5 h-3.5 shrink-0 text-purple-600" />}
-                {role === 'farmer' && <Sprout className="w-3.5 h-3.5 shrink-0 text-amber-600" />}
-                {role === 'customer' && <ShoppingBag className="w-3.5 h-3.5 shrink-0 text-emerald-600" />}
-                <span className="truncate">
-                  {role === 'admin' ? 'Admin' : role === 'farmer' ? 'किसान' : 'खरीदार'} {currentUser.username ? `@${currentUser.username}` : ''}
-                </span>
-              </div>
+              <>
+                {/* Mobile Compact Avatar Pill */}
+                <div
+                  className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full border shadow-2xs shrink-0"
+                  style={{
+                    borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
+                    backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.12)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.12)' : 'rgba(5, 150, 105, 0.12)',
+                    color: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#b45309' : '#047857',
+                  }}
+                  title={`Logged in as ${currentUser.name || currentUser.username} (${role})`}
+                >
+                  {role === 'admin' && <Shield className="w-3.5 h-3.5 text-purple-600" />}
+                  {role === 'farmer' && <Sprout className="w-3.5 h-3.5 text-amber-600" />}
+                  {role === 'customer' && <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" />}
+                </div>
+
+                {/* Tablet/Desktop Expanded Badge */}
+                <div
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs max-w-[130px] sm:max-w-[160px] truncate"
+                  style={{
+                    borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
+                    backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.08)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.08)' : 'rgba(5, 150, 105, 0.08)',
+                    color: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#b45309' : '#047857',
+                  }}
+                  title={`Logged in as ${currentUser.name || currentUser.username} (${role})`}
+                >
+                  {role === 'admin' && <Shield className="w-3.5 h-3.5 shrink-0 text-purple-600" />}
+                  {role === 'farmer' && <Sprout className="w-3.5 h-3.5 shrink-0 text-amber-600" />}
+                  {role === 'customer' && <ShoppingBag className="w-3.5 h-3.5 shrink-0 text-emerald-600" />}
+                  <span className="truncate">
+                    {role === 'admin' ? 'Admin' : role === 'farmer' ? 'किसान' : 'खरीदार'} {currentUser.username ? `@${currentUser.username}` : ''}
+                  </span>
+                </div>
+              </>
             )}
 
             {/* Quick + Post Ad Button for Farmers (Desktop/Tablet) */}

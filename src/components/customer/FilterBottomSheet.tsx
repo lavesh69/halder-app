@@ -32,9 +32,9 @@ export const FilterBottomSheet: React.FC = () => {
   }).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[90dvh] flex flex-col overflow-hidden animate-slide-up"
+        className="w-full max-w-lg bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[90dvh] sm:max-h-[85vh] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -220,7 +220,7 @@ export const FilterBottomSheet: React.FC = () => {
         </div>
 
         {/* Sticky Apply Button */}
-        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D]">
+        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-[#1B201D] pb-[max(1rem,env(safe-area-inset-bottom,1rem))]">
           <button
             onClick={() => setIsFilterModalOpen(false)}
             className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-soft transition-all"

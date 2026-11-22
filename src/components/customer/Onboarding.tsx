@@ -239,29 +239,30 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
 
   if (showRolePick) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] p-6 max-w-lg mx-auto overflow-y-auto">
-        <div className="pt-6 space-y-2 text-center relative">
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute top-0 right-0 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-          <div className="flex justify-center mb-1">
-            <Logo size="md" showTagline />
+      <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] p-4 sm:p-6 overflow-y-auto">
+        <div className="w-full max-w-lg mx-auto flex flex-col justify-between min-h-full py-2 sm:py-4">
+          <div className="pt-4 sm:pt-6 space-y-2 text-center relative">
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute top-0 right-0 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+            <div className="flex justify-center mb-1">
+              <Logo size="md" showTagline />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">
+              Sign In to Continue
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+              Sign in with your email or continue with Google
+            </p>
           </div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-            Sign In to Continue
-          </h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Sign in with your email or continue with Google
-          </p>
-        </div>
 
-        <form onSubmit={handleAccountSubmit} className="space-y-4 my-auto max-w-sm mx-auto w-full">
+          <form onSubmit={handleAccountSubmit} className="space-y-4 my-auto max-w-sm mx-auto w-full">
           {/* Role Choice - Only displayed during Registration */}
           {isRegisterMode && (
             <div className="space-y-1.5">
@@ -658,12 +659,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             Privacy Policy
           </a>
         </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] max-w-lg mx-auto select-none transition-colors overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-[#F7F9F6] dark:bg-[#0F1411] select-none transition-colors overflow-y-auto">
+      <div className="w-full max-w-lg mx-auto flex flex-col justify-between min-h-full">
       {/* Top Bar with Sign In, Dots, and Skip */}
       <div className="flex items-center justify-between p-4 sm:p-5 shrink-0">
         <div className="flex items-center gap-1.5">
@@ -782,6 +785,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
             Explore as Guest →
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

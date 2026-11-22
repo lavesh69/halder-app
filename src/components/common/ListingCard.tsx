@@ -77,7 +77,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     return (
       <div
         onClick={handleCardClick}
-        className="shrink-0 w-64 p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
+        className="shrink-0 w-56 xs:w-64 sm:w-72 p-3 bg-white dark:bg-[#181F1A] rounded-2xl border border-[#E5EBE6] dark:border-[#29352D] shadow-soft hover:shadow-soft-md transition-all cursor-pointer group flex flex-col justify-between"
       >
         <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-[#F0F4F1] dark:bg-[#222B25]">
           <img
@@ -208,17 +208,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           )}
         </div>
 
-        <div className="p-3 flex flex-col justify-between flex-1">
+        <div className="p-2.5 sm:p-3 flex flex-col justify-between flex-1">
           <div>
             <div className="flex items-baseline justify-between gap-1">
-              <div className="flex items-baseline gap-1">
-                <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
+              <div className="flex items-baseline gap-1 min-w-0">
+                <span className="text-sm sm:text-base font-black text-[#176B45] dark:text-[#5FB383] truncate">
                   {formatCurrency(product.price)}
                 </span>
-                <span className="text-[11px] text-[#66736B] dark:text-[#A6B3AA]">/ {product.unit}</span>
+                <span className="text-[10px] sm:text-[11px] text-[#66736B] dark:text-[#A6B3AA] shrink-0">/ {product.unit}</span>
               </div>
               {product.isNegotiable && (
-                <span className="text-[9px] font-bold text-[#D99A32] bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">
+                <span className="text-[9px] font-bold text-[#D99A32] bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded shrink-0">
                   🤝 Neg
                 </span>
               )}
@@ -228,32 +228,34 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               {product.name}
             </h4>
 
-            <div className="flex items-center justify-between mt-1 text-[11px] text-[#66736B] dark:text-[#A6B3AA]">
-              <span className="truncate max-w-[120px] font-medium">{product.farmerName}</span>
+            <div className="flex items-center justify-between mt-1 text-[10px] sm:text-[11px] text-[#66736B] dark:text-[#A6B3AA] gap-1">
+              <span className="truncate flex-1 min-w-0 font-medium">{product.farmerName}</span>
               {product.isOrganic && (
-                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1 py-0.2 rounded">
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1 py-0.2 rounded shrink-0">
                   🌿 Pure
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-[#E5EBE6] dark:border-[#29352D] text-[9px] uppercase tracking-wide text-[#89948C] font-semibold">
-            <span className="truncate max-w-[80px]">{product.location ? product.location.split(',')[0] : 'LOCAL'}</span>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-[#E5EBE6] dark:border-[#29352D] text-[9px] uppercase tracking-wide text-[#89948C] font-semibold gap-1">
+            <span className="truncate flex-1 min-w-0">{product.location ? product.location.split(',')[0] : 'LOCAL'}</span>
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={handleQuickCall}
-                className="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                className="min-w-[32px] min-h-[32px] sm:min-w-[34px] sm:min-h-[34px] flex items-center justify-center p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 active:scale-95 transition-all shadow-2xs"
                 title="Call seller"
+                aria-label="Call seller"
               >
-                <Phone className="w-3 h-3 text-emerald-600" />
+                <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               </button>
               <button
                 onClick={handleQuickChat}
-                className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 transition-colors"
+                className="min-w-[32px] min-h-[32px] sm:min-w-[34px] sm:min-h-[34px] flex items-center justify-center p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 transition-all shadow-2xs"
                 title="Chat with seller"
+                aria-label="Chat with seller"
               >
-                <MessageCircle className="w-3 h-3 text-emerald-600" />
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               </button>
             </div>
           </div>

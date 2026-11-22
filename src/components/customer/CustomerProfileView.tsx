@@ -117,18 +117,18 @@ export const CustomerProfileView: React.FC = () => {
   return (
     <div className="space-y-6 pb-24 animate-fade-in max-w-3xl mx-auto">
       {/* Profile Header Card */}
-      <div className="p-5 bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-soft flex items-center gap-4 relative overflow-hidden">
+      <div className="p-3.5 sm:p-5 bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-soft flex items-center gap-3 sm:gap-4 relative overflow-hidden">
         {/* Avatar with Edit Badge */}
-        <div className="relative group cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+        <div className="relative group cursor-pointer shrink-0" onClick={() => setIsEditModalOpen(true)}>
           {displayAvatar ? (
             <img
               src={displayAvatar}
               alt={displayName}
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-600/40 shadow-xs"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-emerald-600/40 shadow-xs"
               onError={handleAvatarError}
             />
           ) : (
-            <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-black text-xl flex items-center justify-center border-2 border-emerald-600/30">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-black text-lg sm:text-xl flex items-center justify-center border-2 border-emerald-600/30">
               {initials}
             </div>
           )}

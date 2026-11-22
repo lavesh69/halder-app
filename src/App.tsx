@@ -207,7 +207,7 @@ export const MainApp: React.FC = () => {
       <Header />
 
       {/* Main Screen Feed */}
-      <main className="flex-1 max-w-7xl px-3 sm:px-6 w-full mx-auto pt-4 pb-24 transition-all duration-200">
+      <main className="flex-1 max-w-7xl px-2.5 sm:px-6 md:px-8 w-full mx-auto pt-3 sm:pt-4 pb-24 transition-all duration-200">
         {renderScreen()}
       </main>
 

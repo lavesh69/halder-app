@@ -120,7 +120,7 @@ export const LocationModal: React.FC = () => {
           </button>
         </div>
 
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1 text-xs">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1 text-xs pb-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))]">
           {/* Use Current GPS Location */}
           <button
             onClick={handleUseGPS}
@@ -185,7 +185,7 @@ export const LocationModal: React.FC = () => {
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder="e.g. Rajpur Road, Dehradun"
-                className="flex-1 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex-1 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <button
                 type="submit"
