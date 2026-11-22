@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ListingCardSkeleton } from '../common/ListingCardSkeleton';
 import { ApiClient } from '../../api/client';
@@ -46,6 +47,7 @@ export const SearchScreen: React.FC = () => {
     customerTab,
     setCustomerTab,
   } = useApp();
+  const { t } = useTranslation();
 
   const [inputVal, setInputVal] = useState(searchQuery);
   const [isSearching, setIsSearching] = useState(false);
@@ -268,13 +270,13 @@ export const SearchScreen: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Recent Searches (हाल की खोजें)</span>
+                    <span>{t('search.recent_title')}</span>
                   </span>
                   <button
                     onClick={clearRecentSearches}
                     className="text-[11px] font-bold text-zinc-400 hover:text-red-500 transition cursor-pointer"
                   >
-                    Clear History
+                    {t('search.clear_all')}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -294,7 +296,7 @@ export const SearchScreen: React.FC = () => {
 
             <div className="space-y-2">
               <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                Popular Farm Searches (लोकप्रिय खोजें)
+                {t('search.popular_title')}
               </span>
               <div className="flex flex-wrap gap-2">
                 {popularSuggestions.map((item) => (

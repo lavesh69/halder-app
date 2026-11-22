@@ -46,11 +46,12 @@ export const BottomNav: React.FC = () => {
     isLoggedIn,
     logout,
     selectedProduct,
+    isChatModalOpen,
   } = useApp();
 
-  // When an ad modal is open, it has its own sticky CTA bar (Chat, Call, WhatsApp)
+  // When an ad modal or chat modal is open, it has its own sticky CTA or input bar
   // Hide bottom nav to prevent overlapping bars and touch conflicts
-  if (selectedProduct) {
+  if (selectedProduct || isChatModalOpen) {
     return null;
   }
 
@@ -178,12 +179,12 @@ export const BottomNav: React.FC = () => {
 
           <button
             onClick={() => {
-              if (window.confirm('Do you want to log out of Admin session? / क्या आप एडमिन सत्र से बाहर निकलना चाहते हैं?')) {
+              if (window.confirm(t('auth.logout_confirm') || 'Do you want to log out?')) {
                 logout();
               }
             }}
             className="min-h-[48px] min-w-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all shrink-0 text-red-500 hover:text-red-700"
-            title="Log Out"
+            title={t('auth.logout') || 'Log Out'}
           >
             <LogOut className="w-5 h-5 text-red-500" />
             <span className="text-[10px] mt-0.5 text-red-500 font-bold">{t('auth.logout') || 'Logout'}</span>
@@ -243,7 +244,7 @@ export const BottomNav: React.FC = () => {
               setIsFastSellOpen(true);
             }}
             className="flex flex-col items-center justify-center -mt-5 group px-2"
-            title="Post Advertisement / विज्ञापन पोस्ट करें"
+            title={t('nav.post_ad')}
           >
             <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-900 via-emerald-700 to-emerald-600 group-hover:from-emerald-800 group-hover:to-emerald-500 text-white flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
               <Plus className="w-6 h-6 stroke-[3]" />
@@ -340,7 +341,7 @@ export const BottomNav: React.FC = () => {
             setIsFastSellOpen(true);
           }}
           className="flex flex-col items-center justify-center -mt-5 group px-2"
-          title="Post Crop Advertisement / फसल का नया विज्ञापन डालें"
+          title={t('nav.post_ad')}
         >
           <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-900 via-emerald-700 to-emerald-600 group-hover:from-emerald-800 group-hover:to-emerald-500 text-white flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-[#0F1411] transition-all active:scale-95 group-hover:scale-105">
             <Plus className="w-6 h-6 stroke-[3]" />
@@ -350,7 +351,7 @@ export const BottomNav: React.FC = () => {
           </span>
         </button>
 
-        {/* 4. My Ads (मेरे विज्ञापन) */}
+        {/* 4. My Ads */}
         <button
           onClick={() => setFarmerTab('my-ads')}
           className={`min-h-[48px] flex-1 relative flex flex-col items-center justify-center py-1 rounded-2xl transition-all ${

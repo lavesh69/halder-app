@@ -20,6 +20,7 @@ export interface UseChatSocketOptions {
   conversationId?: string | null;
   token?: string | null;
   currentUserId?: string | null;
+  userRole?: 'user' | 'farmer' | 'admin';
   onMessageReceived?: (message: ChatWsMessage) => void;
   onTyping?: (data: { conversationId: string; userId: string; userName?: string; isTyping: boolean }) => void;
   onRead?: (data: { conversationId: string; userId: string; readAt: string }) => void;
@@ -93,6 +94,7 @@ export function useChatSocket({
   conversationId,
   token,
   currentUserId,
+  userRole = 'user',
   onMessageReceived,
   onTyping,
   onRead,
@@ -254,14 +256,18 @@ export function useChatSocket({
           conversationId: targetConvId,
           sender_id: currentUserId || 'current-user',
           senderId: currentUserId || 'current-user',
-          sender_role: 'user',
-          senderRole: 'user',
+          sender_role: userRole || 'user',
+          senderRole: userRole || 'user',
           message: cleanText,
           read_at: null,
           readAt: null,
           created_at: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         };
+
+        if (isMountedRef.current) {
+          setMessages((prev) => [...prev, optimisticMsg]);
+        }
 
         return optimisticMsg;
       }
@@ -287,8 +293,8 @@ export function useChatSocket({
           conversationId: targetConvId,
           sender_id: currentUserId || 'local-buyer',
           senderId: currentUserId || 'local-buyer',
-          sender_role: 'user',
-          senderRole: 'user',
+          sender_role: userRole || 'user',
+          senderRole: userRole || 'user',
           message: cleanText,
           read_at: null,
           readAt: null,
@@ -303,14 +309,23 @@ export function useChatSocket({
         // Automatic simulated response from farmer for local/guest preview
         setTimeout(() => {
           if (!isMountedRef.current) return;
-          let replyText = 'नमस्ते! यह फसल आज सुबह ही ताज़ा तोड़ी गई है। आप सीधे ऑर्डर कर सकते हैं।';
+          const isHindi = typeof window !== 'undefined' && localStorage.getItem('halder-language') === 'hi';
+          let replyText = isHindi
+            ? 'नमस्ते! यह फसल आज सुबह ही ताज़ा तोड़ी गई है। आप सीधे ऑर्डर कर सकते हैं।'
+            : 'Hello! This produce was harvested fresh today. You can order directly.';
           const lower = cleanText.toLowerCase();
           if (lower.includes('price') || lower.includes('rate') || lower.includes('भाव') || lower.includes('कम')) {
-            replyText = 'यह हमारा सर्वोत्तम मंडी-सीधा रेट है, कोई बिचौलिया कमीशन नहीं है।';
+            replyText = isHindi
+              ? 'यह हमारा सर्वोत्तम मंडी-सीधा रेट है, कोई बिचौलिया कमीशन नहीं है।'
+              : 'This is our best direct-from-farm mandi rate with zero middleman markup.';
           } else if (lower.includes('available') || lower.includes('उपलब्ध') || lower.includes('stock')) {
-            replyText = 'हाँजी, हमारे पास पर्याप्त ताज़ा स्टॉक उपलब्ध है!';
+            replyText = isHindi
+              ? 'हाँजी, हमारे पास पर्याप्त ताज़ा स्टॉक उपलब्ध है!'
+              : 'Yes, we have plenty of fresh stock ready for dispatch!';
           } else if (lower.includes('delivery') || lower.includes('location') || lower.includes('farm')) {
-            replyText = 'हम फार्म से सीधा डिलीवरी या पिकअप दोनों की सुविधा देते हैं।';
+            replyText = isHindi
+              ? 'हम फार्म से सीधा डिलीवरी या पिकअप दोनों की सुविधा देते हैं।'
+              : 'We provide both direct farm pickup and fast delivery options.';
           }
 
           const replyMsg: ChatWsMessage = {
@@ -334,7 +349,7 @@ export function useChatSocket({
         return localMsg;
       }
     },
-    [sendWsPayload, sendTyping, getAuthToken, currentUserId]
+    [sendWsPayload, sendTyping, getAuthToken, currentUserId, userRole]
   );
 
   // Handle incoming WebSocket messages

@@ -135,7 +135,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-black text-zinc-900 dark:text-white">
-                Edit Farmer Farm Details (फ़ार्म जानकारी बदलें)
+                Edit Farmer Farm Details
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Update your public farm presentation & story
@@ -197,7 +197,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                  Unique Farmer Username (यूज़रनेम)
+                  Unique Farmer Username
                 </label>
                 <span className="text-[10px] text-zinc-400">Permanent Handle</span>
               </div>
@@ -210,7 +210,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
           {/* Farmer Personal Name */}
           <div>
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-              Farmer Full Name (किसान का पूरा नाम) *
+              Farmer Full Name *
             </label>
             <input
               type="text"
@@ -225,7 +225,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
           {/* Contact Phone */}
           <div>
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-              Contact Phone (फ़ोन नंबर)
+              Contact Phone
             </label>
             <input
               type="tel"
@@ -239,7 +239,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
           {/* Farm / Business Name */}
           <div>
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-              Farm / Estate Name (खेत का नाम) *
+              Farm / Estate Name *
             </label>
             <input
               type="text"
@@ -254,7 +254,7 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
           {/* Farm Bio / Story */}
           <div>
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-              Farm Story / Description (फ़ार्म परिचय)
+              Farm Story / Description
             </label>
             <textarea
               rows={3}

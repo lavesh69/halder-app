@@ -101,6 +101,12 @@ export class ChatController {
           const fp = Database.get<any>('SELECT user_id FROM farmer_profiles WHERE id = ?', [conv.farmer_id]);
           const recipientUserId = req.user!.id === conv.customer_id ? fp?.user_id : conv.customer_id;
           if (recipientUserId && recipientUserId !== req.user!.id) {
+            ChatSocketService.sendToUser(recipientUserId, 'chat:message', msg);
+            ChatSocketService.sendToUser(recipientUserId, 'chat:notification', {
+              conversationId: req.params.id,
+              message: msg,
+            });
+
             const recipientUser = Database.get<any>('SELECT role FROM users WHERE id = ?', [recipientUserId]);
             NotificationService.createAndPush({
               userId: recipientUserId,

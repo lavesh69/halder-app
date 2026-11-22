@@ -62,6 +62,7 @@ export const MarketplaceChatModal: React.FC = () => {
   } = useChatSocket({
     conversationId: activeConversationId,
     currentUserId: currentUser?.id,
+    userRole: role === 'farmer' ? 'farmer' : 'user',
   });
 
   // Ensure backend SQLite conversation exists when modal is opened
@@ -141,8 +142,10 @@ export const MarketplaceChatModal: React.FC = () => {
   };
 
   const isSenderMe = (msg: ChatWsMessage) => {
-    if (currentUser?.id && (msg.sender_id || msg.senderId)) {
-      return (msg.sender_id || msg.senderId) === currentUser.id;
+    const senderId = msg.sender_id || msg.senderId;
+    if (currentUser?.id && senderId) {
+      if (senderId === currentUser.id) return true;
+      if (currentUser.farmerProfileId && senderId === currentUser.farmerProfileId) return true;
     }
     if (role === 'farmer') {
       return msg.sender_role === 'farmer' || msg.senderRole === 'farmer';
@@ -151,9 +154,9 @@ export const MarketplaceChatModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
       <div
-        className="w-full max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 h-[88vh] sm:h-[80vh] max-h-[750px] flex flex-col overflow-hidden animate-slide-up"
+        className="w-full h-full sm:h-[80vh] max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border border-zinc-200 dark:border-zinc-800 max-h-[100dvh] sm:max-h-[750px] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -169,7 +172,7 @@ export const MarketplaceChatModal: React.FC = () => {
                 className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-[#1B201D] ${
                   isConnected ? 'bg-emerald-500' : isConnecting ? 'bg-amber-500 animate-pulse' : 'bg-zinc-400'
                 }`}
-                title={isConnected ? t('chat.online') : isConnecting ? 'Connecting...' : t('chat.offline')}
+                title={isConnected ? t('chat.online') : isConnecting ? t('chat.connecting') : t('chat.offline')}
               />
             </div>
 
@@ -184,7 +187,7 @@ export const MarketplaceChatModal: React.FC = () => {
                 <span>{chatFarmer.farmName || 'Kisan Direct'}</span>
                 <span>•</span>
                 <span className={isConnected ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-zinc-400'}>
-                  {isConnected ? `🟢 ${t('chat.online')}` : isConnecting ? '🟡 Connecting...' : `🔴 ${t('chat.offline')}`}
+                  {isConnected ? `🟢 ${t('chat.online')}` : isConnecting ? `🟡 ${t('chat.connecting')}` : `🔴 ${t('chat.offline')}`}
                 </span>
               </p>
             </div>
@@ -253,7 +256,7 @@ export const MarketplaceChatModal: React.FC = () => {
               }}
               className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg shrink-0 shadow-2xs transition"
             >
-              View Ad
+              {t('chat.view_ad')}
             </button>
           </div>
         )}
@@ -273,7 +276,7 @@ export const MarketplaceChatModal: React.FC = () => {
                 {t('chat.start_conversation')}
               </p>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400 max-w-xs mt-1">
-                Ask about fresh morning harvest, direct farm pickup, or custom crate sizes.
+                {t('chat.start_conversation_desc')}
               </p>
             </div>
           ) : (
@@ -334,28 +337,28 @@ export const MarketplaceChatModal: React.FC = () => {
         {/* Mandi Quick Action Shortcuts */}
         <div className="px-3.5 pt-2 pb-1 bg-zinc-50/70 dark:bg-zinc-900/40 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 border-t border-zinc-100 dark:border-zinc-800">
           <button
-            onClick={() => handleSend(`📍 My inspection location is: ${currentLocation}. When can we arrange to meet?`)}
+            onClick={() => handleSend(t('chat.action_send_location_msg', { location: currentLocation || userCity }))}
             className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-zinc-700 dark:text-zinc-200 hover:border-emerald-500 shadow-2xs"
           >
             <MapPin className="w-3 h-3 text-emerald-600" />
-            <span>Send Location</span>
+            <span>{t('chat.action_send_location')}</span>
           </button>
           <button
             onClick={() => {
               const phone = currentUser?.phone || '+91 98765 43210';
-              handleSend(`📞 You can call or WhatsApp me directly at: ${phone}`);
+              handleSend(t('chat.action_share_phone_msg', { phone }));
             }}
             className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-zinc-700 dark:text-zinc-200 hover:border-blue-500 shadow-2xs"
           >
             <Phone className="w-3 h-3 text-blue-600" />
-            <span>Share Phone</span>
+            <span>{t('chat.action_share_phone')}</span>
           </button>
           <button
-            onClick={() => handleSend('🤝 Hi! Could you please share your final best price for this?')}
+            onClick={() => handleSend(t('chat.action_final_price_msg'))}
             className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-zinc-700 dark:text-zinc-200 hover:border-amber-500 shadow-2xs"
           >
             <span className="text-amber-500">🤝</span>
-            <span>Final Price?</span>
+            <span>{t('chat.action_final_price')}</span>
           </button>
         </div>
 

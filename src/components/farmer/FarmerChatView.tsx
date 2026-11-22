@@ -33,6 +33,13 @@ export const FarmerChatView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const quickAnswers = [
+    t('chat.farmer_quick_1'),
+    t('chat.farmer_quick_2'),
+    t('chat.farmer_quick_3'),
+    t('chat.farmer_quick_4'),
+  ];
+
   useEffect(() => {
     setIsLoading(true);
     refreshChatConversations().finally(() => setIsLoading(false));
@@ -106,7 +113,7 @@ export const FarmerChatView: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Real-time messages & produce inquiries from local buyers
+            {t('chat.farmer_subtitle')}
           </p>
         </div>
 
@@ -130,25 +137,20 @@ export const FarmerChatView: React.FC = () => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search customer conversations..."
+          placeholder={t('chat.search_customer_placeholder')}
           className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
         />
       </div>
 
       {/* Quick Reply Suggestions for Farmers */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-        <span className="text-[10px] uppercase font-bold text-zinc-400 shrink-0">Quick Answers:</span>
-        {[
-          '✓ हाँ, ताज़ा स्टॉक उपलब्ध है',
-          '🚚 कल सुबह 7-9 AM डिलीवरी होगी',
-          '🤝 20kg+ पर थोक भाव मिलेगा',
-          '📍 फार्म विजिट का समय 3-6 PM',
-        ].map((reply, i) => (
+        <span className="text-[10px] uppercase font-bold text-zinc-400 shrink-0">{t('chat.quick_replies_label')}</span>
+        {quickAnswers.map((reply, i) => (
           <button
             key={i}
             onClick={() => {
               navigator.clipboard.writeText(reply);
-              showToast(`Copied: "${reply}" to clipboard!`, 'info');
+              showToast(t('chat.copied_clipboard', { text: reply }), 'info');
             }}
             className="px-2.5 py-1 bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-full text-[11px] font-semibold shrink-0 hover:border-emerald-500 hover:text-emerald-600 transition shadow-2xs"
             title="Click to copy quick answer"
@@ -168,7 +170,7 @@ export const FarmerChatView: React.FC = () => {
             {t('chat.no_conversations')}
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
-            When buyers contact you regarding your crop listings or placed orders, they will appear here live.
+            {t('chat.no_conversations_desc')}
           </p>
         </div>
       ) : (

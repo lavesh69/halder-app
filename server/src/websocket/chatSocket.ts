@@ -195,6 +195,12 @@ export class ChatSocketService {
     const eventType = payload.type || payload.event || payload.action;
     const data = payload.data || payload;
 
+    // Eagerly authenticate if token is present on incoming event
+    const eventToken = data.token || payload.token;
+    if (eventToken && !ws.user) {
+      this.applyUserToken(ws, eventToken);
+    }
+
     switch (eventType) {
       case 'ping': {
         this.sendEvent(ws, 'pong', { timestamp: new Date().toISOString() });
@@ -328,6 +334,27 @@ export class ChatSocketService {
 
         // Broadcast to all participants in the conversation room
         this.broadcastToConversation(conversationId, 'chat:message', msg);
+
+        // Also notify the other participant on their user-level sockets if they haven't joined this room yet
+        try {
+          const conv = Database.get<any>('SELECT customer_id, farmer_id FROM conversations WHERE id = ?', [conversationId]);
+          if (conv) {
+            let recipientUserId = conv.customer_id;
+            if (ws.user.id === conv.customer_id) {
+              const fp = Database.get<any>('SELECT user_id FROM farmer_profiles WHERE id = ?', [conv.farmer_id]);
+              recipientUserId = fp?.user_id || conv.farmer_id;
+            }
+            if (recipientUserId && recipientUserId !== ws.user.id) {
+              this.sendToUser(recipientUserId, 'chat:message', msg);
+              this.sendToUser(recipientUserId, 'chat:notification', {
+                conversationId,
+                message: msg,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('[ChatSocket] Failed to send user-level notification:', e);
+        }
         break;
       }
 
@@ -433,6 +460,20 @@ export class ChatSocketService {
     room.forEach((client) => {
       if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
         client.send(messageData);
+      }
+    });
+  }
+
+  /**
+   * Broadcast an event to all connected sockets belonging to a specific user.
+   */
+  public static sendToUser(userId: string, eventType: string, payload: any) {
+    const sockets = this.userSockets.get(userId);
+    if (!sockets || sockets.size === 0) return;
+
+    sockets.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        this.sendEvent(client, eventType, payload);
       }
     });
   }

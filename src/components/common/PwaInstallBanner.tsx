@@ -227,7 +227,7 @@ export const PwaInstallBanner: React.FC = () => {
               onClick={() => setShowIosGuide(false)}
               className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
             >
-              Got it / समझ गया
+              {t('common.confirm') || 'Got it'}
             </button>
           </div>
         </div>

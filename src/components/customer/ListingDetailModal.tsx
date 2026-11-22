@@ -153,7 +153,7 @@ export const ListingDetailModal: React.FC = () => {
         isAvailable: isSold,
       });
       showToast(
-        isSold ? 'Listing reactivated as AVAILABLE!' : 'Listing marked as SOLD OUT (बिक गया)!',
+        isSold ? t('ad.relist') : t('ad.status_sold'),
         'success'
       );
     } catch {
@@ -163,8 +163,12 @@ export const ListingDetailModal: React.FC = () => {
 
   const handleOpenChat = () => {
     if (farmer) {
+      const initialText = t('chat.initial_product_inquiry', {
+        farmer: farmer.name,
+        product: selectedProduct.name,
+      });
       setSelectedProduct(null);
-      openFarmerChat(farmer, `Hi ${farmer.name}, is ${selectedProduct.name} available for delivery today?`);
+      openFarmerChat(farmer, initialText, selectedProduct.id);
     }
   };
 
@@ -176,9 +180,9 @@ export const ListingDetailModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
       <div
-        className="w-full max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[92vh] sm:max-h-[88vh] flex flex-col overflow-hidden animate-slide-up"
+        className="w-full h-full sm:h-auto max-w-lg md:max-w-xl bg-white dark:bg-[#1B201D] rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border border-zinc-200 dark:border-zinc-800 max-h-[100dvh] sm:max-h-[88vh] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Photo Gallery Carousel */}
@@ -241,7 +245,7 @@ export const ListingDetailModal: React.FC = () => {
             {selectedProduct.isOrganic && (
               <span className="text-xs font-bold text-emerald-950 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full shadow-xs flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-emerald-600" />
-                100% Organic
+                {t('ads.organic_certified')}
               </span>
             )}
           </div>
@@ -293,7 +297,7 @@ export const ListingDetailModal: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                    Your Advertisement (आपका विज्ञापन)
+                    {t('ad.your_ad')}
                   </h4>
                   <p className="text-[11px] text-amber-700 dark:text-amber-400">
                     You posted this listing. You can preview or remove it anytime.
@@ -315,7 +319,7 @@ export const ListingDetailModal: React.FC = () => {
             <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-2.5 text-amber-900 dark:text-amber-200 text-xs font-bold animate-fade-in">
               <span className="text-base">🏷️</span>
               <div>
-                <span>This produce is SOLD OUT (यह फसल/उत्पाद बिक चुका है).</span>
+                <span>{t('ad.sold_out_banner')}</span>
                 <p className="text-[11px] font-normal text-amber-700 dark:text-amber-400 mt-0.5">
                   The seller has concluded deals for this listing.
                 </p>
@@ -370,7 +374,7 @@ export const ListingDetailModal: React.FC = () => {
               </div>
               <div>
                 <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 block">
-                  Direct Farm Price (सीधे किसान से भाव)
+                  {t('ad.direct_farm_price')}
                 </span>
                 <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
                   Save ~25-30% vs Supermarkets • Zero middlemen markups • 100% to farmer
@@ -387,7 +391,7 @@ export const ListingDetailModal: React.FC = () => {
             <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-200">
                 <Boxes className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Bulk Volume Pricing (थोक मूल्य छूट)</span>
+                <span>{t('ad.bulk_pricing')}</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {(selectedProduct.priceSlabs || selectedProduct.price_slabs)!.map((slab, idx) => (
@@ -553,11 +557,11 @@ export const ListingDetailModal: React.FC = () => {
             </p>
           </div>
 
-          {/* Buyer Safety Tips (सुरक्षा सुझाव) */}
+          {/* Buyer Safety Tips */}
           <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
             <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold text-xs">
               <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Safety Tips for Buyers (सुरक्षा सुझाव)</span>
+              <span>{t('ad.safety_tips')}</span>
             </div>
             <ul className="text-[11px] text-amber-800/90 dark:text-amber-300/80 space-y-1 list-disc list-inside font-medium">
               <li>Meet seller in person in daylight or at local mandi.</li>
@@ -585,7 +589,7 @@ export const ListingDetailModal: React.FC = () => {
             <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Similar Advertisements (संबंधित विज्ञापन)
+                  {t('ad.similar_ads')}
                 </span>
                 <span className="text-[11px] text-emerald-600 font-semibold">{similarProducts.length} more</span>
               </div>
@@ -650,7 +654,7 @@ export const ListingDetailModal: React.FC = () => {
                 title={isSold ? 'Relist this ad' : 'Mark as sold'}
               >
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{isSold ? 'Relist Ad' : 'Mark as Sold (बिक गया)'}</span>
+                <span>{isSold ? t('ad.relist') : t('ad.mark_sold')}</span>
               </button>
 
               <button
@@ -917,10 +921,10 @@ export const ListingDetailModal: React.FC = () => {
               </div>
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-zinc-900 dark:text-white">
-                  Delete Advertisement?
+                  {t('ad.delete_title')}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Are you sure you want to remove &ldquo;{selectedProduct.name}&rdquo; from the marketplace? This cannot be undone.
+                  {t('ad.delete_desc', { name: selectedProduct.name })}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3 pt-2">

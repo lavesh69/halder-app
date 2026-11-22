@@ -129,7 +129,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black text-amber-900 dark:text-amber-200 uppercase tracking-wider">
-                  🎉 Launch Celebration Special (लॉन्च विशेष उपहार)
+                  🎉 Launch Celebration Special
                 </span>
                 <span className="text-[10px] bg-emerald-600 text-white font-black px-2 py-0.5 rounded-full">
                   100% Free

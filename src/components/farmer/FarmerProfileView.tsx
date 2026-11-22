@@ -193,7 +193,7 @@ export const FarmerProfileView: React.FC = () => {
             📢
           </div>
           <div>
-            <h4 className="font-heading font-black text-sm">Post Crop Advertisement (फसल का विज्ञापन दें)</h4>
+            <h4 className="font-heading font-black text-sm">{t('nav.post_ad')}</h4>
             <p className="text-xs text-emerald-100">
               List fresh produce, set custom rates, and receive direct buyer calls
             </p>
@@ -279,7 +279,7 @@ export const FarmerProfileView: React.FC = () => {
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-              Kisan KYC & Trust Certification (किसान पहचान सत्यापन)
+              Kisan KYC & Trust Certification
             </h4>
           </div>
           <button
@@ -287,9 +287,9 @@ export const FarmerProfileView: React.FC = () => {
             className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg transition"
           >
             {kycData?.verificationStatus === 'verified'
-              ? 'View Proof (प्रमाण देखें)'
+              ? 'View Proof'
               : kycData?.submittedAt
-              ? 'Status (स्थिति)'
+              ? 'Status'
               : '+ Submit KYC'}
           </button>
         </div>
@@ -300,7 +300,7 @@ export const FarmerProfileView: React.FC = () => {
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <div>
                 <span className="font-bold text-zinc-900 dark:text-white block">
-                  Official Certified Kisan (सत्यापित किसान)
+                  Official Certified Kisan
                 </span>
                 <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                   {kycData.documentType?.toUpperCase()} Verified • {kycData.documentNumber}
@@ -317,7 +317,7 @@ export const FarmerProfileView: React.FC = () => {
               <Clock className="w-4 h-4 text-amber-600 shrink-0" />
               <div>
                 <span className="font-bold text-zinc-900 dark:text-white block">
-                  Under Admin Review (समीक्षाधीन)
+                  Under Admin Review
                 </span>
                 <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                   Submitted {new Date(kycData.submittedAt).toLocaleDateString()} • {kycData.documentType?.toUpperCase()}
@@ -337,7 +337,7 @@ export const FarmerProfileView: React.FC = () => {
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
               <div>
                 <span className="font-bold text-red-900 dark:text-red-300 block">
-                  Verification Rejected (अस्वीकृत)
+                  Verification Rejected
                 </span>
                 <span className="text-red-700 dark:text-red-400 text-[11px] line-clamp-1">
                   {kycData.rejectionReason || 'Please re-submit clear documents.'}
@@ -414,7 +414,7 @@ export const FarmerProfileView: React.FC = () => {
             </div>
             <div>
               <span className="text-sm font-bold block">
-                Log Out (लॉग आउट)
+                {t('auth.logout') || 'Log Out'}
               </span>
               <span className="text-[11px] text-red-400/80">
                 End farmer session on this device

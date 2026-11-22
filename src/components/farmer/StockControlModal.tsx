@@ -25,11 +25,11 @@ interface StockControlModalProps {
 }
 
 const STOCK_STATUSES = [
-  { value: 'available', label: 'Available (उपलब्ध)', color: 'text-emerald-600' },
-  { value: 'limited', label: 'Limited Stock (सीमित स्टॉक)', color: 'text-amber-600' },
-  { value: 'out_of_stock', label: 'Out of Stock (समाप्त)', color: 'text-red-600' },
-  { value: 'seasonal', label: 'Seasonal Availability (मौसमी)', color: 'text-blue-600' },
-  { value: 'expected_harvest', label: 'Expected Harvest (आगामी फसल)', color: 'text-purple-600' },
+  { value: 'available', label: 'Available', color: 'text-emerald-600' },
+  { value: 'limited', label: 'Limited Stock', color: 'text-amber-600' },
+  { value: 'out_of_stock', label: 'Out of Stock', color: 'text-red-600' },
+  { value: 'seasonal', label: 'Seasonal Availability', color: 'text-blue-600' },
+  { value: 'expected_harvest', label: 'Expected Harvest', color: 'text-purple-600' },
 ];
 
 export const StockControlModal: React.FC<StockControlModalProps> = ({
@@ -163,7 +163,7 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
             </div>
             <div>
               <h3 className="font-black text-base text-zinc-900 dark:text-white">
-                Live Stock & Inventory (स्टॉक नियंत्रण)
+                Live Stock & Inventory
               </h3>
               <p className="text-[11px] text-zinc-500 line-clamp-1">
                 {product.name} ({formatCurrency(product.price)}/{product.unit})
@@ -262,7 +262,7 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
             {/* Minimum Order Quantity (MOQ) */}
             <div>
               <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
-                Minimum Order Quantity (कम से कम खरीद)
+                Minimum Order Quantity
               </label>
               <div className="flex items-center gap-2">
                 <input

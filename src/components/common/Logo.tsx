@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '../../i18n';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -11,6 +12,7 @@ export const Logo: React.FC<LogoProps> = ({
   showTagline = false,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const sizeClasses = {
     sm: 'text-base font-black tracking-wider',
     md: 'text-xl font-black tracking-wider',
@@ -33,7 +35,7 @@ export const Logo: React.FC<LogoProps> = ({
   };
 
   return (
-    <div className={`flex flex-col items-start select-none ${className}`}>
+    <div className={`flex flex-col items-start select-none shrink-0 ${className}`}>
       <div className="flex items-center gap-2">
         {/* Agricultural Sprout Shield */}
         <div
@@ -67,7 +69,7 @@ export const Logo: React.FC<LogoProps> = ({
 
       {showTagline && (
         <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-1 tracking-normal">
-          Direct from farmers • खेत से सीधे आपके घर
+          {t('logo.tagline')}
         </span>
       )}
     </div>

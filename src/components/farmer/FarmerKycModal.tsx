@@ -31,7 +31,7 @@ const DOCUMENT_PRESETS = [
   },
   {
     type: 'land_record',
-    name: '7/12 Land Record (सातबारा)',
+    name: '7/12 Land Record',
     num: 'MH-PUN-712-4091',
     url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80',
   },
@@ -187,7 +187,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
-                Farmer KYC & Mandi Certification (किसान पहचान सत्यापन)
+                Farmer KYC & Mandi Certification
               </h3>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
                 Official Kisan verification to earn the Green Verified trust mark
@@ -209,7 +209,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
             <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl flex items-start gap-3 text-emerald-900 dark:text-emerald-200">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-bold block text-sm">Verified Certified Kisan (सत्यापित किसान 🛡️)</span>
+                <span className="font-bold block text-sm">Verified Certified Kisan 🛡️</span>
                 <p className="mt-0.5 text-emerald-800 dark:text-emerald-300">
                   Your identity and land credentials have been verified by the Compliance Admin. All your produce listings proudly carry the Green Verified Badge.
                 </p>
@@ -226,7 +226,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
             <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-2xl flex items-start gap-3 text-amber-900 dark:text-amber-200">
               <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-bold block text-sm">KYC Under Verification (सत्यापन समीक्षाधीन)</span>
+                <span className="font-bold block text-sm">KYC Under Verification</span>
                 <p className="mt-0.5 text-amber-800 dark:text-amber-300">
                   Your submitted proof documents are in the Admin Verification Queue. Approvals are reviewed promptly.
                 </p>
@@ -241,7 +241,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
             <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 rounded-2xl flex items-start gap-3 text-red-900 dark:text-red-200">
               <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-bold block text-sm">Verification Needs Attention (अस्वीकृत)</span>
+                <span className="font-bold block text-sm">Verification Needs Attention</span>
                 <p className="mt-0.5 text-red-800 dark:text-red-300 font-semibold">
                   Admin Feedback: "{statusData?.rejectionReason || 'Document details were unclear or unreadable.'}"
                 </p>
@@ -265,7 +265,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
               {/* Document Type Selector */}
               <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  1. Select Verification Document (पहचान पत्र प्रकार)
+                  1. Select Verification Document
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
@@ -294,7 +294,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
               {/* Document Number */}
               <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                  2. Document / Certificate Number (दस्तावेज़ संख्या)
+                  2. Document / Certificate Number
                 </label>
                 <input
                   type="text"
@@ -309,7 +309,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
               {/* Document Photo Upload & Presets */}
               <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                  3. Upload Document Certificate / Photo (फ़ोटो या प्रमाण पत्र)
+                  3. Upload Document Certificate / Photo
                 </label>
 
                 {/* Upload Button */}
@@ -392,7 +392,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
                   ) : (
                     <>
                       <Upload className="w-4 h-4" />
-                      <span>Submit for Verification (जमा करें)</span>
+                      <span>Submit for Verification</span>
                     </>
                   )}
                 </button>
@@ -406,7 +406,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
                 onClick={onClose}
                 className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-emerald-700 transition"
               >
-                Close (बंद करें)
+                Close
               </button>
             </div>
           )}

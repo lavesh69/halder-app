@@ -112,7 +112,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
         <div className="p-5 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between">
           <div>
             <h3 className="text-base font-black text-zinc-900 dark:text-white">
-              Edit Profile (प्रोफ़ाइल बदलें)
+              Edit Profile
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Update your personal details and photo
@@ -188,7 +188,7 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                  Unique Username (यूज़रनेम)
+                  Unique Username
                 </label>
                 <span className="text-[10px] text-zinc-400">Permanent Handle</span>
               </div>

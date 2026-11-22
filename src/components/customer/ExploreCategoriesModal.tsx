@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
 import { X, ChevronRight, Layers, Sparkles } from 'lucide-react';
 
@@ -22,7 +23,7 @@ const detailedCategories: CategoryCardInfo[] = [
     popularSubcategories: ['Tractors', 'Power Weeders', 'Sprayers', 'Solar Pumps'],
   },
   {
-    name: 'Livestock & Cattle (पशुधन)',
+    name: 'Livestock & Cattle',
     cat: 'Livestock',
     emoji: '🐄',
     image: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?w=400',
@@ -30,7 +31,7 @@ const detailedCategories: CategoryCardInfo[] = [
     popularSubcategories: ['Milch Cows', 'Murrah Buffaloes', 'Dairy Breeds', 'Goats'],
   },
   {
-    name: 'Fresh Vegetables (ताज़ी सब्जियां)',
+    name: 'Fresh Vegetables',
     cat: 'Vegetables',
     emoji: '🥬',
     image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400',
@@ -38,7 +39,7 @@ const detailedCategories: CategoryCardInfo[] = [
     popularSubcategories: ['Pahadi Potatoes', 'Vine Tomatoes', 'Leafy Spinach', 'Onions'],
   },
   {
-    name: 'Grains & Pulses (अनाज और दालें)',
+    name: 'Grains & Pulses',
     cat: 'Grains',
     emoji: '🌾',
     image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
@@ -54,7 +55,7 @@ const detailedCategories: CategoryCardInfo[] = [
     popularSubcategories: ['Mountain Apples', 'Langra Mangoes', 'Citrus Oranges', 'Papaya'],
   },
   {
-    name: 'Dairy & Fresh Milk (दुग्ध उत्पाद)',
+    name: 'Dairy & Fresh Milk',
     cat: 'Dairy',
     emoji: '🥛',
     image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',
@@ -97,6 +98,7 @@ export const ExploreCategoriesModal: React.FC<ExploreCategoriesModalProps> = ({
   onClose,
 }) => {
   const { setSelectedCategory, products } = useApp();
+  const { t } = useTranslation();
 
   if (!isOpen) return null;
 
@@ -116,7 +118,7 @@ export const ExploreCategoriesModal: React.FC<ExploreCategoriesModalProps> = ({
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-600" />
             <h3 className="font-black text-lg text-zinc-900 dark:text-white">
-              All Categories (सभी श्रेणियां)
+              {t('categories.all_categories')}
             </h3>
           </div>
           <button

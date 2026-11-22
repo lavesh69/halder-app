@@ -140,7 +140,7 @@ export const MarketplaceHome: React.FC = () => {
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
-        showToast('🎙️ बोलिए... (उदा. टमाटर, बासमती धान, आलू)', 'info');
+        showToast(t('home.voice_listening'), 'info');
 
         recognition.onresult = (event: any) => {
           const transcript = event.results?.[0]?.[0]?.transcript;
@@ -183,7 +183,7 @@ export const MarketplaceHome: React.FC = () => {
   const resetAllFilters = () => {
     setSelectedCategory('All');
     setActiveCity('All India');
-    setCurrentLocation('All India (सभी राज्य)');
+    setCurrentLocation(t('home.all_india'));
     setFilterState((prev) => ({
       ...prev,
       minPrice: 0,
@@ -271,17 +271,17 @@ export const MarketplaceHome: React.FC = () => {
             {isRefreshing ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
-                <span>Refreshing mandi rates... / ताजा भाव लोड हो रहे हैं...</span>
+                <span>{t('home.pull_refreshing')}</span>
               </>
             ) : pullDistance >= 65 ? (
               <>
                 <ArrowDown className="w-4 h-4 rotate-180 transition-transform text-emerald-600" />
-                <span>Release to refresh / छोड़ें</span>
+                <span>{t('home.pull_release')}</span>
               </>
             ) : (
               <>
                 <ArrowDown className="w-4 h-4 text-emerald-600 transition-transform" />
-                <span>Pull down to refresh / नीचे खींचें</span>
+                <span>{t('home.pull_down')}</span>
               </>
             )}
           </div>
@@ -315,7 +315,7 @@ export const MarketplaceHome: React.FC = () => {
             <button
               onClick={() => {
                 setActiveCity('All India');
-                setCurrentLocation('All India (सभी राज्य)');
+                setCurrentLocation(t('home.all_india'));
               }}
               className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white bg-white dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-700/60 shadow-2xs shrink-0 ml-2 transition active:scale-95"
             >
@@ -353,7 +353,7 @@ export const MarketplaceHome: React.FC = () => {
                 cameraInputRef.current?.click();
               }}
               className="p-1.5 text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors rounded-lg cursor-pointer"
-              title="Camera Crop Scanner / फोटो से खोजें"
+              title="Camera Crop Scanner"
               aria-label="Camera Crop Scanner"
             >
               <Camera className="w-4 h-4" />
@@ -364,7 +364,7 @@ export const MarketplaceHome: React.FC = () => {
               type="button"
               onClick={handleVoiceSearch}
               className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-transform active:scale-95 cursor-pointer"
-              title="Voice Search / बोलकर खोजें"
+              title="Voice Search"
               aria-label="Voice Search"
             >
               <Mic className="w-4 h-4" />
@@ -386,9 +386,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div className="min-w-0 flex-1">
               <span className="text-[11px] sm:text-xs font-black text-emerald-900 dark:text-emerald-200 block truncate">
-                + Post Ad
+                {t('home.post_ad')}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">बेचना है (Free)</span>
+              <span className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">{t('home.sell_free')}</span>
             </div>
           </button>
 
@@ -401,9 +401,9 @@ export const MarketplaceHome: React.FC = () => {
             </div>
             <div className="min-w-0 flex-1">
               <span className="text-[11px] sm:text-xs font-black text-blue-900 dark:text-blue-200 block truncate">
-                Need Crop?
+                {t('home.post_requirement')}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-blue-700 dark:text-blue-400 block truncate">मांग भेजें (B2B)</span>
+              <span className="text-[9px] sm:text-[10px] text-blue-700 dark:text-blue-400 block truncate">{t('home.post_requirement_sub')}</span>
             </div>
           </button>
 
@@ -418,7 +418,7 @@ export const MarketplaceHome: React.FC = () => {
               <span className="text-[11px] sm:text-xs font-black text-zinc-900 dark:text-white block truncate">
                 {t('home.crop_alerts')}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-zinc-500 block truncate">अलर्ट्स</span>
+              <span className="text-[9px] sm:text-[10px] text-zinc-500 block truncate">{t('home.crop_alerts_sub')}</span>
             </div>
           </button>
         </div>
@@ -493,13 +493,13 @@ export const MarketplaceHome: React.FC = () => {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 text-white p-4 sm:p-5 shadow-soft-md border border-emerald-800/80">
         <div className="relative z-10 max-w-[80%] space-y-1.5">
           <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-400/30 text-[10px] font-bold text-emerald-200 uppercase tracking-wider">
-            0% Commission Direct Mandi
+            {t('home.hero_badge')}
           </span>
           <h3 className="font-heading font-black text-base sm:text-lg leading-snug">
-            किसान भाई, अपनी फसल 30 सेकंड में बेचें!
+            {t('home.hero_title')}
           </h3>
           <p className="text-xs text-emerald-100/90 font-medium leading-relaxed">
-            Direct mandi buyers &amp; instant UPI payment at your farm gate.
+            {t('home.hero_sub')}
           </p>
           <button
             onClick={() => {
@@ -509,7 +509,7 @@ export const MarketplaceHome: React.FC = () => {
             className="mt-2 flex items-center gap-1.5 bg-white text-emerald-800 px-3.5 py-2 rounded-xl font-heading font-black text-xs shadow-md hover:bg-emerald-50 active:scale-95 transition-transform cursor-pointer"
           >
             <Camera className="w-4 h-4 text-emerald-700" />
-            <span>Snap &amp; List Crop / फसल लिस्ट करें</span>
+            <span>{t('home.snap_and_list')}</span>
           </button>
         </div>
         <div className="absolute -right-3 -bottom-5 opacity-20 pointer-events-none text-white">
@@ -568,7 +568,7 @@ export const MarketplaceHome: React.FC = () => {
                 : 'bg-white dark:bg-[#181F1A] text-[#66736B] dark:text-[#A6B3AA] border border-[#E5EBE6] dark:border-[#29352D]'
             }`}
           >
-            All Ads (सभी विज्ञापन)
+            {t('home.all_ads')}
           </button>
 
           <button
@@ -579,8 +579,7 @@ export const MarketplaceHome: React.FC = () => {
                 : 'bg-white dark:bg-[#181F1A] text-red-600 border border-red-200 dark:border-red-900/60'
             }`}
           >
-            <span>🔥</span>
-            <span>Urgent (जल्दी बेचना है)</span>
+            <span>{t('home.filter_urgent')}</span>
           </button>
 
           <button
@@ -591,8 +590,7 @@ export const MarketplaceHome: React.FC = () => {
                 : 'bg-white dark:bg-[#181F1A] text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60'
             }`}
           >
-            <span>⚡</span>
-            <span>Featured (टॉप विज्ञापन)</span>
+            <span>{t('home.filter_featured')}</span>
           </button>
 
           <button
@@ -603,8 +601,7 @@ export const MarketplaceHome: React.FC = () => {
                 : 'bg-white dark:bg-[#181F1A] text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/60'
             }`}
           >
-            <span>🛡️</span>
-            <span>Verified Farmers (सत्यापित)</span>
+            <span>{t('home.filter_verified')}</span>
           </button>
           </div>
         </div>
@@ -686,7 +683,7 @@ export const MarketplaceHome: React.FC = () => {
                 <button
                   onClick={() => {
                     setActiveCity('All India');
-                    setCurrentLocation('All India (सभी राज्य)');
+                    setCurrentLocation(t('home.all_india'));
                   }}
                   className="text-[#89948C] hover:text-[#202923]"
                 >
@@ -967,7 +964,7 @@ export const MarketplaceHome: React.FC = () => {
                     Agri-Vision Smart Scanner
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    AI Crop Analysis (कृषि-दृष्टि फसल पहचान)
+                    AI Crop Analysis
                   </p>
                 </div>
               </div>
@@ -1000,16 +997,16 @@ export const MarketplaceHome: React.FC = () => {
             {/* Category selection */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                Confirm or change category (श्रेणी चुनें):
+                Confirm or change category:
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Vegetables (सब्जियां)', cat: 'Vegetables' as ProductCategory, emoji: '🥬' },
-                  { label: 'Fruits (फल)', cat: 'Fruits' as ProductCategory, emoji: '🍎' },
-                  { label: 'Grains (अनाज)', cat: 'Grains' as ProductCategory, emoji: '🌾' },
-                  { label: 'Dairy (डेयरी)', cat: 'Dairy' as ProductCategory, emoji: '🥛' },
-                  { label: 'Organic/Home (जैविक)', cat: 'Homemade' as ProductCategory, emoji: '🍯' },
-                  { label: 'Equipment (उपकरण)', cat: 'Farm Equipment' as ProductCategory, emoji: '🚜' },
+                  { label: t('categories.vegetables'), cat: 'Vegetables' as ProductCategory, emoji: '🥬' },
+                  { label: t('categories.fruits'), cat: 'Fruits' as ProductCategory, emoji: '🍎' },
+                  { label: t('categories.grains'), cat: 'Grains' as ProductCategory, emoji: '🌾' },
+                  { label: t('categories.dairy'), cat: 'Dairy' as ProductCategory, emoji: '🥛' },
+                  { label: t('categories.homemade'), cat: 'Homemade' as ProductCategory, emoji: '🍯' },
+                  { label: t('categories.farm_equipment'), cat: 'Farm Equipment' as ProductCategory, emoji: '🚜' },
                 ].map((item) => (
                   <button
                     key={item.cat}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { formatCurrency, formatDistance } from '../../utils/formatters';
 import { handleImageError, DEFAULT_PRODUCE_IMAGE } from '../../utils/imageFallback';
 import {
@@ -25,6 +26,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   product,
   variant = 'vertical-feed',
 }) => {
+  const { t } = useTranslation();
   const {
     setSelectedProduct,
     setSelectedFarmer,
@@ -157,7 +159,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {!product.isAvailable && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
               <span className="px-2.5 py-1 bg-[#D9534F] text-white font-black text-[10px] uppercase tracking-wider rounded-md shadow-md">
-                SOLD / बिक चुका
+                {t('ad.status_sold')}
               </span>
             </div>
           )}
@@ -284,7 +286,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         {!product.isAvailable && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
             <span className="px-3 py-1 bg-[#D9534F] text-white font-black text-xs uppercase tracking-wider rounded-lg shadow-md">
-              SOLD / बिक चुका
+              {t('ad.status_sold')}
             </span>
           </div>
         )}
@@ -346,7 +348,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {/* Stitch Price Strip with Direct Mandi Rate */}
           <div className="bg-[#FAF9F6] dark:bg-[#151C17] p-2 sm:p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between mt-2">
             <div>
-              <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase block">Offered Rate / भाव</span>
+              <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase block">{t('ad.offered_rate')}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-heading font-black text-[#176B45] dark:text-[#5FB383]">
                   {formatCurrency(product.price)}

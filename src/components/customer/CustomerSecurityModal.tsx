@@ -114,7 +114,7 @@ export const CustomerSecurityModal: React.FC<CustomerSecurityModalProps> = ({
             <div className="flex items-center gap-2">
               <KeyRound className="w-4 h-4 text-emerald-600" />
               <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-                Change Password (पासवर्ड बदलें)
+                Change Password
               </h4>
             </div>
 
@@ -193,7 +193,7 @@ export const CustomerSecurityModal: React.FC<CustomerSecurityModalProps> = ({
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <ShieldAlert className="w-4 h-4" />
               <h4 className="text-xs font-bold uppercase tracking-wider">
-                Permanent Account Deletion (खाता हटाना)
+                Permanent Account Deletion
               </h4>
             </div>
 

@@ -493,7 +493,7 @@ export const FastSellModal: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-zinc-900 dark:text-white">
-                        Add Real Photos of Your Crop (फसल की फोटो जोड़ें)
+                        {t('post_ad.add_photos')}
                       </h4>
                       <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                         Real harvest photos get 5x more buyer calls & direct WhatsApp offers
@@ -506,7 +506,7 @@ export const FastSellModal: React.FC = () => {
                         className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-soft flex items-center gap-1.5 cursor-pointer transition"
                       >
                         <Camera className="w-4 h-4" />
-                        <span>📷 Open Camera (कैमरा)</span>
+                        <span>📷 {t('post_ad.camera')}</span>
                       </button>
                       <button
                         type="button"
@@ -514,7 +514,7 @@ export const FastSellModal: React.FC = () => {
                         className="px-4 py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 text-zinc-800 dark:text-zinc-200 font-bold text-xs rounded-xl shadow-2xs flex items-center gap-1.5 cursor-pointer transition"
                       >
                         <Upload className="w-4 h-4" />
-                        <span>🖼️ Gallery (गैलरी)</span>
+                        <span>🖼️ {t('post_ad.gallery')}</span>
                       </button>
                     </div>
                   </div>
@@ -777,7 +777,7 @@ export const FastSellModal: React.FC = () => {
               <div className="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80">
                 <div>
                   <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                    Price Negotiable (मोल-भाव संभव)
+                    {t('post_ad.price_negotiable')}
                   </span>
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
                     Allows buyers to submit counter-offers directly through the app
@@ -1014,7 +1014,7 @@ export const FastSellModal: React.FC = () => {
               {/* Delivery Arrangements */}
               <div className="pt-2 space-y-2.5">
                 <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
-                  Fulfillment Arrangements (सुविधाएं)
+                  {t('post_ad.fulfillment')}
                 </span>
                 <div className="grid grid-cols-2 gap-2.5">
                   <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 cursor-pointer">
@@ -1053,7 +1053,7 @@ export const FastSellModal: React.FC = () => {
                     />
                     <div>
                       <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                        Show my phone number on this ad (विज्ञापन पर फोन नंबर दिखाएं)
+                        {t('post_ad.show_phone')}
                       </span>
                       <span className="text-[10px] text-zinc-400">
                         If unchecked, buyers can only contact you via in-app Chat & Make an Offer to protect privacy

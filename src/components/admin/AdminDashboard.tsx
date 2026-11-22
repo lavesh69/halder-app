@@ -1191,8 +1191,8 @@ export const AdminDashboard: React.FC = () => {
                           className="px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-[11px] font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none"
                           title="Change user role"
                         >
-                          <option value="customer">Buyer (ग्राहक)</option>
-                          <option value="farmer">Farmer (किसान)</option>
+                          <option value="customer">Buyer</option>
+                          <option value="farmer">Farmer</option>
                           <option value="admin">Promote to Admin</option>
                         </select>
                       )}
@@ -2047,7 +2047,7 @@ export const AdminDashboard: React.FC = () => {
             <div>
               <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <Settings className="w-5 h-5 text-emerald-600" />
-                <span>Platform Governance & Commercial Settings (मंच विन्यास व नीतियां)</span>
+                <span>Platform Governance & Commercial Settings</span>
               </h2>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Configure commission structure, delivery thresholds, and customer support contacts
@@ -2176,7 +2176,7 @@ export const AdminDashboard: React.FC = () => {
 
                 <div>
                   <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
-                    Global Broadcast Advisory Banner (मंच सूचना)
+                    Global Broadcast Advisory Banner
                   </label>
                   <input
                     type="text"
@@ -2198,7 +2198,7 @@ export const AdminDashboard: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <KeyRound className="w-4 h-4 text-red-600" />
                   <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
-                    Administrator Account & Session Security (एडमिन खाता व सुरक्षा सत्र)
+                    Administrator Account & Session Security
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded">
@@ -2262,7 +2262,7 @@ export const AdminDashboard: React.FC = () => {
             {/* Simulated Government Aadhaar Card */}
             <div className="space-y-2">
               <span className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                1. Government Aadhaar Card (भारतीय विशिष्ट पहचान प्राधिकरण)
+                1. Government Aadhaar Card
               </span>
 
               <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border-2 border-amber-300 dark:border-amber-700/60 shadow-md relative overflow-hidden">
@@ -2274,7 +2274,7 @@ export const AdminDashboard: React.FC = () => {
                     <span className="text-xl">🇮🇳</span>
                     <div>
                       <span className="font-black text-xs text-amber-950 dark:text-amber-200 block">
-                        Government of India / भारत सरकार
+                        Government of India
                       </span>
                       <span className="text-[9px] text-zinc-500">Unique Identification Authority of India</span>
                     </div>
@@ -2295,7 +2295,7 @@ export const AdminDashboard: React.FC = () => {
                       Name: {inspectingKycDoc.farmer_name}
                     </p>
                     <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                      DOB / जन्म तिथि: 14/08/1982 | Male / पुरुष
+                      DOB: 14/08/1982 | Gender: Male
                     </p>
                     <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
                       Address: Village {inspectingKycDoc.city}, {inspectingKycDoc.location}, India
@@ -2311,7 +2311,7 @@ export const AdminDashboard: React.FC = () => {
             {/* Simulated 7/12 (Saat-Baara) Land Record Certificate */}
             <div className="space-y-2">
               <span className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                2. Land Title & 7/12 Saat-Baara Record (कृषि भूमि अभिलेख प्रमाण पत्र)
+                2. Land Title & 7/12 Saat-Baara Record
               </span>
 
               <div className="p-4 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800 space-y-2.5">
@@ -2331,7 +2331,7 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-zinc-500 text-[10px] block">Verified Agricultural Area:</span>
-                    <span className="font-bold text-zinc-900 dark:text-white">4.5 Hectares / एकड़</span>
+                    <span className="font-bold text-zinc-900 dark:text-white">4.5 Hectares</span>
                   </div>
                   <div>
                     <span className="text-zinc-500 text-[10px] block">District / Taluka:</span>
@@ -2388,7 +2388,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />
               <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
-                Specify KYC Rejection Reason (अस्वीकृति का कारण)
+                Specify KYC Rejection Reason
               </h3>
             </div>
 
@@ -2673,9 +2673,9 @@ export const AdminDashboard: React.FC = () => {
                 <label className="text-[10px] font-black uppercase text-zinc-400 block mb-1">Assigned Role</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {[
-                    { id: 'customer', label: 'Buyer (ग्राहक)' },
-                    { id: 'farmer', label: 'Farmer (किसान)' },
-                    { id: 'admin', label: 'Admin (प्रशासक)' },
+                    { id: 'customer', label: 'Buyer' },
+                    { id: 'farmer', label: 'Farmer' },
+                    { id: 'admin', label: 'Admin' },
                   ].map((r) => (
                     <button
                       type="button"
@@ -2828,7 +2828,7 @@ export const AdminDashboard: React.FC = () => {
                   Confirm Admin Logout
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  एडमिन सत्र से लॉगआउट की पुष्टि करें
+                  Are you sure you want to exit your administrator session?
                 </p>
               </div>
             </div>

@@ -230,7 +230,7 @@ export const CustomerProfileView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                  My Advertisements (मेरे विज्ञापन)
+                  {t('profile.my_ads')}
                 </span>
                 {myAdsCount > 0 && (
                   <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
@@ -257,7 +257,7 @@ export const CustomerProfileView: React.FC = () => {
             </div>
             <div>
               <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                Saved Advertisements (सहेजे गए विज्ञापन)
+                {t('profile.saved_ads')}
               </span>
               <span className="text-[11px] text-zinc-500">
                 View farm produce and ads you marked with heart
@@ -299,7 +299,7 @@ export const CustomerProfileView: React.FC = () => {
             </div>
             <div>
               <span className="text-sm font-bold text-zinc-900 dark:text-white block">
-                Security & Credentials (सुरक्षा और क्रेडेंशियल)
+                {t('profile.security')}
               </span>
               <span className="text-[11px] text-zinc-500">
                 Change password and account deletion
@@ -379,7 +379,7 @@ export const CustomerProfileView: React.FC = () => {
             </div>
             <div>
               <span className="text-sm font-bold block">
-                Log Out (लॉग आउट)
+                {t('auth.logout') || 'Log Out'}
               </span>
               <span className="text-[11px] text-red-400/80">
                 End session on this device
@@ -474,7 +474,7 @@ export const CustomerProfileView: React.FC = () => {
                   <h3 className="font-black text-base text-zinc-900 dark:text-white">
                     HALDER Help & Support
                   </h3>
-                  <span className="text-[11px] text-zinc-500">किसान व ग्राहक सहायता केंद्र</span>
+                  <span className="text-[11px] text-zinc-500">{t('profile.help_support_desc')}</span>
                 </div>
               </div>
               <button
@@ -559,7 +559,7 @@ export const CustomerProfileView: React.FC = () => {
             {/* Quick FAQs */}
             <div className="space-y-2 pt-1 border-t border-zinc-100 dark:border-zinc-800">
               <span className="text-[10px] font-black uppercase text-zinc-400 tracking-wider">
-                Frequently Asked Questions (अक्सर पूछे जाने वाले सवाल)
+                {t('profile.faqs')}
               </span>
 
               <div className="space-y-2 text-xs">

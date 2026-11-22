@@ -53,17 +53,17 @@ export const Header: React.FC = () => {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
-      <div className="max-w-7xl px-2.5 sm:px-4 md:px-6 mx-auto py-2 transition-all duration-200">
-        <div className="flex items-center justify-between gap-1 sm:gap-2">
+    <header className="sticky top-0 z-30 w-full max-w-full overflow-hidden bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
+      <div className="w-full max-w-7xl px-3 sm:px-4 md:px-6 mx-auto py-2 transition-all duration-200">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 w-full min-w-0">
           {/* Logo & Location Selector */}
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Logo size="sm" />
 
-            {/* Location Selector Pill (Clickable) */}
+            {/* Location Selector Pill (Clickable on Tablet & Desktop) */}
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[95px] xs:max-w-[125px] sm:max-w-[160px] truncate shadow-soft focus-visible:ring-2"
+              className="hidden md:flex items-center gap-1 text-xs text-[#202923] dark:text-[#F2F5F3] hover:text-[#176B45] dark:hover:text-[#5FB383] bg-[#F0F4F1] dark:bg-[#181F1A] px-2.5 py-1.5 rounded-full border border-[#E5EBE6] dark:border-[#29352D] transition-colors max-w-[150px] truncate shadow-soft focus-visible:ring-2"
               title={t('location.change_location')}
               aria-label="Change current location"
             >
@@ -74,22 +74,22 @@ export const Header: React.FC = () => {
               <ChevronDown className="w-3 h-3 text-[#89948C] shrink-0 ml-0.5" />
             </button>
 
-            {/* Live Mandi Active Indicator (Tablet & Desktop) */}
-            <span className="hidden md:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
+            {/* Live Mandi Active Indicator (Desktop) */}
+            <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
               <span>Mandi Open</span>
             </span>
           </div>
 
           {/* Right Action Icons */}
-          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* Multilingual Language Selector */}
             <LanguageSelector variant="compact" />
 
-            {/* Search Trigger (Hidden on small phone to prevent crowding, available in feed & bottom bar) */}
+            {/* Search Trigger (Hidden on phone/small tablet to prevent crowding, available in feed & bottom bar) */}
             <button
               onClick={() => setIsSearchScreenOpen(true)}
-              className="hidden sm:flex p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+              className="hidden md:flex p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
               title={t('nav.search')}
               aria-label="Search produce"
             >
@@ -115,7 +115,7 @@ export const Header: React.FC = () => {
             {role === 'customer' && (
               <button
                 onClick={() => setCustomerTab('favorites')}
-                className="relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+                className="hidden sm:flex relative p-2 text-[#66736B] dark:text-[#A6B3AA] hover:text-[#202923] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
                 title={t('nav.favorites')}
                 aria-label="View favorites"
               >
@@ -133,7 +133,7 @@ export const Header: React.FC = () => {
               <>
                 {/* Mobile Compact Avatar Pill */}
                 <div
-                  className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full border shadow-2xs shrink-0"
+                  className="flex md:hidden items-center justify-center w-7 h-7 rounded-full border shadow-2xs shrink-0"
                   style={{
                     borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
                     backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.12)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.12)' : 'rgba(5, 150, 105, 0.12)',
@@ -148,7 +148,7 @@ export const Header: React.FC = () => {
 
                 {/* Tablet/Desktop Expanded Badge */}
                 <div
-                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs max-w-[130px] sm:max-w-[160px] truncate"
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs max-w-[130px] sm:max-w-[160px] truncate"
                   style={{
                     borderColor: role === 'admin' ? '#9333ea' : role === 'farmer' ? '#d97706' : '#059669',
                     backgroundColor: role === 'admin' ? 'rgba(147, 51, 234, 0.08)' : role === 'farmer' ? 'rgba(217, 119, 6, 0.08)' : 'rgba(5, 150, 105, 0.08)',
@@ -160,7 +160,7 @@ export const Header: React.FC = () => {
                   {role === 'farmer' && <Sprout className="w-3.5 h-3.5 shrink-0 text-amber-600" />}
                   {role === 'customer' && <ShoppingBag className="w-3.5 h-3.5 shrink-0 text-emerald-600" />}
                   <span className="truncate">
-                    {role === 'admin' ? 'Admin' : role === 'farmer' ? 'किसान' : 'खरीदार'} {currentUser.username ? `@${currentUser.username}` : ''}
+                    {role === 'admin' ? t('roles.admin') : role === 'farmer' ? t('roles.farmer') : t('roles.buyer')} {currentUser.username ? `@${currentUser.username}` : ''}
                   </span>
                 </div>
               </>
@@ -174,10 +174,10 @@ export const Header: React.FC = () => {
                   setIsFastSellOpen(true);
                 }}
                 className="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-[#176B45] hover:bg-[#124C36] active:scale-95 text-white rounded-full text-[11px] font-bold shadow-soft transition-all ml-0.5"
-                title="Post Crop Advertisement / फसल का विज्ञापन डालें"
+                title={t('home.snap_and_list')}
               >
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>+ Post Ad</span>
+                <span>+ {t('nav.listings')}</span>
               </button>
             )}
 

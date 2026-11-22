@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { cityCoordinatesMap } from '../../utils/geo';
 
 const popularLocations = [
-  { city: 'All India', area: 'All India (सभी राज्य)' },
+  { city: 'All India', area: 'All India' },
   { city: 'Delhi NCR', area: 'Connaught Place & NCR, Delhi' },
   { city: 'Gurugram', area: 'Cyber City & Sohna Rd, Gurugram' },
   { city: 'Noida', area: 'Sector 18 & Greater Noida' },
@@ -138,7 +138,7 @@ export const LocationModal: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 text-xs">
                 <Compass className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                Farm Discovery Radius (खेत खोज दायरा)
+                Farm Discovery Radius
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">
                 {searchRadiusKm} km

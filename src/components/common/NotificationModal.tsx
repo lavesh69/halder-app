@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { PushNotificationClient } from '../../services/pushNotificationClient';
 import {
   Bell,
@@ -33,6 +34,7 @@ function formatRelativeTime(dateStr?: string): string {
 }
 
 export const NotificationModal: React.FC<NotificationModalProps> = () => {
+  const { t } = useTranslation();
   const {
     isNotificationModalOpen,
     setIsNotificationModalOpen,
@@ -71,7 +73,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-emerald-600" />
             <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-              Market Notifications (सूचनाएं)
+              {t('nav.notifications')}
             </h3>
             {relevantNotifications.some((n) => !n.isRead) && (
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />

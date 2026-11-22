@@ -341,7 +341,7 @@ export const FarmerDashboard: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-base">📢</span>
                   <h3 className="text-base font-bold text-[#202923] dark:text-[#F2F5F3]">
-                    Buyer Demands & Bulk Tenders (खरीदार मांग)
+                    Buyer Demands & Bulk Tenders
                   </h3>
                 </div>
                 <span className="text-xs text-blue-600 dark:text-blue-400 font-bold">
@@ -381,7 +381,7 @@ export const FarmerDashboard: React.FC = () => {
                       className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-soft"
                     >
                       <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Quote / Send Offer (भाव दें)</span>
+                      <span>Quote / Send Offer</span>
                     </button>
                   </div>
                 ))}
@@ -431,7 +431,7 @@ export const FarmerDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-600" />
               <h4 className="text-sm font-bold text-[#202923] dark:text-[#F2F5F3]">
-                Tips for Fast Selling (जल्दी फसल बेचने के नियम)
+                Tips for Fast Selling
               </h4>
             </div>
             <ul className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1.5 list-disc list-inside">

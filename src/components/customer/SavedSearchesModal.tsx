@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SavedSearch } from '../../types';
 import { ApiClient } from '../../api/client';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import {
   X,
   Bell,
@@ -27,6 +28,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
   onClose,
 }) => {
   const { showToast, setIsLoginModalOpen } = useApp();
+  const { t } = useTranslation();
 
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -202,7 +204,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
             </div>
             <div>
               <h3 className="font-black text-base sm:text-lg text-zinc-900 dark:text-white">
-                Crop & Price Alerts (स्मार्ट अलर्ट)
+                {t('alerts.crop_price_title')}
               </h3>
               <p className="text-[11px] text-zinc-500">
                 Get notified automatically when fresh crops or bargain prices appear

@@ -92453,6 +92453,10 @@ var ChatSocketService = class {
   static async handleIncomingEvent(ws, payload) {
     const eventType = payload.type || payload.event || payload.action;
     const data = payload.data || payload;
+    const eventToken = data.token || payload.token;
+    if (eventToken && !ws.user) {
+      this.applyUserToken(ws, eventToken);
+    }
     switch (eventType) {
       case "ping": {
         this.sendEvent(ws, "pong", { timestamp: (/* @__PURE__ */ new Date()).toISOString() });
@@ -92567,6 +92571,25 @@ var ChatSocketService = class {
         const senderRole = ws.user.role === "farmer" ? "farmer" : "user";
         const msg = ChatService.sendMessage(conversationId, ws.user.id, senderRole, messageText);
         this.broadcastToConversation(conversationId, "chat:message", msg);
+        try {
+          const conv = Database.get("SELECT customer_id, farmer_id FROM conversations WHERE id = ?", [conversationId]);
+          if (conv) {
+            let recipientUserId = conv.customer_id;
+            if (ws.user.id === conv.customer_id) {
+              const fp = Database.get("SELECT user_id FROM farmer_profiles WHERE id = ?", [conv.farmer_id]);
+              recipientUserId = fp?.user_id || conv.farmer_id;
+            }
+            if (recipientUserId && recipientUserId !== ws.user.id) {
+              this.sendToUser(recipientUserId, "chat:message", msg);
+              this.sendToUser(recipientUserId, "chat:notification", {
+                conversationId,
+                message: msg
+              });
+            }
+          }
+        } catch (e5) {
+          console.warn("[ChatSocket] Failed to send user-level notification:", e5);
+        }
         break;
       }
       case "chat:typing":
@@ -92645,6 +92668,18 @@ var ChatSocketService = class {
     room.forEach((client) => {
       if (client !== excludeWs && client.readyState === import_websocket.default.OPEN) {
         client.send(messageData);
+      }
+    });
+  }
+  /**
+   * Broadcast an event to all connected sockets belonging to a specific user.
+   */
+  static sendToUser(userId, eventType, payload) {
+    const sockets = this.userSockets.get(userId);
+    if (!sockets || sockets.size === 0) return;
+    sockets.forEach((client) => {
+      if (client.readyState === import_websocket.default.OPEN) {
+        this.sendEvent(client, eventType, payload);
       }
     });
   }
@@ -92805,6 +92840,11 @@ var ChatController = class {
           const fp = Database.get("SELECT user_id FROM farmer_profiles WHERE id = ?", [conv.farmer_id]);
           const recipientUserId = req.user.id === conv.customer_id ? fp?.user_id : conv.customer_id;
           if (recipientUserId && recipientUserId !== req.user.id) {
+            ChatSocketService.sendToUser(recipientUserId, "chat:message", msg);
+            ChatSocketService.sendToUser(recipientUserId, "chat:notification", {
+              conversationId: req.params.id,
+              message: msg
+            });
             const recipientUser = Database.get("SELECT role FROM users WHERE id = ?", [recipientUserId]);
             NotificationService.createAndPush({
               userId: recipientUserId,

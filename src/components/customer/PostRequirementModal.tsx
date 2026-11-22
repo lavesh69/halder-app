@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ApiClient } from '../../api/client';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
 import {
   X,
@@ -50,6 +51,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
   onCreated,
 }) => {
   const { showToast, currentUser } = useApp();
+  const { t } = useTranslation();
 
   const [productName, setProductName] = useState('');
   const [category, setCategory] = useState<ProductCategory>('Vegetables');
@@ -163,7 +165,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
             </div>
             <div>
               <h3 className="font-black text-base sm:text-lg text-zinc-900 dark:text-white">
-                Post Requirement (फसल मांग दर्ज करें)
+                {t('requirement.post_title')}
               </h3>
               <p className="text-[11px] text-zinc-500">
                 Reverse Marketplace: Broadcast your demand to nearby farmers for direct quotes
@@ -270,7 +272,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
               className="w-4 h-4 text-emerald-600 rounded-md focus:ring-emerald-500"
             />
             <label htmlFor="isNegotiableReq" className="text-xs text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer">
-              Price is negotiable with farmers (मोल-भाव स्वीकार्य)
+              {t('requirement.negotiable_note')}
             </label>
           </div>
 
@@ -402,7 +404,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
               className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-2xl font-bold text-xs shadow-soft transition flex items-center justify-center gap-1.5 active:scale-98"
             >
               <Megaphone className="w-4 h-4" />
-              <span>{isSubmitting ? 'Broadcasting...' : 'Broadcast Requirement (मांग भेजें)'}</span>
+              <span>{isSubmitting ? 'Broadcasting...' : t('requirement.broadcast_btn')}</span>
             </button>
           </div>
         </form>

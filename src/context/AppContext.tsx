@@ -1584,13 +1584,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
 
     setTimeout(() => {
-      let replyText = 'Yes, this is freshly harvested today! You can place the order directly.';
-      if (text.toLowerCase().includes('available')) {
-        replyText = 'Yes, we have 25 kg available right now. Plucked early morning!';
-      } else if (text.toLowerCase().includes('location') || text.toLowerCase().includes('farm')) {
-        replyText = 'Our farm is at Rajpur Road, just 2.4 km from Clock Tower.';
-      } else if (text.toLowerCase().includes('5 kg') || text.toLowerCase().includes('kg')) {
-        replyText = 'Sure! Please select 5 kg and click "Buy Now" for doorstep delivery.';
+      const isHindi = typeof window !== 'undefined' && localStorage.getItem('halder-language') === 'hi';
+      let replyText = isHindi
+        ? 'हाँजी, यह फसल आज सुबह ही ताज़ा तोड़ी गई है! आप सीधे ऑर्डर कर सकते हैं।'
+        : 'Yes, this produce is freshly harvested today! You can place the order directly.';
+
+      const lower = text.toLowerCase();
+      if (lower.includes('available') || lower.includes('उपलब्ध') || lower.includes('stock')) {
+        replyText = isHindi
+          ? 'हाँजी, हमारे पास पर्याप्त ताज़ा स्टॉक उपलब्ध है। सुबह की ताज़ा कटाई!'
+          : 'Yes, we have fresh stock available right now. Plucked early morning!';
+      } else if (lower.includes('location') || lower.includes('farm') || lower.includes('खेत') || lower.includes('कहाँ')) {
+        replyText = isHindi
+          ? 'हमारा खेत पास ही में है, आप फार्म से सीधा पिकअप या डिलीवरी ले सकते हैं।'
+          : 'Our farm is at Rajpur Road, just 2.4 km from Clock Tower.';
+      } else if (lower.includes('price') || lower.includes('rate') || lower.includes('भाव') || lower.includes('कम')) {
+        replyText = isHindi
+          ? 'यह हमारा सर्वोत्तम मंडी-सीधा रेट है, बिना किसी बिचौलिया कमीशन के।'
+          : 'This is our best direct-from-farm mandi rate with zero middleman markup.';
+      } else if (lower.includes('5 kg') || lower.includes('kg') || lower.includes('किलो')) {
+        replyText = isHindi
+          ? 'ज़रूर! आप जितनी मात्रा चाहें चुनकर घर बैठे डिलीवरी ले सकते हैं।'
+          : 'Sure! Please select the desired quantity and place your order.';
       }
 
       const reply: ChatMessage = {

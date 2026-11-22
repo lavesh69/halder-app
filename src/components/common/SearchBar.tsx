@@ -86,7 +86,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               ? 'bg-red-500 text-white animate-pulse'
               : 'text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-zinc-800'
           }`}
-          title="Voice Search (आवाज से खोजें)"
+          title="Voice Search"
         >
           <Mic className="w-4 h-4" />
         </button>

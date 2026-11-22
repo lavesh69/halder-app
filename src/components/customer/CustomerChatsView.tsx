@@ -103,7 +103,7 @@ export const CustomerChatsView: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
-              Chats (चैट)
+              {t('chat.title')}
             </h2>
             {unreadChatCount > 0 && (
               <span className="px-2 py-0.5 bg-emerald-600 text-white text-xs font-bold rounded-full animate-pulse">
@@ -112,7 +112,7 @@ export const CustomerChatsView: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Direct Mandi messaging with local sellers and buyers
+            {t('chat.subtitle')}
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export const CustomerChatsView: React.FC = () => {
               : 'border-transparent text-zinc-500 hover:text-zinc-800'
           }`}
         >
-          All (सभी)
+          {t('chat.tab_all')}
         </button>
         <button
           onClick={() => setChatTab('buying')}
@@ -149,7 +149,7 @@ export const CustomerChatsView: React.FC = () => {
               : 'border-transparent text-zinc-500 hover:text-zinc-800'
           }`}
         >
-          Buying (खरीदारी)
+          {t('chat.tab_buying')}
         </button>
         <button
           onClick={() => setChatTab('selling')}
@@ -159,7 +159,7 @@ export const CustomerChatsView: React.FC = () => {
               : 'border-transparent text-zinc-500 hover:text-zinc-800'
           }`}
         >
-          Selling (बिक्री)
+          {t('chat.tab_selling')}
         </button>
       </div>
 
@@ -170,7 +170,7 @@ export const CustomerChatsView: React.FC = () => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by seller name or message..."
+          placeholder={t('chat.search_seller_placeholder')}
           className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-zinc-900 dark:text-white placeholder:text-zinc-400"
         />
       </div>
@@ -186,17 +186,17 @@ export const CustomerChatsView: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-sm text-zinc-900 dark:text-white">
-                No active chats yet
+                {t('chat.no_active_chats')}
               </h4>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
-                When you contact sellers or receive inquiries on your advertisements, conversations will show here!
+                {t('chat.no_active_chats_desc')}
               </p>
             </div>
             <button
               onClick={() => setCustomerTab('home')}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs"
             >
-              <span>Explore Marketplace Ads</span>
+              <span>{t('chat.explore_marketplace')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

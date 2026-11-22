@@ -287,7 +287,7 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
                 className="w-full py-3 px-4 rounded-2xl border-2 border-dashed border-emerald-600/40 hover:border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Add New Address (नया पता जोड़ें)</span>
+                <span>+ Add New Address</span>
               </button>
 
               {/* Addresses List */}
@@ -403,7 +403,7 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
               {/* Address Label Selector */}
               <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Address Type (लेबल)
+                  Address Type
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {['Home', 'Work', 'Other'].map((lbl) => (

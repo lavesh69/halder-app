@@ -61,7 +61,7 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
         {
           id: 'crop-101',
           farmer_id: farmerId,
-          crop_name: 'Sharbati Wheat (शरबती गेहूं)',
+          crop_name: 'Sharbati Wheat',
           season: 'Rabi 2026',
           sowing_date: '2025-11-15',
           expected_harvest_date: '2026-04-10',
@@ -73,7 +73,7 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
         {
           id: 'crop-102',
           farmer_id: farmerId,
-          crop_name: 'Desi Red Tomato (देसी टमाटर)',
+          crop_name: 'Desi Red Tomato',
           season: 'Zaid 2026',
           sowing_date: '2026-01-20',
           expected_harvest_date: '2026-04-05',
