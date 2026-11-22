@@ -1,5 +1,5 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v22-storage-db-sync';
+const CACHE_NAME = 'halder-cache-v23-pwa-shimmer-fallback';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.svg',

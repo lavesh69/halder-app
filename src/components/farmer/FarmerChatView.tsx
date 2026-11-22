@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
+import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
+import { ChatSkeleton } from '../common/ChatSkeleton';
 import {
   MessageCircle,
   Search,
@@ -157,7 +159,9 @@ export const FarmerChatView: React.FC = () => {
       </div>
 
       {/* Conversations List */}
-      {filteredConversations.length === 0 ? (
+      {isLoading && filteredConversations.length === 0 ? (
+        <ChatSkeleton count={4} />
+      ) : filteredConversations.length === 0 ? (
         <div className="p-5 sm:p-8 text-center bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200 dark:border-zinc-800">
           <MessageCircle className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
           <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
@@ -172,7 +176,7 @@ export const FarmerChatView: React.FC = () => {
           {filteredConversations.map((conv) => {
             const partnerName = conv.otherParty?.name || 'Customer';
             const partnerAvatar =
-              conv.otherParty?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200';
+              conv.otherParty?.avatar || DEFAULT_AVATAR_IMAGE;
             const unread = conv.unreadCount || conv.unread_count || 0;
             const lastMsgText = conv.lastMessage?.message || 'Started a conversation';
             const lastMsgTime = conv.lastMessage?.created_at || conv.lastMessage?.createdAt || conv.updated_at;
@@ -189,6 +193,7 @@ export const FarmerChatView: React.FC = () => {
                       src={partnerAvatar}
                       alt={partnerName}
                       className="w-11 h-11 rounded-full object-cover border-2 border-emerald-600/20"
+                      onError={handleAvatarError}
                     />
                     {unread > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-[#1B201D] animate-pulse">

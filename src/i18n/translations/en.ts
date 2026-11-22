@@ -461,6 +461,13 @@ export const enTranslations = {
   'filter.distance': 'Distance Radius',
   'filter.price_range': 'Price Range',
   'filter.apply': 'Apply Filters ({count})',
+
+  // PWA Install
+  'pwa.install_title': 'Install HALDER Mandi App',
+  'pwa.install_desc': 'Direct kisan mandi prices, instant chat & 1-tap fast access.',
+  'pwa.install_btn': 'Install App',
+  'pwa.ios_hint': 'To install: Tap Share ⎋ then select "Add to Home Screen" ⊞',
+  'pwa.installed': 'HALDER App is ready to use offline!',
 };
 
 export type TranslationKey = string;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency, formatDistance } from '../../utils/formatters';
+import { handleImageError, DEFAULT_PRODUCE_IMAGE } from '../../utils/imageFallback';
 import {
   Heart,
   MapPin,
@@ -80,10 +81,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       >
         <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-[#F0F4F1] dark:bg-[#222B25]">
           <img
-            src={product.image || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400'}
+            src={product.image || DEFAULT_PRODUCE_IMAGE}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={handleImageError}
           />
           <button
             onClick={handleHeartClick}
@@ -144,10 +146,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       >
         <div className="relative w-full aspect-[4/3] bg-[#F0F4F1] dark:bg-[#222B25] overflow-hidden">
           <img
-            src={product.image || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400'}
+            src={product.image || DEFAULT_PRODUCE_IMAGE}
             alt={product.name}
             className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${!product.isAvailable ? 'grayscale opacity-75' : ''}`}
             loading="lazy"
+            onError={handleImageError}
           />
 
           {/* Sold Overlay */}
@@ -268,10 +271,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {/* Listing Photo */}
       <div className="relative w-full sm:w-48 aspect-[4/3] sm:aspect-[4/3] rounded-xl overflow-hidden bg-[#F0F4F1] dark:bg-[#222B25] shrink-0">
         <img
-          src={product.image || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400'}
+          src={product.image || DEFAULT_PRODUCE_IMAGE}
           alt={product.name}
           className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${!product.isAvailable ? 'grayscale opacity-75' : ''}`}
           loading="lazy"
+          onError={handleImageError}
         />
 
         {/* Sold Overlay */}

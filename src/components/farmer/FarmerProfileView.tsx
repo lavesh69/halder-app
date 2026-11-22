@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
+import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
 import { LanguageSelector } from '../common/LanguageSelector';
 import { FarmerKycModal } from './FarmerKycModal';
 import { EditFarmerProfileModal } from './EditFarmerProfileModal';
@@ -108,7 +109,7 @@ export const FarmerProfileView: React.FC = () => {
   const displayAvatar =
     profile?.avatar ||
     currentUser?.profile_image ||
-    'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200&auto=format&fit=crop&q=80';
+    DEFAULT_AVATAR_IMAGE;
 
   return (
     <div className="space-y-6 pb-24 animate-fade-in max-w-3xl mx-auto">
@@ -119,6 +120,7 @@ export const FarmerProfileView: React.FC = () => {
             src={displayAvatar}
             alt={displayName}
             className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-600/30 shadow-xs"
+            onError={handleAvatarError}
           />
           <div className="absolute -bottom-1 -right-1 p-1 bg-emerald-600 text-white rounded-lg shadow-xs hover:bg-emerald-700 transition">
             <Edit2 className="w-3 h-3" />

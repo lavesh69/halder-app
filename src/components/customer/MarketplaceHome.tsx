@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
+import { ListingCardSkeleton } from '../common/ListingCardSkeleton';
+import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
 import { ExploreCategoriesModal } from './ExploreCategoriesModal';
 import { ProductCategory } from '../../types';
 import {
@@ -69,6 +71,7 @@ export const MarketplaceHome: React.FC = () => {
 
   const {
     products,
+    isLoadingProducts,
     farmers,
     selectedCategory,
     setSelectedCategory,
@@ -680,7 +683,17 @@ export const MarketplaceHome: React.FC = () => {
         )}
 
         {/* Listings Feed */}
-        {sortedProducts.length === 0 ? (
+        {isLoadingProducts && sortedProducts.length === 0 ? (
+          viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              <ListingCardSkeleton variant="compact-grid" count={8} />
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              <ListingCardSkeleton variant="vertical-feed" count={6} />
+            </div>
+          )
+        ) : sortedProducts.length === 0 ? (
           <div className="p-6 sm:p-10 text-center bg-white dark:bg-[#181F1A] rounded-3xl border border-[#E5EBE6] dark:border-[#29352D] space-y-3 shadow-soft">
             <div className="w-12 h-12 rounded-full bg-[#EAF5EE] dark:bg-[#182A20] flex items-center justify-center mx-auto text-[#176B45] dark:text-[#5FB383]">
               <MapPin className="w-6 h-6" />
@@ -733,9 +746,10 @@ export const MarketplaceHome: React.FC = () => {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={farmer.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160'}
+                  src={farmer.avatar || DEFAULT_AVATAR_IMAGE}
                   alt={farmer.name}
                   className="w-12 h-12 rounded-xl object-cover border-2 border-[#176B45]/30"
+                  onError={handleAvatarError}
                 />
                 <div className="min-w-0">
                   <h4 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] truncate">

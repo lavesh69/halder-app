@@ -463,4 +463,11 @@ export const hiTranslations: TranslationDictionary = {
   'filter.distance': 'दूरी दायरा',
   'filter.price_range': 'मूल्य सीमा',
   'filter.apply': 'फिल्टर लागू करें ({count})',
+
+  // PWA Install
+  'pwa.install_title': 'HALDER मंडी ऐप इंस्टॉल करें',
+  'pwa.install_desc': 'सीधे किसान से भाव, चैट और 1-टैप में तेज पहुंच।',
+  'pwa.install_btn': 'ऐप इंस्टॉल करें',
+  'pwa.ios_hint': 'इंस्टॉल करने के लिए: Share ⎋ दबाएं और "Add to Home Screen" ⊞ चुनें',
+  'pwa.installed': 'HALDER ऐप ऑफलाइन उपयोग के लिए तैयार है!',
 };

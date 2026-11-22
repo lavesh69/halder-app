@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
+import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
+import { ChatSkeleton } from '../common/ChatSkeleton';
 import {
   MessageCircle,
   Search,
@@ -175,7 +177,9 @@ export const CustomerChatsView: React.FC = () => {
 
       {/* Conversation List */}
       <div className="space-y-2.5">
-        {filteredConversations.length === 0 ? (
+        {isLoading && filteredConversations.length === 0 ? (
+          <ChatSkeleton count={4} />
+        ) : filteredConversations.length === 0 ? (
           <div className="py-12 px-4 text-center bg-white dark:bg-[#1B201D] rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mx-auto">
               <MessageCircle className="w-7 h-7" />
@@ -202,7 +206,7 @@ export const CustomerChatsView: React.FC = () => {
             const otherAvatar =
               conv.otherParty?.avatar ||
               conv.farmerAvatar ||
-              'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200';
+              DEFAULT_AVATAR_IMAGE;
             const lastMsg = conv.lastMessage?.message || 'Chat started regarding marketplace produce';
             const unread = conv.unreadCount || 0;
             const attachedProduct = products.find((p) => p.id === (conv.productId || conv.product_id));
@@ -219,6 +223,7 @@ export const CustomerChatsView: React.FC = () => {
                     src={otherAvatar}
                     alt={otherName}
                     className="w-12 h-12 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700"
+                    onError={handleAvatarError}
                   />
                   {unread > 0 && (
                     <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-600 border-2 border-white dark:border-[#1B201D] rounded-full" />

@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
+import { handleAvatarError } from '../../utils/imageFallback';
 import { LanguageSelector } from '../common/LanguageSelector';
 import {
   ShoppingBag,
@@ -124,6 +125,7 @@ export const CustomerProfileView: React.FC = () => {
               src={displayAvatar}
               alt={displayName}
               className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-600/40 shadow-xs"
+              onError={handleAvatarError}
             />
           ) : (
             <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-black text-xl flex items-center justify-center border-2 border-emerald-600/30">

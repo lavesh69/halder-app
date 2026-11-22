@@ -4,6 +4,7 @@ import { Header } from './components/common/Header';
 import { BottomNav } from './components/common/BottomNav';
 import { Toast } from './components/common/Toast';
 import { LocationModal } from './components/common/LocationModal';
+import { PwaInstallBanner } from './components/common/PwaInstallBanner';
 
 // Customer screens & modals
 import { SplashScreen } from './components/customer/SplashScreen';
@@ -247,6 +248,9 @@ export const MainApp: React.FC = () => {
           onClose={() => setIsLoginModalOpen(false)}
         />
       )}
+
+      {/* PWA 1-Tap Mobile Install Banner */}
+      <PwaInstallBanner />
 
       {/* Bottom Navigation */}
       <BottomNav />

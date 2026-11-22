@@ -124,6 +124,7 @@ interface AppContextType {
 
   // Marketplace Data
   products: Product[];
+  isLoadingProducts: boolean;
   farmers: Farmer[];
   orders: Order[];
   cart: CartItem[];
@@ -364,6 +365,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return initialProducts;
   });
+  const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true);
 
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('halder-orders-v2');
@@ -723,6 +725,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (e) {
         console.warn('[HALDER Sync] Using cached local products:', e);
+      } finally {
+        if (isMounted) setIsLoadingProducts(false);
       }
 
       try {
@@ -1994,6 +1998,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteNotification,
         sendNotification,
         products,
+        isLoadingProducts,
         farmers,
         orders,
         cart,

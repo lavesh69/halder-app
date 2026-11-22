@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { formatCurrency, formatDistance, getWhatsAppUrl } from '../../utils/formatters';
 import { ApiClient } from '../../api/client';
+import { handleImageError, handleAvatarError, DEFAULT_PRODUCE_IMAGE, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
 import {
   X,
   MapPin,
@@ -187,9 +188,10 @@ export const ListingDetailModal: React.FC = () => {
           title="Click to view full photo"
         >
           <img
-            src={photos[activePhotoIdx] || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400"}
+            src={photos[activePhotoIdx] || DEFAULT_PRODUCE_IMAGE}
             alt={selectedProduct.name}
             className="w-full h-full object-cover transition-all duration-300 group-hover:scale-102"
+            onError={handleImageError}
           />
           <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 z-10 pointer-events-none">
             <Maximize2 className="w-3 h-3" />
@@ -492,9 +494,10 @@ export const ListingDetailModal: React.FC = () => {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={selectedProduct.farmerAvatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200"}
+                  src={selectedProduct.farmerAvatar || DEFAULT_AVATAR_IMAGE}
                   alt={selectedProduct.farmerName}
                   className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-600/30"
+                  onError={handleAvatarError}
                 />
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -596,9 +599,10 @@ export const ListingDetailModal: React.FC = () => {
                     className="shrink-0 w-36 bg-zinc-50 dark:bg-zinc-800/50 p-2.5 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer hover:border-emerald-500 transition-all flex flex-col justify-between"
                   >
                     <img
-                      src={simProd.image || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200"}
+                      src={simProd.image || DEFAULT_PRODUCE_IMAGE}
                       alt={simProd.name}
                       className="w-full h-20 rounded-xl object-cover"
+                      onError={handleImageError}
                     />
                     <div className="mt-1.5">
                       <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 block">
@@ -863,9 +867,10 @@ export const ListingDetailModal: React.FC = () => {
             {/* Center Image with navigation */}
             <div className="relative flex-1 w-full max-w-lg flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
               <img
-                src={photos[activePhotoIdx] || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800"}
+                src={photos[activePhotoIdx] || DEFAULT_PRODUCE_IMAGE}
                 alt={selectedProduct.name}
                 className="max-h-[70vh] max-w-full object-contain rounded-2xl shadow-2xl"
+                onError={handleImageError}
               />
 
               {photos.length > 1 && (
@@ -894,7 +899,7 @@ export const ListingDetailModal: React.FC = () => {
                   onClick={() => setActivePhotoIdx(idx)}
                   className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition ${idx === activePhotoIdx ? 'border-emerald-500 scale-105' : 'border-transparent opacity-60'}`}
                 >
-                  <img src={p} alt="thumb" className="w-full h-full object-cover" />
+                  <img src={p || DEFAULT_PRODUCE_IMAGE} alt="thumb" className="w-full h-full object-cover" onError={handleImageError} />
                 </button>
               ))}
             </div>
