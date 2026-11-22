@@ -174,7 +174,7 @@ export const hiTranslations: TranslationDictionary = {
   'trust.organic_label': 'NPOP जैविक मान्यता प्राप्त',
 
   // Real-Time Chat UI Strings
-  'chat.title': 'किसान सीधा संवाद',
+  'chat.title': 'चैट',
   'chat.subtitle': 'स्थानीय खरीदारों और विक्रेताओं के साथ सीधा मंडी संवाद',
   'chat.farmer_subtitle': 'स्थानीय खरीदारों से वास्तविक समय के संदेश और फसल पूछताछ',
   'chat.type_a_message': '{name} को संदेश लिखें...',

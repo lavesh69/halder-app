@@ -453,17 +453,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // Location-first with LocalStorage persistence
+  // Location-first with LocalStorage persistence and legacy bilingual string sanitization
   const [currentLocation, setCurrentLocation] = useState<string>(() => {
     try {
-      return localStorage.getItem('halder-user-location') || 'Rajpur Road, Dehradun';
+      const saved = localStorage.getItem('halder-user-location');
+      if (saved) {
+        const cleaned = saved.replace(/\s*\([^\)]*[\u0900-\u097F]+[^\)]*\)/g, '').trim();
+        if (cleaned !== saved) {
+          try { localStorage.setItem('halder-user-location', cleaned); } catch {}
+        }
+        return cleaned || 'Rajpur Road, Dehradun';
+      }
+      return 'Rajpur Road, Dehradun';
     } catch {
       return 'Rajpur Road, Dehradun';
     }
   });
   const [activeCity, setActiveCity] = useState<string>(() => {
     try {
-      return localStorage.getItem('halder-user-city') || 'Dehradun';
+      const saved = localStorage.getItem('halder-user-city');
+      if (saved) {
+        const cleaned = saved.replace(/\s*\([^\)]*[\u0900-\u097F]+[^\)]*\)/g, '').trim();
+        if (cleaned !== saved) {
+          try { localStorage.setItem('halder-user-city', cleaned); } catch {}
+        }
+        return cleaned || 'Dehradun';
+      }
+      return 'Dehradun';
     } catch {
       return 'Dehradun';
     }

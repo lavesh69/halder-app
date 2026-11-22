@@ -172,7 +172,7 @@ export const enTranslations = {
   'trust.organic_label': 'NPOP Organic Accredited',
 
   // Real-Time Chat UI Strings
-  'chat.title': 'Kisan Direct Chat',
+  'chat.title': 'Chats',
   'chat.subtitle': 'Direct Mandi messaging with local sellers and buyers',
   'chat.farmer_subtitle': 'Real-time messages & produce inquiries from local buyers',
   'chat.type_a_message': 'Type a message to {name}...',
