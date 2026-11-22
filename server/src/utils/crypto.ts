@@ -1,5 +1,6 @@
 ﻿import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { env } from '../config/env';
 
 export interface TokenPayload {
@@ -31,11 +32,15 @@ export class CryptoUtil {
     }) as TokenPayload;
   }
 
+  /**
+   * Cryptographically secure random alphanumeric string generator
+   */
   static generateRandomString(length: number = 16): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = crypto.randomBytes(length);
     let result = '';
     for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+      result += chars.charAt(bytes[i] % chars.length);
     }
     return result;
   }

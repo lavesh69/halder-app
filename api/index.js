@@ -19961,14 +19961,14 @@ var require_etag = __commonJS({
   "node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto6 = __require("crypto");
+    var crypto7 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash2 = crypto6.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash2 = crypto7.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash2 + '"';
     }
@@ -22877,11 +22877,11 @@ var require_request = __commonJS({
 // node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "node_modules/cookie-signature/index.js"(exports) {
-    var crypto6 = __require("crypto");
+    var crypto7 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if ("string" != typeof secret) throw new TypeError("Secret string must be provided.");
-      return val + "." + crypto6.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto7.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Signed cookie string must be provided.");
@@ -22890,7 +22890,7 @@ var require_cookie_signature = __commonJS({
       return sha1(mac) == sha1(val) ? str : false;
     };
     function sha1(str) {
-      return crypto6.createHash("sha1").update(str).digest("hex");
+      return crypto7.createHash("sha1").update(str).digest("hex");
     }
   }
 });
@@ -24302,7 +24302,7 @@ var require_main = __commonJS({
     var fs4 = __require("fs");
     var path7 = __require("path");
     var os = __require("os");
-    var crypto6 = __require("crypto");
+    var crypto7 = __require("crypto");
     var packageJson = require_package();
     var version2 = packageJson.version;
     var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
@@ -24521,7 +24521,7 @@ var require_main = __commonJS({
       const authTag = ciphertext.subarray(-16);
       ciphertext = ciphertext.subarray(12, -16);
       try {
-        const aesgcm = crypto6.createDecipheriv("aes-256-gcm", key, nonce);
+        const aesgcm = crypto7.createDecipheriv("aes-256-gcm", key, nonce);
         aesgcm.setAuthTag(authTag);
         return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
       } catch (error2) {
@@ -28693,7 +28693,7 @@ var init_zod = __esm({
 });
 
 // server/src/config/env.ts
-import path2 from "path";
+import path from "path";
 var import_dotenv, envSchema, parsed, env;
 var init_env = __esm({
   "server/src/config/env.ts"() {
@@ -28705,7 +28705,7 @@ var init_env = __esm({
       NODE_ENV: external_exports.enum(["development", "test", "production"]).default("development"),
       JWT_SECRET: external_exports.string().min(16).default("halder_super_secure_jwt_secret_production_2026_mandi"),
       JWT_EXPIRES_IN: external_exports.string().default("7d"),
-      DB_PATH: external_exports.string().default(path2.resolve(process.cwd(), "server", "halder.db")),
+      DB_PATH: external_exports.string().default(path.resolve(process.cwd(), "server", "halder.db")),
       // Supabase PostgreSQL Cloud Sync (recommended persistent cloud DB for Vercel & production)
       SUPABASE_URL: external_exports.string().optional(),
       SUPABASE_ANON_KEY: external_exports.string().optional(),
@@ -28716,7 +28716,7 @@ var init_env = __esm({
       CORS_ORIGIN: external_exports.string().default(
         "https://halder-app.vercel.app,http://localhost:5173,http://localhost:4173,http://localhost:3000,https://localhost,capacitor://localhost"
       ),
-      UPLOAD_DIR: external_exports.string().default(path2.resolve(process.cwd(), "server", "uploads")),
+      UPLOAD_DIR: external_exports.string().default(path.resolve(process.cwd(), "server", "uploads")),
       RATE_LIMIT_WINDOW_MS: external_exports.coerce.number().default(15 * 60 * 1e3),
       RATE_LIMIT_MAX_REQUESTS: external_exports.coerce.number().default(300),
       PHONEPE_MERCHANT_ID: external_exports.string().default("PGTESTPAYUAT"),
@@ -37091,14 +37091,14 @@ var init_supabaseSync = __esm({
 // server/src/db/database.ts
 import { DatabaseSync } from "node:sqlite";
 import fs from "fs";
-import path3 from "path";
+import path2 from "path";
 function getDatabase() {
   if (!dbInstance) {
     let dbPath = env.DB_PATH;
     if (process.env.VERCEL) {
-      const tmpPath = path3.join("/tmp", "halder.db");
+      const tmpPath = path2.join("/tmp", "halder.db");
       if (!fs.existsSync(tmpPath)) {
-        const sourcePath = path3.resolve(process.cwd(), "server", "halder.db");
+        const sourcePath = path2.resolve(process.cwd(), "server", "halder.db");
         if (fs.existsSync(sourcePath)) {
           try {
             fs.copyFileSync(sourcePath, tmpPath);
@@ -37108,7 +37108,7 @@ function getDatabase() {
       }
       dbPath = tmpPath;
     }
-    const dbDir = path3.dirname(dbPath);
+    const dbDir = path2.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
@@ -37434,14 +37434,14 @@ var require_buffer_equal_constant_time = __commonJS({
 var require_jwa = __commonJS({
   "node_modules/jwa/index.js"(exports, module) {
     var Buffer3 = require_safe_buffer().Buffer;
-    var crypto6 = __require("crypto");
+    var crypto7 = __require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util2 = __require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto6.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto7.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -37531,17 +37531,17 @@ var require_jwa = __commonJS({
       return function sign3(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac = crypto6.createHmac("sha" + bits, secret);
+        var hmac = crypto7.createHmac("sha" + bits, secret);
         var sig = (hmac.update(thing), hmac.digest("base64"));
         return fromBase642(sig);
       };
     }
     var bufferEqual;
-    var timingSafeEqual = "timingSafeEqual" in crypto6 ? function timingSafeEqual2(a5, b5) {
+    var timingSafeEqual = "timingSafeEqual" in crypto7 ? function timingSafeEqual2(a5, b5) {
       if (a5.byteLength !== b5.byteLength) {
         return false;
       }
-      return crypto6.timingSafeEqual(a5, b5);
+      return crypto7.timingSafeEqual(a5, b5);
     } : function timingSafeEqual2(a5, b5) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -37558,7 +37558,7 @@ var require_jwa = __commonJS({
       return function sign3(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto6.createSign("RSA-SHA" + bits);
+        var signer = crypto7.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase642(sig);
       };
@@ -37568,7 +37568,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto6.createVerify("RSA-SHA" + bits);
+        var verifier = crypto7.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -37577,11 +37577,11 @@ var require_jwa = __commonJS({
       return function sign3(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto6.createSign("RSA-SHA" + bits);
+        var signer = crypto7.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto6.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto6.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto7.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto7.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase642(sig);
       };
@@ -37591,12 +37591,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto6.createVerify("RSA-SHA" + bits);
+        var verifier = crypto7.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto6.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto6.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto7.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto7.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -77162,7 +77162,7 @@ var require_dist_cjs17 = __commonJS({
 
 // server/src/services/storageService.ts
 import fs2 from "fs";
-import path4 from "path";
+import path3 from "path";
 var import_client_s3, import_s3_request_presigner, StorageService;
 var init_storageService = __esm({
   "server/src/services/storageService.ts"() {
@@ -77192,7 +77192,7 @@ var init_storageService = __esm({
        * Uploads file buffer to Supabase Storage, S3, or local disk/DataURL
        */
       static async uploadBuffer(buffer, originalFilename, mimeType, folder = "produce", baseUrl = env.PUBLIC_SERVER_URL) {
-        const ext = path4.extname(originalFilename) || ".jpg";
+        const ext = path3.extname(originalFilename) || ".jpg";
         const filename = `${folder}/${v4_default()}${ext}`;
         const supabaseUrl = (process.env.SUPABASE_URL || env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
         const supabaseKey = (process.env.SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || "").trim();
@@ -77238,25 +77238,25 @@ var init_storageService = __esm({
         }
         if (process.env.VERCEL) {
           try {
-            const vTmpDir = path4.join("/tmp", "uploads", folder);
+            const vTmpDir = path3.join("/tmp", "uploads", folder);
             if (!fs2.existsSync(vTmpDir)) {
               fs2.mkdirSync(vTmpDir, { recursive: true });
             }
-            const vLocalPath = path4.join(vTmpDir, path4.basename(filename));
+            const vLocalPath = path3.join(vTmpDir, path3.basename(filename));
             fs2.writeFileSync(vLocalPath, buffer);
-            return `${baseUrl}/uploads/${folder}/${path4.basename(filename)}`;
+            return `${baseUrl}/uploads/${folder}/${path3.basename(filename)}`;
           } catch {
             return `data:${mimeType};base64,${buffer.toString("base64")}`;
           }
         }
         try {
-          const localDir = path4.join(env.UPLOAD_DIR, folder);
+          const localDir = path3.join(env.UPLOAD_DIR, folder);
           if (!fs2.existsSync(localDir)) {
             fs2.mkdirSync(localDir, { recursive: true });
           }
-          const localPath = path4.join(localDir, path4.basename(filename));
+          const localPath = path3.join(localDir, path3.basename(filename));
           fs2.writeFileSync(localPath, buffer);
-          return `${baseUrl}/uploads/${folder}/${path4.basename(filename)}`;
+          return `${baseUrl}/uploads/${folder}/${path3.basename(filename)}`;
         } catch {
           return `data:${mimeType};base64,${buffer.toString("base64")}`;
         }
@@ -77294,7 +77294,7 @@ var init_storageService = __esm({
        * Generates a pre-signed PUT URL for direct client-to-S3 uploads
        */
       static async generatePresignedUploadUrl(filename, mimeType, folder = "produce") {
-        const ext = path4.extname(filename) || ".jpg";
+        const ext = path3.extname(filename) || ".jpg";
         const key = `${folder}/${v4_default()}${ext}`;
         if (env.STORAGE_PROVIDER === "s3" && env.AWS_ACCESS_KEY_ID) {
           const client = this.getS3Client();
@@ -81889,10 +81889,10 @@ var require_disk = __commonJS({
     var fs4 = __require("fs");
     var os = __require("os");
     var path7 = __require("path");
-    var crypto6 = __require("crypto");
+    var crypto7 = __require("crypto");
     var mkdirp = require_mkdirp();
     function getFilename(req, file, cb) {
-      crypto6.randomBytes(16, function(err, raw) {
+      crypto7.randomBytes(16, function(err, raw) {
         cb(err, err ? void 0 : raw.toString("hex"));
       });
     }
@@ -87065,6 +87065,7 @@ var bcryptjs_default = {
 // server/src/utils/crypto.ts
 var import_jsonwebtoken = __toESM(require_jsonwebtoken(), 1);
 init_env();
+import crypto2 from "crypto";
 var CryptoUtil = class {
   static async hashPassword(password) {
     const salt = await bcryptjs_default.genSalt(10);
@@ -87084,11 +87085,15 @@ var CryptoUtil = class {
       algorithms: ["HS256"]
     });
   }
+  /**
+   * Cryptographically secure random alphanumeric string generator
+   */
   static generateRandomString(length = 16) {
     const chars2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const bytes = crypto2.randomBytes(length);
     let result = "";
     for (let i5 = 0; i5 < length; i5++) {
-      result += chars2.charAt(Math.floor(Math.random() * chars2.length));
+      result += chars2.charAt(bytes[i5] % chars2.length);
     }
     return result;
   }
@@ -87791,7 +87796,7 @@ var GoogleAuthService = class {
 init_env();
 init_logger();
 init_errors3();
-import crypto2 from "crypto";
+import crypto3 from "crypto";
 var SmsService = class {
   // In-memory active OTP registry (keyed by clean 10-digit phone)
   static otpStore = /* @__PURE__ */ new Map();
@@ -87820,7 +87825,7 @@ var SmsService = class {
     }
     timestamps.push(now);
     this.rateLimitStore.set(phone, timestamps);
-    const otp = crypto2.randomInt(1e5, 999999).toString();
+    const otp = crypto3.randomInt(1e5, 999999).toString();
     const expiresAt = now + 5 * 60 * 1e3;
     this.otpStore.set(phone, {
       phone,
@@ -89004,10 +89009,11 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // server/src/middleware/rateLimiter.ts
-var authLimiter = lib_default({
+var loginLimiter = lib_default({
   windowMs: 15 * 60 * 1e3,
   // 15 mins
-  max: 300,
+  max: 30,
+  // Anti-brute-force: max 30 login/reset attempts per 15 minutes per IP
   skip: () => process.env.NODE_ENV === "test",
   standardHeaders: true,
   legacyHeaders: false,
@@ -89016,6 +89022,21 @@ var authLimiter = lib_default({
     error: {
       code: "AUTH_RATE_LIMIT_EXCEEDED",
       message: "Too many authentication attempts. Please try again after 15 minutes."
+    }
+  }
+});
+var authLimiter = lib_default({
+  windowMs: 15 * 60 * 1e3,
+  // 15 mins
+  max: 120,
+  skip: () => process.env.NODE_ENV === "test",
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: "AUTH_RATE_LIMIT_EXCEEDED",
+      message: "Too many authentication requests. Please try again later."
     }
   }
 });
@@ -89184,6 +89205,13 @@ var verifyOtpSchema = external_exports.object({
   role: external_exports.enum(["customer", "farmer"]).optional(),
   name: external_exports.string().max(100).optional()
 });
+var changePasswordSchema = external_exports.object({
+  currentPassword: external_exports.string().min(1, "Current password is required").max(128),
+  newPassword: external_exports.string().min(8, "New password must be at least 8 characters").max(128)
+});
+var deleteAccountSchema = external_exports.object({
+  password: external_exports.string().max(128).optional()
+});
 router.all("/send-otp", (req, res) => {
   res.status(410).json({
     success: false,
@@ -89196,16 +89224,16 @@ router.all("/verify-otp", (req, res) => {
     message: "SMS OTP service has been removed. Please sign in directly with Email/Password or Google."
   });
 });
-router.post("/register", authLimiter, validateBody(registerSchema), AuthController.register);
-router.post("/login", authLimiter, validateBody(loginSchema), AuthController.login);
-router.post("/google", authLimiter, validateBody(googleSchema), AuthController.googleLogin);
-router.post("/forgot-password", authLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
-router.post("/reset-password", authLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
+router.post("/register", loginLimiter, validateBody(registerSchema), AuthController.register);
+router.post("/login", loginLimiter, validateBody(loginSchema), AuthController.login);
+router.post("/google", loginLimiter, validateBody(googleSchema), AuthController.googleLogin);
+router.post("/forgot-password", loginLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
+router.post("/reset-password", loginLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
 router.post("/logout", AuthController.logout);
 router.get("/me", authenticateUser, AuthController.getMe);
-router.post("/change-password", authenticateUser, AuthController.changePassword);
-router.post("/delete-account", authenticateUser, AuthController.deleteMe);
-router.delete("/me", authenticateUser, AuthController.deleteMe);
+router.post("/change-password", authenticateUser, validateBody(changePasswordSchema), AuthController.changePassword);
+router.post("/delete-account", authenticateUser, validateBody(deleteAccountSchema), AuthController.deleteMe);
+router.delete("/me", authenticateUser, validateBody(deleteAccountSchema), AuthController.deleteMe);
 var authRoutes_default = router;
 
 // server/src/routes/productRoutes.ts
@@ -90322,7 +90350,7 @@ var createProductSchema = external_exports.object({
 }).passthrough();
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
 router2.get("/:id", ProductController.getById);
-router2.post("/", optionalAuth, validateBody(createProductSchema), ProductController.create);
+router2.post("/", authenticateUser, validateBody(createProductSchema), ProductController.create);
 router2.patch("/:id", authenticateUser, verifyProductOwnership, ProductController.update);
 router2.patch("/:id/stock", authenticateUser, verifyProductOwnership, ProductController.updateStock);
 router2.get("/:id/stock-history", authenticateUser, verifyProductOwnership, ProductController.getStockHistory);
@@ -93426,6 +93454,7 @@ var import_express10 = __toESM(require_express2(), 1);
 
 // server/src/middleware/upload.ts
 var import_multer = __toESM(require_multer(), 1);
+import path4 from "path";
 init_errors3();
 var ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 var storage = import_multer.default.memoryStorage();
@@ -93445,7 +93474,7 @@ var fileFilter = (req, file, cb) => {
       false
     );
   }
-  const ext = path.extname(file.originalname).toLowerCase();
+  const ext = path4.extname(file.originalname).toLowerCase();
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
     return cb(
       AppError.badRequest(
@@ -93470,7 +93499,7 @@ var upload = (0, import_multer.default)({
 init_errors3();
 init_storageService();
 var router10 = (0, import_express10.Router)();
-router10.post("/images", optionalAuth, uploadLimiter, upload.array("photos", 8), async (req, res, next) => {
+router10.post("/images", authenticateUser, uploadLimiter, upload.array("photos", 8), async (req, res, next) => {
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -93638,13 +93667,13 @@ init_database();
 init_errors3();
 init_env();
 init_audit();
-import crypto3 from "crypto";
+import crypto4 from "crypto";
 var PhonePeService = class {
   /**
    * Helper to compute PhonePe checksum: SHA256(stringToHash) + "###" + saltIndex
    */
   static calculateChecksum(stringToHash) {
-    const sha256 = crypto3.createHash("sha256").update(stringToHash).digest("hex");
+    const sha256 = crypto4.createHash("sha256").update(stringToHash).digest("hex");
     return `${sha256}###${env.PHONEPE_SALT_INDEX}`;
   }
   /**
@@ -93655,7 +93684,7 @@ var PhonePeService = class {
     if (Buffer.byteLength(expected) !== Buffer.byteLength(providedChecksum)) {
       return false;
     }
-    return crypto3.timingSafeEqual(
+    return crypto4.timingSafeEqual(
       Buffer.from(expected, "utf-8"),
       Buffer.from(providedChecksum, "utf-8")
     );
@@ -93668,7 +93697,7 @@ var PhonePeService = class {
       throw AppError.badRequest("Payment amount must be greater than zero.");
     }
     const amountInPaise = Math.round(input.amount * 100);
-    const merchantTransactionId = `MT-HLD-${Date.now()}-${crypto3.randomBytes(3).toString("hex").toUpperCase()}`;
+    const merchantTransactionId = `MT-HLD-${Date.now()}-${crypto4.randomBytes(3).toString("hex").toUpperCase()}`;
     const merchantUserId = input.customerUserId || `CUS-${Date.now()}`;
     const redirectUrl = input.redirectUrl || `${env.CORS_ORIGIN.split(",")[0]}/payment/phonepe/callback`;
     const callbackUrl = `${env.PUBLIC_SERVER_URL}/api/v1/payments/phonepe/webhook`;
@@ -93852,7 +93881,7 @@ init_database();
 init_errors3();
 init_env();
 init_audit();
-import crypto4 from "crypto";
+import crypto5 from "crypto";
 var PaytmService = class {
   /**
    * Helper to calculate Paytm HMAC-SHA256 checksum
@@ -93860,7 +93889,7 @@ var PaytmService = class {
   static calculateChecksum(params, key) {
     const sortedKeys = Object.keys(params).sort();
     const dataString = sortedKeys.map((k5) => `${k5}=${params[k5]}`).join("|");
-    return crypto4.createHmac("sha256", key).update(dataString).digest("hex");
+    return crypto5.createHmac("sha256", key).update(dataString).digest("hex");
   }
   /**
    * Verify Paytm checksum using timing-safe comparison
@@ -93870,7 +93899,7 @@ var PaytmService = class {
     if (Buffer.byteLength(expected) !== Buffer.byteLength(checksum)) {
       return false;
     }
-    return crypto4.timingSafeEqual(Buffer.from(expected, "utf-8"), Buffer.from(checksum, "utf-8"));
+    return crypto5.timingSafeEqual(Buffer.from(expected, "utf-8"), Buffer.from(checksum, "utf-8"));
   }
   /**
    * 1. Initiate Paytm Transaction (Creates txnToken & order session)
@@ -93879,8 +93908,8 @@ var PaytmService = class {
     if (input.amount <= 0) {
       throw AppError.badRequest("Payment amount must be greater than zero.");
     }
-    const orderId = input.orderId || `PTM_ORD_${Date.now()}_${crypto4.randomBytes(3).toString("hex").toUpperCase()}`;
-    const txnToken = `PTM_TKN_${Date.now()}_${crypto4.randomBytes(8).toString("hex")}`;
+    const orderId = input.orderId || `PTM_ORD_${Date.now()}_${crypto5.randomBytes(3).toString("hex").toUpperCase()}`;
+    const txnToken = `PTM_TKN_${Date.now()}_${crypto5.randomBytes(8).toString("hex")}`;
     const callbackUrl = `${env.PUBLIC_SERVER_URL}/api/v1/payments/paytm/webhook`;
     const paytmParams = {
       MID: env.PAYTM_MID,
@@ -93990,7 +94019,7 @@ init_database();
 init_errors3();
 init_env();
 init_audit();
-import crypto5 from "crypto";
+import crypto6 from "crypto";
 var GPayService = class {
   /**
    * 1. Initiate Google Pay payment session & deep links
@@ -93999,7 +94028,7 @@ var GPayService = class {
     if (input.amount <= 0) {
       throw AppError.badRequest("Payment amount must be greater than zero.");
     }
-    const orderId = input.orderId || `GPay_${Date.now()}_${crypto5.randomBytes(3).toString("hex").toUpperCase()}`;
+    const orderId = input.orderId || `GPay_${Date.now()}_${crypto6.randomBytes(3).toString("hex").toUpperCase()}`;
     const txnRef = `GPAY-TXN-${Date.now()}`;
     const payeeVpa = input.farmerUpiId || "halder.kisan@upi";
     const payeeName = input.farmerName || "HALDER Kisan Direct";
@@ -98507,11 +98536,55 @@ function errorHandler(err, req, res, _next) {
   });
 }
 
+// server/src/middleware/sanitizeMiddleware.ts
+init_sanitize();
+var SENSITIVE_KEYS = /* @__PURE__ */ new Set([
+  "password",
+  "currentpassword",
+  "newpassword",
+  "idtoken",
+  "refreshtoken",
+  "accesstoken",
+  "authorization",
+  "token"
+]);
+function sanitizeRecursive(obj) {
+  if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeRecursive(item));
+  }
+  const clean = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase();
+    if (SENSITIVE_KEYS.has(lowerKey)) {
+      clean[key] = value;
+    } else if (typeof value === "string") {
+      if (value.startsWith("data:image/") || value.length > 5e4) {
+        clean[key] = value;
+      } else {
+        clean[key] = sanitizeText(value);
+      }
+    } else if (typeof value === "object" && value !== null) {
+      clean[key] = sanitizeRecursive(value);
+    } else {
+      clean[key] = value;
+    }
+  }
+  return clean;
+}
+function sanitizeRequestInputs(req, _res, next) {
+  if (req.body && typeof req.body === "object") {
+    req.body = sanitizeRecursive(req.body);
+  }
+  next();
+}
+
 // server/src/app.ts
 init_database();
 init_turso();
 init_supabaseSync();
 var app = (0, import_express25.default)();
+app.disable("x-powered-by");
 app.set("trust proxy", 1);
 app.use(
   helmet({
@@ -98536,6 +98609,7 @@ app.use(
         connectSrc: [
           "'self'",
           "https://*.trycloudflare.com",
+          "https://halder-app.vercel.app",
           "ws:",
           "wss:"
         ],
@@ -98548,7 +98622,10 @@ app.use(
     },
     frameguard: { action: "deny" },
     xContentTypeOptions: true,
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" }
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    hsts: env.NODE_ENV === "production" ? { maxAge: 31536e3, includeSubDomains: true, preload: true } : false,
+    dnsPrefetchControl: { allow: false },
+    originAgentCluster: true
   })
 );
 var allowedOrigins = new Set(
@@ -98584,6 +98661,7 @@ app.use(
 app.use(import_express25.default.json({ limit: "10mb" }));
 app.use(import_express25.default.urlencoded({ extended: true, limit: "10mb" }));
 app.use((0, import_cookie_parser.default)());
+app.use(sanitizeRequestInputs);
 app.use("/api", apiLimiter);
 var activeUploadDir = process.env.VERCEL ? path5.join("/tmp", "uploads") : env.UPLOAD_DIR;
 app.use(

@@ -34,7 +34,7 @@ const createProductSchema = z.object({
 
 router.get('/', searchLimiter, optionalAuth, ProductController.list);
 router.get('/:id', ProductController.getById);
-router.post('/', optionalAuth, validateBody(createProductSchema), ProductController.create);
+router.post('/', authenticateUser, validateBody(createProductSchema), ProductController.create);
 router.patch('/:id', authenticateUser, verifyProductOwnership, ProductController.update);
 router.patch('/:id/stock', authenticateUser, verifyProductOwnership, ProductController.updateStock);
 router.get('/:id/stock-history', authenticateUser, verifyProductOwnership, ProductController.getStockHistory);

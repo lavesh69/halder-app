@@ -1,8 +1,8 @@
 ﻿import rateLimit from 'express-rate-limit';
 
-export const authLimiter = rateLimit({
+export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
-  max: 300,
+  max: 30, // Anti-brute-force: max 30 login/reset attempts per 15 minutes per IP
   skip: () => process.env.NODE_ENV === 'test',
   standardHeaders: true,
   legacyHeaders: false,
@@ -11,6 +11,21 @@ export const authLimiter = rateLimit({
     error: {
       code: 'AUTH_RATE_LIMIT_EXCEEDED',
       message: 'Too many authentication attempts. Please try again after 15 minutes.',
+    },
+  },
+});
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 120,
+  skip: () => process.env.NODE_ENV === 'test',
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'AUTH_RATE_LIMIT_EXCEEDED',
+      message: 'Too many authentication requests. Please try again later.',
     },
   },
 });

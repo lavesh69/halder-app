@@ -1,4 +1,5 @@
 ﻿import multer from 'multer';
+import path from 'path';
 import { ALLOWED_IMAGE_MIME_TYPES, MAX_FILE_SIZE_BYTES } from '../config/constants';
 import { AppError } from '../utils/errors';
 

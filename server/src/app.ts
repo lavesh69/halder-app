@@ -7,14 +7,16 @@ import { env } from './config/env';
 import apiRouter from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
+import { sanitizeRequestInputs } from './middleware/sanitizeMiddleware';
 import { getDatabase } from './db/database';
 import { createTursoMiddleware } from './db/turso';
 import { createSupabaseMiddleware } from './db/supabaseSync';
 
 export const app = express();
+app.disable('x-powered-by'); // Prevent server technology fingerprinting
 app.set('trust proxy', 1);
 
-// Security Headers & Content Security Policy
+// Security Headers & Content Security Policy (OWASP Banking & AgriTech Standard)
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -38,10 +40,11 @@ app.use(
         connectSrc: [
           "'self'",
           'https://*.trycloudflare.com',
+          'https://halder-app.vercel.app',
           'ws:',
           'wss:',
         ],
-        frameSrc: ["'self'",],
+        frameSrc: ["'self'"],
         frameAncestors: ["'none'"], // Strict Clickjacking prevention
         objectSrc: ["'none'"],
         upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
@@ -50,6 +53,9 @@ app.use(
     frameguard: { action: 'deny' },
     xContentTypeOptions: true,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
+    dnsPrefetchControl: { allow: false },
+    originAgentCluster: true,
   })
 );
 
@@ -93,6 +99,9 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Global Input Sanitization (Anti-XSS & Script Injection defense)
+app.use(sanitizeRequestInputs);
 
 // Rate Limiting on API
 app.use('/api', apiLimiter);

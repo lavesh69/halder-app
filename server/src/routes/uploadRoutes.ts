@@ -7,7 +7,7 @@ import { StorageService } from '../services/storageService';
 
 const router = Router();
 
-router.post('/images', optionalAuth, uploadLimiter, upload.array('photos', 8), async (req, res, next) => {
+router.post('/images', authenticateUser, uploadLimiter, upload.array('photos', 8), async (req, res, next) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {

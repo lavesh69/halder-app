@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Base configuration: Enforce HTTPS across all network communications -->
+    <!-- Base configuration: Strictly enforce HTTPS and trust only trusted system CA certs (Zero MitM) -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
         </trust-anchors>
     </base-config>
 
-    <!-- Production Whitelisted Domains -->
+    <!-- Production Whitelisted Secure Domains -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">halder.in</domain>
+        <domain includeSubdomains="true">vercel.app</domain>
         <domain includeSubdomains="true">trycloudflare.com</domain>
         <domain includeSubdomains="true">unsplash.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">gstatic.com</domain>
+        <domain includeSubdomains="true">openstreetmap.org</domain>
     </domain-config>
 
-    <!-- Debug overrides for local developer testing -->
+    <!-- Debug overrides: local developer testing only -->
     <debug-overrides>
         <trust-anchors>
             <certificates src="system" />

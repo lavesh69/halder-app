@@ -1,7 +1,7 @@
 ﻿import { Router } from 'express';
 import { AuthController } from '../controllers/authController';
 import { authenticateUser } from '../middleware/auth';
-import { authLimiter } from '../middleware/rateLimiter';
+import { authLimiter, loginLimiter } from '../middleware/rateLimiter';
 import { validateBody } from '../middleware/validate';
 import { z } from 'zod';
 
@@ -59,6 +59,15 @@ const verifyOtpSchema = z.object({
   name: z.string().max(100).optional(),
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required').max(128),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters').max(128),
+});
+
+const deleteAccountSchema = z.object({
+  password: z.string().max(128).optional(),
+});
+
 router.all('/send-otp', (req, res) => {
   res.status(410).json({
     success: false,
@@ -71,15 +80,15 @@ router.all('/verify-otp', (req, res) => {
     message: 'SMS OTP service has been removed. Please sign in directly with Email/Password or Google.',
   });
 });
-router.post('/register', authLimiter, validateBody(registerSchema), AuthController.register);
-router.post('/login', authLimiter, validateBody(loginSchema), AuthController.login);
-router.post('/google', authLimiter, validateBody(googleSchema), AuthController.googleLogin);
-router.post('/forgot-password', authLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
-router.post('/reset-password', authLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
+router.post('/register', loginLimiter, validateBody(registerSchema), AuthController.register);
+router.post('/login', loginLimiter, validateBody(loginSchema), AuthController.login);
+router.post('/google', loginLimiter, validateBody(googleSchema), AuthController.googleLogin);
+router.post('/forgot-password', loginLimiter, validateBody(forgotPasswordSchema), AuthController.forgotPassword);
+router.post('/reset-password', loginLimiter, validateBody(resetPasswordSchema), AuthController.resetPassword);
 router.post('/logout', AuthController.logout);
 router.get('/me', authenticateUser, AuthController.getMe);
-router.post('/change-password', authenticateUser, AuthController.changePassword);
-router.post('/delete-account', authenticateUser, AuthController.deleteMe);
-router.delete('/me', authenticateUser, AuthController.deleteMe);
+router.post('/change-password', authenticateUser, validateBody(changePasswordSchema), AuthController.changePassword);
+router.post('/delete-account', authenticateUser, validateBody(deleteAccountSchema), AuthController.deleteMe);
+router.delete('/me', authenticateUser, validateBody(deleteAccountSchema), AuthController.deleteMe);
 
 export default router;
