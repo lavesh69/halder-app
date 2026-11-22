@@ -76,7 +76,7 @@ export const bnTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'কৃষক সরাসরি দর: ₹{price}/কেজি',
   'mandi.savings_badge': 'মধ্যস্বত্বভোগী মান্ডি দরের চেয়ে {percent}% সাশ্রয়',
   'mandi.direct_savings': 'সরাসরি কৃষকের মূল্য (শূন্য মধ্যস্বত্বভোগী কমিশন)',
-  'mandi.benchmark_comparison': 'APMC মান্ডি দর: ₹{mandi} | HALDER সরাসরি দর: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC মান্ডি দর: ₹{mandi} | HALDHAR সরাসরি দর: ₹{halder}',
 
   // Cart, Checkout & 100% Direct Farmer Settlement
   'cart.title': 'খামার পণ্যের ঝুড়ি',
@@ -99,7 +99,7 @@ export const bnTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'স্বচ্ছ কৃষক পেমেন্ট বিবরণী',
   'settlement.farmer_earns': 'কৃষক পাবেন: ₹{amount}',
   'settlement.logistics_fee': 'খামার থেকে বাড়ি লজিস্টিকস: ₹{amount}',
-  'settlement.platform_fee': 'HALDER প্ল্যাটফর্ম ফি: ₹০ (শূন্য কমিশন)',
+  'settlement.platform_fee': 'HALDHAR প্ল্যাটফর্ম ফি: ₹০ (শূন্য কমিশন)',
 
   // 100% Kisan Direct Delivery Guarantee Badge
   'guarantee.badge_title': '১০০% কৃষক সরাসরি ডেলিভারি গ্যারান্টি',
@@ -193,7 +193,7 @@ export const bnTranslations: TranslationDictionary = {
   'profile.title': 'আমার প্রোফাইল',
   'profile.customer_role': 'ক্রেতা',
   'profile.farmer_role': 'যাচাইকৃত কৃষক',
-  'profile.copy_id': 'HALDER আইডি কপি করুন',
+  'profile.copy_id': 'HALDHAR আইডি কপি করুন',
   'profile.switch_to_farmer': 'আপনি কি একজন কৃষক?',
   'profile.switch_to_farmer_desc': 'শাকসবজি তালিকাভুক্ত করুন, অর্ডার পরিচালনা করুন এবং দৈনিক বিক্রয় দেখুন',
   'profile.switch_to_customer': 'ক্রেতা অ্যাপে যান',
@@ -208,7 +208,7 @@ export const bnTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'গোপনীয়তা নীতি ও ডেটা নিরাপত্তা',
   'profile.privacy_policy_desc': 'গুগল প্লে সম্মতি ও অ্যাকাউন্ট মুছে ফেলা',
   'profile.delete_account': 'অ্যাকাউন্ট ও ডেটা মুছুন',
-  'profile.delete_confirm': 'আপনি কি নিশ্চিত যে আপনার HALDER অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান? সমস্ত ব্যক্তিগত তথ্য, ঠিকানা ও সেশন মুছে যাবে।',
+  'profile.delete_confirm': 'আপনি কি নিশ্চিত যে আপনার HALDHAR অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান? সমস্ত ব্যক্তিগত তথ্য, ঠিকানা ও সেশন মুছে যাবে।',
   'profile.theme_preference': 'থিম পছন্দ',
   'profile.theme_light': 'লাইট',
   'profile.theme_dark': 'ডার্ক',

@@ -76,7 +76,7 @@ export const mrTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'शेतकरी थेट दर: ₹{price}/किलो',
   'mandi.savings_badge': 'मध्यस्थी मंडी दरापेक्षा {percent}% बचत',
   'mandi.direct_savings': 'थेट शेतकरी भाव (शून्य दलाली व कमिशन)',
-  'mandi.benchmark_comparison': 'APMC बाजारभाव: ₹{mandi} | HALDER थेट भाव: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC बाजारभाव: ₹{mandi} | HALDHAR थेट भाव: ₹{halder}',
 
   // Cart, Checkout & 100% Direct Farmer Settlement
   'cart.title': 'शेतमाल टोपली',
@@ -99,7 +99,7 @@ export const mrTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'पारदर्शक शेतकरी पेमेंट तपशील',
   'settlement.farmer_earns': 'शेतकऱ्याला मिळणारी रक्कम: ₹{amount}',
   'settlement.logistics_fee': 'शेतातून घरापर्यंत वाहतूक: ₹{amount}',
-  'settlement.platform_fee': 'HALDER प्लॅटफॉर्म शुल्क: ₹0 (शून्य कमिशन)',
+  'settlement.platform_fee': 'HALDHAR प्लॅटफॉर्म शुल्क: ₹0 (शून्य कमिशन)',
 
   // 100% Kisan Direct Delivery Guarantee Badge
   'guarantee.badge_title': '100% किसान थेट डिलिव्हरी हमी',
@@ -193,7 +193,7 @@ export const mrTranslations: TranslationDictionary = {
   'profile.title': 'माझी प्रोफाइल',
   'profile.customer_role': 'ग्राहक',
   'profile.farmer_role': 'सत्यापित शेतकरी',
-  'profile.copy_id': 'HALDER आयडी कॉपी करा',
+  'profile.copy_id': 'HALDHAR आयडी कॉपी करा',
   'profile.switch_to_farmer': 'आपण शेतकरी आहात का?',
   'profile.switch_to_farmer_desc': 'भाजीपाला सूचीबद्ध करा, ऑर्डर्स व्यवस्थापित करा आणि दैनंदिन विक्री पहा',
   'profile.switch_to_customer': 'ग्राहक ॲपवर स्विच करा',
@@ -208,7 +208,7 @@ export const mrTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'गोपनीयता धोरण आणि डेटा सुरक्षा',
   'profile.privacy_policy_desc': 'गुगल प्ले नियम व खाते हटवणे',
   'profile.delete_account': 'खाते आणि डेटा हटवा',
-  'profile.delete_confirm': 'आपण खात्रीने आपले HALDER खाते कायमचे हटवू इच्छिता? सर्व वैयक्तिक डेटा, पत्ते आणि सत्रे काढून टाकली जातील.',
+  'profile.delete_confirm': 'आपण खात्रीने आपले HALDHAR खाते कायमचे हटवू इच्छिता? सर्व वैयक्तिक डेटा, पत्ते आणि सत्रे काढून टाकली जातील.',
   'profile.theme_preference': 'थीम प्राधान्य',
   'profile.theme_light': 'लाइट',
   'profile.theme_dark': 'डार्क',

@@ -84,7 +84,7 @@ export const orTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'ଚାଷୀଙ୍କ ପ୍ରତ୍ୟକ୍ଷ ଦର: ₹{price}/କିଲୋ',
   'mandi.savings_badge': 'ମଧ୍ୟସ୍ଥି ମଣ୍ଡି ଦର ଠାରୁ {percent}% ସଞ୍ଚୟ',
   'mandi.direct_savings': 'ସିଧା ଚାଷୀ ଦର (ଶୂନ ଦଲାଲି କମିଶନ)',
-  'mandi.benchmark_comparison': 'APMC ମଣ୍ଡି ଦର: ₹{mandi} | HALDER ପ୍ରତ୍ୟକ୍ଷ: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC ମଣ୍ଡି ଦର: ₹{mandi} | HALDHAR ପ୍ରତ୍ୟକ୍ଷ: ₹{halder}',
 
   // Cart, Checkout & Settlement
   'cart.title': 'ଫସଲ ଝୁଡ଼ି',
@@ -107,7 +107,7 @@ export const orTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'ସ୍ୱଚ୍ଛ ଚାଷୀ ପାଉଣା ବିବରଣୀ',
   'settlement.farmer_earns': 'ଚାଷୀ ପାଇବେ: ₹{amount}',
   'settlement.logistics_fee': 'ପରିବହନ ଖର୍ଚ୍ଚ: ₹{amount}',
-  'settlement.platform_fee': 'HALDER ଫି: ₹୦ (ଶୂନ କମିଶନ)',
+  'settlement.platform_fee': 'HALDHAR ଫି: ₹୦ (ଶୂନ କମିଶନ)',
 
   // Guarantee Badge
   'guarantee.badge_title': '୧୦୦% ଚାଷୀ ସିଧାସଳଖ ଡେଲିଭରୀ ନିଶ୍ଚିତତା',
@@ -298,7 +298,7 @@ export const orTranslations: TranslationDictionary = {
   'profile.title': 'ମୋର ପ୍ରୋଫାଇଲ୍',
   'profile.customer_role': 'ଗ୍ରାହକ',
   'profile.farmer_role': 'ପ୍ରମାଣିତ ଚାଷୀ',
-  'profile.copy_id': 'HALDER ଆଇଡି କପି କରନ୍ତୁ',
+  'profile.copy_id': 'HALDHAR ଆଇଡି କପି କରନ୍ତୁ',
   'profile.switch_to_farmer': 'ଆପଣ ଜଣେ ଚାଷୀ କି?',
   'profile.switch_to_farmer_desc': 'ଫସଲ ତାଲିକାଭୁକ୍ତ କରନ୍ତୁ, ଅର୍ଡର ପରିଚାଳନା କରନ୍ତୁ ଏବଂ ବିକ୍ରି ଦେଖନ୍ତୁ',
   'profile.switch_to_customer': 'ଗ୍ରାହକ ଆପକୁ ଯାଆନ୍ତୁ',
@@ -313,7 +313,7 @@ export const orTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'ଗୋପନୀୟତା ନୀତି ଓ ତଥ୍ୟ ସୁରକ୍ଷା',
   'profile.privacy_policy_desc': 'ଗୁଗଲ ପ୍ଲେ ନିୟମାବଳୀ ଓ ଖାତା ଲିଭାଇବା',
   'profile.delete_account': 'ଖାତା ଓ ତଥ୍ୟ ଲିଭାନ୍ତୁ',
-  'profile.delete_confirm': 'ଆପଣ ନିଶ୍ଚିତ ଭାବେ ଆପଣଙ୍କ HALDER ଖାତା ସବୁଦିନ ପାଇଁ ଲିଭାଇବାକୁ ଚାହାଁନ୍ତି କି? ସମସ୍ତ ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ହଟିଯିବ।',
+  'profile.delete_confirm': 'ଆପଣ ନିଶ୍ଚିତ ଭାବେ ଆପଣଙ୍କ HALDHAR ଖାତା ସବୁଦିନ ପାଇଁ ଲିଭାଇବାକୁ ଚାହାଁନ୍ତି କି? ସମସ୍ତ ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ହଟିଯିବ।',
   'profile.theme_preference': 'ଥିମ୍ ପସନ୍ଦ',
   'profile.theme_light': 'ଲାଇଟ୍',
   'profile.theme_dark': 'ଡାର୍କ',

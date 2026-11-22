@@ -74,7 +74,7 @@ export const CustomerChatsView: React.FC = () => {
       city: conv.otherParty?.city || activeCity || 'Local Mandi',
       latitude: conv.otherParty?.latitude || 28.6139,
       longitude: conv.otherParty?.longitude || 77.2090,
-      description: 'Verified seller on HALDER marketplace',
+      description: 'Verified seller on HALDHAR marketplace',
       verification_status: 'verified' as const,
       rating: 4.9,
       reviews_count: 18,
@@ -87,7 +87,7 @@ export const CustomerChatsView: React.FC = () => {
       cover_image: '',
       created_at: new Date().toISOString(),
       verified: true,
-      bio: 'Verified seller on HALDER marketplace',
+      bio: 'Verified seller on HALDHAR marketplace',
     };
 
     setChatFarmer(partner);

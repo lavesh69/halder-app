@@ -76,7 +76,7 @@ export const hiTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'किसान सीधा भाव: ₹{price}/किग्रा',
   'mandi.savings_badge': 'बिचौलिए मंडी भाव से {percent}% बचाएं',
   'mandi.direct_savings': 'सीधा किसान भाव (शून्य बिचौलिया कटौती)',
-  'mandi.benchmark_comparison': 'APMC मंडी दर: ₹{mandi} | HALDER सीधा भाव: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC मंडी दर: ₹{mandi} | HALDHAR सीधा भाव: ₹{halder}',
 
   // Cart, Checkout & 100% Direct Farmer Settlement
   'cart.title': 'कृषि उत्पाद टोकरी',
@@ -99,7 +99,7 @@ export const hiTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'पारदर्शी किसान भुगतान विवरण',
   'settlement.farmer_earns': 'किसान को प्राप्त राशि: ₹{amount}',
   'settlement.logistics_fee': 'खेत से घर तक लॉजिस्टिक्स: ₹{amount}',
-  'settlement.platform_fee': 'HALDER प्लेटफॉर्म शुल्क: ₹0 (शून्य कमीशन)',
+  'settlement.platform_fee': 'HALDHAR प्लेटफॉर्म शुल्क: ₹0 (शून्य कमीशन)',
 
   // 100% Kisan Direct Delivery Guarantee Badge
   'guarantee.badge_title': '100% किसान सीधी डिलीवरी गारंटी',
@@ -256,7 +256,7 @@ export const hiTranslations: TranslationDictionary = {
   'profile.title': 'मेरी प्रोफ़ाइल',
   'profile.customer_role': 'ग्राहक',
   'profile.farmer_role': 'सत्यापित किसान',
-  'profile.copy_id': 'HALDER आईडी कॉपी करें',
+  'profile.copy_id': 'HALDHAR आईडी कॉपी करें',
   'profile.switch_to_farmer': 'क्या आप किसान हैं?',
   'profile.switch_to_farmer_desc': 'सब्ज़ियाँ सूचीबद्ध करें, ऑर्डर प्रबंधित करें और दैनिक बिक्री देखें',
   'profile.switch_to_customer': 'ग्राहक ऐप पर स्विच करें',
@@ -275,7 +275,7 @@ export const hiTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'गोपनीयता नीति और डेटा सुरक्षा',
   'profile.privacy_policy_desc': 'गूगल प्ले अनुपालन और खाता हटाना',
   'profile.delete_account': 'खाता और डेटा हटाएं',
-  'profile.delete_confirm': 'क्या आप वाकई अपना HALDER खाता स्थायी रूप से हटाना चाहते हैं? सभी व्यक्तिगत डेटा, पते और सक्रिय सत्र हटा दिए जाएंगे।',
+  'profile.delete_confirm': 'क्या आप वाकई अपना HALDHAR खाता स्थायी रूप से हटाना चाहते हैं? सभी व्यक्तिगत डेटा, पते और सक्रिय सत्र हटा दिए जाएंगे।',
   'profile.theme_preference': 'थीम प्राथमिकता',
   'profile.theme_light': 'लाइट',
   'profile.theme_dark': 'डार्क',
@@ -530,11 +530,11 @@ export const hiTranslations: TranslationDictionary = {
   'filter.apply': 'फिल्टर लागू करें ({count})',
 
   // PWA Install
-  'pwa.install_title': 'HALDER मंडी ऐप इंस्टॉल करें',
+  'pwa.install_title': 'HALDHAR मंडी ऐप इंस्टॉल करें',
   'pwa.install_desc': 'सीधे किसान से भाव, चैट और 1-टैप में तेज पहुंच।',
   'pwa.install_btn': 'ऐप इंस्टॉल करें',
   'pwa.ios_hint': 'इंस्टॉल करने के लिए: Share ⎋ दबाएं और "Add to Home Screen" ⊞ चुनें',
-  'pwa.installed': 'HALDER ऐप ऑफलाइन उपयोग के लिए तैयार है!',
+  'pwa.installed': 'HALDHAR ऐप ऑफलाइन उपयोग के लिए तैयार है!',
 
   // Auth & Onboarding
   'auth.sign_in': 'साइन इन करें',

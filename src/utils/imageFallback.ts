@@ -16,7 +16,7 @@ export const DEFAULT_PRODUCE_IMAGE =
   <path d="M400 250 Q430 230 460 240" stroke="#064E3B" stroke-width="6" stroke-linecap="round"/>
   <path d="M400 290 Q370 270 340 280" stroke="#064E3B" stroke-width="6" stroke-linecap="round"/>
   <rect x="250" y="420" width="300" height="44" rx="22" fill="#064E3B" stroke="#059669" stroke-width="2"/>
-  <text x="400" y="448" fill="#ECFDF5" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" letter-spacing="1.5">HALDER FRESH</text>
+  <text x="400" y="448" fill="#ECFDF5" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" letter-spacing="1.5">HALDHAR FRESH</text>
   <text x="400" y="500" fill="#A7F3D0" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="500" text-anchor="middle">Farm Fresh Produce</text>
 </svg>
 `.trim());

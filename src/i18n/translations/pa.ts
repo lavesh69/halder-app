@@ -208,7 +208,7 @@ export const paTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'ਪਰਦੇਦਾਰੀ ਨੀਤੀ ਅਤੇ ਡਾਟਾ ਸੁਰੱਖਿਆ',
   'profile.privacy_policy_desc': 'ਗੂਗਲ ਪਲੇ ਨਿਯਮ ਅਤੇ ਖਾਤਾ ਮਿਟਾਉਣਾ',
   'profile.delete_account': 'ਖਾਤਾ ਅਤੇ ਡਾਟਾ ਮਿਟਾਓ',
-  'profile.delete_confirm': 'ਕੀ ਤੁਸੀਂ ਸੱਚਮੁੱਚ ਆਪਣਾ HALDER ਖਾਤਾ ਪੱਕੇ ਤੌਰ ਤੇ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ? ਸਾਰਾ ਨਿੱਜੀ ਡਾਟਾ, ਪਤੇ ਅਤੇ ਸੈਸ਼ਨ ਮਿਟਾ ਦਿੱਤੇ ਜਾਣਗੇ।',
+  'profile.delete_confirm': 'ਕੀ ਤੁਸੀਂ ਸੱਚਮੁੱਚ ਆਪਣਾ HALDHAR ਖਾਤਾ ਪੱਕੇ ਤੌਰ ਤੇ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ? ਸਾਰਾ ਨਿੱਜੀ ਡਾਟਾ, ਪਤੇ ਅਤੇ ਸੈਸ਼ਨ ਮਿਟਾ ਦਿੱਤੇ ਜਾਣਗੇ।',
   'profile.theme_preference': 'ਥੀਮ ਤਰਜੀਹ',
   'profile.theme_light': 'ਲਾਈਟ',
   'profile.theme_dark': 'ਡਾਰਕ',

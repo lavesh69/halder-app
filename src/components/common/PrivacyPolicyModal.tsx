@@ -25,7 +25,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-black text-zinc-900 dark:text-white">
-                HALDER Privacy Policy
+                HALDHAR Privacy Policy
               </h3>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Play Store User Data Safety & Terms</p>
             </div>
@@ -47,7 +47,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
               1. Information We Collect
             </h4>
             <p>
-              HALDER collects only the minimal data required to connect local farmers with nearby customers:
+              HALDHAR collects only the minimal data required to connect local farmers with nearby customers:
             </p>
             <ul className="list-disc list-inside space-y-1 pl-1 text-[11px]">
               <li><b>Account Profile</b>: Name, phone number, role (Customer or Farmer).</li>
@@ -75,7 +75,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
               3. Direct Payment Privacy
             </h4>
             <p>
-              Payment for produce is made directly between customer and farmer via direct UPI or cash. HALDER does not store sensitive bank account credentials, debit card numbers, or UPI PINs.
+              Payment for produce is made directly between customer and farmer via direct UPI or cash. HALDHAR does not store sensitive bank account credentials, debit card numbers, or UPI PINs.
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
 
           {/* Section 5: Contact */}
           <div className="pt-2 text-[11px] text-zinc-400 border-t border-zinc-200 dark:border-zinc-800">
-            Grievance Officer: Support Team • Email: <code>support@halder.in</code> • Dehradun, Uttarakhand.
+            Grievance Officer: Support Team • Email: <code>support@haldhar.in</code> • Dehradun, Uttarakhand.
           </div>
         </div>
 

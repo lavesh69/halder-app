@@ -2,7 +2,7 @@
 
 const config: CapacitorConfig = {
   appId: 'com.halder.mandi',
-  appName: 'HALDER',
+  appName: 'HALDHAR',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

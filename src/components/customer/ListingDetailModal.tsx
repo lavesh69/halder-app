@@ -573,7 +573,7 @@ export const ListingDetailModal: React.FC = () => {
           {/* Ad Metadata & Report Button */}
           <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800 text-[11px]">
             <span className="text-zinc-400 font-mono">
-              AD ID: HAL-{selectedProduct.id.slice(-6).toUpperCase()}
+              AD ID: HLD-{selectedProduct.id.slice(-6).toUpperCase()}
             </span>
             <button
               onClick={() => setShowReportModal(true)}

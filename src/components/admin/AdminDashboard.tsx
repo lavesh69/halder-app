@@ -543,7 +543,7 @@ export const AdminDashboard: React.FC = () => {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
-                HALDER Superadmin Console
+                HALDHAR Superadmin Console
               </h1>
               <span className="text-[11px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
                 ⚡ Tier-1 Control
@@ -964,7 +964,7 @@ export const AdminDashboard: React.FC = () => {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search by HALDER ID (e.g. HAL-CUS-00000001), Name, Phone, or Email..."
+                placeholder="Search by HALDHAR ID (e.g. HLD-CUS-00000001), Name, Phone, or Email..."
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
                 className="w-full pl-9 pr-8 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -1146,7 +1146,7 @@ export const AdminDashboard: React.FC = () => {
                                 showToast(`Copied ${u.halder_id}!`, 'info');
                               }}
                               className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-zinc-100 dark:bg-zinc-800 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 transition select-all"
-                              title="Click to copy HALDER ID"
+                              title="Click to copy HALDHAR ID"
                             >
                               <span>{u.halder_id}</span>
                               <Copy className="w-2.5 h-2.5 text-zinc-400" />
@@ -1235,7 +1235,7 @@ export const AdminDashboard: React.FC = () => {
                       {!isAdmin && (
                         <button
                           onClick={() => {
-                            if (window.confirm(`Delete user "${u.name}" permanently from HALDER?`)) {
+                            if (window.confirm(`Delete user "${u.name}" permanently from HALDHAR?`)) {
                               deleteUser(u.id);
                             }
                           }}
@@ -1477,7 +1477,7 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* SECTION 4: LISTINGS & CLASSIFIEDS MODERATION (HALDER MANDI) */}
+      {/* SECTION 4: LISTINGS & CLASSIFIEDS MODERATION (HALDHAR MANDI) */}
       {/* ========================================================================= */}
       {activeTab === 'products' && (
         <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-5 animate-fade-in">
@@ -1683,7 +1683,7 @@ export const AdminDashboard: React.FC = () => {
                     {/* Delete Product */}
                     <button
                       onClick={() => {
-                        if (window.confirm(`Permanently remove ad "${prod.name}" from HALDER Mandi?`)) {
+                        if (window.confirm(`Permanently remove ad "${prod.name}" from HALDHAR Mandi?`)) {
                           deleteProduct(prod.id);
                         }
                       }}
@@ -2100,7 +2100,7 @@ export const AdminDashboard: React.FC = () => {
                     className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
                   />
                   <p className="text-[10px] text-zinc-400 mt-1">
-                    HALDER promises 100% direct sale proceeds to farmers with zero intermediary cut.
+                    HALDHAR promises 100% direct sale proceeds to farmers with zero intermediary cut.
                   </p>
                 </div>
 
@@ -2118,7 +2118,7 @@ export const AdminDashboard: React.FC = () => {
                     className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-500 dark:text-zinc-400"
                   />
                   <p className="text-[10px] text-zinc-400 mt-1">
-                    Farmers can list unlimited crop ads for free on the HALDER classifieds network.
+                    Farmers can list unlimited crop ads for free on the HALDHAR classifieds network.
                   </p>
                 </div>
 
@@ -2348,7 +2348,7 @@ export const AdminDashboard: React.FC = () => {
             {/* Action Bar inside modal */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
               <a
-                href={`https://wa.me/91${(inspectingKycDoc.phone || '9876543210').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inspectingKycDoc.farmer_name}! We are reviewing your HALDER Farmer Verification documents.`)}`}
+                href={`https://wa.me/91${(inspectingKycDoc.phone || '9876543210').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inspectingKycDoc.farmer_name}! We are reviewing your HALDHAR Farmer Verification documents.`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3.5 py-2 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
@@ -2798,7 +2798,7 @@ export const AdminDashboard: React.FC = () => {
                 <span className="font-bold text-emerald-600">{inspectingUser.status}</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-zinc-500">Joined HALDER:</span>
+                <span className="text-zinc-500">Joined HALDHAR:</span>
                 <span className="font-mono text-zinc-600 dark:text-zinc-400">
                   {new Date(inspectingUser.created_at).toLocaleDateString()}
                 </span>
@@ -2834,7 +2834,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
-              Are you sure you want to end your Administrator session? You will be signed out and redirected to the HALDER sign-in screen.
+              Are you sure you want to end your Administrator session? You will be signed out and redirected to the HALDHAR sign-in screen.
             </p>
 
             <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">

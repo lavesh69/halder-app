@@ -84,7 +84,7 @@ export const teTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'రైతు ప్రత్యక్ష ధర: ₹{price}/కిలో',
   'mandi.savings_badge': 'దళారీ మండి ధర కంటే {percent}% ఆదా',
   'mandi.direct_savings': 'నేరుగా రైతు ధర (సున్నా దళారీ కమీషన్)',
-  'mandi.benchmark_comparison': 'APMC మండి ధర: ₹{mandi} | HALDER ప్రత్యక్ష ధర: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC మండి ధర: ₹{mandi} | HALDHAR ప్రత్యక్ష ధర: ₹{halder}',
 
   // Cart, Checkout & Settlement
   'cart.title': 'వ్యవసాయ ఉత్పత్తుల బుట్ట',
@@ -107,7 +107,7 @@ export const teTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'పారదర్శక రైతు చెల్లింపుల వివరాలు',
   'settlement.farmer_earns': 'రైతుకు అందే మొత్తం: ₹{amount}',
   'settlement.logistics_fee': 'రవాణా ఛార్జీ: ₹{amount}',
-  'settlement.platform_fee': 'HALDER ప్లాట్‌ఫారమ్ రుసుము: ₹0 (సున్నా కమీషన్)',
+  'settlement.platform_fee': 'HALDHAR ప్లాట్‌ఫారమ్ రుసుము: ₹0 (సున్నా కమీషన్)',
 
   // Guarantee Badge
   'guarantee.badge_title': '100% రైతు ప్రత్యక్ష డెలివరీ హామీ',
@@ -298,7 +298,7 @@ export const teTranslations: TranslationDictionary = {
   'profile.title': 'నా ప్రొఫైల్',
   'profile.customer_role': 'కొనుగోలుదారు',
   'profile.farmer_role': 'ధృవీకరించబడిన రైతు',
-  'profile.copy_id': 'HALDER ID కాపీ చేయండి',
+  'profile.copy_id': 'HALDHAR ID కాపీ చేయండి',
   'profile.switch_to_farmer': 'మీరు రైతులా?',
   'profile.switch_to_farmer_desc': 'కూరగాయలను జాబితా చేయండి, ఆర్డర్లను నిర్వహించండి మరియు అమ్మకాలను చూడండి',
   'profile.switch_to_customer': 'కొనుగోలుదారు యాప్‌కి మారండి',
@@ -313,7 +313,7 @@ export const teTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'గోప్యతా విధానం & డేటా భద్రత',
   'profile.privacy_policy_desc': 'Google Play నిబంధనలు మరియు ఖాతా తొలగింపు',
   'profile.delete_account': 'ఖాతా మరియు డేటాను తొలగించండి',
-  'profile.delete_confirm': 'మీరు ఖచ్చితంగా మీ HALDER ఖాతాను శాశ్వతంగా తొలగించాలనుకుంటున్నారా? మొత్తం వ్యక్తిగత డేటా తొలగించబడుతుంది.',
+  'profile.delete_confirm': 'మీరు ఖచ్చితంగా మీ HALDHAR ఖాతాను శాశ్వతంగా తొలగించాలనుకుంటున్నారా? మొత్తం వ్యక్తిగత డేటా తొలగించబడుతుంది.',
   'profile.theme_preference': 'థీమ్ ప్రాధాన్యత',
   'profile.theme_light': 'లైట్',
   'profile.theme_dark': 'డార్క్',

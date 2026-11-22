@@ -68,7 +68,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const handleQuickChat = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (farmer) {
-      openFarmerChat(farmer, `Namaste ${product.farmerName} ji! I saw your "${product.name}" on HALDER.`);
+      openFarmerChat(farmer, `Namaste ${product.farmerName} ji! I saw your "${product.name}" on HALDHAR.`);
     } else {
       setSelectedProduct(product);
     }
@@ -383,7 +383,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <span className="truncate">{product.farmName}</span>
             </div>
             <span className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 shrink-0">
-              <ShieldCheck className="w-3 h-3 text-amber-600" /> Halder Safe
+              <ShieldCheck className="w-3 h-3 text-amber-600" /> Haldhar Safe
             </span>
           </div>
 

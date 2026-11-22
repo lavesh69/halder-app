@@ -104,13 +104,13 @@ export const PwaInstallBanner: React.FC = () => {
     <>
       {/* Floating Bottom PWA Install Banner */}
       <aside
-        aria-label="Install HALDER App"
+        aria-label="Install HALDHAR App"
         className="fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-white/95 dark:bg-[#161D18]/95 backdrop-blur-md rounded-2xl p-3.5 border border-emerald-600/30 dark:border-emerald-500/30 shadow-2xl animate-slide-up flex flex-col gap-2.5"
       >
         <div className="flex items-start gap-3">
           {/* Logo Badge */}
           <div className="w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-sm overflow-hidden p-1.5">
-            <img src="/favicon.svg" alt="HALDER" className="w-full h-full object-contain filter invert brightness-200" />
+            <img src="/favicon.svg" alt="HALDHAR" className="w-full h-full object-contain filter invert brightness-200" />
           </div>
 
           {/* Description */}
@@ -193,7 +193,7 @@ export const PwaInstallBanner: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              Install HALDER on your home screen for full-screen view and quick 1-tap access:
+              Install HALDHAR on your home screen for full-screen view and quick 1-tap access:
             </p>
 
             <div className="space-y-3 bg-zinc-50 dark:bg-zinc-800/60 p-3.5 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/60 text-xs">

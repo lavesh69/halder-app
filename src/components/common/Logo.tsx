@@ -59,7 +59,7 @@ export const Logo: React.FC<LogoProps> = ({
             className={`text-zinc-900 dark:text-white ${sizeClasses[size]} font-black`}
             style={{ letterSpacing: '0.08em' }}
           >
-            HALDER
+            HALDHAR
           </span>
           <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mt-0.5">
             Mandi Direct

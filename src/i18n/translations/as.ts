@@ -84,7 +84,7 @@ export const asTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'কৃষকৰ পোনপটীয়া মূল্য: ₹{price}/কেজি',
   'mandi.savings_badge': 'মধ্যভোগীৰ মূল্যতকৈ {percent}% ৰেহাই',
   'mandi.direct_savings': 'পোনপটীয়া কৃষকৰ মূল্য (০% মধ্যভোগীৰ দালালী)',
-  'mandi.benchmark_comparison': 'APMC মণ্ডিত মূল্য: ₹{mandi} | HALDER পোনপটীয়া মূল্য: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC মণ্ডিত মূল্য: ₹{mandi} | HALDHAR পোনপটীয়া মূল্য: ₹{halder}',
 
   // Cart, Checkout & Settlement
   'cart.title': 'ক্ৰয় কৰা সামগ্ৰীৰ কাৰ্ট',
@@ -107,7 +107,7 @@ export const asTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'স্বচ্ছ পৰিশোধৰ বিৱৰণ',
   'settlement.farmer_earns': 'কৃষকৰ উপাৰ্জন: ₹{amount}',
   'settlement.logistics_fee': 'পৰিবহণ মাচুল: ₹{amount}',
-  'settlement.platform_fee': 'HALDER প্লেটফৰ্ম মাচুল: ₹০ (বিনামূলীয়া)',
+  'settlement.platform_fee': 'HALDHAR প্লেটফৰ্ম মাচুল: ₹০ (বিনামূলীয়া)',
 
   // Guarantee Badge
   'guarantee.badge_title': '১০০% পথাৰৰ পৰা পোনে পোনে নিশ্চয়তা',
@@ -298,7 +298,7 @@ export const asTranslations: TranslationDictionary = {
   'profile.title': 'মোৰ প্ৰফাইল',
   'profile.customer_role': 'ক্ৰেতা',
   'profile.farmer_role': 'প্ৰমাণিত কৃষক',
-  'profile.copy_id': 'HALDER ID কপি কৰক',
+  'profile.copy_id': 'HALDHAR ID কপি কৰক',
   'profile.switch_to_farmer': 'আপুনি কৃষক হয়নে?',
   'profile.switch_to_farmer_desc': 'শাক-পাচলি তালিকাভুক্ত কৰক, অৰ্ডাৰ পৰিচালনা কৰক আৰু বিক্ৰী চাওক',
   'profile.switch_to_customer': 'ক্ৰেতা এপলৈ যাওক',
@@ -313,7 +313,7 @@ export const asTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'গোপনীয়তা নীতি আৰু তথ্য সুৰক্ষা',
   'profile.privacy_policy_desc': 'গুগল প্লে’ নীতি আৰু একাউণ্ট মচি পেলোৱা',
   'profile.delete_account': 'একাউণ্ট আৰু তথ্য মচক',
-  'profile.delete_confirm': 'আপুনি নিশ্চিতনে যে আপোনাৰ HALDER একাউণ্ট স্থায়ীভাৱে মচিব বিচাৰে? সকলো ব্যক্তিগত তথ্য আঁতৰাই দিয়া হ’ব।',
+  'profile.delete_confirm': 'আপুনি নিশ্চিতনে যে আপোনাৰ HALDHAR একাউণ্ট স্থায়ীভাৱে মচিব বিচাৰে? সকলো ব্যক্তিগত তথ্য আঁতৰাই দিয়া হ’ব।',
   'profile.theme_preference': 'থীম পছন্দ',
   'profile.theme_light': 'লাইট',
   'profile.theme_dark': 'ডাৰ্ক',

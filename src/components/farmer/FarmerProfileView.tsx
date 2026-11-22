@@ -103,7 +103,7 @@ export const FarmerProfileView: React.FC = () => {
   const displayName = profile?.name || currentUser?.name || 'Kisan';
   const displayUsername = (profile as any)?.username || currentUser?.username || '';
   const displayFarm = profile?.farmName || (currentUser?.name ? `${currentUser.name}'s Farm` : 'Farm');
-  const displayId = profile?.halderId || currentUser?.halder_id || 'HAL-FRM-00000001';
+  const displayId = profile?.halderId || currentUser?.halder_id || 'HLD-FRM-00000001';
   const displayPhone = profile?.phone || currentUser?.phone || '';
   const displayLocation = profile?.location || '';
   const displayAvatar =
@@ -156,7 +156,7 @@ export const FarmerProfileView: React.FC = () => {
                 showToast(`Copied ${displayId} to clipboard!`, 'info');
               }}
               className="p-1 text-zinc-400 hover:text-emerald-600 rounded transition"
-              title="Copy HALDER Farmer ID"
+              title="Copy HALDHAR Farmer ID"
             >
               <Copy className="w-3.5 h-3.5" />
             </button>

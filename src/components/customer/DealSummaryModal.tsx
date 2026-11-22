@@ -80,15 +80,15 @@ export const DealSummaryModal: React.FC<DealSummaryModalProps> = ({
   };
 
   const handleShare = () => {
-    const text = `🤝 HALDER Deal Agreement #${dealReferenceId}\n` +
+    const text = `🤝 HALDHAR Deal Agreement #${dealReferenceId}\n` +
       `Product: ${product.name} (${agreedTerms.quantity} ${agreedTerms.unit})\n` +
       `Agreed Rate: ₹${agreedTerms.agreedPricePerUnit}/${agreedTerms.unit} (Total: ₹${agreedTerms.totalAmount})\n` +
       `Farmer: ${farmer.name} (${farmer.phone})\n` +
       `Buyer: ${buyer.name} (${buyer.phone})\n` +
-      `Direct Farmer Payout • 0% Platform Fee on HALDER.`;
+      `Direct Farmer Payout • 0% Platform Fee on HALDHAR.`;
 
     if (navigator.share) {
-      navigator.share({ title: `HALDER Deal #${dealReferenceId}`, text }).catch(() => {});
+      navigator.share({ title: `HALDHAR Deal #${dealReferenceId}`, text }).catch(() => {});
     } else {
       navigator.clipboard.writeText(text);
       showToast('Deal agreement details copied to clipboard!');
@@ -142,7 +142,7 @@ export const DealSummaryModal: React.FC<DealSummaryModalProps> = ({
                 Direct Farmer Trade • Zero Platform Commission (₹0 Fee)
               </span>
               <p className="text-emerald-800/90 dark:text-emerald-300/80 text-[11px] mt-0.5 leading-relaxed">
-                {commission?.message || 'Both parties trade directly. HALDER does not take a cut or hold your money.'}
+                {commission?.message || 'Both parties trade directly. HALDHAR does not take a cut or hold your money.'}
               </p>
             </div>
           </div>

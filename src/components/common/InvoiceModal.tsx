@@ -173,7 +173,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ orderId, onClose }) 
           <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 rounded-2xl text-[10px] flex items-center gap-2 border border-emerald-200/60 dark:border-emerald-800/40">
             <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>
-              Official Halder Direct Mandi Receipt. 100% of the produce value directly reaches {order.farmerName}. FSSAI License Verified.
+              Official Haldhar Direct Mandi Receipt. 100% of the produce value directly reaches {order.farmerName}. FSSAI License Verified.
             </span>
           </div>
         </div>

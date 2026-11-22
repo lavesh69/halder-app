@@ -67,7 +67,7 @@ export const CustomerSecurityModal: React.FC<CustomerSecurityModalProps> = ({
 
     try {
       await ApiClient.deleteAccount(deleteConfirmPassword || undefined);
-      showToast('Your HALDER account and personal data have been permanently deleted.', 'info');
+      showToast('Your HALDHAR account and personal data have been permanently deleted.', 'info');
       if (onAccountDeleted) {
         onAccountDeleted();
       } else {

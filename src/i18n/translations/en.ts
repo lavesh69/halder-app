@@ -74,7 +74,7 @@ export const enTranslations = {
   'mandi.farmer_price': 'Kisan Direct Price: ₹{price}/kg',
   'mandi.savings_badge': 'Save {percent}% vs Middleman Mandi Price',
   'mandi.direct_savings': 'Direct Farmer Price (Zero Middleman Cut)',
-  'mandi.benchmark_comparison': 'APMC Mandi Rate: ₹{mandi} | HALDER Direct: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC Mandi Rate: ₹{mandi} | HALDHAR Direct: ₹{halder}',
 
   // Cart, Checkout & 100% Direct Farmer Settlement
   'cart.title': 'Farm Produce Basket',
@@ -97,7 +97,7 @@ export const enTranslations = {
   'settlement.breakdown_title': 'Transparent Farmer Payout Breakdown',
   'settlement.farmer_earns': 'Farmer Receives: ₹{amount}',
   'settlement.logistics_fee': 'Farm-to-Door Logistics: ₹{amount}',
-  'settlement.platform_fee': 'HALDER Platform Fee: ₹0 (Zero Commission)',
+  'settlement.platform_fee': 'HALDHAR Platform Fee: ₹0 (Zero Commission)',
 
   // 100% Kisan Direct Delivery Guarantee Badge
   'guarantee.badge_title': '100% Kisan Direct Delivery Guarantee',
@@ -254,7 +254,7 @@ export const enTranslations = {
   'profile.title': 'My Profile',
   'profile.customer_role': 'Customer',
   'profile.farmer_role': 'Verified Farmer',
-  'profile.copy_id': 'Copy HALDER ID',
+  'profile.copy_id': 'Copy HALDHAR ID',
   'profile.switch_to_farmer': 'Are you a Farmer?',
   'profile.switch_to_farmer_desc': 'List vegetables, manage orders & view your daily sales',
   'profile.switch_to_customer': 'Switch to Customer App',
@@ -273,7 +273,7 @@ export const enTranslations = {
   'profile.privacy_policy': 'Privacy Policy & Data Safety',
   'profile.privacy_policy_desc': 'Google Play Compliance & Account Deletion',
   'profile.delete_account': 'Delete Account & Data',
-  'profile.delete_confirm': 'Are you sure you want to permanently delete your HALDER account? All personal data, saved addresses, and active sessions will be removed.',
+  'profile.delete_confirm': 'Are you sure you want to permanently delete your HALDHAR account? All personal data, saved addresses, and active sessions will be removed.',
   'profile.theme_preference': 'Theme Preference',
   'profile.theme_light': 'Light',
   'profile.theme_dark': 'Dark',
@@ -528,11 +528,11 @@ export const enTranslations = {
   'filter.apply': 'Apply Filters ({count})',
 
   // PWA Install
-  'pwa.install_title': 'Install HALDER Mandi App',
+  'pwa.install_title': 'Install HALDHAR Mandi App',
   'pwa.install_desc': 'Direct kisan mandi prices, instant chat & 1-tap fast access.',
   'pwa.install_btn': 'Install App',
   'pwa.ios_hint': 'To install: Tap Share ⎋ then select "Add to Home Screen" ⊞',
-  'pwa.installed': 'HALDER App is ready to use offline!',
+  'pwa.installed': 'HALDHAR App is ready to use offline!',
 
   // Auth & Onboarding
   'auth.sign_in': 'Sign In',
@@ -565,7 +565,7 @@ export const enTranslations = {
   'auth.phone_label': 'Phone Number',
   'auth.password_label': 'Password',
   'auth.forgot_password': 'Forgot Password?',
-  'auth.sign_in_btn': 'Sign In to HALDER',
+  'auth.sign_in_btn': 'Sign In to HALDHAR',
   'auth.create_account_btn': 'Create Account & Enter',
   'auth.explore_guest': 'Explore as Guest →',
   'auth.skip': 'Skip →',

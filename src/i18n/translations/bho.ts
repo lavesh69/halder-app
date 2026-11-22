@@ -84,7 +84,7 @@ export const bhoTranslations: TranslationDictionary = {
   'mandi.farmer_price': 'किसान के सीधा दाम: ₹{price}/किलो',
   'mandi.savings_badge': 'बिचौलिया मंडी दाम से {percent}% बचत',
   'mandi.direct_savings': 'सीधा किसान भाव (0% बिचौलिया दलाली)',
-  'mandi.benchmark_comparison': 'APMC मंडी: ₹{mandi} | HALDER सीधा दाम: ₹{halder}',
+  'mandi.benchmark_comparison': 'APMC मंडी: ₹{mandi} | HALDHAR सीधा दाम: ₹{halder}',
 
   // Cart, Checkout & Settlement
   'cart.title': 'हमार खरीददारी झोरी',
@@ -107,7 +107,7 @@ export const bhoTranslations: TranslationDictionary = {
   'settlement.breakdown_title': 'पारदर्शी भुगतान विवरण',
   'settlement.farmer_earns': 'किसान के कमाई: ₹{amount}',
   'settlement.logistics_fee': 'पहुंचावे के भाड़ा: ₹{amount}',
-  'settlement.platform_fee': 'HALDER प्लेटफॉर्म शुल्क: ₹0 (मुफ्त)',
+  'settlement.platform_fee': 'HALDHAR प्लेटफॉर्म शुल्क: ₹0 (मुफ्त)',
 
   // Guarantee Badge
   'guarantee.badge_title': '100% सीधा खेत से गारंटी',
@@ -298,7 +298,7 @@ export const bhoTranslations: TranslationDictionary = {
   'profile.title': 'हमार प्रोफाइल',
   'profile.customer_role': 'खरीददार',
   'profile.farmer_role': 'वेरिफाइड किसान',
-  'profile.copy_id': 'HALDER आईडी कॉपी करीं',
+  'profile.copy_id': 'HALDHAR आईडी कॉपी करीं',
   'profile.switch_to_farmer': 'का रउआ किसान बानी?',
   'profile.switch_to_farmer_desc': 'सब्जी लिस्ट करीं, ऑर्डर संभालीं आ रोज के कमाई देखीं',
   'profile.switch_to_customer': 'ग्राहक ऐप पर जाईं',
@@ -313,7 +313,7 @@ export const bhoTranslations: TranslationDictionary = {
   'profile.privacy_policy': 'गोपनीयता नीति आ डाटा सुरक्षा',
   'profile.privacy_policy_desc': 'गूगल प्ले नियम आ खाता हटावे के सुविधा',
   'profile.delete_account': 'खाता आ डाटा हटाईं',
-  'profile.delete_confirm': 'का रउआ सच में अपन HALDER खाता हटावे के चाहत बानी? सगरी जानकारी मिटा दिहल जाई।',
+  'profile.delete_confirm': 'का रउआ सच में अपन HALDHAR खाता हटावे के चाहत बानी? सगरी जानकारी मिटा दिहल जाई।',
   'profile.theme_preference': 'थीम पसंद',
   'profile.theme_light': 'लाइट',
   'profile.theme_dark': 'डार्क',

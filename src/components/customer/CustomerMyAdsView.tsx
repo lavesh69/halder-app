@@ -464,7 +464,7 @@ export const CustomerMyAdsView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-zinc-900 dark:text-white">Boost Your Advertisement</h3>
-                  <p className="text-[11px] text-zinc-500">Sell up to 5x faster on HALDER</p>
+                  <p className="text-[11px] text-zinc-500">Sell up to 5x faster on HALDHAR</p>
                 </div>
               </div>
               <button onClick={() => setBoostingAd(null)} className="p-1.5 text-zinc-400 hover:text-zinc-600 rounded-lg">

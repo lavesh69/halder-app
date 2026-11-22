@@ -36,7 +36,7 @@ export const playPaymentSuccessChime = (amount?: number) => {
     if (amount && 'speechSynthesis' in window) {
       setTimeout(() => {
         try {
-          const utterance = new SpeechSynthesisUtterance(`Payment of ${amount} rupees received on HALDER.`);
+          const utterance = new SpeechSynthesisUtterance(`Payment of ${amount} rupees received on HALDHAR.`);
           utterance.rate = 1.05;
           utterance.pitch = 1.1;
           window.speechSynthesis.speak(utterance);
