@@ -596,8 +596,8 @@ export const AdminDashboard: React.FC = () => {
       {/* TOP HEADER: BRAND IDENTITY & GLOBAL CONTROLS */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#181F1A] p-4 sm:p-5 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 shadow-soft">
         <div className="flex items-center gap-3.5">
-          <div className="p-3 bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl shadow-md shrink-0">
-            <ShieldCheck className="w-7 h-7" />
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shrink-0 shadow-md ring-2 ring-amber-500/30 bg-emerald-950/20">
+            <img src="/halder-logo.png" alt="HALDHAR" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">

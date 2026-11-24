@@ -1,0 +1,24 @@
+appId: com.halder.mandi
+---
+# ----------------------------------------------------
+# HALDER Mobile E2E Test: Farmer Sell Ad Posting Flow
+# Evaluated with: maestro-mobile-testing skill
+# ----------------------------------------------------
+
+- launchApp:
+    clearState: false
+
+# 1. Tap on Sell action
+- tapOn: "+ SELL"
+
+# 2. Check Ad Posting Modal opens
+- assertVisible: "Post Agricultural Ad"
+- assertVisible: "PRODUCT PHOTOS"
+
+# 3. Input Crop Details
+- tapOn: "Product / Crop Title"
+- inputText: "Desi Organic Wheat"
+
+# 4. Close Modal
+- tapOn:
+    point: "92%,6%"

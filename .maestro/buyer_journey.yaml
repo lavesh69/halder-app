@@ -1,0 +1,30 @@
+appId: com.halder.mandi
+---
+# ----------------------------------------------------
+# HALDER Mobile E2E Test: Buyer Produce Journey
+# Evaluated with: maestro-mobile-testing skill
+# ----------------------------------------------------
+
+- launchApp:
+    clearState: false
+
+# 1. Verify Home Screen Header & Branding
+- assertVisible: "HALDER"
+- assertVisible: "Freshly Harvested Today"
+
+# 2. Search for Agricultural Produce
+- tapOn: "Search fresh farm produce..."
+- inputText: "Tomato"
+- pressKey: Enter
+
+# 3. Inspect Crop Listing Card
+- assertVisible: "Tomato"
+- assertVisible: "Chat"
+
+# 4. Open Produce Details or Chat
+- tapOn: "Chat"
+- assertVisible: "Kisan Direct"
+
+# 5. Dismiss Modal
+- tapOn:
+    point: "50%,10%"

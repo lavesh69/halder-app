@@ -1,6 +1,7 @@
 ﻿import { runMigrations } from './migrate';
 import { Database } from './database';
 import bcrypt from 'bcryptjs';
+import { killSwitch } from '../config/killSwitch';
 
 export async function seedDatabase(forceTestSeed = false) {
   runMigrations();
@@ -84,13 +85,19 @@ export async function seedCoreSystem(now: string) {
  * Test fixtures populated exclusively during automated testing (NODE_ENV === 'test')
  */
 export async function seedTestFixtures(now: string) {
-  const existingUsers = Database.get<any>("SELECT id FROM users WHERE id = 'user-cust-1'");
-  if (!existingUsers) {
-    const passwordHash = await bcrypt.hash('halder123', 10);
+  killSwitch.resetToDefaults();
+  const passwordHash = await bcrypt.hash('halder123', 10);
 
-    Database.transaction(() => {
-      Database.run(
-        `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
+  Database.transaction(() => {
+    // Purge any orphan test fixtures that collide with canonical test fixture emails or phones
+    Database.run(
+      `DELETE FROM users WHERE (email IN ('aman@halder.com', 'rajesh@greenvalley.in', 'amit@sunrisefarms.in', 'pooja@himalayanorganics.in', 'rahul.delivery@halder.com')
+         OR phone IN ('+91 98765 43210', '+91 98450 12345', '+91 98110 54321', '+91 98330 98765', '+91 98888 11111'))
+         AND id NOT IN ('user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`
+    );
+
+    Database.run(
+      `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
          ('user-cust-1', 'HAL-CUS-10000001', 'aman', 'Aman Sharma', 'aman@halder.com', '+91 98765 43210', ?, 'customer', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-farm-1', 'HAL-FRM-20000001', 'rajesh', 'Rajesh Kumar', 'rajesh@greenvalley.in', '+91 98450 12345', ?, 'farmer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-farm-2', 'HAL-FRM-20000002', 'amit', 'Amit Singh', 'amit@sunrisefarms.in', '+91 98110 54321', ?, 'farmer', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
@@ -180,7 +187,6 @@ export async function seedTestFixtures(now: string) {
         [now, now, now]
       );
     });
-  }
 }
 
 function seedExtendedTestEcosystem(now: string) {

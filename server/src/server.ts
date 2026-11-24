@@ -10,6 +10,12 @@ import { initChatSocket } from './websocket/chatSocket';
 
 export const server = http.createServer(app);
 
+// Extreme-scale TCP connection tuning (prevents socket exhaustion and TIME_WAIT pile-up)
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
+server.requestTimeout = 30000;
+server.maxRequestsPerSocket = 0; // Unlimited requests per persistent keep-alive socket
+
 // Attach real-time WebSocket chat server
 export const wss = initChatSocket(server);
 
@@ -31,7 +37,7 @@ async function bootstrap() {
       ? `${turso.mode} (v${turso.syncedVersion})`
       : 'local-sqlite';
 
-    server.listen(env.PORT, '0.0.0.0', () => {
+    server.listen(env.PORT, '0.0.0.0', 65535, () => {
       console.log(`
 ==================================================
 🌾 HALDER Backend API Server Live!

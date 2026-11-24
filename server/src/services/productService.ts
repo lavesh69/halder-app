@@ -56,6 +56,12 @@ export function getTransitEstimate(distanceKm: number) {
 }
 
 export class ProductService {
+  private static listCache = new Map<string, { expiresAt: number; data: any }>();
+
+  public static invalidateListCache(): void {
+    this.listCache.clear();
+  }
+
   static list(params: {
     category?: string;
     minPrice?: number;
@@ -73,6 +79,13 @@ export class ProductService {
     longitude?: number;
     radiusKm?: number;
   }) {
+    const cacheKey = JSON.stringify(params);
+    const now = Date.now();
+    const cached = this.listCache.get(cacheKey);
+    if (cached && now < cached.expiresAt) {
+      return cached.data;
+    }
+
     const page = Math.max(1, params.page || 1);
     const limit = Math.min(100, Math.max(1, params.limit || 20));
     const offset = (page - 1) * limit;
@@ -187,7 +200,7 @@ export class ProductService {
       }
 
       const paginated = withDistance.slice(offset, offset + limit);
-      return {
+      const geoResult = {
         products: paginated,
         total: withDistance.length,
         page,
@@ -199,6 +212,9 @@ export class ProductService {
           radiusKm: radius,
         },
       };
+      if (this.listCache.size > 500) this.listCache.clear();
+      this.listCache.set(cacheKey, { expiresAt: now + 5000, data: geoResult });
+      return geoResult;
     }
 
     // Standard non-geo query with pagination
@@ -217,11 +233,14 @@ export class ProductService {
       };
     });
 
-    return {
+    const standardResult = {
       products,
       page,
       limit,
     };
+    if (this.listCache.size > 500) this.listCache.clear();
+    this.listCache.set(cacheKey, { expiresAt: now + 5000, data: standardResult });
+    return standardResult;
   }
 
 
@@ -251,7 +270,14 @@ export class ProductService {
       throw AppError.notFound('Product listing not found');
     }
 
-    Database.run('UPDATE products SET views_count = views_count + 1 WHERE id = ?', [id]);
+    // High-concurrency optimization: update views_count asynchronously so read latency is not blocked by SQLite write locks
+    setImmediate(() => {
+      try {
+        Database.run('UPDATE products SET views_count = views_count + 1 WHERE id = ?', [id]);
+      } catch (_) {
+        // Suppress non-critical analytics update lock contention
+      }
+    });
 
     // Fetch multi-images
     const images = Database.query<any>(
@@ -462,6 +488,7 @@ export class ProductService {
       }
     }
 
+    this.invalidateListCache();
     return ProductService.getById(id);
   }
 
@@ -594,6 +621,7 @@ export class ProductService {
       }
     }
 
+    this.invalidateListCache();
     return ProductService.getById(id);
   }
 

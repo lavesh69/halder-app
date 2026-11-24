@@ -64,35 +64,74 @@ async function runSecurityMatrix() {
     // SETUP TEST ENTITIES
     // -------------------------------------------------------------
     const now = new Date().toISOString();
+    const seedTime = Date.now();
 
     // 1. Customer A (Aman) & Customer B (Rohit)
-    const custA_id = 'user-cust-1';
-    const custB_id = `user-sec-cust-b-${Date.now()}`;
-    const custB_halder = `HAL-CUS-99990001`;
+    const custA_id = `user-sec-cust-a-${seedTime}`;
+    const custA_halder = `HAL-CUS-A${seedTime.toString().slice(-6)}`;
+    const custA_email = `aman.sec.${seedTime}@halder.com`;
+    const custA_phone = `+9198${Math.floor(10000000 + Math.random() * 89999999)}`;
     Database.run(
-      `INSERT OR REPLACE INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
+      `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
+       VALUES (?, ?, 'Aman Sharma', ?, ?, 'hash', 'customer', 'active', ?, ?)`,
+      [custA_id, custA_halder, custA_email, custA_phone, now, now]
+    );
+
+    const custB_id = `user-sec-cust-b-${seedTime}`;
+    const custB_halder = `HAL-CUS-B${seedTime.toString().slice(-6)}`;
+    const custB_email = `rohit.sec.${seedTime}@test.in`;
+    const custB_phone = `+9197${Math.floor(10000000 + Math.random() * 89999999)}`;
+    Database.run(
+      `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
        VALUES (?, ?, 'Rohit Verma', ?, ?, 'hash', 'customer', 'active', ?, ?)`,
-      [custB_id, custB_halder, `rohit.${Date.now()}@test.in`, `+91 ${Math.floor(9000000000 + Math.random() * 999999999)}`, now, now]
+      [custB_id, custB_halder, custB_email, custB_phone, now, now]
     );
 
     // 2. Farmer A (Rajesh) & Farmer B (Amit)
-    const farmerA_id = 'user-farm-1';
-    const farmerA_profile = 'farmer-1';
-    const farmerB_id = 'user-farm-2';
-    const farmerB_profile = 'farmer-2';
+    const farmerA_id = `user-sec-farm-a-${seedTime}`;
+    const farmerA_halder = `HAL-FRM-A${seedTime.toString().slice(-6)}`;
+    const farmerA_email = `rajesh.sec.${seedTime}@greenvalley.in`;
+    const farmerA_phone = `+9196${Math.floor(10000000 + Math.random() * 89999999)}`;
+    const farmerA_profile = `farmer-sec-a-${seedTime}`;
+    Database.run(
+      `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
+       VALUES (?, ?, 'Rajesh Kumar', ?, ?, 'hash', 'farmer', 'active', ?, ?)`,
+      [farmerA_id, farmerA_halder, farmerA_email, farmerA_phone, now, now]
+    );
+    Database.run(
+      `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at)
+       VALUES (?, ?, 'Green Valley Farm', 'Verified Producer', 'Dehradun', 'Dehradun', 'verified', 5.0, ?, ?)`,
+      [farmerA_profile, farmerA_id, now, now]
+    );
+
+    const farmerB_id = `user-sec-farm-b-${seedTime}`;
+    const farmerB_halder = `HAL-FRM-B${seedTime.toString().slice(-6)}`;
+    const farmerB_email = `amit.sec.${seedTime}@sunrisefarms.in`;
+    const farmerB_phone = `+9195${Math.floor(10000000 + Math.random() * 89999999)}`;
+    const farmerB_profile = `farmer-sec-b-${seedTime}`;
+    Database.run(
+      `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
+       VALUES (?, ?, 'Amit Singh', ?, ?, 'hash', 'farmer', 'active', ?, ?)`,
+      [farmerB_id, farmerB_halder, farmerB_email, farmerB_phone, now, now]
+    );
+    Database.run(
+      `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at)
+       VALUES (?, ?, 'Sunrise Farms', 'Verified Producer', 'Dehradun', 'Dehradun', 'verified', 5.0, ?, ?)`,
+      [farmerB_profile, farmerB_id, now, now]
+    );
 
     // 3. Admin (Vikram)
     const admin_id = 'user-adm-1';
 
     // Generate authenticated JWT tokens directly via CryptoUtil
-    const tokenCustA = CryptoUtil.generateToken({ userId: custA_id, role: 'customer', email: 'aman@halder.com' });
-    const tokenCustB = CryptoUtil.generateToken({ userId: custB_id, role: 'customer', email: 'rohit@test.in' });
-    const tokenFarmerA = CryptoUtil.generateToken({ userId: farmerA_id, role: 'farmer', email: 'rajesh@greenvalley.in', farmerProfileId: farmerA_profile });
-    const tokenFarmerB = CryptoUtil.generateToken({ userId: farmerB_id, role: 'farmer', email: 'amit@sunrisefarms.in', farmerProfileId: farmerB_profile });
+    const tokenCustA = CryptoUtil.generateToken({ userId: custA_id, role: 'customer', email: custA_email });
+    const tokenCustB = CryptoUtil.generateToken({ userId: custB_id, role: 'customer', email: custB_email });
+    const tokenFarmerA = CryptoUtil.generateToken({ userId: farmerA_id, role: 'farmer', email: farmerA_email, farmerProfileId: farmerA_profile });
+    const tokenFarmerB = CryptoUtil.generateToken({ userId: farmerB_id, role: 'farmer', email: farmerB_email, farmerProfileId: farmerB_profile });
 
     // Seed private entities for tests
     // Order owned by Customer A and Farmer A
-    const orderA_id = `ord-sec-a-${Date.now()}`;
+    const orderA_id = `ord-sec-a-${seedTime}`;
     Database.run(
       `INSERT INTO orders (
         id, order_number, customer_id, farmer_id, order_status,
@@ -104,7 +143,15 @@ async function runSecurityMatrix() {
     );
 
     // Product owned by Farmer A
-    const prodA_id = 'prod-1'; // owned by farmer-1
+    const prodA_id = `prod-sec-a-${seedTime}`;
+    Database.run(
+      `INSERT INTO products (
+        id, farmer_id, category_id, name, slug, description,
+        price, unit, available_quantity, is_organic, available_today,
+        location, city, image, status, moderation_status, created_at, updated_at
+      ) VALUES (?, ?, 'cat-veg', 'Test Security Tomato', 'test-sec-tomato-' || abs(random()), 'Sec test', 50, 'kg', 20, 1, 1, 'Dehradun', 'Dehradun', 'https://example.com/t.jpg', 'active', 'approved', ?, ?)`,
+      [prodA_id, farmerA_profile, now, now]
+    );
 
     // -------------------------------------------------------------
     // TEST 1: Customer B tries to view Customer A's private order
@@ -263,11 +310,13 @@ async function runSecurityMatrix() {
     });
     assert('Customer B cannot submit review for another customer order (403)', custB_fake_review.status === 403);
 
-    // Clean up temporary test order & conversation
+    // Clean up temporary test order, product, conversation & users
     Database.run('DELETE FROM orders WHERE id = ?', [orderA_id]);
+    Database.run('DELETE FROM products WHERE id = ?', [prodA_id]);
     Database.run('DELETE FROM conversations WHERE id = ?', [convA_id]);
     Database.run('DELETE FROM notifications WHERE id = ?', [notifA_id]);
-    Database.run('DELETE FROM users WHERE id = ?', [custB_id]);
+    Database.run('DELETE FROM farmer_profiles WHERE id IN (?, ?)', [farmerA_profile, farmerB_profile]);
+    Database.run('DELETE FROM users WHERE id IN (?, ?, ?, ?)', [custA_id, custB_id, farmerA_id, farmerB_id]);
 
   } catch (err) {
     console.error('Security Matrix Error:', err);

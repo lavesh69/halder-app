@@ -309,7 +309,7 @@ export const MarketplaceHome: React.FC = () => {
             <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 min-w-0">
               <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">
-                Showing ads in &amp; around <strong className="font-bold underline decoration-emerald-500/50">{activeCity}</strong>
+                {t('home.showing_near', { location: activeCity })}
               </span>
             </div>
             <button
@@ -319,7 +319,7 @@ export const MarketplaceHome: React.FC = () => {
               }}
               className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white bg-white dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-700/60 shadow-2xs shrink-0 ml-2 transition active:scale-95"
             >
-              Show All India
+              {t('home.show_all_india')}
             </button>
           </div>
         )}
@@ -381,7 +381,7 @@ export const MarketplaceHome: React.FC = () => {
               {t('home.browse_categories')}
             </span>
             <span className="text-[10px] text-[#66736B] dark:text-[#A6B3AA] font-bold">
-              ({categories.length - 1} Categories)
+              ({categories.length - 1} {t('nav.categories')})
             </span>
           </div>
           <button
@@ -597,7 +597,7 @@ export const MarketplaceHome: React.FC = () => {
         {/* Active Filter Chips Bar */}
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-1.5 p-2.5 bg-[#EAF5EE]/60 dark:bg-[#182A20]/60 rounded-xl border border-[#176B45]/20 dark:border-[#2E8B57]/30 text-xs animate-fade-in">
-            <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383]">Active:</span>
+            <span className="text-[11px] font-bold text-[#176B45] dark:text-[#5FB383]">{t('common.active')}:</span>
             {isCitySelected && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
                 📍 {activeCity}
@@ -620,7 +620,7 @@ export const MarketplaceHome: React.FC = () => {
             )}
             {filterState.maxDistanceKm < 100 && (
               <span className="px-2 py-0.5 bg-white dark:bg-[#181F1A] rounded-lg font-semibold text-[#202923] dark:text-[#F2F5F3] border border-[#E5EBE6] dark:border-[#29352D] flex items-center gap-1 text-[11px]">
-                Within {filterState.maxDistanceKm} km
+                {t('geo.radius_label', { radius: filterState.maxDistanceKm })}
                 <button onClick={() => setFilterState((prev) => ({ ...prev, maxDistanceKm: 100 }))} className="text-[#89948C] hover:text-[#202923]">×</button>
               </span>
             )}

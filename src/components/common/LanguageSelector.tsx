@@ -176,7 +176,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 sm:w-72 max-h-[380px] overflow-y-auto rounded-2xl bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 animate-scale-in origin-top-right">
+        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-72 max-w-[320px] max-h-[380px] overflow-y-auto rounded-2xl bg-white dark:bg-[#1B201D] border border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 animate-scale-in origin-top-right">
           <div className="px-3.5 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 sticky top-0 bg-white/95 dark:bg-[#1B201D]/95 backdrop-blur-xs flex items-center justify-between z-10">
             <span>{t('language.select_language')} ({SUPPORTED_LANGUAGES.length})</span>
             <span className="text-emerald-700 dark:text-emerald-300 font-extrabold normal-case text-[10px] bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">

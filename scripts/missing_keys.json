@@ -1,0 +1,832 @@
+[
+  {
+    "key": "chat.subtitle",
+    "en": "Direct Mandi messaging with local sellers and buyers",
+    "hi": "स्थानीय खरीदारों और विक्रेताओं के साथ सीधा मंडी संवाद"
+  },
+  {
+    "key": "chat.farmer_subtitle",
+    "en": "Real-time messages & produce inquiries from local buyers",
+    "hi": "स्थानीय खरीदारों से वास्तविक समय के संदेश और फसल पूछताछ"
+  },
+  {
+    "key": "chat.connecting",
+    "en": "Connecting...",
+    "hi": "कनेक्ट हो रहा है..."
+  },
+  {
+    "key": "chat.no_conversations_desc",
+    "en": "When buyers contact you regarding your crop listings or placed orders, they will appear here live.",
+    "hi": "जब खरीदार आपके फसल विज्ञापनों या ऑर्डर के बारे में संपर्क करेंगे, तो वे यहाँ लाइव दिखाई देंगे।"
+  },
+  {
+    "key": "chat.start_conversation_desc",
+    "en": "Ask about fresh morning harvest, direct farm pickup, or custom crate sizes.",
+    "hi": "सुबह की ताज़ा कटाई, सीधे खेत से पिकअप, या मात्रा के बारे में पूछें।"
+  },
+  {
+    "key": "chat.tab_all",
+    "en": "All",
+    "hi": "सभी"
+  },
+  {
+    "key": "chat.tab_buying",
+    "en": "Buying",
+    "hi": "खरीद"
+  },
+  {
+    "key": "chat.tab_selling",
+    "en": "Selling",
+    "hi": "बिक्री"
+  },
+  {
+    "key": "chat.search_customer_placeholder",
+    "en": "Search customer conversations...",
+    "hi": "ग्राहक बातचीत में खोजें..."
+  },
+  {
+    "key": "chat.search_seller_placeholder",
+    "en": "Search by seller name or message...",
+    "hi": "विक्रेता के नाम या संदेश से खोजें..."
+  },
+  {
+    "key": "chat.no_active_chats",
+    "en": "No active chats yet",
+    "hi": "अभी कोई बातचीत नहीं है"
+  },
+  {
+    "key": "chat.no_active_chats_desc",
+    "en": "When you contact sellers or receive inquiries on your advertisements, conversations will show here!",
+    "hi": "जब आप विक्रेताओं से संपर्क करेंगे या आपके विज्ञापनों पर पूछताछ आएगी, तो वे यहाँ दिखाई देंगी!"
+  },
+  {
+    "key": "chat.explore_marketplace",
+    "en": "Explore Marketplace Ads",
+    "hi": "मंडी विज्ञापन देखें"
+  },
+  {
+    "key": "chat.quick_replies_label",
+    "en": "Quick Answers:",
+    "hi": "त्वरित उत्तर:"
+  },
+  {
+    "key": "chat.farmer_quick_1",
+    "en": "✓ Yes, fresh stock is available",
+    "hi": "✓ हाँ, ताज़ा स्टॉक उपलब्ध है"
+  },
+  {
+    "key": "chat.farmer_quick_2",
+    "en": "🚚 Delivery available tomorrow morning 7-9 AM",
+    "hi": "🚚 कल सुबह 7-9 AM डिलीवरी होगी"
+  },
+  {
+    "key": "chat.farmer_quick_3",
+    "en": "🤝 Wholesale discount on 20kg+",
+    "hi": "🤝 20kg+ पर थोक भाव मिलेगा"
+  },
+  {
+    "key": "chat.farmer_quick_4",
+    "en": "📍 Farm visit timing 3-6 PM",
+    "hi": "📍 फार्म विजिट का समय 3-6 PM"
+  },
+  {
+    "key": "chat.action_send_location",
+    "en": "Send Location",
+    "hi": "स्थान भेजें"
+  },
+  {
+    "key": "chat.action_send_location_msg",
+    "en": "📍 My delivery location is: {location}. When can we arrange delivery or pickup?",
+    "hi": "📍 मेरा डिलीवरी स्थान है: {location}। डिलीवरी या पिकअप की व्यवस्था कब हो सकती है?"
+  },
+  {
+    "key": "chat.action_share_phone",
+    "en": "Share Phone",
+    "hi": "फ़ोन नंबर भेजें"
+  },
+  {
+    "key": "chat.action_share_phone_msg",
+    "en": "📞 You can call or WhatsApp me directly at: {phone}",
+    "hi": "📞 आप मुझसे सीधे फ़ोन या व्हाट्सएप पर संपर्क कर सकते हैं: {phone}"
+  },
+  {
+    "key": "chat.action_final_price",
+    "en": "Final Price?",
+    "hi": "अंतिम भाव क्या है?"
+  },
+  {
+    "key": "chat.action_final_price_msg",
+    "en": "🤝 Hi! Could you please share your final best price for this?",
+    "hi": "🤝 नमस्ते! क्या आप कृपया इसके लिए अपना सबसे अच्छा अंतिम भाव बता सकते हैं?"
+  },
+  {
+    "key": "chat.view_ad",
+    "en": "View Ad",
+    "hi": "विज्ञापन देखें"
+  },
+  {
+    "key": "chat.copied_clipboard",
+    "en": "Copied \"{text}\" to clipboard!",
+    "hi": "क्लिपबोर्ड पर कॉपी किया गया: \"{text}\""
+  },
+  {
+    "key": "chat.initial_product_inquiry",
+    "en": "Hi {farmer}, is {product} available for delivery today?",
+    "hi": "नमस्ते {farmer} जी, क्या {product} आज डिलीवरी के लिए उपलब्ध है?"
+  },
+  {
+    "key": "roles.admin",
+    "en": "Admin",
+    "hi": "प्रशासक"
+  },
+  {
+    "key": "roles.farmer",
+    "en": "Farmer",
+    "hi": "किसान"
+  },
+  {
+    "key": "roles.buyer",
+    "en": "Buyer",
+    "hi": "खरीदार"
+  },
+  {
+    "key": "home.all_ads",
+    "en": "All Ads",
+    "hi": "सभी विज्ञापन"
+  },
+  {
+    "key": "home.filter_urgent",
+    "en": "🔥 Urgent",
+    "hi": "🔥 जल्दी बेचना है"
+  },
+  {
+    "key": "home.filter_featured",
+    "en": "⚡ Featured",
+    "hi": "⚡ टॉप विज्ञापन"
+  },
+  {
+    "key": "home.filter_verified",
+    "en": "🛡️ Verified Farmers",
+    "hi": "🛡️ सत्यापित किसान"
+  },
+  {
+    "key": "home.snap_and_list",
+    "en": "Snap & List Crop",
+    "hi": "फसल लिस्ट करें"
+  },
+  {
+    "key": "home.post_requirement",
+    "en": "Need Crop (B2B)",
+    "hi": "फसल मांगें (B2B)"
+  },
+  {
+    "key": "home.post_requirement_sub",
+    "en": "Post bulk request",
+    "hi": "थोक मांग भेजें"
+  },
+  {
+    "key": "home.pull_refreshing",
+    "en": "Refreshing mandi rates...",
+    "hi": "ताजा भाव लोड हो रहे हैं..."
+  },
+  {
+    "key": "home.pull_release",
+    "en": "Release to refresh",
+    "hi": "ताज़ा करने के लिए छोड़ें"
+  },
+  {
+    "key": "home.pull_down",
+    "en": "Pull down to refresh",
+    "hi": "ताज़ा करने के लिए नीचे खींचें"
+  },
+  {
+    "key": "home.voice_listening",
+    "en": "🎙️ Listening... (e.g. Tomato, Basmati Paddy, Potato)",
+    "hi": "🎙️ बोलिए... (उदा. टमाटर, बासमती धान, आलू)"
+  },
+  {
+    "key": "home.all_india",
+    "en": "All India",
+    "hi": "अखिल भारतीय"
+  },
+  {
+    "key": "home.sell_free",
+    "en": "Sell Free",
+    "hi": "मुफ़्त बेचें"
+  },
+  {
+    "key": "ad.similar_ads",
+    "en": "Similar Advertisements",
+    "hi": "संबंधित विज्ञापन"
+  },
+  {
+    "key": "ad.safety_tips",
+    "en": "Safety Tips for Buyers",
+    "hi": "खरीदारों के लिए सुरक्षा सुझाव"
+  },
+  {
+    "key": "ad.direct_farm_price",
+    "en": "Direct Farm Price",
+    "hi": "सीधे किसान से भाव"
+  },
+  {
+    "key": "ad.bulk_pricing",
+    "en": "Bulk Volume Pricing",
+    "hi": "थोक मूल्य छूट"
+  },
+  {
+    "key": "ad.your_ad",
+    "en": "Your Advertisement",
+    "hi": "आपका विज्ञापन"
+  },
+  {
+    "key": "ad.sold_out_banner",
+    "en": "This produce is SOLD OUT.",
+    "hi": "यह फसल/उत्पाद बिक चुका है।"
+  },
+  {
+    "key": "ad.relist",
+    "en": "Relist Ad",
+    "hi": "विज्ञापन पुनः सक्रिय करें"
+  },
+  {
+    "key": "ad.mark_sold",
+    "en": "Mark as Sold",
+    "hi": "बिका हुआ चिह्नित करें"
+  },
+  {
+    "key": "ad.status_sold",
+    "en": "SOLD",
+    "hi": "बिक चुका"
+  },
+  {
+    "key": "ad.offered_rate",
+    "en": "Offered Rate",
+    "hi": "प्रस्तावित भाव"
+  },
+  {
+    "key": "ad.delete_title",
+    "en": "Delete Advertisement?",
+    "hi": "विज्ञापन हटाएं?"
+  },
+  {
+    "key": "ad.delete_desc",
+    "en": "Are you sure you want to remove \"{name}\" from the marketplace? This cannot be undone.",
+    "hi": "क्या आप वाकई मंडी से \"{name}\" हटाना चाहते हैं? इसे वापस नहीं किया जा सकता।"
+  },
+  {
+    "key": "profile.my_ads",
+    "en": "My Advertisements",
+    "hi": "मेरे विज्ञापन"
+  },
+  {
+    "key": "profile.saved_ads",
+    "en": "Saved Advertisements",
+    "hi": "सहेजे गए विज्ञापन"
+  },
+  {
+    "key": "profile.security",
+    "en": "Security & Credentials",
+    "hi": "सुरक्षा और क्रेडेंशियल"
+  },
+  {
+    "key": "profile.faqs",
+    "en": "Frequently Asked Questions",
+    "hi": "अक्सर पूछे जाने वाले सवाल"
+  },
+  {
+    "key": "orders.farmer_fulfillment_title",
+    "en": "Farmer Order Dispatch & Fulfillment",
+    "hi": "किसान ऑर्डर प्रेषण एवं पूर्ति"
+  },
+  {
+    "key": "orders.farmer_fulfillment_sub",
+    "en": "Accept incoming harvest orders, update packaging status & generate delivery gate passes",
+    "hi": "प्राप्त फसल ऑर्डरों को स्वीकारें, पैकिंग स्थिति अपडेट करें और गेट पास बनाएं"
+  },
+  {
+    "key": "orders.search_placeholder",
+    "en": "Search by order ID, customer name, phone, or crop item...",
+    "hi": "ऑर्डर नंबर, ग्राहक का नाम, फोन या फसल खोजें..."
+  },
+  {
+    "key": "orders.tab_all",
+    "en": "All Orders",
+    "hi": "सभी ऑर्डर"
+  },
+  {
+    "key": "orders.tab_new",
+    "en": "New",
+    "hi": "नए"
+  },
+  {
+    "key": "orders.tab_packing",
+    "en": "Packing",
+    "hi": "पैकिंग"
+  },
+  {
+    "key": "orders.tab_delivery",
+    "en": "Out for Delivery",
+    "hi": "डिलीवरी पर"
+  },
+  {
+    "key": "orders.tab_completed",
+    "en": "Completed",
+    "hi": "पूर्ण"
+  },
+  {
+    "key": "orders.no_orders_stage",
+    "en": "No orders found in this stage",
+    "hi": "इस चरण में कोई ऑर्डर नहीं है"
+  },
+  {
+    "key": "orders.no_orders_sub",
+    "en": "When buyers place orders for your crops, they will automatically appear here with real-time alerts.",
+    "hi": "जब खरीदार आपकी फसलों के लिए ऑर्डर देंगे, वे यहां लाइव अलर्ट के साथ दिखाई देंगे।"
+  },
+  {
+    "key": "orders.customer_orders_title",
+    "en": "Orders & Procurements",
+    "hi": "ऑर्डर एवं फसल खरीद"
+  },
+  {
+    "key": "orders.customer_orders_sub",
+    "en": "Track fresh farm deliveries, review farmers, or download tax invoices",
+    "hi": "ताजा फसल डिलीवरी ट्रैक करें, रेटिंग दें और बिल डाउनलोड करें"
+  },
+  {
+    "key": "orders.tab_active_intransit",
+    "en": "Active In-Transit",
+    "hi": "सक्रिय डिलीवरी"
+  },
+  {
+    "key": "orders.tab_past_delivered",
+    "en": "Past Delivered",
+    "hi": "पूर्ण ऑर्डर"
+  },
+  {
+    "key": "orders.search_customer_placeholder",
+    "en": "Search by order number, farmer name, crop...",
+    "hi": "ऑर्डर नंबर, किसान का नाम या फसल खोजें..."
+  },
+  {
+    "key": "orders.no_active_orders",
+    "en": "No active harvest orders",
+    "hi": "कोई सक्रिय ऑर्डर नहीं है"
+  },
+  {
+    "key": "orders.no_completed_orders",
+    "en": "No past delivered orders",
+    "hi": "कोई पुराना ऑर्डर नहीं है"
+  },
+  {
+    "key": "orders.track_harvest",
+    "en": "Track Harvest",
+    "hi": "फसल ट्रैक करें"
+  },
+  {
+    "key": "orders.live_chat",
+    "en": "Live Chat",
+    "hi": "लाइव चैट"
+  },
+  {
+    "key": "orders.reorder_harvest",
+    "en": "Reorder Harvest",
+    "hi": "दोबारा मंगाएं"
+  },
+  {
+    "key": "orders.invoice",
+    "en": "Invoice",
+    "hi": "बिल/रसीद"
+  },
+  {
+    "key": "orders.raise_dispute",
+    "en": "Raise Dispute",
+    "hi": "शिकायत दर्ज करें"
+  },
+  {
+    "key": "orders.cancel_order",
+    "en": "Cancel Order",
+    "hi": "ऑर्डर रद्द करें"
+  },
+  {
+    "key": "orders.dispatch_title",
+    "en": "Dispatch & Handover to Kisan Logistics",
+    "hi": "किसान लॉजिस्टिक्स को सुपुर्दगी"
+  },
+  {
+    "key": "orders.gate_pass_title",
+    "en": "Kisan Mandi Delivery Gate Pass",
+    "hi": "किसान मंडी डिलीवरी गेट पास"
+  },
+  {
+    "key": "orders.challan_print",
+    "en": "Print Challan",
+    "hi": "चालान प्रिंट करें"
+  },
+  {
+    "key": "cart.empty_title",
+    "en": "Your basket is empty",
+    "hi": "आपकी टोकरी खाली है"
+  },
+  {
+    "key": "cart.empty_desc",
+    "en": "Explore fresh farm listings and support local growers directly.",
+    "hi": "ताज़ा खेत लिस्टिंग देखें और स्थानीय किसानों से सीधा खरीदें।"
+  },
+  {
+    "key": "cart.browse_btn",
+    "en": "Browse Marketplace",
+    "hi": "मार्केटप्लेस देखें"
+  },
+  {
+    "key": "cart.free_delivery_unlocked",
+    "en": "You unlocked FREE Direct-Farm Delivery!",
+    "hi": "मुफ्त फार्म डिलीवरी अनलॉक हो गई!"
+  },
+  {
+    "key": "cart.add_more_for_free",
+    "en": "Add {amount} more for FREE Delivery",
+    "hi": "मुफ्त डिलीवरी के लिए {amount} और जोड़ें"
+  },
+  {
+    "key": "cart.order_summary",
+    "en": "Order Summary",
+    "hi": "ऑर्डर सारांश"
+  },
+  {
+    "key": "cart.proceed_to_checkout",
+    "en": "Proceed to Delivery & Payment",
+    "hi": "डिलीवरी व भुगतान के लिए आगे बढ़ें"
+  },
+  {
+    "key": "cart.farmer_tip",
+    "en": "Farmer Tip",
+    "hi": "किसान टिप"
+  },
+  {
+    "key": "favorites.title",
+    "en": "Saved Listings",
+    "hi": "पसंदीदा लिस्टिंग"
+  },
+  {
+    "key": "favorites.subtitle",
+    "en": "{count} products saved to your favorites",
+    "hi": "{count} उत्पाद आपकी पसंदीदा सूची में हैं"
+  },
+  {
+    "key": "favorites.empty_title",
+    "en": "Save products you like",
+    "hi": "पसंदीदा उत्पाद सहेजें"
+  },
+  {
+    "key": "favorites.empty_desc",
+    "en": "Tap the heart icon on any vegetable or farm product to save it here for quick reordering.",
+    "hi": "किसी भी फसल या उत्पाद पर दिल का निशान दबाकर उसे यहां सहेजें।"
+  },
+  {
+    "key": "filter.title",
+    "en": "Filter Listings",
+    "hi": "फिल्टर लगाएं"
+  },
+  {
+    "key": "filter.reset",
+    "en": "Reset",
+    "hi": "रीसेट"
+  },
+  {
+    "key": "filter.category",
+    "en": "Category",
+    "hi": "श्रेणी"
+  },
+  {
+    "key": "filter.distance",
+    "en": "Distance Radius",
+    "hi": "दूरी दायरा"
+  },
+  {
+    "key": "filter.price_range",
+    "en": "Price Range",
+    "hi": "मूल्य सीमा"
+  },
+  {
+    "key": "filter.apply",
+    "en": "Apply Filters ({count})",
+    "hi": "फिल्टर लागू करें ({count})"
+  },
+  {
+    "key": "pwa.install_title",
+    "en": "Install HALDHAR Mandi App",
+    "hi": "HALDHAR मंडी ऐप इंस्टॉल करें"
+  },
+  {
+    "key": "pwa.install_desc",
+    "en": "Direct kisan mandi prices, instant chat & 1-tap fast access.",
+    "hi": "सीधे किसान से भाव, चैट और 1-टैप में तेज पहुंच।"
+  },
+  {
+    "key": "pwa.install_btn",
+    "en": "Install App",
+    "hi": "ऐप इंस्टॉल करें"
+  },
+  {
+    "key": "pwa.ios_hint",
+    "en": "To install: Tap Share ⎋ then select \"Add to Home Screen\" ⊞",
+    "hi": "इंस्टॉल करने के लिए: Share ⎋ दबाएं और \"Add to Home Screen\" ⊞ चुनें"
+  },
+  {
+    "key": "pwa.installed",
+    "en": "HALDHAR App is ready to use offline!",
+    "hi": "HALDHAR ऐप ऑफलाइन उपयोग के लिए तैयार है!"
+  },
+  {
+    "key": "auth.sign_in",
+    "en": "Sign In",
+    "hi": "साइन इन करें"
+  },
+  {
+    "key": "auth.register",
+    "en": "Register",
+    "hi": "पंजीकरण करें"
+  },
+  {
+    "key": "auth.create_account",
+    "en": "Create Account",
+    "hi": "नया खाता बनाएं"
+  },
+  {
+    "key": "auth.sign_in_to_continue",
+    "en": "Sign In to Continue",
+    "hi": "आगे बढ़ने के लिए साइन इन करें"
+  },
+  {
+    "key": "auth.sign_in_sub",
+    "en": "Sign in with your email or continue with Google",
+    "hi": "अपने ईमेल से साइन इन करें या गूगल से जारी रखें"
+  },
+  {
+    "key": "auth.register_as",
+    "en": "I want to register as:",
+    "hi": "खाता प्रकार चुनें:"
+  },
+  {
+    "key": "auth.customer_role",
+    "en": "Customer",
+    "hi": "ग्राहक"
+  },
+  {
+    "key": "auth.customer_role_desc",
+    "en": "Buy fresh farm food",
+    "hi": "ताजा फल और सब्जियां खरीदें"
+  },
+  {
+    "key": "auth.farmer_role",
+    "en": "Farmer",
+    "hi": "किसान"
+  },
+  {
+    "key": "auth.farmer_role_desc",
+    "en": "Sell your harvest",
+    "hi": "अपनी ताजा फसल बेचें"
+  },
+  {
+    "key": "auth.reset_password",
+    "en": "Reset Password",
+    "hi": "पासवर्ड रीसेट करें"
+  },
+  {
+    "key": "auth.back_to_signin",
+    "en": "← Back to Sign In",
+    "hi": "← साइन इन पर वापस जाएं"
+  },
+  {
+    "key": "auth.reset_sub",
+    "en": "Enter your account email to receive a 6-digit recovery code.",
+    "hi": "6-अंकीय सत्यापन कोड प्राप्त करने के लिए अपना ईमेल दर्ज करें।"
+  },
+  {
+    "key": "auth.email_label",
+    "en": "Email Address",
+    "hi": "ईमेल पता"
+  },
+  {
+    "key": "auth.email_placeholder",
+    "en": "e.g. you@gmail.com",
+    "hi": "उदा. you@gmail.com"
+  },
+  {
+    "key": "auth.get_reset_code",
+    "en": "Get Reset Code",
+    "hi": "सत्यापन कोड प्राप्त करें"
+  },
+  {
+    "key": "auth.verification_code",
+    "en": "Your Verification Code:",
+    "hi": "आपका सत्यापन कोड:"
+  },
+  {
+    "key": "auth.code_label",
+    "en": "6-Digit Verification Code",
+    "hi": "6-अंकीय सत्यापन कोड"
+  },
+  {
+    "key": "auth.new_password",
+    "en": "New Password",
+    "hi": "नया पासवर्ड"
+  },
+  {
+    "key": "auth.reset_and_enter",
+    "en": "Reset Password & Enter",
+    "hi": "पासवर्ड बदलें और प्रवेश करें"
+  },
+  {
+    "key": "auth.already_account",
+    "en": "Already have an account? Sign In",
+    "hi": "पहले से खाता है? साइन इन करें"
+  },
+  {
+    "key": "auth.new_user",
+    "en": "New user? Register free",
+    "hi": "नए उपयोगकर्ता? निःशुल्क खाता बनाएं"
+  },
+  {
+    "key": "auth.username_label",
+    "en": "Unique Username",
+    "hi": "यूज़रनेम"
+  },
+  {
+    "key": "auth.username_sub",
+    "en": "3-30 letters, numbers, dot, or underscore. Permanent profile handle.",
+    "hi": "3-30 अक्षर, संख्याएं, डॉट या अंडरस्कोर। स्थायी प्रोफ़ाइल हैंडल।"
+  },
+  {
+    "key": "auth.fullname_label",
+    "en": "Your Full Name",
+    "hi": "आपका पूरा नाम"
+  },
+  {
+    "key": "auth.login_identifier_label",
+    "en": "Username, Email, or Mobile Number",
+    "hi": "यूज़रनेम, ईमेल या मोबाइल नंबर"
+  },
+  {
+    "key": "auth.login_identifier_hint",
+    "en": "Log in with username, registered email, or mobile number and password",
+    "hi": "यूज़रनेम, रजिस्टर्ड ईमेल या मोबाइल नंबर और पासवर्ड से लॉगिन करें"
+  },
+  {
+    "key": "auth.phone_label",
+    "en": "Phone Number",
+    "hi": "मोबाइल नंबर"
+  },
+  {
+    "key": "auth.password_label",
+    "en": "Password",
+    "hi": "पासवर्ड"
+  },
+  {
+    "key": "auth.forgot_password",
+    "en": "Forgot Password?",
+    "hi": "पासवर्ड भूल गए?"
+  },
+  {
+    "key": "auth.sign_in_btn",
+    "en": "Sign In to HALDHAR",
+    "hi": "साइन इन करें"
+  },
+  {
+    "key": "auth.create_account_btn",
+    "en": "Create Account & Enter",
+    "hi": "खाता बनाएं और प्रवेश करें"
+  },
+  {
+    "key": "auth.explore_guest",
+    "en": "Explore as Guest →",
+    "hi": "बिना लॉगिन देखे →"
+  },
+  {
+    "key": "auth.skip",
+    "en": "Skip →",
+    "hi": "छोड़ें →"
+  },
+  {
+    "key": "auth.continue",
+    "en": "Continue",
+    "hi": "जारी रखें"
+  },
+  {
+    "key": "auth.start_shopping",
+    "en": "Start Shopping",
+    "hi": "खरीदारी शुरू करें"
+  },
+  {
+    "key": "auth.or",
+    "en": "or",
+    "hi": "या"
+  },
+  {
+    "key": "post_ad.add_photos",
+    "en": "Add Real Photos of Your Crop",
+    "hi": "अपनी फसल की वास्तविक फोटो जोड़ें"
+  },
+  {
+    "key": "post_ad.camera",
+    "en": "Open Camera",
+    "hi": "कैमरा खोलें"
+  },
+  {
+    "key": "post_ad.gallery",
+    "en": "Gallery",
+    "hi": "गैलरी से चुनें"
+  },
+  {
+    "key": "post_ad.fulfillment",
+    "en": "Fulfillment Arrangements",
+    "hi": "डिलीवरी और उठान सुविधाएं"
+  },
+  {
+    "key": "post_ad.show_phone",
+    "en": "Show my phone number on this ad",
+    "hi": "विज्ञापन पर मेरा फोन नंबर दिखाएं"
+  },
+  {
+    "key": "categories.all_categories",
+    "en": "All Categories",
+    "hi": "सभी श्रेणियां"
+  },
+  {
+    "key": "categories.livestock",
+    "en": "Livestock & Cattle",
+    "hi": "पशुधन एवं मवेशी"
+  },
+  {
+    "key": "categories.vegetables",
+    "en": "Fresh Vegetables",
+    "hi": "ताज़ी सब्जियां"
+  },
+  {
+    "key": "categories.grains",
+    "en": "Grains & Pulses",
+    "hi": "अनाज एवं दालें"
+  },
+  {
+    "key": "categories.dairy",
+    "en": "Dairy & Fresh Milk",
+    "hi": "दुग्ध उत्पाद एवं ताजा दूध"
+  },
+  {
+    "key": "search.recent_title",
+    "en": "Recent Searches",
+    "hi": "हाल की खोजें"
+  },
+  {
+    "key": "search.popular_title",
+    "en": "Popular Farm Searches",
+    "hi": "लोकप्रिय खोजें"
+  },
+  {
+    "key": "requirement.post_title",
+    "en": "Post Requirement",
+    "hi": "फसल मांग दर्ज करें"
+  },
+  {
+    "key": "requirement.negotiable_note",
+    "en": "Price is negotiable with farmers",
+    "hi": "किसानों के साथ मोल-भाव स्वीकार्य"
+  },
+  {
+    "key": "requirement.broadcast_btn",
+    "en": "Broadcast Requirement",
+    "hi": "मांग किसानों को भेजें"
+  },
+  {
+    "key": "alerts.crop_price_title",
+    "en": "Crop & Price Alerts",
+    "hi": "स्मार्ट फसल एवं भाव अलर्ट"
+  },
+  {
+    "key": "home.hero_badge",
+    "en": "0% Commission Direct Mandi",
+    "hi": "0% कमीशन सीधी मंडी"
+  },
+  {
+    "key": "home.hero_title",
+    "en": "Sell Your Fresh Harvest in 30 Seconds!",
+    "hi": "अपनी फसल 30 सेकंड में सीधे बेचें!"
+  },
+  {
+    "key": "home.hero_sub",
+    "en": "Direct wholesale buyers & instant UPI payment at your farm gate.",
+    "hi": "थोक खरीदार और आपके खेत पर सीधा भुगतान।"
+  },
+  {
+    "key": "home.post_ad",
+    "en": "+ Post Ad",
+    "hi": "+ विज्ञापन डालें"
+  },
+  {
+    "key": "logo.tagline",
+    "en": "Direct from farmers",
+    "hi": "खेत से सीधे आपके घर"
+  }
+]

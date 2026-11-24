@@ -603,4 +603,6 @@ export const hiTranslations: TranslationDictionary = {
   'home.hero_sub': 'थोक खरीदार और आपके खेत पर सीधा भुगतान।',
   'home.post_ad': '+ विज्ञापन डालें',
   'logo.tagline': 'खेत से सीधे आपके घर',
+  'home.showing_near': '{location} और आसपास के विज्ञापन',
+  'home.show_all_india': 'पूरा भारत देखें',
 };

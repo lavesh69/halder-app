@@ -16135,9 +16135,9 @@ var require_side_channel = __commonJS({
   }
 });
 
-// node_modules/body-parser/node_modules/qs/lib/formats.js
+// node_modules/qs/lib/formats.js
 var require_formats = __commonJS({
-  "node_modules/body-parser/node_modules/qs/lib/formats.js"(exports, module) {
+  "node_modules/qs/lib/formats.js"(exports, module) {
     "use strict";
     var replace = String.prototype.replace;
     var percentTwenties = /%20/g;
@@ -16161,9 +16161,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/body-parser/node_modules/qs/lib/utils.js
+// node_modules/qs/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/body-parser/node_modules/qs/lib/utils.js"(exports, module) {
+  "node_modules/qs/lib/utils.js"(exports, module) {
     "use strict";
     var formats = require_formats();
     var getSideChannel = require_side_channel();
@@ -16566,9 +16566,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/body-parser/node_modules/qs/lib/stringify.js
+// node_modules/qs/lib/stringify.js
 var require_stringify = __commonJS({
-  "node_modules/body-parser/node_modules/qs/lib/stringify.js"(exports, module) {
+  "node_modules/qs/lib/stringify.js"(exports, module) {
     "use strict";
     var getSideChannel = require_side_channel();
     var utils = require_utils();
@@ -16863,9 +16863,9 @@ var require_stringify = __commonJS({
   }
 });
 
-// node_modules/body-parser/node_modules/qs/lib/parse.js
+// node_modules/qs/lib/parse.js
 var require_parse = __commonJS({
-  "node_modules/body-parser/node_modules/qs/lib/parse.js"(exports, module) {
+  "node_modules/qs/lib/parse.js"(exports, module) {
     "use strict";
     var getSideChannel = require_side_channel();
     var utils = require_utils();
@@ -17263,9 +17263,9 @@ var require_parse = __commonJS({
   }
 });
 
-// node_modules/body-parser/node_modules/qs/lib/index.js
+// node_modules/qs/lib/index.js
 var require_lib2 = __commonJS({
-  "node_modules/body-parser/node_modules/qs/lib/index.js"(exports, module) {
+  "node_modules/qs/lib/index.js"(exports, module) {
     "use strict";
     var stringify = require_stringify();
     var parse2 = require_parse();
@@ -18667,973 +18667,13 @@ var require_init = __commonJS({
   }
 });
 
-// node_modules/qs/lib/formats.js
-var require_formats2 = __commonJS({
-  "node_modules/qs/lib/formats.js"(exports, module) {
-    "use strict";
-    var replace = String.prototype.replace;
-    var percentTwenties = /%20/g;
-    var Format = {
-      RFC1738: "RFC1738",
-      RFC3986: "RFC3986"
-    };
-    module.exports = {
-      "default": Format.RFC3986,
-      formatters: {
-        RFC1738: function(value) {
-          return replace.call(value, percentTwenties, "+");
-        },
-        RFC3986: function(value) {
-          return String(value);
-        }
-      },
-      RFC1738: Format.RFC1738,
-      RFC3986: Format.RFC3986
-    };
-  }
-});
-
-// node_modules/qs/lib/utils.js
-var require_utils2 = __commonJS({
-  "node_modules/qs/lib/utils.js"(exports, module) {
-    "use strict";
-    var formats = require_formats2();
-    var getSideChannel = require_side_channel();
-    var defineProperty = require_es_define_property();
-    var has = Object.prototype.hasOwnProperty;
-    var isArray = Array.isArray;
-    var overflowChannel = getSideChannel();
-    var markOverflow = function markOverflow2(obj, maxIndex) {
-      overflowChannel.set(obj, maxIndex);
-      return obj;
-    };
-    var isOverflow = function isOverflow2(obj) {
-      return overflowChannel.has(obj);
-    };
-    var getMaxIndex = function getMaxIndex2(obj) {
-      return overflowChannel.get(obj);
-    };
-    var setMaxIndex = function setMaxIndex2(obj, maxIndex) {
-      overflowChannel.set(obj, maxIndex);
-    };
-    var hexTable = (function() {
-      var array2 = [];
-      for (var i5 = 0; i5 < 256; ++i5) {
-        array2[array2.length] = "%" + ((i5 < 16 ? "0" : "") + i5.toString(16)).toUpperCase();
-      }
-      return array2;
-    })();
-    var compactQueue = function compactQueue2(queue) {
-      while (queue.length > 1) {
-        var item = queue.pop();
-        var obj = item.obj[item.prop];
-        if (isArray(obj)) {
-          var compacted = [];
-          for (var j5 = 0; j5 < obj.length; ++j5) {
-            if (typeof obj[j5] !== "undefined") {
-              compacted[compacted.length] = obj[j5];
-            }
-          }
-          item.obj[item.prop] = compacted;
-        }
-      }
-    };
-    var arrayToObject = function arrayToObject2(source, options) {
-      var obj = options && options.plainObjects ? { __proto__: null } : {};
-      for (var i5 = 0; i5 < source.length; ++i5) {
-        if (typeof source[i5] !== "undefined") {
-          obj[i5] = source[i5];
-        }
-      }
-      return obj;
-    };
-    var setProperty = function setProperty2(obj, key, value) {
-      if (key === "__proto__" && defineProperty) {
-        defineProperty(obj, key, {
-          configurable: true,
-          enumerable: true,
-          value,
-          writable: true
-        });
-      } else {
-        obj[key] = value;
-      }
-    };
-    var merge2 = function merge3(target, source, options) {
-      if (!source) {
-        return target;
-      }
-      if (typeof source !== "object" && typeof source !== "function") {
-        if (isArray(target)) {
-          var nextIndex = target.length;
-          if (options && typeof options.arrayLimit === "number" && nextIndex >= options.arrayLimit) {
-            if (options.throwOnLimitExceeded) {
-              throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-            }
-            return markOverflow(arrayToObject(target.concat(source), options), nextIndex);
-          }
-          target[nextIndex] = source;
-        } else if (target && typeof target === "object") {
-          if (isOverflow(target)) {
-            var newIndex = getMaxIndex(target) + 1;
-            target[newIndex] = source;
-            setMaxIndex(target, newIndex);
-          } else if (options && options.strictMerge) {
-            return [target, source];
-          } else if (options && (options.plainObjects || options.allowPrototypes) || !has.call(Object.prototype, source)) {
-            target[source] = true;
-          }
-        } else {
-          return [target, source];
-        }
-        return target;
-      }
-      if (!target || typeof target !== "object") {
-        if (isOverflow(source)) {
-          var sourceKeys = Object.keys(source);
-          var result = options && options.plainObjects ? { __proto__: null, 0: target } : { 0: target };
-          for (var m3 = 0; m3 < sourceKeys.length; m3++) {
-            var oldKey = parseInt(sourceKeys[m3], 10);
-            result[oldKey + 1] = source[sourceKeys[m3]];
-          }
-          return markOverflow(result, getMaxIndex(source) + 1);
-        }
-        var combined = [target].concat(source);
-        if (options && typeof options.arrayLimit === "number" && combined.length > options.arrayLimit) {
-          if (options.throwOnLimitExceeded) {
-            throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-          }
-          return markOverflow(arrayToObject(combined, options), combined.length - 1);
-        }
-        return combined;
-      }
-      var mergeTarget = target;
-      if (isArray(target) && !isArray(source)) {
-        mergeTarget = arrayToObject(target, options);
-      }
-      if (isArray(target) && isArray(source)) {
-        source.forEach(function(item, i5) {
-          if (has.call(target, i5)) {
-            var targetItem = target[i5];
-            if (targetItem && typeof targetItem === "object" && item && typeof item === "object") {
-              target[i5] = merge3(targetItem, item, options);
-            } else {
-              target[target.length] = item;
-            }
-          } else {
-            target[i5] = item;
-          }
-        });
-        if (options && typeof options.arrayLimit === "number" && target.length > options.arrayLimit) {
-          if (options.throwOnLimitExceeded) {
-            throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-          }
-          return markOverflow(arrayToObject(target, options), target.length - 1);
-        }
-        return target;
-      }
-      return Object.keys(source).reduce(function(acc, key) {
-        var value = source[key];
-        if (has.call(acc, key)) {
-          setProperty(acc, key, merge3(acc[key], value, options));
-        } else {
-          setProperty(acc, key, value);
-        }
-        if (isOverflow(source) && !isOverflow(acc)) {
-          markOverflow(acc, getMaxIndex(source));
-        }
-        if (isOverflow(acc)) {
-          var keyNum = parseInt(key, 10);
-          if (String(keyNum) === key && keyNum >= 0 && keyNum > getMaxIndex(acc)) {
-            setMaxIndex(acc, keyNum);
-          }
-        }
-        return acc;
-      }, mergeTarget);
-    };
-    var assign = function assignSingleSource(target, source) {
-      return Object.keys(source).reduce(function(acc, key) {
-        setProperty(acc, key, source[key]);
-        return acc;
-      }, target);
-    };
-    var decode2 = function(str, defaultDecoder, charset) {
-      var strWithoutPlus = str.replace(/\+/g, " ");
-      if (charset === "iso-8859-1") {
-        return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
-      }
-      try {
-        return decodeURIComponent(strWithoutPlus);
-      } catch (e5) {
-        return strWithoutPlus;
-      }
-    };
-    var limit = 1024;
-    var encode2 = function encode3(str, defaultEncoder, charset, kind, format2) {
-      if (str.length === 0) {
-        return str;
-      }
-      var string2 = str;
-      if (typeof str === "symbol") {
-        string2 = Symbol.prototype.toString.call(str);
-      } else if (typeof str !== "string") {
-        string2 = String(str);
-      }
-      if (charset === "iso-8859-1") {
-        return escape(string2).replace(/%u[0-9a-f]{4}/gi, function($0) {
-          return "%26%23" + parseInt($0.slice(2), 16) + "%3B";
-        });
-      }
-      var out = "";
-      for (var j5 = 0; j5 < string2.length; j5 += limit) {
-        var segment = string2.length >= limit ? string2.slice(j5, j5 + limit) : string2;
-        if (j5 + limit < string2.length) {
-          var last = segment.charCodeAt(segment.length - 1);
-          if (last >= 55296 && last <= 56319) {
-            segment = segment.slice(0, -1);
-            j5 -= 1;
-          }
-        }
-        var arr = [];
-        for (var i5 = 0; i5 < segment.length; ++i5) {
-          var c5 = segment.charCodeAt(i5);
-          if (c5 === 45 || c5 === 46 || c5 === 95 || c5 === 126 || c5 >= 48 && c5 <= 57 || c5 >= 65 && c5 <= 90 || c5 >= 97 && c5 <= 122 || format2 === formats.RFC1738 && (c5 === 40 || c5 === 41)) {
-            arr[arr.length] = segment.charAt(i5);
-            continue;
-          }
-          if (c5 < 128) {
-            arr[arr.length] = hexTable[c5];
-            continue;
-          }
-          if (c5 < 2048) {
-            arr[arr.length] = hexTable[192 | c5 >> 6] + hexTable[128 | c5 & 63];
-            continue;
-          }
-          if (c5 < 55296 || c5 >= 57344) {
-            arr[arr.length] = hexTable[224 | c5 >> 12] + hexTable[128 | c5 >> 6 & 63] + hexTable[128 | c5 & 63];
-            continue;
-          }
-          i5 += 1;
-          c5 = 65536 + ((c5 & 1023) << 10 | segment.charCodeAt(i5) & 1023);
-          arr[arr.length] = hexTable[240 | c5 >> 18] + hexTable[128 | c5 >> 12 & 63] + hexTable[128 | c5 >> 6 & 63] + hexTable[128 | c5 & 63];
-        }
-        out += arr.join("");
-      }
-      return out;
-    };
-    var compact = function compact2(value) {
-      var queue = [{ obj: { o: value }, prop: "o" }];
-      var refs = getSideChannel();
-      for (var i5 = 0; i5 < queue.length; ++i5) {
-        var item = queue[i5];
-        var obj = item.obj[item.prop];
-        var keys = Object.keys(obj);
-        for (var j5 = 0; j5 < keys.length; ++j5) {
-          var key = keys[j5];
-          var val = obj[key];
-          if (typeof val === "object" && val !== null && !refs.has(val)) {
-            queue[queue.length] = { obj, prop: key };
-            refs.set(val, true);
-          }
-        }
-      }
-      compactQueue(queue);
-      return value;
-    };
-    var isRegExp = function isRegExp2(obj) {
-      return Object.prototype.toString.call(obj) === "[object RegExp]";
-    };
-    var isBuffer = function isBuffer2(obj) {
-      if (!obj || typeof obj !== "object") {
-        return false;
-      }
-      return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
-    };
-    var combine = function combine2(a5, b5, arrayLimit, plainObjects, throwOnLimitExceeded) {
-      if (isOverflow(a5)) {
-        if (throwOnLimitExceeded) {
-          throw new RangeError("Array limit exceeded. Only " + arrayLimit + " element" + (arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-        }
-        var newIndex = getMaxIndex(a5) + 1;
-        a5[newIndex] = b5;
-        setMaxIndex(a5, newIndex);
-        return a5;
-      }
-      var result = [].concat(a5, b5);
-      if (result.length > arrayLimit) {
-        if (throwOnLimitExceeded) {
-          throw new RangeError("Array limit exceeded. Only " + arrayLimit + " element" + (arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-        }
-        return markOverflow(arrayToObject(result, { plainObjects }), result.length - 1);
-      }
-      return result;
-    };
-    var maybeMap = function maybeMap2(val, fn) {
-      if (isArray(val)) {
-        var mapped = [];
-        for (var i5 = 0; i5 < val.length; i5 += 1) {
-          mapped[mapped.length] = fn(val[i5]);
-        }
-        return mapped;
-      }
-      return fn(val);
-    };
-    module.exports = {
-      arrayToObject,
-      assign,
-      combine,
-      compact,
-      decode: decode2,
-      encode: encode2,
-      isBuffer,
-      isOverflow,
-      isRegExp,
-      markOverflow,
-      maybeMap,
-      merge: merge2
-    };
-  }
-});
-
-// node_modules/qs/lib/stringify.js
-var require_stringify2 = __commonJS({
-  "node_modules/qs/lib/stringify.js"(exports, module) {
-    "use strict";
-    var getSideChannel = require_side_channel();
-    var utils = require_utils2();
-    var formats = require_formats2();
-    var has = Object.prototype.hasOwnProperty;
-    var arrayPrefixGenerators = {
-      brackets: function brackets(prefix) {
-        return prefix + "[]";
-      },
-      comma: "comma",
-      indices: function indices(prefix, key) {
-        return prefix + "[" + key + "]";
-      },
-      repeat: function repeat(prefix) {
-        return prefix;
-      }
-    };
-    var isArray = Array.isArray;
-    var push = Array.prototype.push;
-    var pushToArray = function(arr, valueOrArray) {
-      push.apply(arr, isArray(valueOrArray) ? valueOrArray : [valueOrArray]);
-    };
-    var toISO = Date.prototype.toISOString;
-    var defaultFormat = formats["default"];
-    var defaults = {
-      addQueryPrefix: false,
-      allowDots: false,
-      allowEmptyArrays: false,
-      arrayFormat: "indices",
-      charset: "utf-8",
-      charsetSentinel: false,
-      commaRoundTrip: false,
-      delimiter: "&",
-      encode: true,
-      encodeDotInKeys: false,
-      encoder: utils.encode,
-      encodeValuesOnly: false,
-      filter: void 0,
-      format: defaultFormat,
-      formatter: formats.formatters[defaultFormat],
-      // deprecated
-      indices: false,
-      serializeDate: function serializeDate(date2) {
-        return toISO.call(date2);
-      },
-      skipNulls: false,
-      strictNullHandling: false
-    };
-    var isNonNullishPrimitive = function isNonNullishPrimitive2(v) {
-      return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
-    };
-    var sentinel = {};
-    var stringify = function stringify2(object2, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder2, filter, sort, allowDots, serializeDate, format2, formatter, encodeValuesOnly, charset, sideChannel) {
-      var obj = object2;
-      var tmpSc = sideChannel;
-      var step = 0;
-      var findFlag = false;
-      while ((tmpSc = tmpSc.get(sentinel)) !== void 0 && !findFlag) {
-        var pos = tmpSc.get(object2);
-        step += 1;
-        if (typeof pos !== "undefined") {
-          if (pos === step) {
-            throw new RangeError("Cyclic object value");
-          } else {
-            findFlag = true;
-          }
-        }
-        if (typeof tmpSc.get(sentinel) === "undefined") {
-          step = 0;
-        }
-      }
-      if (typeof filter === "function") {
-        obj = filter(prefix, obj);
-      } else if (obj instanceof Date) {
-        obj = serializeDate(obj);
-      } else if (generateArrayPrefix === "comma" && isArray(obj)) {
-        obj = utils.maybeMap(obj, function(value2) {
-          if (value2 instanceof Date) {
-            return serializeDate(value2);
-          }
-          return value2;
-        });
-      }
-      if (obj === null) {
-        if (strictNullHandling) {
-          return formatter(encoder2 && !encodeValuesOnly ? encoder2(prefix, defaults.encoder, charset, "key", format2) : prefix);
-        }
-        obj = "";
-      }
-      if (isNonNullishPrimitive(obj) || utils.isBuffer(obj)) {
-        if (encoder2) {
-          var keyValue = encodeValuesOnly ? prefix : encoder2(prefix, defaults.encoder, charset, "key", format2);
-          return [formatter(keyValue) + "=" + formatter(encoder2(obj, defaults.encoder, charset, "value", format2))];
-        }
-        return [formatter(prefix) + "=" + formatter(String(obj))];
-      }
-      var values = [];
-      if (typeof obj === "undefined") {
-        return values;
-      }
-      var objKeys;
-      if (generateArrayPrefix === "comma" && isArray(obj)) {
-        if (encodeValuesOnly && encoder2) {
-          obj = utils.maybeMap(obj, function(v) {
-            return v == null ? v : encoder2(v);
-          });
-        }
-        objKeys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
-      } else if (isArray(filter)) {
-        objKeys = filter;
-      } else {
-        var keys = Object.keys(obj);
-        objKeys = sort ? keys.sort(sort) : keys;
-      }
-      var encodedPrefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
-      var adjustedPrefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encodedPrefix + "[]" : encodedPrefix;
-      if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
-        return formatter(encoder2 && !encodeValuesOnly ? encoder2(adjustedPrefix, defaults.encoder, charset, "key", format2) : adjustedPrefix) + "[]";
-      }
-      for (var j5 = 0; j5 < objKeys.length; ++j5) {
-        var key = objKeys[j5];
-        var value = typeof key === "object" && key && typeof key.value !== "undefined" ? key.value : obj[key];
-        if (skipNulls && value === null) {
-          continue;
-        }
-        var encodedKey = allowDots && encodeDotInKeys ? String(key).replace(/\./g, "%2E") : String(key);
-        var keyPrefix = isArray(obj) ? typeof generateArrayPrefix === "function" ? generateArrayPrefix(adjustedPrefix, encodedKey) : adjustedPrefix : adjustedPrefix + (allowDots ? "." + encodedKey : "[" + encodedKey + "]");
-        sideChannel.set(object2, step);
-        var valueSideChannel = getSideChannel();
-        valueSideChannel.set(sentinel, sideChannel);
-        pushToArray(values, stringify2(
-          value,
-          keyPrefix,
-          generateArrayPrefix,
-          commaRoundTrip,
-          allowEmptyArrays,
-          strictNullHandling,
-          skipNulls,
-          encodeDotInKeys,
-          generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder2,
-          filter,
-          sort,
-          allowDots,
-          serializeDate,
-          format2,
-          formatter,
-          encodeValuesOnly,
-          charset,
-          valueSideChannel
-        ));
-      }
-      return values;
-    };
-    var normalizeStringifyOptions = function normalizeStringifyOptions2(opts) {
-      if (!opts) {
-        return defaults;
-      }
-      if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
-        throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
-      }
-      if (typeof opts.encodeDotInKeys !== "undefined" && typeof opts.encodeDotInKeys !== "boolean") {
-        throw new TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
-      }
-      if (opts.encoder !== null && typeof opts.encoder !== "undefined" && typeof opts.encoder !== "function") {
-        throw new TypeError("Encoder has to be a function.");
-      }
-      var charset = opts.charset || defaults.charset;
-      if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
-        throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
-      }
-      var format2 = formats["default"];
-      if (typeof opts.format !== "undefined") {
-        if (!has.call(formats.formatters, opts.format)) {
-          throw new TypeError("Unknown format option provided.");
-        }
-        format2 = opts.format;
-      }
-      var formatter = formats.formatters[format2];
-      var filter = defaults.filter;
-      if (typeof opts.filter === "function" || isArray(opts.filter)) {
-        filter = opts.filter;
-      }
-      var arrayFormat;
-      if (opts.arrayFormat in arrayPrefixGenerators) {
-        arrayFormat = opts.arrayFormat;
-      } else if ("indices" in opts) {
-        arrayFormat = opts.indices ? "indices" : "repeat";
-      } else {
-        arrayFormat = defaults.arrayFormat;
-      }
-      if ("commaRoundTrip" in opts && typeof opts.commaRoundTrip !== "boolean") {
-        throw new TypeError("`commaRoundTrip` must be a boolean, or absent");
-      }
-      var allowDots = typeof opts.allowDots === "undefined" ? opts.encodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
-      return {
-        addQueryPrefix: typeof opts.addQueryPrefix === "boolean" ? opts.addQueryPrefix : defaults.addQueryPrefix,
-        allowDots,
-        allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
-        arrayFormat,
-        charset,
-        charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
-        commaRoundTrip: !!opts.commaRoundTrip,
-        delimiter: typeof opts.delimiter === "undefined" ? defaults.delimiter : opts.delimiter,
-        encode: typeof opts.encode === "boolean" ? opts.encode : defaults.encode,
-        encodeDotInKeys: typeof opts.encodeDotInKeys === "boolean" ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
-        encoder: typeof opts.encoder === "function" ? opts.encoder : defaults.encoder,
-        encodeValuesOnly: typeof opts.encodeValuesOnly === "boolean" ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
-        filter,
-        format: format2,
-        formatter,
-        serializeDate: typeof opts.serializeDate === "function" ? opts.serializeDate : defaults.serializeDate,
-        skipNulls: typeof opts.skipNulls === "boolean" ? opts.skipNulls : defaults.skipNulls,
-        sort: typeof opts.sort === "function" ? opts.sort : null,
-        strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling
-      };
-    };
-    module.exports = function(object2, opts) {
-      var obj = object2;
-      var options = normalizeStringifyOptions(opts);
-      var objKeys;
-      var filter;
-      if (typeof options.filter === "function") {
-        filter = options.filter;
-        obj = filter("", obj);
-      } else if (isArray(options.filter)) {
-        filter = options.filter;
-        objKeys = filter;
-      }
-      var keys = [];
-      if (typeof obj !== "object" || obj === null) {
-        return "";
-      }
-      var generateArrayPrefix = arrayPrefixGenerators[options.arrayFormat];
-      var commaRoundTrip = generateArrayPrefix === "comma" && options.commaRoundTrip;
-      if (!objKeys) {
-        objKeys = Object.keys(obj);
-      }
-      if (options.sort) {
-        objKeys.sort(options.sort);
-      }
-      var sideChannel = getSideChannel();
-      for (var i5 = 0; i5 < objKeys.length; ++i5) {
-        var key = objKeys[i5];
-        if (typeof key === "undefined" || key === null) {
-          continue;
-        }
-        var value = obj[key];
-        if (options.skipNulls && value === null) {
-          continue;
-        }
-        pushToArray(keys, stringify(
-          value,
-          key,
-          generateArrayPrefix,
-          commaRoundTrip,
-          options.allowEmptyArrays,
-          options.strictNullHandling,
-          options.skipNulls,
-          options.encodeDotInKeys,
-          options.encode ? options.encoder : null,
-          options.filter,
-          options.sort,
-          options.allowDots,
-          options.serializeDate,
-          options.format,
-          options.formatter,
-          options.encodeValuesOnly,
-          options.charset,
-          sideChannel
-        ));
-      }
-      var joined = keys.join(options.delimiter);
-      var prefix = options.addQueryPrefix === true ? "?" : "";
-      if (options.charsetSentinel) {
-        if (options.charset === "iso-8859-1") {
-          prefix += "utf8=%26%2310003%3B" + options.delimiter;
-        } else {
-          prefix += "utf8=%E2%9C%93" + options.delimiter;
-        }
-      }
-      return joined.length > 0 ? prefix + joined : "";
-    };
-  }
-});
-
-// node_modules/qs/lib/parse.js
-var require_parse2 = __commonJS({
-  "node_modules/qs/lib/parse.js"(exports, module) {
-    "use strict";
-    var utils = require_utils2();
-    var has = Object.prototype.hasOwnProperty;
-    var isArray = Array.isArray;
-    var defaults = {
-      allowDots: false,
-      allowEmptyArrays: false,
-      allowPrototypes: false,
-      allowSparse: false,
-      arrayLimit: 20,
-      charset: "utf-8",
-      charsetSentinel: false,
-      comma: false,
-      decodeDotInKeys: false,
-      decoder: utils.decode,
-      delimiter: "&",
-      depth: 5,
-      duplicates: "combine",
-      ignoreQueryPrefix: false,
-      interpretNumericEntities: false,
-      parameterLimit: 1e3,
-      parseArrays: true,
-      plainObjects: false,
-      strictDepth: false,
-      strictMerge: true,
-      strictNullHandling: false,
-      throwOnLimitExceeded: false
-    };
-    var interpretNumericEntities = function(str) {
-      return str.replace(/&#(\d+);/g, function($0, numberStr) {
-        return String.fromCharCode(parseInt(numberStr, 10));
-      });
-    };
-    var parseArrayValue = function(val, options, currentArrayLength, isFlatArrayValue) {
-      if (val && typeof val === "string" && options.comma && val.indexOf(",") > -1) {
-        if (isFlatArrayValue && options.throwOnLimitExceeded) {
-          var commaCount = 0;
-          var commaIndex = val.indexOf(",");
-          while (commaIndex > -1) {
-            commaCount += 1;
-            if (commaCount >= options.arrayLimit) {
-              throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-            }
-            commaIndex = val.indexOf(",", commaIndex + 1);
-          }
-        }
-        return val.split(",");
-      }
-      if (options.throwOnLimitExceeded && currentArrayLength >= options.arrayLimit) {
-        throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-      }
-      return val;
-    };
-    var isoSentinel = "utf8=%26%2310003%3B";
-    var charsetSentinel = "utf8=%E2%9C%93";
-    var parseValues = function parseQueryStringValues(str, options) {
-      var obj = { __proto__: null };
-      var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, "") : str;
-      cleanStr = cleanStr.replace(/%5B/gi, "[").replace(/%5D/gi, "]");
-      var limit = options.parameterLimit === Infinity ? void 0 : options.parameterLimit;
-      var parts = cleanStr.split(
-        options.delimiter,
-        options.throwOnLimitExceeded && typeof limit !== "undefined" ? limit + 1 : limit
-      );
-      if (options.throwOnLimitExceeded && typeof limit !== "undefined" && parts.length > limit) {
-        throw new RangeError("Parameter limit exceeded. Only " + limit + " parameter" + (limit === 1 ? "" : "s") + " allowed.");
-      }
-      var skipIndex = -1;
-      var i5;
-      var charset = options.charset;
-      if (options.charsetSentinel) {
-        for (i5 = 0; i5 < parts.length; ++i5) {
-          if (parts[i5].indexOf("utf8=") === 0) {
-            if (parts[i5] === charsetSentinel) {
-              charset = "utf-8";
-            } else if (parts[i5] === isoSentinel) {
-              charset = "iso-8859-1";
-            }
-            skipIndex = i5;
-            i5 = parts.length;
-          }
-        }
-      }
-      for (i5 = 0; i5 < parts.length; ++i5) {
-        if (i5 === skipIndex) {
-          continue;
-        }
-        var part = parts[i5];
-        var bracketEqualsPos = part.indexOf("]=");
-        var pos = bracketEqualsPos === -1 ? part.indexOf("=") : bracketEqualsPos + 1;
-        var key;
-        var val;
-        if (pos === -1) {
-          key = options.decoder(part, defaults.decoder, charset, "key");
-          val = options.strictNullHandling ? null : "";
-        } else {
-          key = options.decoder(part.slice(0, pos), defaults.decoder, charset, "key");
-          if (key !== null) {
-            val = utils.maybeMap(
-              parseArrayValue(
-                part.slice(pos + 1),
-                options,
-                isArray(obj[key]) ? obj[key].length : 0,
-                part.indexOf("[]=") === -1
-              ),
-              function(encodedVal) {
-                return options.decoder(encodedVal, defaults.decoder, charset, "value");
-              }
-            );
-          }
-        }
-        if (val && options.interpretNumericEntities && charset === "iso-8859-1") {
-          val = interpretNumericEntities(String(val));
-        }
-        if (part.indexOf("[]=") > -1) {
-          val = isArray(val) ? [val] : val;
-        }
-        if (options.comma && isArray(val) && val.length > options.arrayLimit) {
-          val = utils.combine([], val, options.arrayLimit, options.plainObjects, options.throwOnLimitExceeded);
-        }
-        if (key !== null) {
-          var existing = has.call(obj, key);
-          if (existing && (options.duplicates === "combine" || part.indexOf("[]=") > -1)) {
-            obj[key] = utils.combine(
-              obj[key],
-              val,
-              options.arrayLimit,
-              options.plainObjects,
-              options.throwOnLimitExceeded
-            );
-          } else if (!existing || options.duplicates === "last") {
-            obj[key] = val;
-          }
-        }
-      }
-      return obj;
-    };
-    var parseObject = function(chain2, val, options, valuesParsed) {
-      var currentArrayLength = 0;
-      if (chain2.length > 0 && chain2[chain2.length - 1] === "[]") {
-        var parentKey = chain2.slice(0, -1).join("");
-        currentArrayLength = Array.isArray(val) && val[parentKey] ? val[parentKey].length : 0;
-      }
-      var leaf = valuesParsed ? val : parseArrayValue(val, options, currentArrayLength);
-      for (var i5 = chain2.length - 1; i5 >= 0; --i5) {
-        var obj;
-        var root5 = chain2[i5];
-        if (root5 === "[]" && options.parseArrays) {
-          if (utils.isOverflow(leaf)) {
-            obj = leaf;
-          } else {
-            obj = options.allowEmptyArrays && (leaf === "" || options.strictNullHandling && leaf === null) ? [] : utils.combine(
-              [],
-              leaf,
-              options.arrayLimit,
-              options.plainObjects,
-              options.throwOnLimitExceeded
-            );
-          }
-        } else {
-          obj = options.plainObjects ? { __proto__: null } : {};
-          var cleanRoot = root5.charAt(0) === "[" && root5.charAt(root5.length - 1) === "]" ? root5.slice(1, -1) : root5;
-          var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, ".") : cleanRoot;
-          var index = parseInt(decodedRoot, 10);
-          var isValidArrayIndex = !isNaN(index) && root5 !== decodedRoot && String(index) === decodedRoot && index >= 0 && options.parseArrays;
-          if (!options.parseArrays && decodedRoot === "") {
-            obj = { 0: leaf };
-          } else if (isValidArrayIndex && index < options.arrayLimit) {
-            obj = [];
-            obj[index] = leaf;
-          } else if (isValidArrayIndex && options.throwOnLimitExceeded) {
-            throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
-          } else if (isValidArrayIndex) {
-            obj[index] = leaf;
-            utils.markOverflow(obj, index);
-          } else if (decodedRoot !== "__proto__") {
-            obj[decodedRoot] = leaf;
-          }
-        }
-        leaf = obj;
-      }
-      return leaf;
-    };
-    var splitKeyIntoSegments = function splitKeyIntoSegments2(originalKey, options) {
-      var key = options.allowDots ? originalKey.replace(/\.([^.[]+)/g, "[$1]") : originalKey;
-      if (options.depth <= 0) {
-        if (!options.plainObjects && has.call(Object.prototype, key)) {
-          if (!options.allowPrototypes) {
-            return;
-          }
-        }
-        return [key];
-      }
-      var segments = [];
-      var first = key.indexOf("[");
-      var parent = first >= 0 ? key.slice(0, first) : key;
-      if (parent) {
-        if (!options.plainObjects && has.call(Object.prototype, parent)) {
-          if (!options.allowPrototypes) {
-            return;
-          }
-        }
-        segments[segments.length] = parent;
-      }
-      var n3 = key.length;
-      var open = first;
-      var collected = 0;
-      while (open >= 0 && collected < options.depth) {
-        var level = 1;
-        var i5 = open + 1;
-        var close = -1;
-        while (i5 < n3 && close < 0) {
-          var cu = key.charCodeAt(i5);
-          if (cu === 91) {
-            level += 1;
-          } else if (cu === 93) {
-            level -= 1;
-            if (level === 0) {
-              close = i5;
-            }
-          }
-          i5 += 1;
-        }
-        if (close < 0) {
-          segments[segments.length] = "[" + key.slice(open) + "]";
-          return segments;
-        }
-        var seg = key.slice(open, close + 1);
-        var content = seg.slice(1, -1);
-        if (!options.plainObjects && has.call(Object.prototype, content) && !options.allowPrototypes) {
-          return;
-        }
-        segments[segments.length] = seg;
-        collected += 1;
-        open = key.indexOf("[", close + 1);
-      }
-      if (open >= 0) {
-        if (options.strictDepth === true) {
-          throw new RangeError("Input depth exceeded depth option of " + options.depth + " and strictDepth is true");
-        }
-        segments[segments.length] = "[" + key.slice(open) + "]";
-      }
-      return segments;
-    };
-    var parseKeys = function parseQueryStringKeys(givenKey, val, options, valuesParsed) {
-      if (!givenKey) {
-        return;
-      }
-      var keys = splitKeyIntoSegments(givenKey, options);
-      if (!keys) {
-        return;
-      }
-      return parseObject(keys, val, options, valuesParsed);
-    };
-    var normalizeParseOptions = function normalizeParseOptions2(opts) {
-      if (!opts) {
-        return defaults;
-      }
-      if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
-        throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
-      }
-      if (typeof opts.decodeDotInKeys !== "undefined" && typeof opts.decodeDotInKeys !== "boolean") {
-        throw new TypeError("`decodeDotInKeys` option can only be `true` or `false`, when provided");
-      }
-      if (opts.decoder !== null && typeof opts.decoder !== "undefined" && typeof opts.decoder !== "function") {
-        throw new TypeError("Decoder has to be a function.");
-      }
-      if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
-        throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
-      }
-      if (typeof opts.throwOnLimitExceeded !== "undefined" && typeof opts.throwOnLimitExceeded !== "boolean") {
-        throw new TypeError("`throwOnLimitExceeded` option must be a boolean");
-      }
-      var charset = typeof opts.charset === "undefined" ? defaults.charset : opts.charset;
-      var duplicates = typeof opts.duplicates === "undefined" ? defaults.duplicates : opts.duplicates;
-      if (duplicates !== "combine" && duplicates !== "first" && duplicates !== "last") {
-        throw new TypeError("The duplicates option must be either combine, first, or last");
-      }
-      var allowDots = typeof opts.allowDots === "undefined" ? opts.decodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
-      return {
-        allowDots,
-        allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
-        allowPrototypes: typeof opts.allowPrototypes === "boolean" ? opts.allowPrototypes : defaults.allowPrototypes,
-        allowSparse: typeof opts.allowSparse === "boolean" ? opts.allowSparse : defaults.allowSparse,
-        arrayLimit: typeof opts.arrayLimit === "number" ? opts.arrayLimit : defaults.arrayLimit,
-        charset,
-        charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
-        comma: typeof opts.comma === "boolean" ? opts.comma : defaults.comma,
-        decodeDotInKeys: typeof opts.decodeDotInKeys === "boolean" ? opts.decodeDotInKeys : defaults.decodeDotInKeys,
-        decoder: typeof opts.decoder === "function" ? opts.decoder : defaults.decoder,
-        delimiter: typeof opts.delimiter === "string" || utils.isRegExp(opts.delimiter) ? opts.delimiter : defaults.delimiter,
-        // eslint-disable-next-line no-implicit-coercion, no-extra-parens
-        depth: typeof opts.depth === "number" || opts.depth === false ? +opts.depth : defaults.depth,
-        duplicates,
-        ignoreQueryPrefix: opts.ignoreQueryPrefix === true,
-        interpretNumericEntities: typeof opts.interpretNumericEntities === "boolean" ? opts.interpretNumericEntities : defaults.interpretNumericEntities,
-        parameterLimit: typeof opts.parameterLimit === "number" ? opts.parameterLimit : defaults.parameterLimit,
-        parseArrays: opts.parseArrays !== false,
-        plainObjects: typeof opts.plainObjects === "boolean" ? opts.plainObjects : defaults.plainObjects,
-        strictDepth: typeof opts.strictDepth === "boolean" ? !!opts.strictDepth : defaults.strictDepth,
-        strictMerge: typeof opts.strictMerge === "boolean" ? !!opts.strictMerge : defaults.strictMerge,
-        strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling,
-        throwOnLimitExceeded: typeof opts.throwOnLimitExceeded === "boolean" ? opts.throwOnLimitExceeded : false
-      };
-    };
-    module.exports = function(str, opts) {
-      var options = normalizeParseOptions(opts);
-      if (str === "" || str === null || typeof str === "undefined") {
-        return options.plainObjects ? { __proto__: null } : {};
-      }
-      var tempObj = typeof str === "string" ? parseValues(str, options) : str;
-      var obj = options.plainObjects ? { __proto__: null } : {};
-      var keys = Object.keys(tempObj);
-      for (var i5 = 0; i5 < keys.length; ++i5) {
-        var key = keys[i5];
-        var newObj = parseKeys(key, tempObj[key], options, typeof str === "string");
-        obj = utils.merge(obj, newObj, options);
-      }
-      if (options.allowSparse === true) {
-        return obj;
-      }
-      return utils.compact(obj);
-    };
-  }
-});
-
-// node_modules/qs/lib/index.js
-var require_lib3 = __commonJS({
-  "node_modules/qs/lib/index.js"(exports, module) {
-    "use strict";
-    var stringify = require_stringify2();
-    var parse2 = require_parse2();
-    var formats = require_formats2();
-    module.exports = {
-      formats,
-      parse: parse2,
-      stringify
-    };
-  }
-});
-
 // node_modules/express/lib/middleware/query.js
 var require_query = __commonJS({
   "node_modules/express/lib/middleware/query.js"(exports, module) {
     "use strict";
     var merge2 = require_utils_merge();
     var parseUrl2 = require_parseurl();
-    var qs = require_lib3();
+    var qs = require_lib2();
     module.exports = function query(options) {
       var opts = merge2({}, options);
       var queryparse = qs.parse;
@@ -21719,7 +20759,7 @@ var require_proxy_addr = __commonJS({
 });
 
 // node_modules/express/lib/utils.js
-var require_utils3 = __commonJS({
+var require_utils2 = __commonJS({
   "node_modules/express/lib/utils.js"(exports) {
     "use strict";
     var Buffer3 = require_safe_buffer().Buffer;
@@ -21730,7 +20770,7 @@ var require_utils3 = __commonJS({
     var mime = require_send().mime;
     var etag = require_etag();
     var proxyaddr = require_proxy_addr();
-    var qs = require_lib3();
+    var qs = require_lib2();
     var querystring = __require("querystring");
     exports.etag = createETagGenerator({ weak: false });
     exports.wetag = createETagGenerator({ weak: true });
@@ -21868,9 +20908,9 @@ var require_application = __commonJS({
     var debug = require_src()("express:application");
     var View = require_view();
     var http = __require("http");
-    var compileETag = require_utils3().compileETag;
-    var compileQueryParser = require_utils3().compileQueryParser;
-    var compileTrust = require_utils3().compileTrust;
+    var compileETag = require_utils2().compileETag;
+    var compileQueryParser = require_utils2().compileQueryParser;
+    var compileTrust = require_utils2().compileTrust;
     var deprecate = require_depd()("express");
     var flatten = require_array_flatten();
     var merge2 = require_utils_merge();
@@ -22848,7 +21888,7 @@ var require_request = __commonJS({
       var method = this.method;
       var res = this.res;
       var status = res.statusCode;
-      if ("GET" !== method && "HEAD" !== method) return false;
+      if ("GET" !== method && "HEAD" !== method && "QUERY" !== method) return false;
       if (status >= 200 && status < 300 || 304 === status) {
         return fresh(this.headers, {
           "etag": res.get("ETag"),
@@ -23145,15 +22185,15 @@ var require_response = __commonJS({
     var encodeUrl = require_encodeurl();
     var escapeHtml = require_escape_html();
     var http = __require("http");
-    var isAbsolute = require_utils3().isAbsolute;
+    var isAbsolute = require_utils2().isAbsolute;
     var onFinished = require_on_finished();
     var path7 = __require("path");
     var statuses = require_statuses();
     var merge2 = require_utils_merge();
     var sign3 = require_cookie_signature().sign;
-    var normalizeType = require_utils3().normalizeType;
-    var normalizeTypes = require_utils3().normalizeTypes;
-    var setCharset = require_utils3().setCharset;
+    var normalizeType = require_utils2().normalizeType;
+    var normalizeTypes = require_utils2().normalizeTypes;
+    var setCharset = require_utils2().setCharset;
     var cookie = require_cookie();
     var send = require_send();
     var extname = path7.extname;
@@ -23929,7 +22969,7 @@ var require_object_assign = __commonJS({
 });
 
 // node_modules/cors/lib/index.js
-var require_lib4 = __commonJS({
+var require_lib3 = __commonJS({
   "node_modules/cors/lib/index.js"(exports, module) {
     (function() {
       "use strict";
@@ -38575,7 +37615,7 @@ var require_semver = __commonJS({
 });
 
 // node_modules/semver/functions/parse.js
-var require_parse3 = __commonJS({
+var require_parse2 = __commonJS({
   "node_modules/semver/functions/parse.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
@@ -38600,7 +37640,7 @@ var require_parse3 = __commonJS({
 var require_valid = __commonJS({
   "node_modules/semver/functions/valid.js"(exports, module) {
     "use strict";
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var valid = (version2, options) => {
       const v = parse2(version2, options);
       return v ? v.version : null;
@@ -38613,7 +37653,7 @@ var require_valid = __commonJS({
 var require_clean = __commonJS({
   "node_modules/semver/functions/clean.js"(exports, module) {
     "use strict";
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var clean = (version2, options) => {
       const s2 = parse2(version2.trim().replace(/^[=v]+/, ""), options);
       return s2 ? s2.version : null;
@@ -38650,7 +37690,7 @@ var require_inc = __commonJS({
 var require_diff = __commonJS({
   "node_modules/semver/functions/diff.js"(exports, module) {
     "use strict";
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var diff = (version1, version2) => {
       const v1 = parse2(version1, null, true);
       const v2 = parse2(version2, null, true);
@@ -38724,7 +37764,7 @@ var require_patch = __commonJS({
 var require_prerelease = __commonJS({
   "node_modules/semver/functions/prerelease.js"(exports, module) {
     "use strict";
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var prerelease = (version2, options) => {
       const parsed2 = parse2(version2, options);
       return parsed2 && parsed2.prerelease.length ? parsed2.prerelease : null;
@@ -38912,7 +37952,7 @@ var require_coerce = __commonJS({
   "node_modules/semver/functions/coerce.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var { safeRe: re, t } = require_re();
     var coerce2 = (version2, options) => {
       if (version2 instanceof SemVer) {
@@ -38957,7 +37997,7 @@ var require_coerce = __commonJS({
 var require_truncate = __commonJS({
   "node_modules/semver/functions/truncate.js"(exports, module) {
     "use strict";
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var constants = require_constants2();
     var SemVer = require_semver();
     var truncate = (version2, truncation, options) => {
@@ -40013,7 +39053,7 @@ var require_semver2 = __commonJS({
     var constants = require_constants2();
     var SemVer = require_semver();
     var identifiers = require_identifiers();
-    var parse2 = require_parse3();
+    var parse2 = require_parse2();
     var valid = require_valid();
     var clean = require_clean();
     var inc = require_inc();
@@ -77612,7 +76652,7 @@ var init_kycService = __esm({
 });
 
 // node_modules/busboy/lib/utils.js
-var require_utils4 = __commonJS({
+var require_utils3 = __commonJS({
   "node_modules/busboy/lib/utils.js"(exports, module) {
     "use strict";
     function parseContentType(str) {
@@ -79707,7 +78747,7 @@ var require_multipart = __commonJS({
       getDecoder,
       parseContentType,
       parseDisposition
-    } = require_utils4();
+    } = require_utils3();
     var BUF_CRLF = Buffer.from("\r\n");
     var BUF_CR = Buffer.from("\r");
     var BUF_DASH = Buffer.from("-");
@@ -80747,7 +79787,7 @@ var require_urlencoded2 = __commonJS({
   "node_modules/busboy/lib/types/urlencoded.js"(exports, module) {
     "use strict";
     var { Writable: Writable4 } = __require("stream");
-    var { getDecoder } = require_utils4();
+    var { getDecoder } = require_utils3();
     var URLEncoded = class extends Writable4 {
       constructor(cfg) {
         const streamOpts = {
@@ -81290,10 +80330,10 @@ var require_urlencoded2 = __commonJS({
 });
 
 // node_modules/busboy/lib/index.js
-var require_lib5 = __commonJS({
+var require_lib4 = __commonJS({
   "node_modules/busboy/lib/index.js"(exports, module) {
     "use strict";
-    var { parseContentType } = require_utils4();
+    var { parseContentType } = require_utils3();
     function getInstance(cfg) {
       const headers = cfg.headers;
       const conType = parseContentType(headers["content-type"]);
@@ -81650,7 +80690,7 @@ var require_remove_uploaded_files = __commonJS({
 var require_make_middleware = __commonJS({
   "node_modules/multer/lib/make-middleware.js"(exports, module) {
     var is = require_type_is();
-    var Busboy = require_lib5();
+    var Busboy = require_lib4();
     var extend = require_immutable();
     var appendField = require_append_field();
     var Counter = require_counter();
@@ -84756,7 +83796,7 @@ var require_multer = __commonJS({
 
 // server/src/app.ts
 var import_express25 = __toESM(require_express2(), 1);
-var import_cors = __toESM(require_lib4(), 1);
+var import_cors = __toESM(require_lib3(), 1);
 
 // node_modules/helmet/index.mjs
 var dashify = (str) => str.replace(/[A-Z]/g, (capitalLetter) => "-" + capitalLetter.toLowerCase());
@@ -87113,10 +86153,12 @@ var ROLE_PREFIX_MAP = {
   admin: "HAL-ADM-"
 };
 var IdentityService = class {
+  static initialized = false;
   /**
    * Initializes identity sequences in database if not present
    */
   static ensureSequencesInitialized() {
+    if (this.initialized) return;
     const db = Database.getDB();
     db.exec(`
       CREATE TABLE IF NOT EXISTS identity_sequences (
@@ -87153,6 +86195,7 @@ var IdentityService = class {
         );
       }
     }
+    this.initialized = true;
   }
   /**
    * Atomically generates the next permanent HALDER ID for the specified role
@@ -89014,7 +88057,7 @@ var loginLimiter = lib_default({
   // 15 mins
   max: 30,
   // Anti-brute-force: max 30 login/reset attempts per 15 minutes per IP
-  skip: () => process.env.NODE_ENV === "test",
+  skip: () => process.env.NODE_ENV === "test" || process.env.LOAD_TEST === "1",
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -89029,7 +88072,7 @@ var authLimiter = lib_default({
   windowMs: 15 * 60 * 1e3,
   // 15 mins
   max: 120,
-  skip: () => process.env.NODE_ENV === "test",
+  skip: () => process.env.NODE_ENV === "test" || process.env.LOAD_TEST === "1",
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -89043,6 +88086,7 @@ var authLimiter = lib_default({
 var apiLimiter = lib_default({
   windowMs: 1 * 60 * 1e3,
   max: 300,
+  skip: () => process.env.NODE_ENV === "test" || process.env.LOAD_TEST === "1",
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -89056,6 +88100,7 @@ var apiLimiter = lib_default({
 var searchLimiter = lib_default({
   windowMs: 1 * 60 * 1e3,
   max: 60,
+  skip: () => process.env.NODE_ENV === "test" || process.env.LOAD_TEST === "1",
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -89195,15 +88240,6 @@ var resetPasswordSchema = external_exports.object({
   code: external_exports.string().min(4).max(10),
   newPassword: external_exports.string().min(6).max(128),
   resetToken: external_exports.string().optional()
-});
-var sendOtpSchema = external_exports.object({
-  phone: external_exports.string().min(10).max(15)
-});
-var verifyOtpSchema = external_exports.object({
-  phone: external_exports.string().min(10).max(15),
-  otp: external_exports.string().min(4).max(6),
-  role: external_exports.enum(["customer", "farmer"]).optional(),
-  name: external_exports.string().max(100).optional()
 });
 var changePasswordSchema = external_exports.object({
   currentPassword: external_exports.string().min(1, "Current password is required").max(128),
@@ -89493,7 +88529,17 @@ function getTransitEstimate(distanceKm) {
   }
 }
 var ProductService = class _ProductService {
+  static listCache = /* @__PURE__ */ new Map();
+  static invalidateListCache() {
+    this.listCache.clear();
+  }
   static list(params) {
+    const cacheKey = JSON.stringify(params);
+    const now = Date.now();
+    const cached = this.listCache.get(cacheKey);
+    if (cached && now < cached.expiresAt) {
+      return cached.data;
+    }
     const page = Math.max(1, params.page || 1);
     const limit = Math.min(100, Math.max(1, params.limit || 20));
     const offset = (page - 1) * limit;
@@ -89590,7 +88636,7 @@ var ProductService = class _ProductService {
         withDistance.sort((a5, b5) => a5.distance_km - b5.distance_km);
       }
       const paginated = withDistance.slice(offset, offset + limit);
-      return {
+      const geoResult = {
         products: paginated,
         total: withDistance.length,
         page,
@@ -89602,6 +88648,9 @@ var ProductService = class _ProductService {
           radiusKm: radius
         }
       };
+      if (this.listCache.size > 500) this.listCache.clear();
+      this.listCache.set(cacheKey, { expiresAt: now + 5e3, data: geoResult });
+      return geoResult;
     }
     sql += " LIMIT ? OFFSET ?";
     sqlParams.push(limit, offset);
@@ -89616,11 +88665,14 @@ var ProductService = class _ProductService {
         delivery_mode_name: transit.modeName
       };
     });
-    return {
+    const standardResult = {
       products,
       page,
       limit
     };
+    if (this.listCache.size > 500) this.listCache.clear();
+    this.listCache.set(cacheKey, { expiresAt: now + 5e3, data: standardResult });
+    return standardResult;
   }
   static getById(id) {
     const product = Database.get(
@@ -89646,7 +88698,12 @@ var ProductService = class _ProductService {
     if (!product) {
       throw AppError.notFound("Product listing not found");
     }
-    Database.run("UPDATE products SET views_count = views_count + 1 WHERE id = ?", [id]);
+    setImmediate(() => {
+      try {
+        Database.run("UPDATE products SET views_count = views_count + 1 WHERE id = ?", [id]);
+      } catch (_) {
+      }
+    });
     const images = Database.query(
       "SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC",
       [id]
@@ -89798,6 +88855,7 @@ var ProductService = class _ProductService {
         console.warn("Smart alert matching notice:", e5.message);
       }
     }
+    this.invalidateListCache();
     return _ProductService.getById(id);
   }
   static async update(id, updates, baseUrl) {
@@ -89918,6 +88976,7 @@ var ProductService = class _ProductService {
         }
       }
     }
+    this.invalidateListCache();
     return _ProductService.getById(id);
   }
   /**
@@ -91006,8 +90065,18 @@ var FarmerService = class _FarmerService {
       reviews
     };
   }
+  static cachedFarmerList = null;
+  static farmerListExpiresAt = 0;
+  static invalidateListCache() {
+    this.cachedFarmerList = null;
+    this.farmerListExpiresAt = 0;
+  }
   static list() {
-    return Database.query(
+    const now = Date.now();
+    if (this.cachedFarmerList && now < this.farmerListExpiresAt) {
+      return this.cachedFarmerList;
+    }
+    const result = Database.query(
       `SELECT f.id, f.user_id, f.farm_name, f.description, f.location, f.city,
               f.rating, f.total_orders, f.total_listings_count, f.response_rate,
               f.joined_year, f.avatar, f.cover_image, f.verification_status,
@@ -91017,6 +90086,9 @@ var FarmerService = class _FarmerService {
        WHERE u.status = 'active'
        ORDER BY f.rating DESC`
     );
+    this.cachedFarmerList = result;
+    this.farmerListExpiresAt = now + 15e3;
+    return result;
   }
   static update(farmerId, updates) {
     const existing = Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [farmerId]);
@@ -93188,10 +92260,15 @@ init_database();
 init_errors3();
 init_esm();
 var DeviceBanService = class {
+  static tableInitialized = false;
+  static bannedIdsCache = /* @__PURE__ */ new Map();
+  static bannedFpsCache = /* @__PURE__ */ new Map();
+  static cacheLoaded = false;
   /**
    * Initializes the banned_devices table if not present.
    */
   static initTable() {
+    if (this.tableInitialized) return;
     try {
       Database.run(`
         CREATE TABLE IF NOT EXISTS banned_devices (
@@ -93224,8 +92301,24 @@ var DeviceBanService = class {
       if (!userCols.includes("last_device_model")) {
         db.exec(`ALTER TABLE users ADD COLUMN last_device_model TEXT DEFAULT ''`);
       }
+      this.tableInitialized = true;
     } catch (e5) {
       console.warn("[DeviceBanService] Table init notice:", e5.message);
+    }
+  }
+  static loadCache() {
+    if (this.cacheLoaded) return;
+    this.initTable();
+    try {
+      const activeBans = Database.query("SELECT * FROM banned_devices WHERE is_active = 1");
+      this.bannedIdsCache.clear();
+      this.bannedFpsCache.clear();
+      for (const ban of activeBans) {
+        if (ban.device_id) this.bannedIdsCache.set(ban.device_id, ban);
+        if (ban.fingerprint_hash) this.bannedFpsCache.set(ban.fingerprint_hash, ban);
+      }
+      this.cacheLoaded = true;
+    } catch (_) {
     }
   }
   /**
@@ -93235,24 +92328,12 @@ var DeviceBanService = class {
     if (!deviceId && !fingerprintHash) {
       return { banned: false };
     }
-    this.initTable();
-    if (deviceId) {
-      const match = Database.get(
-        `SELECT * FROM banned_devices WHERE device_id = ? AND is_active = 1 LIMIT 1`,
-        [deviceId]
-      );
-      if (match) {
-        return { banned: true, banInfo: match };
-      }
+    this.loadCache();
+    if (deviceId && this.bannedIdsCache.has(deviceId)) {
+      return { banned: true, banInfo: this.bannedIdsCache.get(deviceId) };
     }
-    if (fingerprintHash && fingerprintHash !== "server-env") {
-      const match = Database.get(
-        `SELECT * FROM banned_devices WHERE fingerprint_hash = ? AND is_active = 1 LIMIT 1`,
-        [fingerprintHash]
-      );
-      if (match) {
-        return { banned: true, banInfo: match };
-      }
+    if (fingerprintHash && fingerprintHash !== "server-env" && this.bannedFpsCache.has(fingerprintHash)) {
+      return { banned: true, banInfo: this.bannedFpsCache.get(fingerprintHash) };
     }
     return { banned: false };
   }
@@ -93320,6 +92401,7 @@ var DeviceBanService = class {
         notes
       ]
     );
+    this.cacheLoaded = false;
     return {
       success: true,
       banId,
@@ -93351,6 +92433,7 @@ var DeviceBanService = class {
         [(/* @__PURE__ */ new Date()).toISOString(), record.user_id]
       );
     }
+    this.cacheLoaded = false;
     return { success: true, message: `Device ${record.device_id} unbanned successfully.` };
   }
   /**
@@ -93581,6 +92664,19 @@ var KillSwitchService = class {
       this.syncFromDatabase();
     }
     return { ...this.featureStates };
+  }
+  resetToDefaults() {
+    this.featureStates = {
+      ai_advisory: process.env.KILL_SWITCH_AI !== "true",
+      chat: process.env.KILL_SWITCH_CHAT !== "true",
+      uploads: process.env.KILL_SWITCH_UPLOADS !== "true",
+      registrations: process.env.KILL_SWITCH_REGISTRATIONS !== "true",
+      instant_payouts: process.env.KILL_SWITCH_PAYOUTS !== "true"
+    };
+    try {
+      Database.run("DELETE FROM platform_settings WHERE key LIKE 'kill_switch_%'");
+    } catch {
+    }
   }
 };
 var killSwitch = new KillSwitchService();
@@ -95868,9 +94964,8 @@ var MandiController = class {
 
 // server/src/routes/mandiRoutes.ts
 var router14 = (0, import_express16.Router)();
-router14.all("/prices", (_req, res) => {
-  res.status(410).json({ error: "Live APMC Mandi rates feature has been decommissioned." });
-});
+router14.get("/prices", MandiController.getPrices);
+router14.post("/prices", authenticateUser, requireAdmin, MandiController.addPriceRecord);
 router14.get("/analytics", MandiController.getAnalytics);
 router14.get("/demand", MandiController.getDemandIndicators);
 router14.get("/export", MandiController.exportCsv);
@@ -98773,8 +97868,16 @@ apiRouter.get("/metrics", (req, res) => {
     platform: process.platform
   });
 });
+var cachedCategories = null;
+var categoriesExpiresAt = 0;
 apiRouter.get("/categories", (req, res) => {
+  const now = Date.now();
+  if (cachedCategories && now < categoriesExpiresAt) {
+    return res.json({ success: true, data: cachedCategories });
+  }
   const categories = Database.query("SELECT * FROM categories WHERE active = 1 ORDER BY name ASC");
+  cachedCategories = categories;
+  categoriesExpiresAt = now + 3e4;
   res.json({ success: true, data: categories });
 });
 apiRouter.get("/identity/:halderId", (req, res, next) => {
@@ -100335,28 +99438,32 @@ async function seedCoreSystem(now) {
   }
 }
 async function seedTestFixtures(now) {
-  const existingUsers = Database.get("SELECT id FROM users WHERE id = 'user-cust-1'");
-  if (!existingUsers) {
-    const passwordHash = await bcryptjs_default.hash("halder123", 10);
-    Database.transaction(() => {
-      Database.run(
-        `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
+  killSwitch.resetToDefaults();
+  const passwordHash = await bcryptjs_default.hash("halder123", 10);
+  Database.transaction(() => {
+    Database.run(
+      `DELETE FROM users WHERE (email IN ('aman@halder.com', 'rajesh@greenvalley.in', 'amit@sunrisefarms.in', 'pooja@himalayanorganics.in', 'rahul.delivery@halder.com')
+         OR phone IN ('+91 98765 43210', '+91 98450 12345', '+91 98110 54321', '+91 98330 98765', '+91 98888 11111'))
+         AND id NOT IN ('user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
          ('user-cust-1', 'HAL-CUS-10000001', 'aman', 'Aman Sharma', 'aman@halder.com', '+91 98765 43210', ?, 'customer', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-farm-1', 'HAL-FRM-20000001', 'rajesh', 'Rajesh Kumar', 'rajesh@greenvalley.in', '+91 98450 12345', ?, 'farmer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-farm-2', 'HAL-FRM-20000002', 'amit', 'Amit Singh', 'amit@sunrisefarms.in', '+91 98110 54321', ?, 'farmer', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-farm-3', 'HAL-FRM-20000003', 'pooja', 'Pooja Devi', 'pooja@himalayanorganics.in', '+91 98330 98765', ?, 'farmer', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'active', ?, ?),
          ('user-del-1', 'HAL-CUS-10000002', 'rahul_del', 'Rahul Verma', 'rahul.delivery@halder.com', '+91 98888 11111', ?, 'customer', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
-        [passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now]
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO farmer_profiles (id, user_id, farm_name, description, location, city, latitude, longitude, verification_status, rating, total_orders, total_listings_count, response_rate, joined_year, avatar, cover_image, created_at, updated_at) VALUES
+      [passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now, passwordHash, now, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO farmer_profiles (id, user_id, farm_name, description, location, city, latitude, longitude, verification_status, rating, total_orders, total_listings_count, response_rate, joined_year, avatar, cover_image, created_at, updated_at) VALUES
          ('farmer-1', 'user-farm-1', 'Green Valley Farm', 'Organic hill vegetables & A2 Badri cow dairy from Doon Valley.', 'Doon Valley, Dehradun', 'Dehradun', 30.3256, 78.0437, 'verified', 4.9, 142, 4, 98, 2021, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80', ?, ?),
          ('farmer-2', 'user-farm-2', 'Sunrise Farm', 'Naturally grown seasonal potatoes, onions, carrots and green peas.', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'verified', 4.8, 98, 3, 95, 2022, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&auto=format&fit=crop&q=80', ?, ?),
          ('farmer-3', 'user-farm-3', 'Himalayan Organics', 'Certified mountain greens, chemical-free raw wild honey and organic cauliflower.', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'pending', 4.9, 175, 3, 99, 2020, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=800&auto=format&fit=crop&q=80', ?, ?)`,
-        [now, now, now, now, now, now]
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO products (
+      [now, now, now, now, now, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO products (
           id, farmer_id, category_id, name, slug, description, price, unit,
           available_quantity, is_organic, available_today, harvest_date,
           freshness_tag, location, city, latitude, longitude, image,
@@ -100374,36 +99481,36 @@ async function seedTestFixtures(now) {
          ('prod-10', 'farmer-3', 'cat-organic', 'Wild Himalayan Forest Honey (\u091C\u0902\u0917\u0932\u0940 \u0936\u0939\u0926)', 'wild-himalayan-forest-honey', 'Raw, unprocessed multi-floral honey harvested from oak forests.', 350.0, 'packet', 18.0, 1, 1, 'Seasonal', '100% Pure Raw', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80', 310.0, 5.0, 2.0, 'active', 'approved', ?, ?),
          ('prod-11', 'farmer-2', 'cat-fruits', 'Kinnow Sweet Oranges (\u0915\u093F\u0928\u094D\u0928\u0942 \u0938\u0902\u0924\u0930\u0947)', 'kinnow-sweet-oranges', 'Juicy, tree-ripened organic sweet Kinnow oranges directly picked from Doon orchards.', 60.0, 'kg', 85.0, 1, 1, 'Today 6:00 AM', 'Sweet & Juicy', 'Vikas Nagar, Dehradun', 'Dehradun', 30.4358, 77.8105, 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600&auto=format&fit=crop&q=80', 50.0, 10.0, 5.0, 'active', 'approved', ?, ?),
          ('prod-12', 'farmer-3', 'cat-fruits', 'Himalayan Royal Apples (\u092A\u0939\u093E\u0921\u093C\u0940 \u0938\u0947\u092C)', 'himalayan-royal-apples', 'Crisp, sweet mountain-grown red apples from high-altitude Mussoorie orchards.', 120.0, 'kg', 60.0, 1, 1, 'Today 5:30 AM', 'Mountain Fresh', 'Mussoorie Foothills', 'Dehradun', 30.3872, 78.0772, 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600&auto=format&fit=crop&q=80', 105.0, 15.0, 5.0, 'active', 'approved', ?, ?)`,
-        [
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now,
-          now
-        ]
-      );
-      Database.run("INSERT OR IGNORE INTO carts (id, user_id, created_at, updated_at) VALUES ('cart-cust-1', 'user-cust-1', ?, ?)", [now, now]);
-      Database.run(
-        `INSERT OR IGNORE INTO orders (
+      [
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now,
+        now
+      ]
+    );
+    Database.run("INSERT OR IGNORE INTO carts (id, user_id, created_at, updated_at) VALUES ('cart-cust-1', 'user-cust-1', ?, ?)", [now, now]);
+    Database.run(
+      `INSERT OR IGNORE INTO orders (
           id, order_number, customer_id, farmer_id, total_amount, subtotal,
           delivery_fee, farmer_tip, delivery_address, city, postal_code,
           customer_phone, customer_name, farmer_name, farm_name, farmer_phone,
@@ -100412,38 +99519,37 @@ async function seedTestFixtures(now) {
         ) VALUES
          ('order-101', '#HD8491', 'user-cust-1', 'farmer-1', 265.0, 230.0, 25.0, 10.0, '14, Rajpur Road, Dehradun', 'Dehradun', '248001', '+91 98765 43210', 'Aman Sharma', 'Rajesh Kumar', 'Green Valley Farm', '+91 98450 12345', 'upi', 'paid', 'preparing', '35-45 mins', '4829', ?, ?),
          ('order-102', '#HD7823', 'user-cust-1', 'farmer-3', 190.0, 155.0, 25.0, 10.0, '14, Rajpur Road, Dehradun', 'Dehradun', '248001', '+91 98765 43210', 'Aman Sharma', 'Pooja Devi', 'Himalayan Organics', '+91 98330 98765', 'cod', 'pending', 'delivered', 'Delivered', '9103', ?, ?)`,
-        [now, now, now, now]
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO order_items (id, order_id, product_id, farmer_id, product_name_snapshot, unit_price_snapshot, unit_snapshot, quantity, subtotal) VALUES
+      [now, now, now, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO order_items (id, order_id, product_id, farmer_id, product_name_snapshot, unit_price_snapshot, unit_snapshot, quantity, subtotal) VALUES
          ('item-1', 'order-101', 'prod-1', 'farmer-1', 'Fresh Farm Tomatoes', 40.0, 'kg', 2.0, 80.0),
          ('item-2', 'order-101', 'prod-9', 'farmer-1', 'Desi Badri Cow Raw Milk', 75.0, 'litre', 2.0, 150.0),
          ('item-3', 'order-102', 'prod-4', 'farmer-3', 'Organic Mountain Spinach', 25.0, 'bunch', 3.0, 75.0),
          ('item-4', 'order-102', 'prod-6', 'farmer-3', 'Farm Cauliflower', 40.0, 'piece', 2.0, 80.0)`
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO order_timeline (id, order_id, status, title, description, time, completed, current, created_at) VALUES
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO order_timeline (id, order_id, status, title, description, time, completed, current, created_at) VALUES
          ('tl-1', 'order-101', 'placed', 'Order Placed', 'Order placed with Rajesh Kumar', '7:00 AM', 1, 0, ?),
          ('tl-2', 'order-101', 'accepted', 'Harvest Confirmed', 'Rajesh Kumar verified morning harvest', '7:05 AM', 1, 0, ?),
          ('tl-3', 'order-101', 'preparing', 'Weighing & Packing', 'Eco-crate weighing and hygiene pack', '7:15 AM', 1, 1, ?),
          ('tl-4', 'order-102', 'placed', 'Order Placed', 'Order placed with Pooja Devi', 'Yesterday', 1, 0, ?),
          ('tl-5', 'order-102', 'delivered', 'Delivered', 'Delivered to Rajpur Road', 'Yesterday', 1, 1, ?)`,
-        [now, now, now, now, now]
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO reviews (id, order_id, customer_id, farmer_id, rating, review, created_at) VALUES
+      [now, now, now, now, now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO reviews (id, order_id, customer_id, farmer_id, rating, review, created_at) VALUES
          ('rev-1', 'order-102', 'user-cust-1', 'farmer-3', 5.0, 'The mountain spinach was super fresh and the cauliflower tasted sweet! Delivered right on time.', ?)`,
-        [now]
-      );
-      Database.run(
-        `INSERT OR IGNORE INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at) VALUES
+      [now]
+    );
+    Database.run(
+      `INSERT OR IGNORE INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at) VALUES
          ('notif-1', 'user-cust-1', 'customer', 'order', 'Order Placed \u{1F9FA}', 'Your order #HD8491 from Green Valley Farm has been placed.', 1, ?),
          ('notif-2', 'user-farm-1', 'farmer', 'order', 'New Order Received! \u{1F514}', 'New order #HD8491 received from Aman Sharma for \u20B9265.', 0, ?),
          ('notif-3', 'user-farm-1', 'farmer', 'verification', 'Farmer Verified! \u{1F6E1}\uFE0F', 'Your farm verification credentials have been approved by Admin.', 1, ?)`,
-        [now, now, now]
-      );
-    });
-  }
+      [now, now, now]
+    );
+  });
 }
 function seedExtendedTestEcosystem(now) {
   const demandCount = Database.get("SELECT COUNT(*) as count FROM crop_demand_indicators");

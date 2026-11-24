@@ -30,9 +30,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             def keystorePath = System.getenv("KEYSTORE_PATH") ?: "halder-release.jks"
             if (file(keystorePath).exists()) {
                 signingConfig signingConfigs.release

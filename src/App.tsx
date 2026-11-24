@@ -87,10 +87,6 @@ export const MainApp: React.FC = () => {
     return () => window.removeEventListener('halder:device-banned', handleBanned);
   }, []);
 
-  if (bannedDetail) {
-    return <DeviceBanScreen banDetail={bannedDetail} />;
-  }
-
   // Proactively clear any legacy lockout or PIN artifacts from client storage
   useEffect(() => {
     try {
@@ -100,6 +96,10 @@ export const MainApp: React.FC = () => {
       // Ignore in restricted environments
     }
   }, []);
+
+  if (bannedDetail) {
+    return <DeviceBanScreen banDetail={bannedDetail} />;
+  }
 
   // Splash Screen
   if (showSplash) {

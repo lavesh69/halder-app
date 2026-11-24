@@ -53,7 +53,7 @@ export const Header: React.FC = () => {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full max-w-full overflow-hidden bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
+    <header className="sticky top-0 z-30 w-full max-w-full bg-white/95 dark:bg-[#0F1411]/95 backdrop-blur-md border-b border-[#E5EBE6] dark:border-[#29352D] transition-colors">
       <div className="w-full max-w-7xl px-3 sm:px-4 md:px-6 mx-auto py-2 transition-all duration-200">
         <div className="flex items-center justify-between gap-1 sm:gap-2 w-full min-w-0">
           {/* Logo & Location Selector */}

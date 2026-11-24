@@ -10,10 +10,14 @@ const ROLE_PREFIX_MAP: Record<UserRole, string> = {
 };
 
 export class IdentityService {
+  private static initialized = false;
+
   /**
    * Initializes identity sequences in database if not present
    */
   public static ensureSequencesInitialized(): void {
+    if (this.initialized) return;
+
     const db = Database.getDB();
     db.exec(`
       CREATE TABLE IF NOT EXISTS identity_sequences (
@@ -53,6 +57,7 @@ export class IdentityService {
         );
       }
     }
+    this.initialized = true;
   }
 
   /**

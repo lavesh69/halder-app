@@ -59,6 +59,21 @@ export class KillSwitchService {
     }
     return { ...this.featureStates };
   }
+
+  public resetToDefaults(): void {
+    this.featureStates = {
+      ai_advisory: process.env.KILL_SWITCH_AI !== 'true',
+      chat: process.env.KILL_SWITCH_CHAT !== 'true',
+      uploads: process.env.KILL_SWITCH_UPLOADS !== 'true',
+      registrations: process.env.KILL_SWITCH_REGISTRATIONS !== 'true',
+      instant_payouts: process.env.KILL_SWITCH_PAYOUTS !== 'true',
+    };
+    try {
+      Database.run("DELETE FROM platform_settings WHERE key LIKE 'kill_switch_%'");
+    } catch {
+      // Ignored if DB not ready
+    }
+  }
 }
 
 export const killSwitch = new KillSwitchService();

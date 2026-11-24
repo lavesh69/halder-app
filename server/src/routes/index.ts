@@ -81,8 +81,17 @@ apiRouter.get('/metrics', (req, res) => {
   });
 });
 
+let cachedCategories: any[] | null = null;
+let categoriesExpiresAt = 0;
+
 apiRouter.get('/categories', (req, res) => {
+  const now = Date.now();
+  if (cachedCategories && now < categoriesExpiresAt) {
+    return res.json({ success: true, data: cachedCategories });
+  }
   const categories = Database.query('SELECT * FROM categories WHERE active = 1 ORDER BY name ASC');
+  cachedCategories = categories;
+  categoriesExpiresAt = now + 30000;
   res.json({ success: true, data: categories });
 });
 

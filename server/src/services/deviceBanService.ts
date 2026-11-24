@@ -14,10 +14,16 @@ export interface BanDeviceParams {
 }
 
 export class DeviceBanService {
+  private static tableInitialized = false;
+  private static bannedIdsCache = new Map<string, any>();
+  private static bannedFpsCache = new Map<string, any>();
+  private static cacheLoaded = false;
+
   /**
    * Initializes the banned_devices table if not present.
    */
   static initTable() {
+    if (this.tableInitialized) return;
     try {
       Database.run(`
         CREATE TABLE IF NOT EXISTS banned_devices (
@@ -52,9 +58,25 @@ export class DeviceBanService {
       if (!userCols.includes('last_device_model')) {
         db.exec(`ALTER TABLE users ADD COLUMN last_device_model TEXT DEFAULT ''`);
       }
+      this.tableInitialized = true;
     } catch (e: any) {
       console.warn('[DeviceBanService] Table init notice:', e.message);
     }
+  }
+
+  private static loadCache() {
+    if (this.cacheLoaded) return;
+    this.initTable();
+    try {
+      const activeBans = Database.query<any>('SELECT * FROM banned_devices WHERE is_active = 1');
+      this.bannedIdsCache.clear();
+      this.bannedFpsCache.clear();
+      for (const ban of activeBans) {
+        if (ban.device_id) this.bannedIdsCache.set(ban.device_id, ban);
+        if (ban.fingerprint_hash) this.bannedFpsCache.set(ban.fingerprint_hash, ban);
+      }
+      this.cacheLoaded = true;
+    } catch (_) {}
   }
 
   /**
@@ -65,28 +87,16 @@ export class DeviceBanService {
       return { banned: false };
     }
 
-    this.initTable();
+    this.loadCache();
 
     // 1. Direct hardware Device ID match
-    if (deviceId) {
-      const match = Database.get<any>(
-        `SELECT * FROM banned_devices WHERE device_id = ? AND is_active = 1 LIMIT 1`,
-        [deviceId]
-      );
-      if (match) {
-        return { banned: true, banInfo: match };
-      }
+    if (deviceId && this.bannedIdsCache.has(deviceId)) {
+      return { banned: true, banInfo: this.bannedIdsCache.get(deviceId) };
     }
 
     // 2. Hardware Canvas/WebGL Fingerprint match
-    if (fingerprintHash && fingerprintHash !== 'server-env') {
-      const match = Database.get<any>(
-        `SELECT * FROM banned_devices WHERE fingerprint_hash = ? AND is_active = 1 LIMIT 1`,
-        [fingerprintHash]
-      );
-      if (match) {
-        return { banned: true, banInfo: match };
-      }
+    if (fingerprintHash && fingerprintHash !== 'server-env' && this.bannedFpsCache.has(fingerprintHash)) {
+      return { banned: true, banInfo: this.bannedFpsCache.get(fingerprintHash) };
     }
 
     return { banned: false };
@@ -168,6 +178,7 @@ export class DeviceBanService {
       ]
     );
 
+    this.cacheLoaded = false;
     return {
       success: true,
       banId,
@@ -206,6 +217,7 @@ export class DeviceBanService {
       );
     }
 
+    this.cacheLoaded = false;
     return { success: true, message: `Device ${record.device_id} unbanned successfully.` };
   }
 

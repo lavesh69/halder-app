@@ -1,7 +1,7 @@
 ﻿import { Router } from 'express';
 import { AuthController } from '../controllers/authController';
 import { authenticateUser } from '../middleware/auth';
-import { authLimiter, loginLimiter } from '../middleware/rateLimiter';
+import { loginLimiter } from '../middleware/rateLimiter';
 import { validateBody } from '../middleware/validate';
 import { z } from 'zod';
 
@@ -46,17 +46,6 @@ const resetPasswordSchema = z.object({
   code: z.string().min(4).max(10),
   newPassword: z.string().min(6).max(128),
   resetToken: z.string().optional(),
-});
-
-const sendOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-});
-
-const verifyOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-  otp: z.string().min(4).max(6),
-  role: z.enum(['customer', 'farmer']).optional(),
-  name: z.string().max(100).optional(),
 });
 
 const changePasswordSchema = z.object({

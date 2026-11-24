@@ -32,12 +32,16 @@ uploads/*
 server/uploads/*
 !server/uploads/.gitkeep
 
-# Mobile build artifacts
+# Mobile build artifacts & Signing Keys (NEVER COMMIT PRIVATE KEYSTORES)
 android/.gradle
 android/app/build
 android/build
 *.apk
 *.aab
+*.jks
+*.keystore
+*.p12
+*.pfx
 
 # Binary executables and tools
 *.exe
@@ -46,6 +50,10 @@ cloudflared.exe
 # Temporary generation scripts and agent workspaces
 *.py
 .agents/
+load_tests/*.bin
+load_tests/*.csv
+__pycache__/
+*.pyc
 
 # Editor directories and files
 .vscode/*

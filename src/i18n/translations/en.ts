@@ -601,6 +601,8 @@ export const enTranslations = {
   'home.hero_sub': 'Direct wholesale buyers & instant UPI payment at your farm gate.',
   'home.post_ad': '+ Post Ad',
   'logo.tagline': 'Direct from farmers',
+  'home.showing_near': 'Showing ads in & around {location}',
+  'home.show_all_india': 'Show All India',
 };
 
 export type TranslationKey = string;

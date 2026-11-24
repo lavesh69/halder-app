@@ -3,7 +3,7 @@
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
   max: 30, // Anti-brute-force: max 30 login/reset attempts per 15 minutes per IP
-  skip: () => process.env.NODE_ENV === 'test',
+  skip: () => process.env.NODE_ENV === 'test' || process.env.LOAD_TEST === '1',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -18,7 +18,7 @@ export const loginLimiter = rateLimit({
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
   max: 120,
-  skip: () => process.env.NODE_ENV === 'test',
+  skip: () => process.env.NODE_ENV === 'test' || process.env.LOAD_TEST === '1',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -33,6 +33,7 @@ export const authLimiter = rateLimit({
 export const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 300,
+  skip: () => process.env.NODE_ENV === 'test' || process.env.LOAD_TEST === '1',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -47,6 +48,7 @@ export const apiLimiter = rateLimit({
 export const searchLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 60,
+  skip: () => process.env.NODE_ENV === 'test' || process.env.LOAD_TEST === '1',
   standardHeaders: true,
   legacyHeaders: false,
   message: {

@@ -42,8 +42,21 @@ export class FarmerService {
     };
   }
 
+  private static cachedFarmerList: any[] | null = null;
+  private static farmerListExpiresAt = 0;
+
+  static invalidateListCache(): void {
+    this.cachedFarmerList = null;
+    this.farmerListExpiresAt = 0;
+  }
+
   static list() {
-    return Database.query<any>(
+    const now = Date.now();
+    if (this.cachedFarmerList && now < this.farmerListExpiresAt) {
+      return this.cachedFarmerList;
+    }
+
+    const result = Database.query<any>(
       `SELECT f.id, f.user_id, f.farm_name, f.description, f.location, f.city,
               f.rating, f.total_orders, f.total_listings_count, f.response_rate,
               f.joined_year, f.avatar, f.cover_image, f.verification_status,
@@ -53,6 +66,9 @@ export class FarmerService {
        WHERE u.status = 'active'
        ORDER BY f.rating DESC`
     );
+    this.cachedFarmerList = result;
+    this.farmerListExpiresAt = now + 15000;
+    return result;
   }
 
   static update(farmerId: string, updates: Record<string, any>) {

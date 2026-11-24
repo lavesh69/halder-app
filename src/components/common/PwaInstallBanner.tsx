@@ -109,8 +109,8 @@ export const PwaInstallBanner: React.FC = () => {
       >
         <div className="flex items-start gap-3">
           {/* Logo Badge */}
-          <div className="w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-sm overflow-hidden p-1.5">
-            <img src="/favicon.svg" alt="HALDHAR" className="w-full h-full object-contain filter invert brightness-200" />
+          <div className="w-11 h-11 rounded-xl bg-emerald-950/20 flex items-center justify-center shrink-0 shadow-sm overflow-hidden p-0.5 ring-1 ring-amber-500/30">
+            <img src="/halder-logo.png" alt="HALDHAR" className="w-full h-full object-cover rounded-xl" />
           </div>
 
           {/* Description */}

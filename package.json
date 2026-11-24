@@ -17,6 +17,7 @@
     "server:security": "node --import tsx server/tests/security_matrix.test.ts",
     "server:load10k": "node --import tsx server/tests/load_test_10k.ts",
     "server:load100k": "node --import tsx server/tests/load_test_100k.ts",
+    "server:load200k": "node --import tsx server/tests/load_test_200k.ts",
     "server:geo": "node --import tsx server/tests/geo_logistics.test.ts",
     "server:earnings": "node --import tsx server/tests/farmer_earnings.test.ts",
     "server:kyc-push": "node --import tsx server/tests/kyc_push.test.ts",

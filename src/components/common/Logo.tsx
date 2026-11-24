@@ -1,74 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from '../../i18n';
+import halderLogoImg from '../../assets/halder-logo.png';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showTagline?: boolean;
   className?: string;
+  showIconOnly?: boolean;
 }
 
 export const Logo: React.FC<LogoProps> = ({
   size = 'md',
   showTagline = false,
   className = '',
+  showIconOnly = false,
 }) => {
   const { t } = useTranslation();
+  const [imgError, setImgError] = useState(false);
+
   const sizeClasses = {
-    sm: 'text-base font-black tracking-wider',
+    sm: 'text-base sm:text-lg font-black tracking-wider',
     md: 'text-xl font-black tracking-wider',
     lg: 'text-2xl font-black tracking-wider',
-    xl: 'text-3xl font-black tracking-widest',
+    xl: 'text-3xl sm:text-4xl font-black tracking-widest',
   };
 
   const badgeSizes = {
-    sm: 'w-6 h-6 rounded-lg',
-    md: 'w-8 h-8 rounded-xl',
-    lg: 'w-10 h-10 rounded-2xl',
-    xl: 'w-14 h-14 rounded-2xl',
-  };
-
-  const iconSizes = {
-    sm: 'w-3.5 h-3.5',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-    xl: 'w-8 h-8',
+    sm: 'w-10 h-10',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16',
+    xl: 'w-24 h-24 sm:w-28 sm:h-28',
   };
 
   return (
     <div className={`flex flex-col items-start select-none shrink-0 ${className}`}>
-      <div className="flex items-center gap-2">
-        {/* Agricultural Sprout Shield */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Haldhar Kisan & Wheat Crest Emblem */}
         <div
-          className={`${badgeSizes[size]} bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-500 dark:to-emerald-700 flex items-center justify-center shadow-sm shrink-0`}
+          className={`${badgeSizes[size]} relative flex items-center justify-center shrink-0 rounded-full overflow-hidden shadow-md ring-2 ring-amber-500/40 bg-emerald-950/20`}
         >
-          <svg
-            className={`${iconSizes[size]} text-white`}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 21V11" stroke="#A7F3D0" strokeWidth="2" strokeLinecap="round" />
-            <path d="M12 16C7.5 16 5 12 5 7C9.5 7 12 11 12 16Z" fill="#34D399" />
-            <path d="M12 13C16.5 13 19 9 19 4C14.5 4 12 8 12 13Z" fill="#FBBF24" />
-            <circle cx="12" cy="7" r="1.5" fill="#FEF3C7" />
-          </svg>
+          {!imgError ? (
+            <img
+              src={halderLogoImg}
+              alt="HALDHAR Kisan Logo"
+              className="w-full h-full object-cover rounded-full transition-transform duration-300 hover:scale-105"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <img
+              src="/halder-logo.png"
+              alt="HALDHAR Kisan Logo"
+              className="w-full h-full object-cover rounded-full"
+            />
+          )}
         </div>
 
-        <div className="flex flex-col leading-none">
-          <span
-            className={`text-zinc-900 dark:text-white ${sizeClasses[size]} font-black`}
-            style={{ letterSpacing: '0.08em' }}
-          >
-            HALDHAR
-          </span>
-          <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mt-0.5">
-            Mandi Direct
-          </span>
-        </div>
+        {!showIconOnly && (
+          <div className="flex flex-col leading-none">
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`text-zinc-900 dark:text-white ${sizeClasses[size]} font-black`}
+                style={{ letterSpacing: '0.08em' }}
+              >
+                HALDHAR
+              </span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                हलधर
+              </span>
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mt-1">
+              Direct Mandi • 100% Kisan
+            </span>
+          </div>
+        )}
       </div>
 
       {showTagline && (
-        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-1 tracking-normal">
+        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-1.5 tracking-normal">
           {t('logo.tagline')}
         </span>
       )}
