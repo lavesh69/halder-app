@@ -2,7 +2,6 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { X, SlidersHorizontal, RotateCcw } from 'lucide-react';
-import { formatCurrency } from '../../utils/formatters';
 
 const categories = ['All', 'Vegetables', 'Fruits', 'Grains', 'Dairy', 'Farm Equipment', 'Livestock', 'Organic', 'Homemade', 'Other'];
 const distances = [1, 5, 10, 25, 50];
@@ -122,55 +121,14 @@ export const FilterBottomSheet: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. Price Budget Quick Selector */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                Budget / Max Price
-              </label>
-              <span className="font-black text-emerald-600 dark:text-emerald-400 text-xs">
-                {filterState.maxPrice >= 100000 ? 'Any Budget (No Limit)' : `Up to ${formatCurrency(filterState.maxPrice)}`}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                { label: 'Under ₹100', val: 100 },
-                { label: 'Under ₹500', val: 500 },
-                { label: 'Under ₹2,000', val: 2000 },
-                { label: 'Under ₹10,000', val: 10000 },
-                { label: 'Under ₹50,000', val: 50000 },
-                { label: 'Any Price', val: 100000 },
-              ].map((p) => {
-                const isSelected = filterState.maxPrice === p.val;
-                return (
-                  <button
-                    key={p.val}
-                    type="button"
-                    onClick={() => setFilterState((prev) => ({ ...prev, maxPrice: p.val }))}
-                    className={`min-h-[40px] py-2 px-1 text-center rounded-xl font-bold transition text-xs ${
-                      isSelected
-                        ? 'bg-emerald-600 text-white shadow-2xs'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Sort By Selector */}
           <div className="space-y-2">
             <label className="font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
               Sort By
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
                 { label: 'Nearest First', val: 'nearest' },
-                { label: 'Price: Low-High', val: 'price_low' },
-                { label: 'Price: High-Low', val: 'price_high' },
               ].map((s) => {
                 const isSelected = filterState.sortBy === s.val;
                 return (

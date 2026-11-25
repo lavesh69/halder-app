@@ -256,7 +256,6 @@ export const CustomerChatsView: React.FC = () => {
                       <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px] text-zinc-600 dark:text-zinc-300 font-medium">
                         <ShoppingBag className="w-3 h-3 text-emerald-600" />
                         <span className="truncate max-w-[160px]">{attachedProduct.name}</span>
-                        <span className="font-bold text-emerald-600">₹{attachedProduct.price}</span>
                       </div>
                     )}
                     {lastMsg.includes('OFFER') && (

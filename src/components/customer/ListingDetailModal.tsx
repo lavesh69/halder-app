@@ -69,7 +69,7 @@ export const ListingDetailModal: React.FC = () => {
   const handleShare = () => {
     if (!selectedProduct) return;
     const directUrl = `${window.location.origin}/?ad=${selectedProduct.id}`;
-    const shareText = `Check out "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) in ${selectedProduct.location} on HALDER!`;
+    const shareText = `Check out "${selectedProduct.name}" in ${selectedProduct.location} on HALDER!`;
     if (navigator.share) {
       navigator.share({
         title: selectedProduct.name,
@@ -120,7 +120,7 @@ export const ListingDetailModal: React.FC = () => {
       showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
       return;
     }
-    const text = `Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" (${formatCurrency(selectedProduct.price)}/${selectedProduct.unit}) on HALDER.`;
+    const text = `Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" on HALDER. Is it available?`;
     window.open(getWhatsAppUrl(rawPhone, text), '_blank');
   };
 
@@ -326,23 +326,10 @@ export const ListingDetailModal: React.FC = () => {
               </div>
             </div>
           )}
-          {/* Price & Stock Section */}
+          {/* Header & Stock Section */}
           <div className="flex items-start justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-heading font-black text-emerald-800 dark:text-emerald-400 tracking-tight">
-                  {formatCurrency(selectedProduct.price)}
-                </span>
-                <span className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                  / {selectedProduct.unit}
-                </span>
-                {selectedProduct.isNegotiable !== false && (
-                  <span className="ml-2 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[11px] font-heading font-bold border border-amber-300/60 dark:border-amber-800/60">
-                    🤝 Negotiable
-                  </span>
-                )}
-              </div>
-              <h2 className="text-xl font-heading font-bold text-zinc-900 dark:text-white mt-1">
+              <h2 className="text-2xl font-heading font-black text-zinc-900 dark:text-white">
                 {selectedProduct.name}
               </h2>
               {/* Location Breadcrumb Path */}
@@ -366,18 +353,18 @@ export const ListingDetailModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Farm vs Retail Price Transparency Callout */}
+          {/* Direct Farm Harvest Quality Guarantee Callout */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-200/70 dark:border-emerald-800/50">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
-                ₹
+                🌾
               </div>
               <div>
                 <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 block">
-                  {t('ad.direct_farm_price')}
+                  100% Direct Farm Harvest
                 </span>
                 <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
-                  Save ~25-30% vs Supermarkets • Zero middlemen markups • 100% to farmer
+                  Zero middlemen markups • Directly sourced from local verified farmers
                 </span>
               </div>
             </div>
@@ -385,31 +372,6 @@ export const ListingDetailModal: React.FC = () => {
               DIRECT KISAN
             </span>
           </div>
-
-          {/* Volume Price Slabs (Module 5) */}
-          {Boolean((selectedProduct.priceSlabs || selectedProduct.price_slabs)?.length) && (
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-200">
-                <Boxes className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>{t('ad.bulk_pricing')}</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {(selectedProduct.priceSlabs || selectedProduct.price_slabs)!.map((slab, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2 bg-white dark:bg-zinc-800 rounded-xl border border-amber-200/60 dark:border-amber-800/40 text-center"
-                  >
-                    <span className="text-[10px] text-zinc-500 block">
-                      {slab.minQuantity}{slab.maxQuantity ? ` - ${slab.maxQuantity}` : '+'} {selectedProduct.unit}
-                    </span>
-                    <span className="text-xs font-black text-emerald-700 dark:text-emerald-400">
-                      ₹{slab.pricePerUnit}/{selectedProduct.unit}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Quality & Farm Provenance Specs */}
           {Boolean(
@@ -610,10 +572,7 @@ export const ListingDetailModal: React.FC = () => {
                       onError={handleImageError}
                     />
                     <div className="mt-1.5">
-                      <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 block">
-                        {formatCurrency(simProd.price)}
-                      </span>
-                      <h5 className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 truncate mt-0.5">
+                      <h5 className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 truncate">
                         {simProd.name}
                       </h5>
                       <span className="text-[10px] text-zinc-400 block mt-0.5">

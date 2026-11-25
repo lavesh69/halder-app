@@ -2,7 +2,7 @@ import React from 'react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { formatCurrency, formatDistance } from '../../utils/formatters';
+import { formatDistance } from '../../utils/formatters';
 import { handleImageError, DEFAULT_PRODUCE_IMAGE } from '../../utils/imageFallback';
 import {
   Heart,
@@ -105,13 +105,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
 
         <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-base font-black text-[#176B45] dark:text-[#5FB383]">
-              {formatCurrency(product.price)}
-              <span className="text-xs font-normal text-[#66736B] dark:text-[#A6B3AA]"> / {product.unit}</span>
-            </span>
-          </div>
-          <h4 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] truncate mt-0.5 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors">
+          <h4 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] truncate group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors">
             {product.name}
           </h4>
           <button
@@ -212,21 +206,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
         <div className="p-2.5 sm:p-3 flex flex-col justify-between flex-1">
           <div>
-            <div className="flex items-baseline justify-between gap-1">
-              <div className="flex items-baseline gap-1 min-w-0">
-                <span className="text-sm sm:text-base font-black text-[#176B45] dark:text-[#5FB383] truncate">
-                  {formatCurrency(product.price)}
-                </span>
-                <span className="text-[10px] sm:text-[11px] text-[#66736B] dark:text-[#A6B3AA] shrink-0">/ {product.unit}</span>
-              </div>
-              {product.isNegotiable && (
-                <span className="text-[9px] font-bold text-[#D99A32] bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded shrink-0">
-                  🤝 Neg
-                </span>
-              )}
-            </div>
-
-            <h4 className="font-bold text-xs text-[#202923] dark:text-[#F2F5F3] line-clamp-2 mt-1 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors">
+            <h4 className="font-bold text-sm text-[#202923] dark:text-[#F2F5F3] line-clamp-2 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors">
               {product.name}
             </h4>
 
@@ -345,27 +325,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {/* Listing Information */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         <div>
-          {/* Stitch Price Strip with Direct Mandi Rate */}
-          <div className="bg-[#FAF9F6] dark:bg-[#151C17] p-2 sm:p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between mt-2">
-            <div>
-              <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase block">{t('ad.offered_rate')}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-heading font-black text-[#176B45] dark:text-[#5FB383]">
-                  {formatCurrency(product.price)}
-                </span>
-                <span className="text-xs font-semibold text-zinc-500">/ {product.unit}</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="inline-flex items-center text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200/80 dark:border-emerald-800/60">
-                Direct Mandi Rate
-              </span>
-              <span className="block text-[10px] text-zinc-400 mt-0.5">0% Middleman Cut</span>
-            </div>
-          </div>
-
           {/* Product Title */}
-          <h3 className="font-bold text-base text-[#202923] dark:text-[#F2F5F3] mt-2 group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors truncate">
+          <h3 className="font-heading font-black text-lg text-[#202923] dark:text-[#F2F5F3] group-hover:text-[#176B45] dark:group-hover:text-[#5FB383] transition-colors truncate">
             {product.name}
           </h3>
 
