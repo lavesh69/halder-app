@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Loader2, X, ShoppingBag, User as UserIcon, Mail, Lock, Phone } from 'lucide-react';
@@ -49,8 +49,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
     loginUser,
     loginWithGoogle,
     showToast,
-    signup,
-    login,
     setCustomerTab,
     setFarmerTab,
   } = useApp();
@@ -61,8 +59,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [forgotStep, setForgotStep] = useState<'request' | 'verify'>('request');
   const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotCode, setForgotCode] = useState('');
-  const [resetToken, setResetToken] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [realName, setRealName] = useState('');
@@ -82,14 +78,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
     }
     setIsSubmittingAuth(true);
     try {
-      const res = await ApiClient.forgotPassword(forgotEmail.trim().toLowerCase());
-      const code = res?.data?.code || res?.code || '';
-      const token = res?.data?.resetToken || res?.resetToken || '';
-      setForgotCode(code);
-      setInputCode(code); // Pre-fill for instantaneous convenience
-      setResetToken(token);
+      await ApiClient.forgotPassword(forgotEmail.trim().toLowerCase());
       setForgotStep('verify');
-      showToast(`Verification code: ${code}`, 'success');
+      showToast('If an account exists for this email, check your inbox for the verification code.', 'info');
     } catch (err: any) {
       showToast(err.message || 'Failed to request password reset. Check email.', 'error');
     } finally {
@@ -113,12 +104,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
         email: forgotEmail.trim().toLowerCase(),
         code: inputCode.trim(),
         newPassword: newPassword.trim(),
-        resetToken: resetToken || undefined,
       });
       const user = res?.data?.user || res?.user;
       const token = res?.data?.token || res?.token;
-      if (token) ApiClient.setToken(token);
-      login(user?.email || forgotEmail.trim().toLowerCase(), user?.role || selectedRole);
+      if (user && token) {
+        setAuthenticatedSession(user, token);
+      }
       showToast('Password reset successfully! Logged in.', 'success');
       setIsForgotMode(false);
       if (onClose) onClose();
@@ -165,40 +156,23 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           ? digits.slice(-10)
           : (realPhone.trim() || `98${Math.floor(10000000 + Math.random() * 90000000)}`);
 
-        let registeredSuccessfully = false;
-        try {
-          const res: any = await ApiClient.register({
-            username: cleanUsername,
-            name: realName.trim(),
-            email: realEmail.trim().toLowerCase(),
-            phone: cleanPhone,
-            password: realPassword,
-            role: selectedRole,
-          });
+        const res: any = await ApiClient.register({
+          username: cleanUsername,
+          name: realName.trim(),
+          email: realEmail.trim().toLowerCase(),
+          phone: cleanPhone,
+          password: realPassword,
+          role: selectedRole,
+        });
 
-          const user = res?.user || res?.data?.user;
-          const token = res?.token || res?.data?.token;
+        const user = res?.user || res?.data?.user;
+        const token = res?.token || res?.data?.token;
 
-          if (user && token) {
-            setAuthenticatedSession(user, token);
-            registeredSuccessfully = true;
-          }
-        } catch (apiErr: any) {
-          if (apiErr.status === 409 || apiErr.message?.includes('already taken') || apiErr.message?.includes('already exists')) {
-            throw apiErr;
-          }
-          // Resilient offline / Android APK local fallback so registration NEVER gets blocked
-          console.warn('[Onboarding] Remote backend registration notice, activating resilient local account:', apiErr.message);
+        if (!user || !token) {
+          throw new Error('Registration did not return a valid session.');
         }
 
-        if (!registeredSuccessfully) {
-          signup(
-            realName.trim(),
-            realEmail.trim().toLowerCase(),
-            cleanPhone,
-            selectedRole
-          );
-        }
+        setAuthenticatedSession(user, token);
         setHasSeenOnboarding(true);
         setIsLoggedIn(true);
         showToast(`Welcome, @${cleanUsername}! Account successfully created.`, 'success');
@@ -209,23 +183,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
           setIsSubmittingAuth(false);
           return;
         }
-        try {
           const res: any = await ApiClient.login(idToLogin, realPassword);
           const user = res?.user || res?.data?.user;
           const token = res?.token || res?.data?.token;
-          if (user) {
-            setAuthenticatedSession(user, token);
-          } else {
-            login(idToLogin, selectedRole);
+          if (!user || !token) {
+            throw new Error('Authentication failed. Please check your credentials.');
           }
+          setAuthenticatedSession(user, token);
           showToast(`Welcome back, ${user?.name || user?.username || idToLogin}!`, 'success');
-        } catch (loginErr: any) {
-          // Attempt local resilient credential match
-          const loggedInLocally = login(idToLogin, selectedRole);
-          if (!loggedInLocally) {
-            throw loginErr;
-          }
-        }
       }
       if (selectedRole === 'farmer') {
         setFarmerTab('dashboard');
@@ -388,17 +353,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {forgotCode && (
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center">
-                      <div className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">
-                        {t('auth.verification_code')}
-                      </div>
-                      <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 tracking-widest mt-0.5">
-                        {forgotCode}
-                      </div>
-                    </div>
-                  )}
-
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                       {t('auth.code_label')} *
@@ -644,6 +598,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               loginWithGoogle(credential, selectedRole);
               if (onClose) onClose();
             }}
+            onError={(errMsg) => showToast(errMsg, 'info')}
           />
 
           <button
@@ -782,6 +737,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ initialShowLogin = false
               loginWithGoogle(credential, selectedRole);
               if (onClose) onClose();
             }}
+            onError={(errMsg) => showToast(errMsg, 'info')}
           />
         </div>
 

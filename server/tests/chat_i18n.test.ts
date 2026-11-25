@@ -3,7 +3,11 @@ import { app } from '../src/app';
 import { initChatSocket } from '../src/websocket/chatSocket';
 import { Database } from '../src/db/database';
 import { CryptoUtil } from '../src/utils/crypto';
-import { enTranslations, hiTranslations, paTranslations, mrTranslations, bnTranslations } from '../../src/i18n';
+import { enTranslations } from '../../src/i18n';
+import { hiTranslations } from '../../src/i18n/translations/hi';
+import { paTranslations } from '../../src/i18n/translations/pa';
+import { mrTranslations } from '../../src/i18n/translations/mr';
+import { bnTranslations } from '../../src/i18n/translations/bn';
 
 const PORT = 5096;
 const BASE_URL = `http://localhost:${PORT}/api/v1`;

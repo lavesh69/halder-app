@@ -15,15 +15,7 @@ import {
   Review,
   AppNotification,
 } from '../types';
-import {
-  initialProducts,
-  initialFarmers,
-  initialOrders,
-  initialUsers,
-  initialCategories,
-  initialReviews,
-  initialNotifications,
-} from '../data/mockData';
+import { initialCategories } from '../data/mockData';
 import confetti from 'canvas-confetti';
 import { ApiClient } from '../api/client';
 import { calculateHaversineDistanceKm } from '../utils/geo';
@@ -330,6 +322,23 @@ export const isDummyOrTestAccount = (u: any): boolean => {
   );
 };
 
+const safeStorageSet = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err: any) {
+    if (err?.name === 'QuotaExceededError' || err?.code === 22) {
+      console.warn(`[HALDER Storage] LocalStorage quota exceeded for ${key}. Pruning non-critical cache.`);
+      try {
+        localStorage.removeItem('halder_recent_searches');
+        localStorage.removeItem('halder_weather_cache');
+        localStorage.setItem(key, value);
+      } catch {
+        console.error('[HALDER Storage] LocalStorage is full. Skipping storage write.');
+      }
+    }
+  }
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>(() => {
     return (localStorage.getItem('halder-role') as Role) || 'customer';
@@ -347,11 +356,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(parsed)) {
           const clean = parsed.filter((u: any) => !isDummyOrTestAccount(u));
           localStorage.setItem('halder-users-v2', JSON.stringify(clean));
-          return clean.length > 0 ? clean : initialUsers;
+          return clean;
         }
       } catch {}
     }
-    return initialUsers;
+    return [];
   });
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -371,15 +380,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsed = JSON.parse(saved);
         return Array.isArray(parsed) ? parsed.filter((r: any) => !r.id?.startsWith('rev-')) : [];
       } catch {
-        return initialReviews;
+        return [];
       }
     }
-    return initialReviews;
+    return [];
   });
 
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {
     const saved = localStorage.getItem('halder-notifications-v2');
-    return saved ? JSON.parse(saved) : initialNotifications;
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -392,13 +401,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(parsed)) {
           const clean = parsed.filter((f: any) => !isDummyOrTestAccount(f));
           safeStorageSet('halder-farmers-v2', JSON.stringify(clean));
-          return clean.length > 0 ? clean : initialFarmers;
+          return clean;
         }
       } catch {
-        return initialFarmers;
+        return [];
       }
     }
-    return initialFarmers;
+    return [];
   });
 
   const [showSplash, setShowSplash] = useState<boolean>(true);
@@ -418,10 +427,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsed = JSON.parse(saved);
         return Array.isArray(parsed) ? parsed.filter((p: any) => !p.id?.startsWith('prod-')) : [];
       } catch {
-        return initialProducts;
+        return [];
       }
     }
-    return initialProducts;
+    return [];
   });
   const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true);
 
@@ -432,10 +441,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsed = JSON.parse(saved);
         return Array.isArray(parsed) ? parsed.filter((o: any) => !o.id?.startsWith('ord-')) : [];
       } catch {
-        return initialOrders;
+        return [];
       }
     }
-    return initialOrders;
+    return [];
   });
 
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -515,7 +524,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const saved = localStorage.getItem('halder-user-location');
       if (saved) {
-        const cleaned = saved.replace(/\s*\([^\)]*[\u0900-\u097F]+[^\)]*\)/g, '').trim();
+        const cleaned = saved.replace(/\s*\([^)]*[\u0900-\u097F]+[^)]*\)/g, '').trim();
         if (cleaned !== saved) {
           try { localStorage.setItem('halder-user-location', cleaned); } catch {}
         }
@@ -530,7 +539,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const saved = localStorage.getItem('halder-user-city');
       if (saved) {
-        const cleaned = saved.replace(/\s*\([^\)]*[\u0900-\u097F]+[^\)]*\)/g, '').trim();
+        const cleaned = saved.replace(/\s*\([^)]*[\u0900-\u097F]+[^)]*\)/g, '').trim();
         if (cleaned !== saved) {
           try { localStorage.setItem('halder-user-city', cleaned); } catch {}
         }
@@ -639,23 +648,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('halder-categories-v2', JSON.stringify(categories));
   }, [categories]);
 
-  const safeStorageSet = (key: string, value: string) => {
-    try {
-      localStorage.setItem(key, value);
-    } catch (err: any) {
-      if (err?.name === 'QuotaExceededError' || err?.code === 22) {
-        console.warn(`[HALDER Storage] LocalStorage quota exceeded for ${key}. Pruning non-critical cache.`);
-        try {
-          localStorage.removeItem('halder_recent_searches');
-          localStorage.removeItem('halder_weather_cache');
-          localStorage.setItem(key, value);
-        } catch {
-          console.error('[HALDER Storage] LocalStorage is full. Skipping storage write.');
-        }
-      }
-    }
-  };
-
   useEffect(() => {
     safeStorageSet('halder-farmers-v2', JSON.stringify(farmers));
   }, [farmers]);
@@ -687,59 +679,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     safeStorageSet('halder-role', role);
   }, [role]);
-
-  // URL Deep-Linking for Direct Ad Sharing (?ad=<productId>)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      if (selectedProduct) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('ad', selectedProduct.id);
-        window.history.replaceState(null, '', url.toString());
-      } else {
-        const url = new URL(window.location.href);
-        if (url.searchParams.has('ad')) {
-          url.searchParams.delete('ad');
-          window.history.replaceState(null, '', url.pathname + (url.search ? url.search : ''));
-        }
-      }
-    } catch {}
-  }, [selectedProduct]);
-
-  const attemptedDeepLinkRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const adId = params.get('ad');
-      if (adId && attemptedDeepLinkRef.current !== adId) {
-        attemptedDeepLinkRef.current = adId;
-
-        // 1. Check if already present in local products state
-        const matched = products.find((p) => p.id === adId);
-        if (matched) {
-          setSelectedProduct(matched);
-          return;
-        }
-
-        // 2. Fallback: Fetch directly from backend server for WhatsApp shared deep links
-        ApiClient.getProductById(adId)
-          .then((backendProd: any) => {
-            const raw = backendProd?.product || backendProd?.data || backendProd;
-            if (raw && (raw.id || raw.name)) {
-              const mapped = mapBackendProduct(raw);
-              setProducts((prev) => (prev.some((p) => p.id === mapped.id) ? prev : [mapped, ...prev]));
-              setSelectedProduct(mapped);
-            }
-          })
-          .catch((err) => {
-            console.warn('[HALDER DeepLink] Failed to load shared ad from server:', err);
-          });
-      }
-    } catch {}
-  }, [products]);
-
 
   const mapBackendProduct = (p: any): Product => ({
     id: p.id,
@@ -801,6 +740,58 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     createdAt: p.created_at || p.createdAt || new Date().toISOString(),
     createdAtTime: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Today',
   });
+
+  // URL Deep-Linking for Direct Ad Sharing (?ad=<productId>)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (selectedProduct) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('ad', selectedProduct.id);
+        window.history.replaceState(null, '', url.toString());
+      } else {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('ad')) {
+          url.searchParams.delete('ad');
+          window.history.replaceState(null, '', url.pathname + (url.search ? url.search : ''));
+        }
+      }
+    } catch {}
+  }, [selectedProduct]);
+
+  const attemptedDeepLinkRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const adId = params.get('ad');
+      if (adId && attemptedDeepLinkRef.current !== adId) {
+        attemptedDeepLinkRef.current = adId;
+
+        // 1. Check if already present in local products state
+        const matched = products.find((p) => p.id === adId);
+        if (matched) {
+          setSelectedProduct(matched);
+          return;
+        }
+
+        // 2. Fallback: Fetch directly from backend server for WhatsApp shared deep links
+        ApiClient.getProductById(adId)
+          .then((backendProd: any) => {
+            const raw = backendProd?.product || backendProd?.data || backendProd;
+            if (raw && (raw.id || raw.name)) {
+              const mapped = mapBackendProduct(raw);
+              setProducts((prev) => (prev.some((p) => p.id === mapped.id) ? prev : [mapped, ...prev]));
+              setSelectedProduct(mapped);
+            }
+          })
+          .catch((err) => {
+            console.warn('[HALDER DeepLink] Failed to load shared ad from server:', err);
+          });
+      }
+    } catch {}
+  }, [products]);
 
   // Live Server Backend Synchronization
   const refreshProducts = async () => {
@@ -1051,58 +1042,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('halder-loggedin', logged ? 'true' : 'false');
   };
 
-  const login = (emailOrPhone: string, targetRole?: Role): boolean => {
-    setCustomerTab('home');
-    setFarmerTab('dashboard');
-    setAdminTab('overview');
-
-    ApiClient.login(emailOrPhone, undefined, targetRole)
-      .then((res) => {
-        if (res?.token) ApiClient.setToken(res.token);
-        if (res?.user) {
-          setCurrentUser(res.user);
-          localStorage.setItem('halder-current-user-v2', JSON.stringify(res.user));
-          setRoleState(res.user.role);
-          localStorage.setItem('halder-role', res.user.role);
-          setIsLoggedIn(true);
-          localStorage.setItem('halder-loggedin', 'true');
-        }
-      })
-      .catch((e) => console.warn('[HALDER Auth] Server login fallback:', e.message));
-
-    const digitsOnly = emailOrPhone.replace(/\D/g, '');
-    const phone10 = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : '';
-
+  const login = (emailOrPhone: string, _targetRole?: Role): boolean => {
     const existing = users.find(
       (u) =>
         u.email.toLowerCase() === emailOrPhone.toLowerCase() ||
-        u.phone === emailOrPhone ||
-        u.phone.replace(/\s+/g, '') === emailOrPhone.replace(/\s+/g, '') ||
-        (phone10 && u.phone.replace(/\D/g, '').endsWith(phone10)) ||
         (u.username && u.username.toLowerCase() === emailOrPhone.replace(/^@/, '').toLowerCase())
     );
-    if (existing) {
-      if (existing.status === 'suspended') {
-        showToast('Your account is currently suspended. Please contact admin.', 'error');
-        return false;
-      }
-      setCurrentUser(existing);
-      localStorage.setItem('halder-current-user-v2', JSON.stringify(existing));
-      setRoleState(existing.role);
-      localStorage.setItem('halder-role', existing.role);
-      setIsLoggedIn(true);
-      localStorage.setItem('halder-loggedin', 'true');
-      setHasSeenOnboarding(true);
-      if (existing.role === 'farmer') {
-        setFarmerTab('dashboard');
-      } else if (existing.role === 'admin') {
-        setAdminTab('overview');
-      } else {
-        setCustomerTab('home');
-      }
-      showToast(`Welcome back, ${existing.name}!`);
-      return true;
+    if (!existing) {
+      return false;
     }
+    if (existing.status === 'suspended') {
+      showToast('Your account is currently suspended. Please contact admin.', 'error');
+      return false;
+    }
+    // Never elevate role or issue session without an existing verified auth token
+    if (!ApiClient.hasToken()) {
+      setIsLoginModalOpen(true);
+      return false;
+    }
+    setCurrentUser(existing);
+    localStorage.setItem('halder-current-user-v2', JSON.stringify(existing));
+    setRoleState(existing.role);
+    localStorage.setItem('halder-role', existing.role);
+    setIsLoggedIn(true);
+    localStorage.setItem('halder-loggedin', 'true');
+    setHasSeenOnboarding(true);
     return true;
   };
 
@@ -1547,20 +1511,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEditingListing(null);
 
     try {
-      // Ensure active token before calling backend API
-      let token = localStorage.getItem('halder-auth-token');
+      const token = localStorage.getItem('halder-auth-token');
       if (!token) {
-        try {
-          const authRes = await ApiClient.login(
-            currentUser?.phone || currentUser?.email || 'aman@halder.com',
-            undefined,
-            (currentUser?.role as any) || role || 'customer'
-          );
-          if (authRes?.token) {
-            ApiClient.setToken(authRes.token);
-            if (authRes?.user) setCurrentUser(authRes.user);
-          }
-        } catch {}
+        setProducts((prev) => prev.filter((p) => p.id !== tempId));
+        showToast('Please sign in to publish a crop advertisement.', 'info');
+        setIsLoginModalOpen(true);
+        return;
       }
 
       const created = await ApiClient.createProduct(payload);
@@ -2057,15 +2013,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetDemoData = () => {
-    setProducts(initialProducts);
-    setOrders(initialOrders);
+    setProducts([]);
+    setOrders([]);
     setCart([]);
     setFavorites([]);
     localStorage.removeItem('halder-products-v2');
     localStorage.removeItem('halder-orders-v2');
     localStorage.removeItem('halder-cart-v2');
     localStorage.removeItem('halder-favorites');
-    showToast('Marketplace demo data restored!', 'info');
+    refreshProducts();
+    showToast('Local marketplace cache cleared & refreshed!', 'info');
   };
 
   const clearAllDummyAccounts = async () => {
@@ -2139,7 +2096,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const uClean = uParsed.filter((u: any) => !isDummyOrTestAccount(u));
           if (uClean.length !== uParsed.length) {
             localStorage.setItem('halder-users-v2', JSON.stringify(uClean));
-            setUsers(uClean.length > 0 ? uClean : initialUsers);
+            setUsers(uClean);
           }
         }
       }
@@ -2150,7 +2107,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const fClean = fParsed.filter((f: any) => !isDummyOrTestAccount(f));
           if (fClean.length !== fParsed.length) {
             safeStorageSet('halder-farmers-v2', JSON.stringify(fClean));
-            setFarmers(fClean.length > 0 ? fClean : initialFarmers);
+            setFarmers(fClean);
           }
         }
       }

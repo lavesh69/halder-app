@@ -39,7 +39,9 @@ android/build
 *.apk
 *.aab
 *.jks
+android/app/*.jks
 *.keystore
+android/app/*.keystore
 *.p12
 *.pfx
 

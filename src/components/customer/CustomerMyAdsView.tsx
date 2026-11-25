@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { formatCurrency } from '../../utils/formatters';
 import { Product } from '../../types';
 import {
   Plus,
@@ -10,10 +9,7 @@ import {
   Tag,
   AlertCircle,
   ExternalLink,
-  CheckCircle2,
-  Megaphone,
   Search,
-  Check,
   Edit3,
   X,
   TrendingUp,
@@ -36,7 +32,6 @@ export const CustomerMyAdsView: React.FC = () => {
     setSelectedProduct,
     setIsFastSellOpen,
     setEditingListing,
-    updateProductPrice,
     toggleProductSold,
     updateProductStatusAction,
     boostProduct,
@@ -54,9 +49,8 @@ export const CustomerMyAdsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active' | 'sold'>('active');
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [newPriceVal, setNewPriceVal] = useState<number | ''>('');
   const [boostingAd, setBoostingAd] = useState<Product | null>(null);
+  const [nowMs] = useState(() => Date.now());
 
   const currentUserId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
 
@@ -74,24 +68,12 @@ export const CustomerMyAdsView: React.FC = () => {
 
   const totalViews = allUserAds.reduce((acc, p) => acc + (p.viewsCount || 0), 0);
 
-  const handleStartEditPrice = (ad: Product) => {
-    setEditingPriceId(ad.id);
-    setNewPriceVal(ad.price);
-  };
-
-  const handleSavePrice = (adId: string) => {
-    if (newPriceVal !== '' && Number(newPriceVal) > 0) {
-      updateProductPrice(adId, Number(newPriceVal));
-    }
-    setEditingPriceId(null);
-  };
-
   const isAdExpired = (ad: Product) => {
     const rawDate = ad.createdAt || (ad as any).created_at;
     if (!rawDate) return false;
     const created = new Date(rawDate).getTime();
     if (isNaN(created)) return false;
-    const diffDays = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((nowMs - created) / (1000 * 60 * 60 * 24));
     return diffDays >= 30;
   };
 
@@ -100,7 +82,7 @@ export const CustomerMyAdsView: React.FC = () => {
     if (!rawDate) return 0;
     const created = new Date(rawDate).getTime();
     if (isNaN(created)) return 0;
-    return Math.max(0, Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)));
+    return Math.max(0, Math.floor((nowMs - created) / (1000 * 60 * 60 * 24)));
   };
 
   return (
@@ -239,7 +221,6 @@ export const CustomerMyAdsView: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {displayedAds.map((ad) => {
             const isConfirming = confirmDeleteId === ad.id;
-            const isEditingPrice = editingPriceId === ad.id;
             const isSold = ad.isAvailable === false;
             const isExpired = !isSold && isAdExpired(ad);
 
@@ -282,46 +263,15 @@ export const CustomerMyAdsView: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Price display / Inline editor */}
-                    {isEditingPrice ? (
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-xs font-bold text-zinc-500">₹</span>
-                        <input
-                          type="number"
-                          value={newPriceVal}
-                          onChange={(e) => setNewPriceVal(e.target.value === '' ? '' : Number(e.target.value))}
-                          className="w-24 px-2 py-0.5 text-xs font-bold border border-emerald-500 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none"
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => handleSavePrice(ad.id)}
-                          className="p-1 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-                          title="Save price"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setEditingPriceId(null)}
-                          className="p-1 text-zinc-400 hover:text-zinc-600 rounded-lg"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
-                          {formatCurrency(ad.price)}
-                          <span className="text-xs font-normal text-zinc-500"> / {ad.unit}</span>
-                        </span>
-                        <button
-                          onClick={() => handleStartEditPrice(ad)}
-                          className="p-1 text-zinc-400 hover:text-emerald-600 rounded transition"
-                          title="Edit Price"
-                        >
-                          <Edit3 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
+                    {/* Stock & Quality summary (no price tag shown) */}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                        {ad.availableQuantity} {ad.unit} available
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        • {ad.productGrade || 'Grade A'}
+                      </span>
+                    </div>
 
                     <div className="flex items-center gap-3 mt-1 text-[11px] text-zinc-500 font-medium">
                       <span className="flex items-center gap-1">
@@ -481,7 +431,7 @@ export const CustomerMyAdsView: React.FC = () => {
               />
               <div className="min-w-0">
                 <h4 className="font-bold text-xs text-zinc-900 dark:text-white truncate">{boostingAd.name}</h4>
-                <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(boostingAd.price)} / {boostingAd.unit}</span>
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{boostingAd.availableQuantity} {boostingAd.unit}</span>
               </div>
             </div>
 

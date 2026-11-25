@@ -25,34 +25,37 @@ export async function seedDatabase(forceTestSeed = false) {
  * 3. Platform financial & delivery parameters
  */
 export async function seedCoreSystem(now: string) {
-  // 1. Categories
-  const existingCats = Database.get<any>('SELECT COUNT(*) as count FROM categories');
-  if (!existingCats || existingCats.count === 0) {
-    Database.transaction(() => {
-      Database.run(
-        `INSERT OR IGNORE INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
-         ('cat-veg', 'Vegetables', 'vegetables', '🍅', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-fruits', 'Fruits', 'fruits', '🍎', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-leafy', 'Leafy Greens', 'leafy-greens', '🥬', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-grains', 'Grains & Pulses', 'grains', '🌾', 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-dairy', 'Dairy', 'dairy', '🥛', 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-organic', 'Organic Food', 'organic', '🍯', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-homemade', 'Homemade Pickles', 'homemade', '🫙', 'https://images.unsplash.com/photo-1589135233689-d49fa2b23419?w=400&auto=format&fit=crop&q=80', 1, ?)`,
-        [now, now, now, now, now, now, now]
-      );
-    });
-  }
+  // 1. Canonical Marketplace Categories (aligned with frontend categories)
+  Database.transaction(() => {
+    Database.run(
+      `INSERT OR IGNORE INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
+       ('cat-veg', 'Vegetables', 'vegetables', '🍅', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-fruits', 'Fruits', 'fruits', '🍎', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-leafy', 'Leafy Greens', 'leafy-greens', '🥬', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-grains', 'Grains', 'grains', '🌾', 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-dairy', 'Dairy', 'dairy', '🥛', 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-equip', 'Farm Equipment', 'farm-equipment', '🚜', 'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-livestock', 'Livestock', 'livestock', '🐄', 'https://images.unsplash.com/photo-1545468800-85cc9bc6ecf7?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-organic', 'Organic', 'organic', '🌿', 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-homemade', 'Homemade', 'homemade', '🍯', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-seeds', 'Seeds', 'seeds', '🌱', 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-other', 'Other', 'other', '🧺', 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&auto=format&fit=crop&q=80', 1, ?)`,
+      [now, now, now, now, now, now, now, now, now, now, now]
+    );
+  });
 
-  // 2. Default System Admin Account
+  // 2. Default System Admin Account (created once on initial setup; never overwrites existing password in production)
   const existingAdmin = Database.get<any>("SELECT id FROM users WHERE role = 'admin' OR username = 'admin'");
-  const adminPasswordHash = await bcrypt.hash('HalderAdmin@2026!', 10);
+  const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || 'HalderAdmin@2026!';
   if (!existingAdmin) {
+    const adminPasswordHash = await bcrypt.hash(initialAdminPass, 10);
     Database.run(
       `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
        ('user-admin-1', 'HAL-ADM-90000001', 'admin', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
       [adminPasswordHash, now, now]
     );
-  } else {
+  } else if (process.env.NODE_ENV === 'test') {
+    const adminPasswordHash = await bcrypt.hash(initialAdminPass, 10);
     Database.run(
       `UPDATE users SET password_hash = ?, username = 'admin', email = 'admin@halder.com', updated_at = ? WHERE id = ?`,
       [adminPasswordHash, now, existingAdmin.id]

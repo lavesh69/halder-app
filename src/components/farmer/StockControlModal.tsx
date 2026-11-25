@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Product } from '../../types';
 import { ApiClient } from '../../api/client';
 import { useApp } from '../../context/AppContext';
-import { formatCurrency } from '../../utils/formatters';
+
 import {
   X,
   Boxes,
@@ -10,9 +10,6 @@ import {
   Minus,
   Check,
   History,
-  AlertTriangle,
-  RotateCcw,
-  ShieldCheck,
   TrendingDown,
   TrendingUp,
 } from 'lucide-react';
@@ -166,7 +163,7 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
                 Live Stock & Inventory
               </h3>
               <p className="text-[11px] text-zinc-500 line-clamp-1">
-                {product.name} ({formatCurrency(product.price)}/{product.unit})
+                {product.name} • {product.availableQuantity} {product.unit}
               </p>
             </div>
           </div>

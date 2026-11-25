@@ -8,11 +8,8 @@ import {
   Heart,
   MapPin,
   Sparkles,
-  ShoppingBag,
-  Zap,
   ShieldCheck,
   Check,
-  Camera,
   Phone,
   MessageCircle,
 } from 'lucide-react';
@@ -33,8 +30,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     farmers,
     toggleFavorite,
     isFavorite,
-    addToCart,
-    setBuyNowProduct,
     openFarmerChat,
     showToast,
     setIsSearchScreenOpen,
@@ -60,7 +55,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
   const handleQuickCall = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const phone = product.farmerPhone || farmer?.phone || '+91 98450 12345';
+    const phone = product.farmerPhone || farmer?.phone || '';
+    if (!phone) {
+      showToast('Please sign in or use Chat to contact this seller directly.', 'info');
+      handleQuickChat(e);
+      return;
+    }
     showToast(`Dialing ${product.farmerName} (${phone})`, 'info');
     window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
   };

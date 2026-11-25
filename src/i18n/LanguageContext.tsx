@@ -1,19 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { SupportedLanguage, LanguageOption, SUPPORTED_LANGUAGES, LanguageContextType } from './types';
+import { SupportedLanguage, SUPPORTED_LANGUAGES, LanguageContextType } from './types';
 import { enTranslations, TranslationDictionary } from './translations/en';
-import { hiTranslations } from './translations/hi';
-import { paTranslations } from './translations/pa';
-import { mrTranslations } from './translations/mr';
-import { bnTranslations } from './translations/bn';
-import { guTranslations } from './translations/gu';
-import { taTranslations } from './translations/ta';
-import { knTranslations } from './translations/kn';
-import { mlTranslations } from './translations/ml';
-import { urTranslations } from './translations/ur';
-import { teTranslations } from './translations/te';
-import { orTranslations } from './translations/or';
-import { bhoTranslations } from './translations/bho';
-import { asTranslations } from './translations/as';
 
 const STORAGE_KEY = 'halder-language';
 const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
@@ -35,22 +22,27 @@ const VALID_LANGUAGES: SupportedLanguage[] = [
   'as',
 ];
 
-export const translations: Record<SupportedLanguage, TranslationDictionary> = {
-  en: enTranslations,
-  hi: hiTranslations,
-  pa: paTranslations,
-  mr: mrTranslations,
-  bn: bnTranslations,
-  gu: guTranslations,
-  ta: taTranslations,
-  kn: knTranslations,
-  ml: mlTranslations,
-  ur: urTranslations,
-  te: teTranslations,
-  or: orTranslations,
-  bho: bhoTranslations,
-  as: asTranslations,
+const LANGUAGE_LOADERS: Record<Exclude<SupportedLanguage, 'en'>, () => Promise<TranslationDictionary>> = {
+  hi: () => import('./translations/hi').then((m) => m.hiTranslations),
+  pa: () => import('./translations/pa').then((m) => m.paTranslations),
+  mr: () => import('./translations/mr').then((m) => m.mrTranslations),
+  bn: () => import('./translations/bn').then((m) => m.bnTranslations),
+  gu: () => import('./translations/gu').then((m) => m.guTranslations),
+  ta: () => import('./translations/ta').then((m) => m.taTranslations),
+  kn: () => import('./translations/kn').then((m) => m.knTranslations),
+  ml: () => import('./translations/ml').then((m) => m.mlTranslations),
+  ur: () => import('./translations/ur').then((m) => m.urTranslations),
+  te: () => import('./translations/te').then((m) => m.teTranslations),
+  or: () => import('./translations/or').then((m) => m.orTranslations),
+  bho: () => import('./translations/bho').then((m) => m.bhoTranslations),
+  as: () => import('./translations/as').then((m) => m.asTranslations),
 };
+
+export const translations: Partial<Record<SupportedLanguage, TranslationDictionary>> = {
+  en: enTranslations,
+};
+
+const inFlightLoads = new Map<SupportedLanguage, Promise<TranslationDictionary>>();
 
 // Global state broadcaster for cross-component and standalone usage
 let globalLanguage: SupportedLanguage = (() => {
@@ -64,6 +56,38 @@ let globalLanguage: SupportedLanguage = (() => {
 })();
 
 const listeners = new Set<(lang: SupportedLanguage) => void>();
+
+export async function ensureLanguageLoaded(lang: SupportedLanguage): Promise<void> {
+  if (lang === 'en' || translations[lang]) return;
+  const loader = LANGUAGE_LOADERS[lang];
+  if (!loader) return;
+
+  let pending = inFlightLoads.get(lang);
+  if (!pending) {
+    pending = loader()
+      .then((dict) => {
+        translations[lang] = dict;
+        inFlightLoads.delete(lang);
+        listeners.forEach((listener) => {
+          try {
+            listener(globalLanguage);
+          } catch {}
+        });
+        return dict;
+      })
+      .catch((err) => {
+        inFlightLoads.delete(lang);
+        throw err;
+      });
+    inFlightLoads.set(lang, pending);
+  }
+  await pending.catch(() => {});
+}
+
+// Kick off preload immediately if stored language is not English
+if (globalLanguage !== 'en') {
+  ensureLanguageLoaded(globalLanguage);
+}
 
 export function getStoredLanguage(): SupportedLanguage {
   return globalLanguage;
@@ -79,6 +103,9 @@ export function setStoredLanguage(lang: SupportedLanguage): void {
       document.documentElement.dir = opt?.direction || 'ltr';
     }
   } catch {}
+  if (lang !== 'en' && !translations[lang]) {
+    ensureLanguageLoaded(lang);
+  }
   listeners.forEach((listener) => {
     try {
       listener(lang);
@@ -116,6 +143,7 @@ export const LanguageProvider: React.FC<{
     }
     return getStoredLanguage();
   });
+  const [dictRevision, setDictRevision] = useState(0);
 
   const handleSetLanguage = useCallback((newLang: SupportedLanguage) => {
     if (!VALID_LANGUAGES.includes(newLang)) return;
@@ -124,8 +152,13 @@ export const LanguageProvider: React.FC<{
   }, []);
 
   useEffect(() => {
+    ensureLanguageLoaded(language);
+  }, [language]);
+
+  useEffect(() => {
     const handleGlobalChange = (newLang: SupportedLanguage) => {
       setLanguageState(newLang);
+      setDictRevision((r) => r + 1);
     };
 
     listeners.add(handleGlobalChange);
@@ -145,9 +178,10 @@ export const LanguageProvider: React.FC<{
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
+      void dictRevision;
       return translate(language, key, params);
     },
-    [language]
+    [language, dictRevision]
   );
 
   const contextValue = useMemo<LanguageContextType>(

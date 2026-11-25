@@ -27792,6 +27792,9 @@ var init_env = __esm({
       process.exit(1);
     }
     env = parsed.data;
+    if (env.NODE_ENV === "production" && env.JWT_SECRET === "halder_super_secure_jwt_secret_production_2026_mandi") {
+      console.warn("[SECURITY WARNING] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!");
+    }
   }
 });
 
@@ -74596,7 +74599,7 @@ var require_dist_cjs16 = __commonJS({
     };
     var GetObjectAttributesCommand = class extends command5(_ep5, _mw1, "GetObjectAttributes", GetObjectAttributes$) {
     };
-    var GetObjectCommand2 = class extends command5(_ep05, _mw7, "GetObject", GetObject$) {
+    var GetObjectCommand = class extends command5(_ep05, _mw7, "GetObject", GetObject$) {
     };
     var GetObjectLegalHoldCommand = class extends command5(_ep5, _mw05, "GetObjectLegalHold", GetObjectLegalHold$) {
     };
@@ -74859,7 +74862,7 @@ var require_dist_cjs16 = __commonJS({
       GetBucketTaggingCommand,
       GetBucketVersioningCommand,
       GetBucketWebsiteCommand,
-      GetObjectCommand: GetObjectCommand2,
+      GetObjectCommand,
       GetObjectAclCommand,
       GetObjectAnnotationCommand,
       GetObjectAttributesCommand,
@@ -75653,7 +75656,7 @@ var require_dist_cjs16 = __commonJS({
     exports.GetObjectAttributesOutput$ = GetObjectAttributesOutput$;
     exports.GetObjectAttributesParts$ = GetObjectAttributesParts$;
     exports.GetObjectAttributesRequest$ = GetObjectAttributesRequest$;
-    exports.GetObjectCommand = GetObjectCommand2;
+    exports.GetObjectCommand = GetObjectCommand;
     exports.GetObjectLegalHold$ = GetObjectLegalHold$;
     exports.GetObjectLegalHoldCommand = GetObjectLegalHoldCommand;
     exports.GetObjectLegalHoldOutput$ = GetObjectLegalHoldOutput$;
@@ -86273,7 +86276,7 @@ init_audit();
 var import_jsonwebtoken2 = __toESM(require_jsonwebtoken(), 1);
 init_env();
 var resetCodeStore = /* @__PURE__ */ new Map();
-var AuthService = class _AuthService {
+var AuthService = class {
   static async register(data) {
     if (data.role === "admin") {
       throw AppError.forbidden("Administrative accounts cannot be registered via public API.", "ADMIN_REGISTRATION_PROHIBITED");
@@ -86380,6 +86383,9 @@ var AuthService = class _AuthService {
     return { user, farmerProfile, token };
   }
   static async login(usernameOrEmail, password, requestedRole) {
+    if (!password || !password.trim()) {
+      throw AppError.badRequest("Password is required to sign in.", "PASSWORD_REQUIRED");
+    }
     const rawInput = usernameOrEmail.trim();
     const cleanInput = rawInput.replace(/^@/, "").toLowerCase();
     const digitsOnly = rawInput.replace(/\D/g, "");
@@ -86410,28 +86416,17 @@ var AuthService = class _AuthService {
       ]
     );
     if (!user) {
-      if (password) {
-        throw AppError.unauthorized("Invalid username, email, phone number, or password.", "INVALID_CREDENTIALS");
-      }
-      return _AuthService.register({
-        username: cleanInput.replace(/[^a-z0-9_.-]/g, "").slice(0, 25) || `user_${Date.now()}`,
-        name: rawInput.includes("@") ? rawInput.split("@")[0] : `User ${rawInput.slice(-4)}`,
-        email: rawInput.includes("@") ? rawInput.toLowerCase() : `user_${Date.now()}@halder.com`,
-        phone: phoneWithSpaces || (rawInput.includes("@") ? `+91 ${Math.floor(1e9 + Math.random() * 9e9)}` : rawInput),
-        role: requestedRole === "farmer" ? "farmer" : "customer"
-      });
+      throw AppError.unauthorized("Invalid username, email, phone number, or password.", "INVALID_CREDENTIALS");
     }
     if (user.status === "suspended") {
       throw AppError.forbidden("Your account is currently suspended. Please contact admin.", "ACCOUNT_SUSPENDED");
     }
-    if (password && user.password_hash) {
-      let isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
-      if (!isMatch && user.role === "admin" && (password === "admin123" || password === "halder123" || password === "HalderAdmin@2026!")) {
-        isMatch = true;
-      }
-      if (!isMatch) {
-        throw AppError.unauthorized("Invalid password entered. Please check your credentials.", "INVALID_CREDENTIALS");
-      }
+    if (!user.password_hash || user.password_hash === "GOOGLE_OAUTH_ACCOUNT" || user.password_hash === "OTP_VERIFIED") {
+      throw AppError.unauthorized("Please sign in with Google or reset your password to set one.", "INVALID_CREDENTIALS");
+    }
+    const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
+    if (!isMatch) {
+      throw AppError.unauthorized("Invalid password entered. Please check your credentials.", "INVALID_CREDENTIALS");
     }
     const token = CryptoUtil.generateToken({
       userId: user.id,
@@ -86533,11 +86528,17 @@ var AuthService = class _AuthService {
       { expiresIn: "15m" }
     );
     logAuditEvent(user.id, user.role, "PASSWORD_RESET_REQUESTED", "users", user.id);
+    if (process.env.NODE_ENV === "test") {
+      return {
+        success: true,
+        message: "Password reset code generated successfully. Please enter the verification code.",
+        code,
+        resetToken
+      };
+    }
     return {
       success: true,
-      message: "Password reset code generated successfully. Please enter the verification code.",
-      code,
-      resetToken
+      message: "If an account matches this email, verification instructions have been sent."
     };
   }
   static async resetPassword(data) {
@@ -86609,32 +86610,30 @@ var GoogleAuthService = class {
     if (!idToken || typeof idToken !== "string") {
       throw AppError.badRequest("Google ID Token is required.", "MISSING_GOOGLE_TOKEN");
     }
-    if (idToken.startsWith("test_google_token_") || process.env.NODE_ENV === "test") {
-      if (idToken.startsWith("test_google_token_")) {
-        const payloadStr = idToken.replace("test_google_token_", "");
-        let sub = "109876543210987654321";
-        let email = "google_user@example.com";
-        let name = "Google Verified User";
-        if (payloadStr.includes(":::")) {
-          const parts = payloadStr.split(":::");
-          sub = parts[0] || sub;
-          email = parts[1] || email;
-          name = parts[2] || name;
-        } else {
-          const parts = payloadStr.split("_");
-          const foundEmail = parts.find((p3) => p3.includes("@"));
-          if (foundEmail) email = foundEmail;
-          sub = parts[0] || sub;
-          name = parts[parts.length - 1] ? parts[parts.length - 1].replace(/-/g, " ") : name;
-        }
-        return {
-          sub,
-          email: email.toLowerCase().trim(),
-          name,
-          picture: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80",
-          email_verified: true
-        };
+    if (process.env.NODE_ENV === "test" && idToken.startsWith("test_google_token_")) {
+      const payloadStr = idToken.replace("test_google_token_", "");
+      let sub = "109876543210987654321";
+      let email = "google_user@example.com";
+      let name = "Google Verified User";
+      if (payloadStr.includes(":::")) {
+        const parts = payloadStr.split(":::");
+        sub = parts[0] || sub;
+        email = parts[1] || email;
+        name = parts[2] || name;
+      } else {
+        const parts = payloadStr.split("_");
+        const foundEmail = parts.find((p3) => p3.includes("@"));
+        if (foundEmail) email = foundEmail;
+        sub = parts[0] || sub;
+        name = parts[parts.length - 1] ? parts[parts.length - 1].replace(/-/g, " ") : name;
       }
+      return {
+        sub,
+        email: email.toLowerCase().trim(),
+        name,
+        picture: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80",
+        email_verified: true
+      };
     }
     try {
       const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
@@ -86684,6 +86683,9 @@ var GoogleAuthService = class {
       );
     }
     const googleUser = await this.verifyIdToken(payload.idToken);
+    if (!googleUser.email_verified) {
+      throw AppError.unauthorized("Google email address is not verified.", "UNVERIFIED_GOOGLE_EMAIL");
+    }
     const now = (/* @__PURE__ */ new Date()).toISOString();
     const existingIdentity = Database.get(
       "SELECT user_id FROM auth_identities WHERE provider = ? AND provider_user_id = ?",
@@ -86696,6 +86698,9 @@ var GoogleAuthService = class {
       );
       if (!user2) {
         throw AppError.notFound("Associated HALDER account not found.", "USER_NOT_FOUND");
+      }
+      if (user2.role === "admin") {
+        throw AppError.forbidden("Administrator accounts cannot authenticate via Google Sign-In.", "ADMIN_GOOGLE_PROHIBITED");
       }
       if (user2.status === "suspended") {
         throw AppError.forbidden("Your account is currently suspended. Please contact admin.", "ACCOUNT_SUSPENDED");
@@ -86712,6 +86717,9 @@ var GoogleAuthService = class {
       [googleUser.email]
     );
     if (existingUserByEmail) {
+      if (existingUserByEmail.role === "admin") {
+        throw AppError.forbidden("Administrator accounts cannot authenticate via Google Sign-In.", "ADMIN_GOOGLE_PROHIBITED");
+      }
       if (existingUserByEmail.status === "suspended") {
         throw AppError.forbidden("Your account is currently suspended. Please contact admin.", "ACCOUNT_SUSPENDED");
       }
@@ -88223,7 +88231,7 @@ var loginSchema = external_exports.object({
   username: external_exports.string().min(3).max(120).optional(),
   phone: external_exports.string().min(3).max(120).optional(),
   identifier: external_exports.string().min(3).max(120).optional(),
-  password: external_exports.string().max(128).optional(),
+  password: external_exports.string().min(1, "Password is required").max(128),
   role: external_exports.enum(["customer", "farmer", "admin"]).optional()
 }).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username || data.phone || data.identifier, {
   message: "Username, email, or phone number is required"
@@ -88544,6 +88552,7 @@ var ProductService = class _ProductService {
     const limit = Math.min(100, Math.max(1, params.limit || 20));
     const offset = (page - 1) * limit;
     const radius = Math.min(300, Math.max(1, params.radiusKm !== void 0 ? params.radiusKm : 300));
+    const exposePhone = params.isAuthenticated ? 1 : 0;
     let sql = `
       SELECT p.*,
              c.name as category_name,
@@ -88552,7 +88561,7 @@ var ProductService = class _ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
-             CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
+             CASE WHEN ? = 0 OR p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
@@ -88560,10 +88569,10 @@ var ProductService = class _ProductService {
       JOIN users u ON f.user_id = u.id
       WHERE ${params.includeAllStatuses && params.farmerId ? "p.status != 'unavailable'" : "p.status = 'active'"} AND p.moderation_status = 'approved'
     `;
-    const sqlParams = [];
+    const sqlParams = [exposePhone];
     if (params.category && params.category !== "All") {
-      sql += " AND (c.name = ? OR c.slug = ?)";
-      sqlParams.push(params.category, params.category.toLowerCase());
+      sql += " AND (c.name = ? OR c.slug = ? OR c.name LIKE ?)";
+      sqlParams.push(params.category, params.category.toLowerCase(), `${params.category}%`);
     }
     if (params.minPrice !== void 0) {
       sql += " AND p.price >= ?";
@@ -88674,7 +88683,8 @@ var ProductService = class _ProductService {
     this.listCache.set(cacheKey, { expiresAt: now + 5e3, data: standardResult });
     return standardResult;
   }
-  static getById(id) {
+  static getById(id, isAuthenticated = false) {
+    const exposePhone = isAuthenticated ? 1 : 0;
     const product = Database.get(
       `SELECT p.*,
               c.name as category_name,
@@ -88686,14 +88696,14 @@ var ProductService = class _ProductService {
               f.total_orders as farmer_total_orders,
               f.response_rate as farmer_response_rate,
               u.name as farmer_name,
-              CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
+              CASE WHEN ? = 0 OR p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
               f.avatar as farmer_avatar
        FROM products p
        JOIN categories c ON p.category_id = c.id
        JOIN farmer_profiles f ON p.farmer_id = f.id
        JOIN users u ON f.user_id = u.id
        WHERE p.id = ?`,
-      [id]
+      [exposePhone, id]
     );
     if (!product) {
       throw AppError.notFound("Product listing not found");
@@ -88721,8 +88731,9 @@ var ProductService = class _ProductService {
     return product;
   }
   static async create(data, baseUrl) {
-    if (data.price <= 0 || data.price > 1e6) {
-      throw AppError.badRequest("Product price must be between \u20B91 and \u20B910,00,000.");
+    const safePrice = data.price ?? 0;
+    if (safePrice < 0 || safePrice > 1e6) {
+      throw AppError.badRequest("Product price must be between \u20B90 and \u20B910,00,000.");
     }
     if (data.availableQuantity <= 0 || data.availableQuantity > 1e7) {
       throw AppError.badRequest("Available quantity must be between 0.01 and 10,000,000.");
@@ -88735,11 +88746,12 @@ var ProductService = class _ProductService {
     if (spamRegex.test(cleanName) || data.description && spamRegex.test(data.description)) {
       throw AppError.badRequest("Product contains disallowed terms or prohibited spam content.", "SPAM_REJECTED");
     }
-    const catLookup = data.category || data.categoryId || "Vegetables";
-    const category = Database.get("SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?)", [
-      catLookup,
-      catLookup
-    ]);
+    const catLookup = (data.category || data.categoryId || "Vegetables").trim();
+    const catSlug = catLookup.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const category = Database.get(
+      "SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?) OR LOWER(slug) = LOWER(?) OR LOWER(name) LIKE LOWER(?)",
+      [catLookup, catLookup, catSlug, `${catLookup}%`]
+    );
     const actualCategoryId = category ? category.id : "cat-veg";
     const id = `prod-${v4_default()}`;
     const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -88779,7 +88791,7 @@ var ProductService = class _ProductService {
           sanitizeText(data.name),
           slug,
           sanitizeText(data.description || ""),
-          data.price,
+          safePrice,
           data.unit,
           data.availableQuantity,
           totalQty,
@@ -89158,7 +89170,8 @@ var ProductController = class {
         includeAllStatuses: Boolean(isOwnerRequestingAll),
         latitude: latitude ? Number(latitude) : void 0,
         longitude: longitude ? Number(longitude) : void 0,
-        radiusKm: radiusKm ? Number(radiusKm) : void 0
+        radiusKm: radiusKm ? Number(radiusKm) : void 0,
+        isAuthenticated: Boolean(req.user)
       });
       res.json({
         success: true,
@@ -89170,7 +89183,7 @@ var ProductController = class {
   }
   static async getById(req, res, next) {
     try {
-      const product = ProductService.getById(req.params.id);
+      const product = ProductService.getById(req.params.id, Boolean(req.user));
       res.json({
         success: true,
         data: product
@@ -89181,22 +89194,7 @@ var ProductController = class {
   }
   static async create(req, res, next) {
     try {
-      let user = req.user;
-      if (!user) {
-        const defaultUser = Database.get("SELECT id, name, email, phone, role, status FROM users WHERE role = 'farmer' LIMIT 1") || Database.get("SELECT id, name, email, phone, role, status FROM users LIMIT 1");
-        if (defaultUser) {
-          const fp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [defaultUser.id]);
-          user = {
-            id: defaultUser.id,
-            name: defaultUser.name,
-            email: defaultUser.email,
-            phone: defaultUser.phone,
-            role: defaultUser.role,
-            status: defaultUser.status,
-            farmerProfileId: fp?.id
-          };
-        }
-      }
+      const user = req.user;
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -89392,7 +89390,7 @@ var createProductSchema = external_exports.object({
   category: external_exports.string().optional(),
   name: external_exports.string().trim().min(2, "Product name must be at least 2 characters").max(120, "Product name must not exceed 120 characters"),
   description: external_exports.string().max(2e3).optional(),
-  price: external_exports.coerce.number().positive("Price must be greater than 0").max(1e6, "Price must not exceed \u20B910,00,000"),
+  price: external_exports.coerce.number().min(0, "Price cannot be negative").max(1e6, "Price must not exceed \u20B910,00,000").optional().default(0),
   unit: external_exports.string().default("kg"),
   availableQuantity: external_exports.coerce.number().min(0.01, "Quantity must be at least 0.01").max(1e7, "Quantity cannot exceed 10,000,000"),
   isOrganic: boolOrNum.optional(),
@@ -89409,7 +89407,7 @@ var createProductSchema = external_exports.object({
   })).optional()
 }).passthrough();
 router2.get("/", searchLimiter, optionalAuth, ProductController.list);
-router2.get("/:id", ProductController.getById);
+router2.get("/:id", optionalAuth, ProductController.getById);
 router2.post("/", authenticateUser, validateBody(createProductSchema), ProductController.create);
 router2.patch("/:id", authenticateUser, verifyProductOwnership, ProductController.update);
 router2.patch("/:id/stock", authenticateUser, verifyProductOwnership, ProductController.updateStock);
@@ -94978,7 +94976,7 @@ var import_express17 = __toESM(require_express2(), 1);
 // server/src/controllers/logisticsController.ts
 init_database();
 init_errors3();
-var LogisticsController = class {
+var LogisticsController = class _LogisticsController {
   // GET /api/v1/logistics/partners
   static getPartners(req, res, next) {
     try {
@@ -95140,7 +95138,7 @@ var LogisticsController = class {
             now
           ]
         );
-        return this.getTaskByOrderId(req, res, next);
+        return _LogisticsController.getTaskByOrderId(req, res, next);
       }
       res.json({ success: true, data: task });
     } catch (err) {
@@ -99388,31 +99386,34 @@ async function seedDatabase(forceTestSeed = false) {
   }
 }
 async function seedCoreSystem(now) {
-  const existingCats = Database.get("SELECT COUNT(*) as count FROM categories");
-  if (!existingCats || existingCats.count === 0) {
-    Database.transaction(() => {
-      Database.run(
-        `INSERT OR IGNORE INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
-         ('cat-veg', 'Vegetables', 'vegetables', '\u{1F345}', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-fruits', 'Fruits', 'fruits', '\u{1F34E}', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-leafy', 'Leafy Greens', 'leafy-greens', '\u{1F96C}', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-grains', 'Grains & Pulses', 'grains', '\u{1F33E}', 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-dairy', 'Dairy', 'dairy', '\u{1F95B}', 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-organic', 'Organic Food', 'organic', '\u{1F36F}', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&auto=format&fit=crop&q=80', 1, ?),
-         ('cat-homemade', 'Homemade Pickles', 'homemade', '\u{1FAD9}', 'https://images.unsplash.com/photo-1589135233689-d49fa2b23419?w=400&auto=format&fit=crop&q=80', 1, ?)`,
-        [now, now, now, now, now, now, now]
-      );
-    });
-  }
+  Database.transaction(() => {
+    Database.run(
+      `INSERT OR IGNORE INTO categories (id, name, slug, emoji, image, active, created_at) VALUES
+       ('cat-veg', 'Vegetables', 'vegetables', '\u{1F345}', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-fruits', 'Fruits', 'fruits', '\u{1F34E}', 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-leafy', 'Leafy Greens', 'leafy-greens', '\u{1F96C}', 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-grains', 'Grains', 'grains', '\u{1F33E}', 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-dairy', 'Dairy', 'dairy', '\u{1F95B}', 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-equip', 'Farm Equipment', 'farm-equipment', '\u{1F69C}', 'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-livestock', 'Livestock', 'livestock', '\u{1F404}', 'https://images.unsplash.com/photo-1545468800-85cc9bc6ecf7?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-organic', 'Organic', 'organic', '\u{1F33F}', 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-homemade', 'Homemade', 'homemade', '\u{1F36F}', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-seeds', 'Seeds', 'seeds', '\u{1F331}', 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&auto=format&fit=crop&q=80', 1, ?),
+       ('cat-other', 'Other', 'other', '\u{1F9FA}', 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&auto=format&fit=crop&q=80', 1, ?)`,
+      [now, now, now, now, now, now, now, now, now, now, now]
+    );
+  });
   const existingAdmin = Database.get("SELECT id FROM users WHERE role = 'admin' OR username = 'admin'");
-  const adminPasswordHash = await bcryptjs_default.hash("HalderAdmin@2026!", 10);
+  const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || "HalderAdmin@2026!";
   if (!existingAdmin) {
+    const adminPasswordHash = await bcryptjs_default.hash(initialAdminPass, 10);
     Database.run(
       `INSERT OR IGNORE INTO users (id, halder_id, username, name, email, phone, password_hash, role, profile_image, status, created_at, updated_at) VALUES
        ('user-admin-1', 'HAL-ADM-90000001', 'admin', 'Vikram Patel', 'admin@halder.com', '+91 99999 00001', ?, 'admin', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80', 'active', ?, ?)`,
       [adminPasswordHash, now, now]
     );
-  } else {
+  } else if (process.env.NODE_ENV === "test") {
+    const adminPasswordHash = await bcryptjs_default.hash(initialAdminPass, 10);
     Database.run(
       `UPDATE users SET password_hash = ?, username = 'admin', email = 'admin@halder.com', updated_at = ? WHERE id = ?`,
       [adminPasswordHash, now, existingAdmin.id]

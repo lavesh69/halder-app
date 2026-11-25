@@ -1,17 +1,4 @@
 export * from './types';
 export * from './LanguageContext';
 export { enTranslations } from './translations/en';
-export { hiTranslations } from './translations/hi';
-export { paTranslations } from './translations/pa';
-export { mrTranslations } from './translations/mr';
-export { bnTranslations } from './translations/bn';
-export { guTranslations } from './translations/gu';
-export { taTranslations } from './translations/ta';
-export { knTranslations } from './translations/kn';
-export { mlTranslations } from './translations/ml';
-export { urTranslations } from './translations/ur';
-export { teTranslations } from './translations/te';
-export { orTranslations } from './translations/or';
-export { bhoTranslations } from './translations/bho';
-export { asTranslations } from './translations/as';
 export type { TranslationKey, TranslationDictionary } from './translations/en';

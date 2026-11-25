@@ -30,6 +30,21 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   const [loading, setLoading] = useState(false);
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+  const initGoogle = React.useCallback(() => {
+    if (window.google?.accounts?.id && clientId) {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (res: any) => {
+          if (res.credential) {
+            onSuccess(res.credential);
+          } else if (onError) {
+            onError('No Google credential returned.');
+          }
+        },
+      });
+    }
+  }, [clientId, onSuccess, onError]);
+
   useEffect(() => {
     if (!clientId) return;
 
@@ -46,22 +61,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     } else {
       initGoogle();
     }
-  }, [clientId, role]);
-
-  const initGoogle = () => {
-    if (window.google?.accounts?.id && clientId) {
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: (res: any) => {
-          if (res.credential) {
-            onSuccess(res.credential);
-          } else if (onError) {
-            onError('No Google credential returned.');
-          }
-        },
-      });
-    }
-  };
+  }, [clientId, role, initGoogle]);
 
   const handleGoogleClick = () => {
     if (disabled || loading) return;
@@ -71,16 +71,23 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       return;
     }
 
-    setLoading(true);
-    const demoSub = `google_sub_${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-    const testEmail = role === 'farmer' ? 'rajesh.farmer@gmail.com' : 'aman.customer@gmail.com';
-    const testName = role === 'farmer' ? 'Rajesh Kumar' : 'Aman Sharma';
-    const testToken = `test_google_token_${demoSub}:::${testEmail}:::${testName}`;
+    if (import.meta.env.MODE === 'test') {
+      setLoading(true);
+      const demoSub = `google_sub_${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+      const testEmail = role === 'farmer' ? 'rajesh.farmer@gmail.com' : 'aman.customer@gmail.com';
+      const testName = role === 'farmer' ? 'Rajesh Kumar' : 'Aman Sharma';
+      const testToken = `test_google_token_${demoSub}:::${testEmail}:::${testName}`;
 
-    setTimeout(() => {
-      setLoading(false);
-      onSuccess(testToken);
-    }, 400);
+      setTimeout(() => {
+        setLoading(false);
+        onSuccess(testToken);
+      }, 400);
+      return;
+    }
+
+    if (onError) {
+      onError('Google Sign-In is not configured on this domain yet. Please sign in with your Email/Username & Password.');
+    }
   };
 
   return (

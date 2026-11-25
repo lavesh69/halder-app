@@ -180,7 +180,7 @@ export class LogisticsController {
           ]
         );
 
-        return this.getTaskByOrderId(req, res, next);
+        return LogisticsController.getTaskByOrderId(req, res, next);
       }
 
       res.json({ success: true, data: task });

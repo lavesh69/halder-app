@@ -11,9 +11,7 @@ import {
   X,
   SlidersHorizontal,
   TrendingUp,
-  MapPin,
   Clock,
-  Sparkles,
   Mic,
   LayoutGrid,
   List,
@@ -41,7 +39,6 @@ export const SearchScreen: React.FC = () => {
     setIsFilterModalOpen,
     filterState,
     setFilterState,
-    currentLocation,
     showToast,
     setIsLoginModalOpen,
     customerTab,
@@ -157,7 +154,6 @@ export const SearchScreen: React.FC = () => {
     }
 
     if (filterState.category !== 'All' && p.category !== filterState.category) return false;
-    if (p.price < filterState.minPrice || p.price > filterState.maxPrice) return false;
     if (filterState.organicOnly && !p.isOrganic) return false;
     if (filterState.availableTodayOnly && !p.isAvailableToday) return false;
     if (p.distanceKm > filterState.maxDistanceKm) return false;
@@ -173,8 +169,6 @@ export const SearchScreen: React.FC = () => {
     if (!a.isUrgent && b.isUrgent) return 1;
 
     if (filterState.sortBy === 'nearest') return a.distanceKm - b.distanceKm;
-    if (filterState.sortBy === 'price_low') return a.price - b.price;
-    if (filterState.sortBy === 'price_high') return b.price - a.price;
     return 0;
   });
 

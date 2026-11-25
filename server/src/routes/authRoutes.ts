@@ -26,7 +26,7 @@ const loginSchema = z.object({
   username: z.string().min(3).max(120).optional(),
   phone: z.string().min(3).max(120).optional(),
   identifier: z.string().min(3).max(120).optional(),
-  password: z.string().max(128).optional(),
+  password: z.string().min(1, 'Password is required').max(128),
   role: z.enum(['customer', 'farmer', 'admin']).optional(),
 }).refine((data) => data.usernameOrEmail || data.emailOrPhone || data.username || data.phone || data.identifier, {
   message: 'Username, email, or phone number is required',

@@ -46,6 +46,7 @@ export class ProductController {
         latitude: latitude ? Number(latitude) : undefined,
         longitude: longitude ? Number(longitude) : undefined,
         radiusKm: radiusKm ? Number(radiusKm) : undefined,
+        isAuthenticated: Boolean(req.user),
       });
 
       res.json({
@@ -59,7 +60,7 @@ export class ProductController {
 
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = ProductService.getById(req.params.id);
+      const product = ProductService.getById(req.params.id, Boolean(req.user));
       res.json({
         success: true,
         data: product,
@@ -71,26 +72,7 @@ export class ProductController {
 
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      let user = req.user;
-      if (!user) {
-        // Fallback for guest poster: link to an existing active user in database
-        const defaultUser =
-          Database.get<any>("SELECT id, name, email, phone, role, status FROM users WHERE role = 'farmer' LIMIT 1") ||
-          Database.get<any>("SELECT id, name, email, phone, role, status FROM users LIMIT 1");
-        if (defaultUser) {
-          const fp = Database.get<any>('SELECT id FROM farmer_profiles WHERE user_id = ?', [defaultUser.id]);
-          user = {
-            id: defaultUser.id,
-            name: defaultUser.name,
-            email: defaultUser.email,
-            phone: defaultUser.phone,
-            role: defaultUser.role,
-            status: defaultUser.status,
-            farmerProfileId: fp?.id,
-          };
-        }
-      }
-
+      const user = req.user;
       if (!user) {
         return res.status(401).json({
           success: false,

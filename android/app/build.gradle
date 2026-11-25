@@ -17,13 +17,15 @@ android {
 
     signingConfigs {
         release {
-            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "halder-release.jks"
-            def keystoreFile = file(keystorePath)
-            if (keystoreFile.exists()) {
-                storeFile keystoreFile
-                storePassword(System.getenv("KEYSTORE_PASSWORD") ?: "halder2026")
-                keyAlias(System.getenv("KEY_ALIAS") ?: "halder")
-                keyPassword(System.getenv("KEY_PASSWORD") ?: "halder2026")
+            def keystorePath = System.getenv("KEYSTORE_PATH")
+            def keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+            def keyAliasEnv = System.getenv("KEY_ALIAS")
+            def keyPasswordEnv = System.getenv("KEY_PASSWORD")
+            if (keystorePath && keystorePassword && keyAliasEnv && keyPasswordEnv && file(keystorePath).exists()) {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias keyAliasEnv
+                keyPassword keyPasswordEnv
             }
         }
     }
@@ -33,8 +35,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "halder-release.jks"
-            if (file(keystorePath).exists()) {
+            def keystorePath = System.getenv("KEYSTORE_PATH")
+            if (keystorePath && System.getenv("KEYSTORE_PASSWORD") && file(keystorePath).exists()) {
                 signingConfig signingConfigs.release
             }
         }

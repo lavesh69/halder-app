@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { formatCurrency, formatDistance, getWhatsAppUrl } from '../../utils/formatters';
+import { getWhatsAppUrl } from '../../utils/formatters';
 import { ApiClient } from '../../api/client';
 import { handleImageError, handleAvatarError, DEFAULT_PRODUCE_IMAGE, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
 import {
@@ -9,15 +9,11 @@ import {
   MapPin,
   Star,
   ShieldCheck,
-  Calendar,
   Sparkles,
-  ShoppingBag,
-  Zap,
   MessageCircle,
   Heart,
   ChevronRight,
   Eye,
-  Check,
   Trash2,
   Megaphone,
   Share2,
@@ -28,9 +24,6 @@ import {
   ChevronLeft,
   Copy,
   Truck,
-  Award,
-  Boxes,
-  FileCheck,
   Edit3,
   CheckCircle2,
 } from 'lucide-react';
@@ -40,14 +33,11 @@ export const ListingDetailModal: React.FC = () => {
   const {
     selectedProduct,
     setSelectedProduct,
-    addToCart,
     setSelectedFarmer,
     farmers,
     toggleFavorite,
     isFavorite,
     openFarmerChat,
-    setBuyNowProduct,
-    setCustomerTab,
     currentUser,
     deleteProduct,
     updateProductStatusAction,

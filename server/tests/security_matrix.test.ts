@@ -310,13 +310,65 @@ async function runSecurityMatrix() {
     });
     assert('Customer B cannot submit review for another customer order (403)', custB_fake_review.status === 403);
 
+    // -------------------------------------------------------------
+    // TEST 8: Authentication Hardening & Public Phone Privacy
+    // -------------------------------------------------------------
+    console.log('\n--- 8. Auth Hardening & Public Phone Masking ---');
+    const passwordlessLogin = await request('/auth/login', {
+      method: 'POST',
+      body: { emailOrPhone: farmerA_email },
+    });
+    assert('Passwordless login request rejected with 400 Bad Request', passwordlessLogin.status === 400);
+
+    const tempAdminId = `user-sec-adm-${seedTime}`;
+    const tempAdminEmail = `adm.sec.${seedTime}@halder.com`;
+    Database.run(
+      `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
+       VALUES (?, ?, 'Sec Admin', ?, ?, '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5oD0P7C5m9W1x/1Y6h0wL/gL3yS8e', 'admin', 'active', ?, ?)`,
+      [tempAdminId, `HAL-ADM-S${seedTime.toString().slice(-6)}`, tempAdminEmail, `+9194${Math.floor(10000000 + Math.random() * 89999999)}`, now, now]
+    );
+    const adminBackdoorTry1 = await request('/auth/login', {
+      method: 'POST',
+      body: { emailOrPhone: tempAdminEmail, password: 'admin123' },
+    });
+    const adminBackdoorTry2 = await request('/auth/login', {
+      method: 'POST',
+      body: { emailOrPhone: tempAdminEmail, password: 'HalderAdmin@2026!' },
+    });
+    assert('Admin login rejects hardcoded master password admin123 (401)', adminBackdoorTry1.status === 401);
+    assert('Admin login rejects hardcoded fallback HalderAdmin@2026! when hash differs (401)', adminBackdoorTry2.status === 401);
+
+    const anonProductDetail = await request(`/products/${prodA_id}`);
+    assert(
+      'Unauthenticated GET /products/:id masks farmer_phone',
+      anonProductDetail.status === 200 && anonProductDetail.json?.data?.farmer_phone === ''
+    );
+    const authProductDetail = await request(`/products/${prodA_id}`, { token: tokenCustA });
+    assert(
+      'Authenticated GET /products/:id returns farmer_phone',
+      authProductDetail.status === 200 && authProductDetail.json?.data?.farmer_phone === farmerA_phone
+    );
+
+    const anonProductList = await request(`/products?search=Test%20Security%20Tomato`);
+    const anonListedItem = anonProductList.json?.data?.products?.find((p: any) => p.id === prodA_id);
+    assert(
+      'Unauthenticated GET /products list masks farmer_phone',
+      anonProductList.status === 200 && !!anonListedItem && anonListedItem.farmer_phone === ''
+    );
+    const authProductList = await request(`/products?search=Test%20Security%20Tomato`, { token: tokenCustA });
+    const authListedItem = authProductList.json?.data?.products?.find((p: any) => p.id === prodA_id);
+    assert(
+      'Authenticated GET /products list returns farmer_phone without cache leak',
+      authProductList.status === 200 && !!authListedItem && authListedItem.farmer_phone === farmerA_phone
+    );
+
     // Clean up temporary test order, product, conversation & users
     Database.run('DELETE FROM orders WHERE id = ?', [orderA_id]);
     Database.run('DELETE FROM products WHERE id = ?', [prodA_id]);
     Database.run('DELETE FROM conversations WHERE id = ?', [convA_id]);
     Database.run('DELETE FROM notifications WHERE id = ?', [notifA_id]);
     Database.run('DELETE FROM farmer_profiles WHERE id IN (?, ?)', [farmerA_profile, farmerB_profile]);
-    Database.run('DELETE FROM users WHERE id IN (?, ?, ?, ?)', [custA_id, custB_id, farmerA_id, farmerB_id]);
+    Database.run('DELETE FROM users WHERE id IN (?, ?, ?, ?, ?)', [custA_id, custB_id, farmerA_id, farmerB_id, tempAdminId]);
 
   } catch (err) {
     console.error('Security Matrix Error:', err);

@@ -115,7 +115,9 @@ export function useChatSocket({
   const isMountedRef = useRef<boolean>(true);
   const activeConversationIdRef = useRef<string | null | undefined>(conversationId);
 
-  activeConversationIdRef.current = conversationId;
+  useEffect(() => {
+    activeConversationIdRef.current = conversationId;
+  }, [conversationId]);
 
   // Resolve current token
   const getAuthToken = useCallback(() => {
@@ -551,6 +553,7 @@ export function useChatSocket({
   );
 
   // Connect / Reconnect function with exponential backoff
+  const connectRef = useRef<() => void>(() => {});
   const connect = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -642,7 +645,7 @@ export function useChatSocket({
 
           reconnectTimeoutRef.current = setTimeout(() => {
             if (isMountedRef.current) {
-              connect();
+              connectRef.current();
             }
           }, delay);
         }
@@ -653,6 +656,10 @@ export function useChatSocket({
       setIsConnected(false);
     }
   }, [getAuthToken, sendWsPayload, handleIncomingMessage]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // Initial connection & cleanup lifecycle
   useEffect(() => {

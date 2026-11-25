@@ -1,27 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { formatCurrency } from '../../utils/formatters';
 import { ApiClient } from '../../api/client';
-import { StatusBadge } from '../common/StatusBadge';
 import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';
 import { FarmCropCalendarModal } from './FarmCropCalendarModal';
 import { FarmerSubscriptionModal } from './FarmerSubscriptionModal';
 import { FarmerBusinessInsightsModal } from './FarmerBusinessInsightsModal';
 import {
-  Sprout,
   Plus,
-  CheckCircle2,
-  XCircle,
-  Clock,
   ChevronRight,
-  Package,
   MessageCircle,
-  Phone,
-  ArrowUpRight,
-  Activity,
-  RefreshCw,
-  Calculator,
   Calendar,
   Crown,
   FileSpreadsheet,
@@ -50,7 +38,6 @@ export const FarmerDashboard: React.FC = () => {
     currentUser,
     unreadChatCount,
     openFarmerChat,
-    showToast,
   } = useApp();
 
   const currentFarmerId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -307,11 +294,11 @@ export const FarmerDashboard: React.FC = () => {
                           {crop.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="font-black text-xs text-emerald-700 dark:text-emerald-400">
-                            {formatCurrency(crop.price)} / {crop.unit}
+                          <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                            {crop.availableQuantity} {crop.unit} available
                           </span>
                           <span className="text-[10px] text-zinc-400">
-                            • {crop.availableQuantity} {crop.unit} available
+                            • {crop.category}
                           </span>
                         </div>
                       </div>

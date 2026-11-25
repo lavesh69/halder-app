@@ -22,35 +22,33 @@ export class GoogleAuthService {
       throw AppError.badRequest('Google ID Token is required.', 'MISSING_GOOGLE_TOKEN');
     }
 
-    // Support structured test tokens for CI/automated testing
-    if (idToken.startsWith('test_google_token_') || process.env.NODE_ENV === 'test') {
-      if (idToken.startsWith('test_google_token_')) {
-        const payloadStr = idToken.replace('test_google_token_', '');
-        let sub = '109876543210987654321';
-        let email = 'google_user@example.com';
-        let name = 'Google Verified User';
+    // Support structured test tokens ONLY in automated test environments
+    if (process.env.NODE_ENV === 'test' && idToken.startsWith('test_google_token_')) {
+      const payloadStr = idToken.replace('test_google_token_', '');
+      let sub = '109876543210987654321';
+      let email = 'google_user@example.com';
+      let name = 'Google Verified User';
 
-        if (payloadStr.includes(':::')) {
-          const parts = payloadStr.split(':::');
-          sub = parts[0] || sub;
-          email = parts[1] || email;
-          name = parts[2] || name;
-        } else {
-          const parts = payloadStr.split('_');
-          const foundEmail = parts.find(p => p.includes('@'));
-          if (foundEmail) email = foundEmail;
-          sub = parts[0] || sub;
-          name = parts[parts.length - 1] ? parts[parts.length - 1].replace(/-/g, ' ') : name;
-        }
-
-        return {
-          sub,
-          email: email.toLowerCase().trim(),
-          name,
-          picture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
-          email_verified: true,
-        };
+      if (payloadStr.includes(':::')) {
+        const parts = payloadStr.split(':::');
+        sub = parts[0] || sub;
+        email = parts[1] || email;
+        name = parts[2] || name;
+      } else {
+        const parts = payloadStr.split('_');
+        const foundEmail = parts.find(p => p.includes('@'));
+        if (foundEmail) email = foundEmail;
+        sub = parts[0] || sub;
+        name = parts[parts.length - 1] ? parts[parts.length - 1].replace(/-/g, ' ') : name;
       }
+
+      return {
+        sub,
+        email: email.toLowerCase().trim(),
+        name,
+        picture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
+        email_verified: true,
+      };
     }
 
     try {
@@ -116,6 +114,9 @@ export class GoogleAuthService {
     }
 
     const googleUser = await this.verifyIdToken(payload.idToken);
+    if (!googleUser.email_verified) {
+      throw AppError.unauthorized('Google email address is not verified.', 'UNVERIFIED_GOOGLE_EMAIL');
+    }
     const now = new Date().toISOString();
 
     // 1. Check if Google subject already linked in auth_identities
@@ -132,6 +133,10 @@ export class GoogleAuthService {
 
       if (!user) {
         throw AppError.notFound('Associated HALDER account not found.', 'USER_NOT_FOUND');
+      }
+
+      if (user.role === 'admin') {
+        throw AppError.forbidden('Administrator accounts cannot authenticate via Google Sign-In.', 'ADMIN_GOOGLE_PROHIBITED');
       }
 
       if (user.status === 'suspended') {
@@ -154,6 +159,10 @@ export class GoogleAuthService {
     );
 
     if (existingUserByEmail) {
+      if (existingUserByEmail.role === 'admin') {
+        throw AppError.forbidden('Administrator accounts cannot authenticate via Google Sign-In.', 'ADMIN_GOOGLE_PROHIBITED');
+      }
+
       if (existingUserByEmail.status === 'suspended') {
         throw AppError.forbidden('Your account is currently suspended. Please contact admin.', 'ACCOUNT_SUSPENDED');
       }

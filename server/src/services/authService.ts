@@ -147,6 +147,10 @@ export class AuthService {
   }
 
   static async login(usernameOrEmail: string, password?: string, requestedRole?: 'customer' | 'farmer' | 'admin') {
+    if (!password || !password.trim()) {
+      throw AppError.badRequest('Password is required to sign in.', 'PASSWORD_REQUIRED');
+    }
+
     const rawInput = usernameOrEmail.trim();
     const cleanInput = rawInput.replace(/^@/, '').toLowerCase();
     const digitsOnly = rawInput.replace(/\D/g, '');
@@ -175,31 +179,20 @@ export class AuthService {
     );
 
     if (!user) {
-      if (password) {
-        throw AppError.unauthorized('Invalid username, email, phone number, or password.', 'INVALID_CREDENTIALS');
-      }
-      return AuthService.register({
-        username: cleanInput.replace(/[^a-z0-9_.-]/g, '').slice(0, 25) || `user_${Date.now()}`,
-        name: rawInput.includes('@') ? rawInput.split('@')[0] : `User ${rawInput.slice(-4)}`,
-        email: rawInput.includes('@') ? rawInput.toLowerCase() : `user_${Date.now()}@halder.com`,
-        phone: phoneWithSpaces || (rawInput.includes('@') ? `+91 ${Math.floor(1000000000 + Math.random() * 9000000000)}` : rawInput),
-        role: requestedRole === 'farmer' ? 'farmer' : 'customer',
-      });
+      throw AppError.unauthorized('Invalid username, email, phone number, or password.', 'INVALID_CREDENTIALS');
     }
 
     if (user.status === 'suspended') {
       throw AppError.forbidden('Your account is currently suspended. Please contact admin.', 'ACCOUNT_SUSPENDED');
     }
 
-    if (password && user.password_hash) {
-      let isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
-      // Admin master passwords: allow HalderAdmin@2026!, admin123, halder123 for administrator resilience
-      if (!isMatch && user.role === 'admin' && (password === 'admin123' || password === 'halder123' || password === 'HalderAdmin@2026!')) {
-        isMatch = true;
-      }
-      if (!isMatch) {
-        throw AppError.unauthorized('Invalid password entered. Please check your credentials.', 'INVALID_CREDENTIALS');
-      }
+    if (!user.password_hash || user.password_hash === 'GOOGLE_OAUTH_ACCOUNT' || user.password_hash === 'OTP_VERIFIED') {
+      throw AppError.unauthorized('Please sign in with Google or reset your password to set one.', 'INVALID_CREDENTIALS');
+    }
+
+    const isMatch = await CryptoUtil.comparePassword(password, user.password_hash);
+    if (!isMatch) {
+      throw AppError.unauthorized('Invalid password entered. Please check your credentials.', 'INVALID_CREDENTIALS');
     }
 
     const token = CryptoUtil.generateToken({
@@ -338,11 +331,19 @@ export class AuthService {
 
     logAuditEvent(user.id, user.role, 'PASSWORD_RESET_REQUESTED', 'users', user.id);
 
+    // Only return raw verification code & token in test environments for automated verification suites
+    if (process.env.NODE_ENV === 'test') {
+      return {
+        success: true,
+        message: 'Password reset code generated successfully. Please enter the verification code.',
+        code,
+        resetToken,
+      };
+    }
+
     return {
       success: true,
-      message: 'Password reset code generated successfully. Please enter the verification code.',
-      code,
-      resetToken,
+      message: 'If an account matches this email, verification instructions have been sent.',
     };
   }
 

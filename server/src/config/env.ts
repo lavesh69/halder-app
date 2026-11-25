@@ -63,3 +63,10 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+if (
+  env.NODE_ENV === 'production' &&
+  env.JWT_SECRET === 'halder_super_secure_jwt_secret_production_2026_mandi'
+) {
+  console.warn('[SECURITY WARNING] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!');
+}

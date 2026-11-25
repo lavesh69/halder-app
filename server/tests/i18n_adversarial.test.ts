@@ -1,9 +1,5 @@
 ﻿import {
   enTranslations,
-  hiTranslations,
-  paTranslations,
-  mrTranslations,
-  bnTranslations,
   SUPPORTED_LANGUAGES,
   SupportedLanguage,
   translate,
@@ -11,6 +7,17 @@
   setStoredLanguage,
   translations,
 } from '../../src/i18n';
+import { hiTranslations } from '../../src/i18n/translations/hi';
+import { paTranslations } from '../../src/i18n/translations/pa';
+import { mrTranslations } from '../../src/i18n/translations/mr';
+import { bnTranslations } from '../../src/i18n/translations/bn';
+
+Object.assign(translations, {
+  hi: hiTranslations,
+  pa: paTranslations,
+  mr: mrTranslations,
+  bn: bnTranslations,
+});
 
 interface TestResult {
   suite: string;
@@ -120,7 +127,7 @@ async function runAdversarialI18nSuite() {
   // Bengali range: \u0980-\u09FF (Used by Bengali)
 
   const scriptRegexes: Record<SupportedLanguage, RegExp> = {
-    en: /^[A-Za-z0-9\s.,!?:;'"\/\\()\-—_#@₹%&+*<>=]+$/,
+    en: /^[A-Za-z0-9\s.,!?:;'"/\\()\-—_#@₹%&+*<>=]+$/,
     hi: /[\u0900-\u097F]/,
     pa: /[\u0A00-\u0A7F]/,
     mr: /[\u0900-\u097F]/,

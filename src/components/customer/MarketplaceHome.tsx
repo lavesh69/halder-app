@@ -13,21 +13,13 @@ import {
   MapPin,
   Sparkles,
   Users,
-  Tag,
   Clock,
   ChevronRight,
   LayoutGrid,
   List,
-  CalendarClock,
-  Compass,
-  Megaphone,
-  HandCoins,
-  Bell,
   Camera,
   Mic,
-  FileText,
   Sprout,
-  Plus,
   X,
   Check,
   RefreshCw,
@@ -89,10 +81,6 @@ export const MarketplaceHome: React.FC = () => {
     activeCity,
     setActiveCity,
     setIsLocationModalOpen,
-    setIsSavedSearchesOpen,
-    setIsFastSellOpen,
-    setIsPostRequirementOpen,
-    setEditingListing,
     showToast,
     setSearchQuery,
   } = useApp();
@@ -176,9 +164,7 @@ export const MarketplaceHome: React.FC = () => {
     filterState.urgentOnly ||
     filterState.featuredOnly ||
     filterState.negotiableOnly ||
-    filterState.verifiedOnly ||
-    filterState.minPrice > 0 ||
-    filterState.maxPrice < 100000;
+    filterState.verifiedOnly;
 
   const resetAllFilters = () => {
     setSelectedCategory('All');
@@ -201,7 +187,6 @@ export const MarketplaceHome: React.FC = () => {
   // Apply category & filter
   const filteredProducts = products.filter((p) => {
     if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
-    if (p.price < filterState.minPrice || p.price > filterState.maxPrice) return false;
     if (filterState.organicOnly && !p.isOrganic) return false;
     if (filterState.availableTodayOnly && !p.isAvailableToday) return false;
     if (filterState.urgentOnly && !p.isUrgent) return false;
@@ -241,13 +226,11 @@ export const MarketplaceHome: React.FC = () => {
     if (!a.isUrgent && b.isUrgent) return 1;
 
     if (filterState.sortBy === 'nearest') return a.distanceKm - b.distanceKm;
-    if (filterState.sortBy === 'price_low') return a.price - b.price;
-    if (filterState.sortBy === 'price_high') return b.price - a.price;
     return 0;
   });
 
   // Category subsets
-  const bestPrices = [...products].sort((a, b) => a.price - b.price).slice(0, 4);
+  const bestPrices = [...products].sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 4);
   const organicListings = products.filter((p) => p.isOrganic).slice(0, 4);
   const freshToday = products.filter((p) => p.isAvailableToday).slice(0, 4);
 

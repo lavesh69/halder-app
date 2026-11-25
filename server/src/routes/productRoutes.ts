@@ -15,7 +15,7 @@ const createProductSchema = z.object({
   category: z.string().optional(),
   name: z.string().trim().min(2, 'Product name must be at least 2 characters').max(120, 'Product name must not exceed 120 characters'),
   description: z.string().max(2000).optional(),
-  price: z.coerce.number().positive('Price must be greater than 0').max(1000000, 'Price must not exceed ₹10,00,000'),
+  price: z.coerce.number().min(0, 'Price cannot be negative').max(1000000, 'Price must not exceed ₹10,00,000').optional().default(0),
   unit: z.string().default('kg'),
   availableQuantity: z.coerce.number().min(0.01, 'Quantity must be at least 0.01').max(10000000, 'Quantity cannot exceed 10,000,000'),
   isOrganic: boolOrNum.optional(),
@@ -33,7 +33,7 @@ const createProductSchema = z.object({
 }).passthrough();
 
 router.get('/', searchLimiter, optionalAuth, ProductController.list);
-router.get('/:id', ProductController.getById);
+router.get('/:id', optionalAuth, ProductController.getById);
 router.post('/', authenticateUser, validateBody(createProductSchema), ProductController.create);
 router.patch('/:id', authenticateUser, verifyProductOwnership, ProductController.update);
 router.patch('/:id/stock', authenticateUser, verifyProductOwnership, ProductController.updateStock);

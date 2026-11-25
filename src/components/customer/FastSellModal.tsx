@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
-import { ProductCategory, PriceSlab } from '../../types';
+import { ProductCategory } from '../../types';
 import { compressImageFile, formatBytes, dataUrlToFile } from '../../utils/imageCompression';
 import { ApiClient } from '../../api/client';
 import {
@@ -15,19 +15,10 @@ import {
   Sparkles,
   MapPin,
   Upload,
-  Plus,
   Trash2,
-  Tag,
-  ShieldCheck,
-  Truck,
-  Package,
-  Calendar,
-  Layers,
-  HelpCircle,
   Star,
   Loader2,
 } from 'lucide-react';
-import { formatCurrency } from '../../utils/formatters';
 
 const photoPresets = [
   { name: 'Red Tomatoes', url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&auto=format&fit=crop&q=80', cat: 'Vegetables', unit: 'kg', price: 40 },
@@ -95,17 +86,14 @@ export const FastSellModal: React.FC = () => {
   const [subcategory, setSubcategory] = useState('');
   const [description, setDescription] = useState('');
 
-  // Step 2: Price and Quantity
-  const [price, setPrice] = useState<number | ''>('');
+  // Step 2: Quantity and Unit
   const [unit, setUnit] = useState<string>('kg');
   const [availableQuantity, setAvailableQuantity] = useState<number | ''>('');
   const [minOrderQuantity, setMinOrderQuantity] = useState<number | ''>(1);
   const [isNegotiable, setIsNegotiable] = useState(true);
-  const [priceSlabs, setPriceSlabs] = useState<PriceSlab[]>([]);
 
   // Step 3: Harvest and Quality
   const [harvestDate, setHarvestDate] = useState('Harvested today');
-  const [expectedAvailabilityDate, setExpectedAvailabilityDate] = useState('Ready for immediate dispatch');
   const [productGrade, setProductGrade] = useState('Grade A (Premium)');
   const [qualityDescription, setQualityDescription] = useState('Direct farm grading, uniform size, naturally sun-ripened.');
   const [isOrganic, setIsOrganic] = useState(false);
@@ -136,14 +124,11 @@ export const FastSellModal: React.FC = () => {
       setCategory((editingListing.category as ProductCategory) || 'Vegetables');
       setSubcategory(editingListing.subcategory || '');
       setDescription(editingListing.description || '');
-      setPrice(editingListing.price || '');
       setUnit(editingListing.unit || 'kg');
       setAvailableQuantity(editingListing.availableQuantity || '');
       setMinOrderQuantity(editingListing.minOrderQuantity || 1);
       setIsNegotiable(editingListing.isNegotiable ?? true);
-      setPriceSlabs(editingListing.priceSlabs || []);
       setHarvestDate(editingListing.harvestDate || 'Harvested recently');
-      setExpectedAvailabilityDate(editingListing.expectedAvailabilityDate || 'Ready for immediate dispatch');
       setProductGrade(editingListing.productGrade || 'Grade A (Premium)');
       setQualityDescription(editingListing.qualityDescription || '');
       setIsOrganic(!!editingListing.isOrganic);
@@ -170,14 +155,11 @@ export const FastSellModal: React.FC = () => {
       setCategory('Vegetables');
       setSubcategory('');
       setDescription('');
-      setPrice('');
       setUnit('kg');
       setAvailableQuantity(100);
       setMinOrderQuantity(1);
       setIsNegotiable(true);
-      setPriceSlabs([]);
       setHarvestDate('Harvested today');
-      setExpectedAvailabilityDate('Ready for immediate dispatch');
       setProductGrade('Grade A (Premium)');
       setQualityDescription('Farm fresh produce directly graded at harvest.');
       setIsOrganic(false);
@@ -291,27 +273,9 @@ export const FastSellModal: React.FC = () => {
     showToast('Photo removed', 'info');
   };
 
-  const addPriceSlab = () => {
-    setPriceSlabs((prev) => [
-      ...prev,
-      { minQuantity: 100, pricePerUnit: typeof price === 'number' ? Math.max(1, price - 5) : 30 },
-    ]);
-  };
-
-  const updatePriceSlab = (index: number, field: keyof PriceSlab, value: any) => {
-    setPriceSlabs((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
-    );
-  };
-
-  const removePriceSlab = (index: number) => {
-    setPriceSlabs((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handlePresetSelect = (preset: typeof photoPresets[0]) => {
     setName(preset.name);
     setCategory(preset.cat as ProductCategory);
-    setPrice(preset.price);
     setUnit(preset.unit);
     setAvailableQuantity(100);
     setUploadedPhotos([preset.url]);
@@ -322,12 +286,6 @@ export const FastSellModal: React.FC = () => {
     if (!name.trim() || name.trim().length < 2) {
       showToast('Please enter a valid crop name (at least 2 characters)', 'error');
       setStep(1);
-      return;
-    }
-    const numPrice = Number(price);
-    if (!price || numPrice < 1 || numPrice > 500000) {
-      showToast('Please enter a realistic price between ₹1 and ₹5,00,000', 'error');
-      setStep(2);
       return;
     }
     const numQty = Number(availableQuantity);
@@ -349,7 +307,7 @@ export const FastSellModal: React.FC = () => {
       category,
       subcategory,
       description,
-      price: Number(price),
+      price: editingListing?.price ?? 0,
       unit,
       availableQuantity: Number(availableQuantity),
       totalQuantity: Number(availableQuantity),
@@ -373,7 +331,7 @@ export const FastSellModal: React.FC = () => {
       showPhoneNumber,
       image: uploadedPhotos[0] || photoPresets[0].url,
       images: uploadedPhotos,
-      priceSlabs: priceSlabs.filter((s) => s.minQuantity > 0 && s.pricePerUnit > 0),
+      priceSlabs: [],
       status,
     };
 
@@ -710,40 +668,22 @@ export const FastSellModal: React.FC = () => {
             </div>
           )}
 
-          {/* STEP 2: Price, Quantity & Price Slabs */}
+          {/* STEP 2: Quantity, Unit & Negotiation Availability */}
           {step === 2 && (
             <div className="space-y-5 animate-fade-in">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
-                    Asking Price (₹) *
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">₹</span>
-                    <input
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="40"
-                      className="w-full pl-8 pr-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
-                    Unit of Measure *
-                  </label>
-                  <select
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-600"
-                  >
-                    {allowedUnits.map((u) => (
-                      <option key={u} value={u}>{u}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
+                  Unit of Measure *
+                </label>
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-600"
+                >
+                  {allowedUnits.map((u) => (
+                    <option key={u} value={u}>{u}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -773,14 +713,14 @@ export const FastSellModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Price Negotiable Toggle */}
+              {/* Direct Negotiation Toggle */}
               <div className="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80">
                 <div>
                   <span className="text-xs font-bold text-zinc-900 dark:text-white block">
                     {t('post_ad.price_negotiable')}
                   </span>
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                    Allows buyers to submit counter-offers directly through the app
+                    Allows buyers to discuss bulk deals and rates directly via chat or call
                   </span>
                 </div>
                 <button
@@ -796,49 +736,6 @@ export const FastSellModal: React.FC = () => {
                     }`}
                   />
                 </button>
-              </div>
-
-              {/* Bulk Quantity Slabs (Module 5) */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                      Bulk Volume Pricing Slabs
-                    </span>
-                    <span className="text-[11px] text-zinc-500">Offer discounts for larger orders</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addPriceSlab}
-                    className="px-2.5 py-1 text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1 hover:bg-emerald-100 transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Slab</span>
-                  </button>
-                </div>
-
-                {priceSlabs.map((slab, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200/60 dark:border-zinc-700/60 text-xs">
-                    <span className="text-zinc-500 font-bold shrink-0">{slab.minQuantity}+ {unit}:</span>
-                    <div className="relative flex-1">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-xs">₹</span>
-                      <input
-                        type="number"
-                        value={slab.pricePerUnit}
-                        onChange={(e) => updatePriceSlab(idx, 'pricePerUnit', Number(e.target.value))}
-                        className="w-full pl-6 pr-2 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-bold text-xs"
-                      />
-                    </div>
-                    <span className="text-zinc-400">/{unit}</span>
-                    <button
-                      type="button"
-                      onClick={() => removePriceSlab(idx)}
-                      className="p-1 text-red-500 hover:text-red-700 rounded-md"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
               </div>
             </div>
           )}
@@ -1094,26 +991,14 @@ export const FastSellModal: React.FC = () => {
 
                 {/* Details */}
                 <div className="p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-bold text-base text-zinc-900 dark:text-white">
-                        {name}
-                      </h3>
-                      <p className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                        {village ? `${village}, ` : ''}{district || city}, {state}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xl font-black text-emerald-700 dark:text-emerald-400 block">
-                        {formatCurrency(Number(price) || 0)}/{unit}
-                      </span>
-                      {isNegotiable && (
-                        <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-md inline-block">
-                          Negotiable
-                        </span>
-                      )}
-                    </div>
+                  <div>
+                    <h3 className="font-bold text-base text-zinc-900 dark:text-white">
+                      {name}
+                    </h3>
+                    <p className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                      {village ? `${village}, ` : ''}{district || city}, {state}
+                    </p>
                   </div>
 
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 line-clamp-2">
@@ -1130,19 +1015,6 @@ export const FastSellModal: React.FC = () => {
                       <span className="font-bold text-zinc-800 dark:text-zinc-200">{productGrade}</span>
                     </div>
                   </div>
-
-                  {priceSlabs.length > 0 && (
-                    <div className="p-2.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/50 dark:border-emerald-800/40 text-[11px]">
-                      <span className="font-bold text-emerald-900 dark:text-emerald-200 block mb-1">
-                        Configured Bulk Slabs:
-                      </span>
-                      {priceSlabs.map((s, i) => (
-                        <span key={i} className="inline-block mr-3 text-emerald-800 dark:text-emerald-300">
-                          {s.minQuantity}+ {unit}: <b>₹{s.pricePerUnit}</b>
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

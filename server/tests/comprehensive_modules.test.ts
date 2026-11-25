@@ -116,7 +116,7 @@ async function runComprehensiveModulesTests() {
 
     const adminLogin = await request('/auth/login', {
       method: 'POST',
-      body: { emailOrPhone: 'admin@halder.com', password: 'halder123' },
+      body: { emailOrPhone: 'admin@halder.com', password: process.env.ADMIN_INITIAL_PASSWORD || 'HalderAdmin@2026!' },
     });
     assert.strictEqual(adminLogin.status, 200);
     adminToken = adminLogin.data.data.token;

@@ -87,7 +87,7 @@ async function runEcosystemTests() {
 
     const admLogin = await request('/auth/login', {
       method: 'POST',
-      body: { emailOrPhone: 'admin@halder.com', password: 'halder123' },
+      body: { emailOrPhone: 'admin@halder.com', password: process.env.ADMIN_INITIAL_PASSWORD || 'HalderAdmin@2026!' },
     });
     assert.strictEqual(admLogin.status, 200);
     adminToken = admLogin.data.data.token;

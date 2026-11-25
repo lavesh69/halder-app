@@ -78,6 +78,7 @@ export class ProductService {
     latitude?: number;
     longitude?: number;
     radiusKm?: number;
+    isAuthenticated?: boolean;
   }) {
     const cacheKey = JSON.stringify(params);
     const now = Date.now();
@@ -90,6 +91,7 @@ export class ProductService {
     const limit = Math.min(100, Math.max(1, params.limit || 20));
     const offset = (page - 1) * limit;
     const radius = Math.min(300, Math.max(1, params.radiusKm !== undefined ? params.radiusKm : 300));
+    const exposePhone = params.isAuthenticated ? 1 : 0;
 
     let sql = `
       SELECT p.*,
@@ -99,7 +101,7 @@ export class ProductService {
              f.rating as farmer_rating,
              f.verification_status,
              u.name as farmer_name,
-             CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
+             CASE WHEN ? = 0 OR p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
              f.avatar as farmer_avatar
       FROM products p
       JOIN categories c ON p.category_id = c.id
@@ -107,11 +109,11 @@ export class ProductService {
       JOIN users u ON f.user_id = u.id
       WHERE ${params.includeAllStatuses && params.farmerId ? "p.status != 'unavailable'" : "p.status = 'active'"} AND p.moderation_status = 'approved'
     `;
-    const sqlParams: any[] = [];
+    const sqlParams: any[] = [exposePhone];
 
     if (params.category && params.category !== 'All') {
-      sql += ' AND (c.name = ? OR c.slug = ?)';
-      sqlParams.push(params.category, params.category.toLowerCase());
+      sql += ' AND (c.name = ? OR c.slug = ? OR c.name LIKE ?)';
+      sqlParams.push(params.category, params.category.toLowerCase(), `${params.category}%`);
     }
 
     if (params.minPrice !== undefined) {
@@ -244,7 +246,8 @@ export class ProductService {
   }
 
 
-  static getById(id: string) {
+  static getById(id: string, isAuthenticated: boolean = false) {
+    const exposePhone = isAuthenticated ? 1 : 0;
     const product = Database.get<any>(
       `SELECT p.*,
               c.name as category_name,
@@ -256,14 +259,14 @@ export class ProductService {
               f.total_orders as farmer_total_orders,
               f.response_rate as farmer_response_rate,
               u.name as farmer_name,
-              CASE WHEN p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
+              CASE WHEN ? = 0 OR p.show_phone_number = 0 THEN '' ELSE u.phone END as farmer_phone,
               f.avatar as farmer_avatar
        FROM products p
        JOIN categories c ON p.category_id = c.id
        JOIN farmer_profiles f ON p.farmer_id = f.id
        JOIN users u ON f.user_id = u.id
        WHERE p.id = ?`,
-      [id]
+      [exposePhone, id]
     );
 
     if (!product) {
@@ -306,7 +309,7 @@ export class ProductService {
     category?: string;
     name: string;
     description?: string;
-    price: number;
+    price?: number;
     unit: string;
     availableQuantity: number;
     totalQuantity?: number;
@@ -336,8 +339,9 @@ export class ProductService {
     status?: 'active' | 'draft';
     priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number | null; pricePerUnit: number }>;
   }, baseUrl?: string) {
-    if (data.price <= 0 || data.price > 1000000) {
-      throw AppError.badRequest('Product price must be between ₹1 and ₹10,00,000.');
+    const safePrice = data.price ?? 0;
+    if (safePrice < 0 || safePrice > 1000000) {
+      throw AppError.badRequest('Product price must be between ₹0 and ₹10,00,000.');
     }
     if (data.availableQuantity <= 0 || data.availableQuantity > 10000000) {
       throw AppError.badRequest('Available quantity must be between 0.01 and 10,000,000.');
@@ -354,11 +358,12 @@ export class ProductService {
       throw AppError.badRequest('Product contains disallowed terms or prohibited spam content.', 'SPAM_REJECTED');
     }
 
-    const catLookup = data.category || data.categoryId || 'Vegetables';
-    const category = Database.get<any>('SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?)', [
-      catLookup,
-      catLookup,
-    ]);
+    const catLookup = (data.category || data.categoryId || 'Vegetables').trim();
+    const catSlug = catLookup.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const category = Database.get<any>(
+      'SELECT id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?) OR LOWER(slug) = LOWER(?) OR LOWER(name) LIKE LOWER(?)',
+      [catLookup, catLookup, catSlug, `${catLookup}%`]
+    );
 
     const actualCategoryId = category ? category.id : 'cat-veg';
     const id = `prod-${uuidv4()}`;
@@ -402,7 +407,7 @@ export class ProductService {
           sanitizeText(data.name),
           slug,
           sanitizeText(data.description || ''),
-          data.price,
+          safePrice,
           data.unit,
           data.availableQuantity,
           totalQty,

@@ -6,26 +6,26 @@ import { Toast } from './components/common/Toast';
 import { LocationModal } from './components/common/LocationModal';
 import { PwaInstallBanner } from './components/common/PwaInstallBanner';
 
-// Customer screens & modals
+// Customer screens & modals (Code-split heavy modals & secondary tabs for fast initial load)
 import { SplashScreen } from './components/customer/SplashScreen';
 import { Onboarding } from './components/customer/Onboarding';
 import { MarketplaceHome } from './components/customer/MarketplaceHome';
-import { SearchScreen } from './components/customer/SearchScreen';
-import { FilterBottomSheet } from './components/customer/FilterBottomSheet';
-import { FavoritesView } from './components/customer/FavoritesView';
-import { CustomerProfileView } from './components/customer/CustomerProfileView';
-import { ListingDetailModal } from './components/customer/ListingDetailModal';
-import { FarmerSellerProfileModal } from './components/customer/FarmerSellerProfileModal';
-import { MarketplaceChatModal } from './components/customer/MarketplaceChatModal';
-import { FastSellModal } from './components/customer/FastSellModal';
-import { PostRequirementModal } from './components/customer/PostRequirementModal';
-import { CustomerChatsView } from './components/customer/CustomerChatsView';
-import { CustomerMyAdsView } from './components/customer/CustomerMyAdsView';
-import { ReviewModal } from './components/common/ReviewModal';
+const SearchScreen = React.lazy(() => import('./components/customer/SearchScreen').then(m => ({ default: m.SearchScreen })));
+const FilterBottomSheet = React.lazy(() => import('./components/customer/FilterBottomSheet').then(m => ({ default: m.FilterBottomSheet })));
+const FavoritesView = React.lazy(() => import('./components/customer/FavoritesView').then(m => ({ default: m.FavoritesView })));
+const CustomerProfileView = React.lazy(() => import('./components/customer/CustomerProfileView').then(m => ({ default: m.CustomerProfileView })));
+const ListingDetailModal = React.lazy(() => import('./components/customer/ListingDetailModal').then(m => ({ default: m.ListingDetailModal })));
+const FarmerSellerProfileModal = React.lazy(() => import('./components/customer/FarmerSellerProfileModal').then(m => ({ default: m.FarmerSellerProfileModal })));
+const MarketplaceChatModal = React.lazy(() => import('./components/customer/MarketplaceChatModal').then(m => ({ default: m.MarketplaceChatModal })));
+const FastSellModal = React.lazy(() => import('./components/customer/FastSellModal').then(m => ({ default: m.FastSellModal })));
+const PostRequirementModal = React.lazy(() => import('./components/customer/PostRequirementModal').then(m => ({ default: m.PostRequirementModal })));
+const CustomerChatsView = React.lazy(() => import('./components/customer/CustomerChatsView').then(m => ({ default: m.CustomerChatsView })));
+const CustomerMyAdsView = React.lazy(() => import('./components/customer/CustomerMyAdsView').then(m => ({ default: m.CustomerMyAdsView })));
+const ReviewModal = React.lazy(() => import('./components/common/ReviewModal').then(m => ({ default: m.ReviewModal })));
 
 // Agricultural Classifieds Modals
-import { SavedSearchesModal } from './components/customer/SavedSearchesModal';
-import { StockControlModal } from './components/farmer/StockControlModal';
+const SavedSearchesModal = React.lazy(() => import('./components/customer/SavedSearchesModal').then(m => ({ default: m.SavedSearchesModal })));
+const StockControlModal = React.lazy(() => import('./components/farmer/StockControlModal').then(m => ({ default: m.StockControlModal })));
 
 // Farmer screens & modals (Code-split for performance)
 const FarmerDashboard = React.lazy(() => import('./components/farmer/FarmerDashboard').then(m => ({ default: m.FarmerDashboard })));
@@ -52,8 +52,6 @@ export const MainApp: React.FC = () => {
     setIsLoginModalOpen,
     isDeviceFrame,
     isSearchScreenOpen,
-    buyNowProduct,
-    setBuyNowProduct,
     isSavedSearchesOpen,
     setIsSavedSearchesOpen,
     stockControlProduct,
@@ -113,27 +111,36 @@ export const MainApp: React.FC = () => {
 
   // Customer Screen Router
   const renderCustomerScreen = () => {
+    let content: React.ReactNode;
     if (customerTab === 'favorites') {
-      return <FavoritesView />;
+      content = <FavoritesView />;
+    } else {
+      switch (customerTab) {
+        case 'home':
+          content = <MarketplaceHome />;
+          break;
+        case 'chats':
+          content = <CustomerChatsView />;
+          break;
+        case 'my-ads':
+          content = <CustomerMyAdsView />;
+          break;
+        case 'search':
+          content = <SearchScreen />;
+          break;
+        case 'profile':
+          content = <CustomerProfileView />;
+          break;
+        default:
+          content = <MarketplaceHome />;
+          break;
+      }
     }
-
-    switch (customerTab) {
-      case 'home':
-        return <MarketplaceHome />;
-      case 'chats':
-        return <CustomerChatsView />;
-      case 'my-ads':
-        return <CustomerMyAdsView />;
-      case 'search':
-        return <SearchScreen />;
-      case 'cart':
-      case 'orders':
-        return <MarketplaceHome />;
-      case 'profile':
-        return <CustomerProfileView />;
-      default:
-        return <MarketplaceHome />;
-    }
+    return (
+      <React.Suspense fallback={<div className="flex items-center justify-center min-h-[260px] text-xs text-zinc-500 font-medium">Loading...</div>}>
+        {content}
+      </React.Suspense>
+    );
   };
 
   // Farmer Screen Router
@@ -240,36 +247,38 @@ export const MainApp: React.FC = () => {
       </main>
 
       {/* Modals & Overlays */}
-      <ListingDetailModal />
-      <FarmerSellerProfileModal />
-      <MarketplaceChatModal />
-      <FastSellModal />
-      <FilterBottomSheet />
-      <LocationModal />
-      <NotificationModal />
-      <SavedSearchesModal
-        isOpen={isSavedSearchesOpen}
-        onClose={() => setIsSavedSearchesOpen(false)}
-      />
-      <PostRequirementModal
-        isOpen={isPostRequirementOpen}
-        onClose={() => setIsPostRequirementOpen(false)}
-      />
-
-      {reviewTarget && (
-        <ReviewModal
-          farmerId={reviewTarget.farmerId}
-          farmerName={reviewTarget.farmerName}
-          orderId={reviewTarget.orderId}
-          onClose={() => setReviewTarget(null)}
+      <React.Suspense fallback={null}>
+        <ListingDetailModal />
+        <FarmerSellerProfileModal />
+        <MarketplaceChatModal />
+        <FastSellModal />
+        <FilterBottomSheet />
+        <LocationModal />
+        <NotificationModal />
+        <SavedSearchesModal
+          isOpen={isSavedSearchesOpen}
+          onClose={() => setIsSavedSearchesOpen(false)}
         />
-      )}
-      <StockControlModal
-        product={stockControlProduct}
-        isOpen={!!stockControlProduct}
-        onClose={() => setStockControlProduct(null)}
-      />
-      {isSearchScreenOpen && <SearchScreen />}
+        <PostRequirementModal
+          isOpen={isPostRequirementOpen}
+          onClose={() => setIsPostRequirementOpen(false)}
+        />
+
+        {reviewTarget && (
+          <ReviewModal
+            farmerId={reviewTarget.farmerId}
+            farmerName={reviewTarget.farmerName}
+            orderId={reviewTarget.orderId}
+            onClose={() => setReviewTarget(null)}
+          />
+        )}
+        <StockControlModal
+          product={stockControlProduct}
+          isOpen={!!stockControlProduct}
+          onClose={() => setStockControlProduct(null)}
+        />
+        {isSearchScreenOpen && <SearchScreen />}
+      </React.Suspense>
       {isLoginModalOpen && (
         <Onboarding
           initialShowLogin={true}

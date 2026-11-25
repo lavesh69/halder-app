@@ -241,9 +241,11 @@ async function runProductionSuite() {
     try {
       const gradlePath = path.join(process.cwd(), 'android', 'app', 'build.gradle');
       const gradleContent = fs.readFileSync(gradlePath, 'utf8');
-      assert.ok(gradleContent.includes('halder-release.jks'), 'build.gradle must reference release keystore');
+      assert.ok(gradleContent.includes('KEYSTORE_PATH'), 'build.gradle must configure release keystore via KEYSTORE_PATH env');
+      assert.ok(gradleContent.includes('KEYSTORE_PASSWORD'), 'build.gradle must read keystore password from env');
+      assert.ok(!gradleContent.includes('halder2026'), 'build.gradle must not contain hardcoded keystore password');
       assert.ok(gradleContent.includes('signingConfig signingConfigs.release'), 'build.gradle must sign release build');
-      pass('11. android/app/build.gradle configured with production signingConfigs.release');
+      pass('11. android/app/build.gradle configured with env-backed signingConfigs.release (no hardcoded password)');
     } catch (e) {
       fail('11. Gradle signing config check', e);
     }
