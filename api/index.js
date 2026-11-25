@@ -1308,8 +1308,8 @@ var require_node = __commonJS({
           }
           break;
         case "FILE":
-          var fs4 = __require("fs");
-          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
+          var fs5 = __require("fs");
+          stream2 = new fs5.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -14107,11 +14107,11 @@ var require_mime_types = __commonJS({
       }
       return exts[0];
     }
-    function lookup(path7) {
-      if (!path7 || typeof path7 !== "string") {
+    function lookup(path8) {
+      if (!path8 || typeof path8 !== "string") {
         return false;
       }
-      var extension3 = extname("x." + path7).toLowerCase().substr(1);
+      var extension3 = extname("x." + path8).toLowerCase().substr(1);
       if (!extension3) {
         return false;
       }
@@ -17895,7 +17895,7 @@ var require_path_to_regexp = __commonJS({
   "node_modules/path-to-regexp/index.js"(exports, module) {
     module.exports = pathToRegexp;
     var MATCHING_GROUP_REGEXP = /\\.|\((?:\?<(.*?)>)?(?!\?)/g;
-    function pathToRegexp(path7, keys, options) {
+    function pathToRegexp(path8, keys, options) {
       options = options || {};
       keys = keys || [];
       var strict = options.strict;
@@ -17909,8 +17909,8 @@ var require_path_to_regexp = __commonJS({
       var pos = 0;
       var backtrack = "";
       var m3;
-      if (path7 instanceof RegExp) {
-        while (m3 = MATCHING_GROUP_REGEXP.exec(path7.source)) {
+      if (path8 instanceof RegExp) {
+        while (m3 = MATCHING_GROUP_REGEXP.exec(path8.source)) {
           if (m3[0][0] === "\\") continue;
           keys.push({
             name: m3[1] || name++,
@@ -17918,18 +17918,18 @@ var require_path_to_regexp = __commonJS({
             offset: m3.index
           });
         }
-        return path7;
+        return path8;
       }
-      if (Array.isArray(path7)) {
-        path7 = path7.map(function(value) {
+      if (Array.isArray(path8)) {
+        path8 = path8.map(function(value) {
           return pathToRegexp(value, keys, options).source;
         });
-        return new RegExp(path7.join("|"), flags);
+        return new RegExp(path8.join("|"), flags);
       }
-      if (typeof path7 !== "string") {
+      if (typeof path8 !== "string") {
         throw new TypeError("path must be a string, array of strings, or regular expression");
       }
-      path7 = path7.replace(
+      path8 = path8.replace(
         /\\.|(\/)?(\.)?:(\w+)(\(.*?\))?(\*)?(\?)?|[.*]|\/\(/g,
         function(match, slash, format2, key, capture, star, optional, offset) {
           if (match[0] === "\\") {
@@ -17946,7 +17946,7 @@ var require_path_to_regexp = __commonJS({
           if (slash || format2) {
             backtrack = "";
           } else {
-            backtrack += path7.slice(pos, offset);
+            backtrack += path8.slice(pos, offset);
           }
           pos = offset + match.length;
           if (match === "*") {
@@ -17976,7 +17976,7 @@ var require_path_to_regexp = __commonJS({
           return result;
         }
       );
-      while (m3 = MATCHING_GROUP_REGEXP.exec(path7)) {
+      while (m3 = MATCHING_GROUP_REGEXP.exec(path8)) {
         if (m3[0][0] === "\\") continue;
         if (keysOffset + i5 === keys.length || keys[keysOffset + i5].offset > m3.index) {
           keys.splice(keysOffset + i5, 0, {
@@ -17988,13 +17988,13 @@ var require_path_to_regexp = __commonJS({
         }
         i5++;
       }
-      path7 += strict ? "" : path7[path7.length - 1] === "/" ? "?" : "/?";
+      path8 += strict ? "" : path8[path8.length - 1] === "/" ? "?" : "/?";
       if (end) {
-        path7 += "$";
-      } else if (path7[path7.length - 1] !== "/") {
-        path7 += lookahead ? "(?=/|$)" : "(?:/|$)";
+        path8 += "$";
+      } else if (path8[path8.length - 1] !== "/") {
+        path8 += lookahead ? "(?=/|$)" : "(?:/|$)";
       }
-      return new RegExp("^" + path7, flags);
+      return new RegExp("^" + path8, flags);
     }
   }
 });
@@ -18007,19 +18007,19 @@ var require_layer = __commonJS({
     var debug = require_src()("express:router:layer");
     var hasOwnProperty = Object.prototype.hasOwnProperty;
     module.exports = Layer;
-    function Layer(path7, options, fn) {
+    function Layer(path8, options, fn) {
       if (!(this instanceof Layer)) {
-        return new Layer(path7, options, fn);
+        return new Layer(path8, options, fn);
       }
-      debug("new %o", path7);
+      debug("new %o", path8);
       var opts = options || {};
       this.handle = fn;
       this.name = fn.name || "<anonymous>";
       this.params = void 0;
       this.path = void 0;
-      this.regexp = pathRegexp(path7, this.keys = [], opts);
-      this.regexp.fast_star = path7 === "*";
-      this.regexp.fast_slash = path7 === "/" && opts.end === false;
+      this.regexp = pathRegexp(path8, this.keys = [], opts);
+      this.regexp.fast_star = path8 === "*";
+      this.regexp.fast_slash = path8 === "/" && opts.end === false;
     }
     Layer.prototype.handle_error = function handle_error(error2, req, res, next) {
       var fn = this.handle;
@@ -18043,20 +18043,20 @@ var require_layer = __commonJS({
         next(err);
       }
     };
-    Layer.prototype.match = function match(path7) {
+    Layer.prototype.match = function match(path8) {
       var match2;
-      if (path7 != null) {
+      if (path8 != null) {
         if (this.regexp.fast_slash) {
           this.params = {};
           this.path = "";
           return true;
         }
         if (this.regexp.fast_star) {
-          this.params = { "0": decode_param(path7) };
-          this.path = path7;
+          this.params = { "0": decode_param(path8) };
+          this.path = path8;
           return true;
         }
-        match2 = this.regexp.exec(path7);
+        match2 = this.regexp.exec(path8);
       }
       if (!match2) {
         this.params = void 0;
@@ -18149,10 +18149,10 @@ var require_route = __commonJS({
     var slice = Array.prototype.slice;
     var toString = Object.prototype.toString;
     module.exports = Route;
-    function Route(path7) {
-      this.path = path7;
+    function Route(path8) {
+      this.path = path8;
       this.stack = [];
-      debug("new %o", path7);
+      debug("new %o", path8);
       this.methods = {};
     }
     Route.prototype._handles_method = function _handles_method(method) {
@@ -18364,8 +18364,8 @@ var require_router = __commonJS({
         if (++sync > 100) {
           return setImmediate(next, err);
         }
-        var path7 = getPathname(req);
-        if (path7 == null) {
+        var path8 = getPathname(req);
+        if (path8 == null) {
           return done(layerError);
         }
         var layer;
@@ -18373,7 +18373,7 @@ var require_router = __commonJS({
         var route;
         while (match !== true && idx < stack.length) {
           layer = stack[idx++];
-          match = matchLayer(layer, path7);
+          match = matchLayer(layer, path8);
           route = layer.route;
           if (typeof match !== "boolean") {
             layerError = layerError || match;
@@ -18411,18 +18411,18 @@ var require_router = __commonJS({
           } else if (route) {
             layer.handle_request(req, res, next);
           } else {
-            trim_prefix(layer, layerError, layerPath, path7);
+            trim_prefix(layer, layerError, layerPath, path8);
           }
           sync = 0;
         });
       }
-      function trim_prefix(layer, layerError, layerPath, path7) {
+      function trim_prefix(layer, layerError, layerPath, path8) {
         if (layerPath.length !== 0) {
-          if (layerPath !== path7.slice(0, layerPath.length)) {
+          if (layerPath !== path8.slice(0, layerPath.length)) {
             next(layerError);
             return;
           }
-          var c5 = path7[layerPath.length];
+          var c5 = path8[layerPath.length];
           if (c5 && c5 !== "/" && c5 !== ".") return next(layerError);
           debug("trim prefix (%s) from url %s", layerPath, req.url);
           removed = layerPath;
@@ -18500,7 +18500,7 @@ var require_router = __commonJS({
     };
     proto.use = function use(fn) {
       var offset = 0;
-      var path7 = "/";
+      var path8 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -18508,7 +18508,7 @@ var require_router = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path7 = fn;
+          path8 = fn;
         }
       }
       var callbacks = flatten(slice.call(arguments, offset));
@@ -18520,8 +18520,8 @@ var require_router = __commonJS({
         if (typeof fn !== "function") {
           throw new TypeError("Router.use() requires a middleware function but got a " + gettype(fn));
         }
-        debug("use %o %s", path7, fn.name || "<anonymous>");
-        var layer = new Layer(path7, {
+        debug("use %o %s", path8, fn.name || "<anonymous>");
+        var layer = new Layer(path8, {
           sensitive: this.caseSensitive,
           strict: false,
           end: false
@@ -18531,9 +18531,9 @@ var require_router = __commonJS({
       }
       return this;
     };
-    proto.route = function route(path7) {
-      var route2 = new Route(path7);
-      var layer = new Layer(path7, {
+    proto.route = function route(path8) {
+      var route2 = new Route(path8);
+      var layer = new Layer(path8, {
         sensitive: this.caseSensitive,
         strict: this.strict,
         end: true
@@ -18543,8 +18543,8 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      proto[method] = function(path7) {
-        var route = this.route(path7);
+      proto[method] = function(path8) {
+        var route = this.route(path8);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
@@ -18580,9 +18580,9 @@ var require_router = __commonJS({
       }
       return toString.call(obj).replace(objectRegExp, "$1");
     }
-    function matchLayer(layer, path7) {
+    function matchLayer(layer, path8) {
       try {
-        return layer.match(path7);
+        return layer.match(path8);
       } catch (err) {
         return err;
       }
@@ -18700,13 +18700,13 @@ var require_view = __commonJS({
   "node_modules/express/lib/view.js"(exports, module) {
     "use strict";
     var debug = require_src()("express:view");
-    var path7 = __require("path");
-    var fs4 = __require("fs");
-    var dirname = path7.dirname;
-    var basename = path7.basename;
-    var extname = path7.extname;
-    var join5 = path7.join;
-    var resolve = path7.resolve;
+    var path8 = __require("path");
+    var fs5 = __require("fs");
+    var dirname = path8.dirname;
+    var basename = path8.basename;
+    var extname = path8.extname;
+    var join5 = path8.join;
+    var resolve = path8.resolve;
     module.exports = View;
     function View(name, options) {
       var opts = options || {};
@@ -18735,17 +18735,17 @@ var require_view = __commonJS({
       this.path = this.lookup(fileName);
     }
     View.prototype.lookup = function lookup(name) {
-      var path8;
+      var path9;
       var roots = [].concat(this.root);
       debug('lookup "%s"', name);
-      for (var i5 = 0; i5 < roots.length && !path8; i5++) {
+      for (var i5 = 0; i5 < roots.length && !path9; i5++) {
         var root5 = roots[i5];
         var loc = resolve(root5, name);
         var dir = dirname(loc);
         var file = basename(loc);
-        path8 = this.resolve(dir, file);
+        path9 = this.resolve(dir, file);
       }
-      return path8;
+      return path9;
     };
     View.prototype.render = function render(options, callback) {
       debug('render "%s"', this.path);
@@ -18753,21 +18753,21 @@ var require_view = __commonJS({
     };
     View.prototype.resolve = function resolve2(dir, file) {
       var ext = this.ext;
-      var path8 = join5(dir, file);
-      var stat = tryStat(path8);
+      var path9 = join5(dir, file);
+      var stat = tryStat(path9);
       if (stat && stat.isFile()) {
-        return path8;
+        return path9;
       }
-      path8 = join5(dir, basename(file, ext), "index" + ext);
-      stat = tryStat(path8);
+      path9 = join5(dir, basename(file, ext), "index" + ext);
+      stat = tryStat(path9);
       if (stat && stat.isFile()) {
-        return path8;
+        return path9;
       }
     };
-    function tryStat(path8) {
-      debug('stat "%s"', path8);
+    function tryStat(path9) {
+      debug('stat "%s"', path9);
       try {
-        return fs4.statSync(path8);
+        return fs5.statSync(path9);
       } catch (e5) {
         return void 0;
       }
@@ -19121,8 +19121,8 @@ var require_types = __commonJS({
 // node_modules/mime/mime.js
 var require_mime = __commonJS({
   "node_modules/mime/mime.js"(exports, module) {
-    var path7 = __require("path");
-    var fs4 = __require("fs");
+    var path8 = __require("path");
+    var fs5 = __require("fs");
     function Mime() {
       this.types = /* @__PURE__ */ Object.create(null);
       this.extensions = /* @__PURE__ */ Object.create(null);
@@ -19143,7 +19143,7 @@ var require_mime = __commonJS({
     };
     Mime.prototype.load = function(file) {
       this._loading = file;
-      var map3 = {}, content = fs4.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
+      var map3 = {}, content = fs5.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
       lines.forEach(function(line) {
         var fields = line.replace(/\s*#.*|^\s*|\s*$/g, "").split(/\s+/);
         map3[fields.shift()] = fields;
@@ -19151,8 +19151,8 @@ var require_mime = __commonJS({
       this.define(map3);
       this._loading = null;
     };
-    Mime.prototype.lookup = function(path8, fallback2) {
-      var ext = path8.replace(/^.*[\.\/\\]/, "").toLowerCase();
+    Mime.prototype.lookup = function(path9, fallback2) {
+      var ext = path9.replace(/^.*[\.\/\\]/, "").toLowerCase();
       return this.types[ext] || fallback2 || this.default_type;
     };
     Mime.prototype.extension = function(mimeType) {
@@ -19381,33 +19381,33 @@ var require_send = __commonJS({
     var escapeHtml = require_escape_html();
     var etag = require_etag();
     var fresh = require_fresh();
-    var fs4 = __require("fs");
+    var fs5 = __require("fs");
     var mime = require_mime();
     var ms = require_ms2();
     var onFinished = require_on_finished();
     var parseRange = require_range_parser();
-    var path7 = __require("path");
+    var path8 = __require("path");
     var statuses = require_statuses();
     var Stream2 = __require("stream");
     var util2 = __require("util");
-    var extname = path7.extname;
-    var join5 = path7.join;
-    var normalize = path7.normalize;
-    var resolve = path7.resolve;
-    var sep2 = path7.sep;
+    var extname = path8.extname;
+    var join5 = path8.join;
+    var normalize = path8.normalize;
+    var resolve = path8.resolve;
+    var sep2 = path8.sep;
     var BYTES_RANGE_REGEXP = /^ *bytes=/;
     var MAX_MAXAGE = 60 * 60 * 24 * 365 * 1e3;
     var UP_PATH_REGEXP = /(?:^|[\\/])\.\.(?:[\\/]|$)/;
     module.exports = send;
     module.exports.mime = mime;
-    function send(req, path8, options) {
-      return new SendStream(req, path8, options);
+    function send(req, path9, options) {
+      return new SendStream(req, path9, options);
     }
-    function SendStream(req, path8, options) {
+    function SendStream(req, path9, options) {
       Stream2.call(this);
       var opts = options || {};
       this.options = opts;
-      this.path = path8;
+      this.path = path9;
       this.req = req;
       this._acceptRanges = opts.acceptRanges !== void 0 ? Boolean(opts.acceptRanges) : true;
       this._cacheControl = opts.cacheControl !== void 0 ? Boolean(opts.cacheControl) : true;
@@ -19453,8 +19453,8 @@ var require_send = __commonJS({
       this._index = index2;
       return this;
     }, "send.index: pass index as option");
-    SendStream.prototype.root = function root5(path8) {
-      this._root = resolve(String(path8));
+    SendStream.prototype.root = function root5(path9) {
+      this._root = resolve(String(path9));
       debug("root %s", this._root);
       return this;
     };
@@ -19567,10 +19567,10 @@ var require_send = __commonJS({
       var lastModified = this.res.getHeader("Last-Modified");
       return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
     };
-    SendStream.prototype.redirect = function redirect(path8) {
+    SendStream.prototype.redirect = function redirect(path9) {
       var res = this.res;
       if (hasListeners(this, "directory")) {
-        this.emit("directory", res, path8);
+        this.emit("directory", res, path9);
         return;
       }
       if (this.hasTrailingSlash()) {
@@ -19590,42 +19590,42 @@ var require_send = __commonJS({
     SendStream.prototype.pipe = function pipe(res) {
       var root5 = this._root;
       this.res = res;
-      var path8 = decode2(this.path);
-      if (path8 === -1) {
+      var path9 = decode2(this.path);
+      if (path9 === -1) {
         this.error(400);
         return res;
       }
-      if (~path8.indexOf("\0")) {
+      if (~path9.indexOf("\0")) {
         this.error(400);
         return res;
       }
       var parts;
       if (root5 !== null) {
-        if (path8) {
-          path8 = normalize("." + sep2 + path8);
+        if (path9) {
+          path9 = normalize("." + sep2 + path9);
         }
-        if (UP_PATH_REGEXP.test(path8)) {
-          debug('malicious path "%s"', path8);
+        if (UP_PATH_REGEXP.test(path9)) {
+          debug('malicious path "%s"', path9);
           this.error(403);
           return res;
         }
-        parts = path8.split(sep2);
-        path8 = normalize(join5(root5, path8));
+        parts = path9.split(sep2);
+        path9 = normalize(join5(root5, path9));
       } else {
-        if (UP_PATH_REGEXP.test(path8)) {
-          debug('malicious path "%s"', path8);
+        if (UP_PATH_REGEXP.test(path9)) {
+          debug('malicious path "%s"', path9);
           this.error(403);
           return res;
         }
-        parts = normalize(path8).split(sep2);
-        path8 = resolve(path8);
+        parts = normalize(path9).split(sep2);
+        path9 = resolve(path9);
       }
       if (containsDotFile(parts)) {
         var access = this._dotfiles;
         if (access === void 0) {
           access = parts[parts.length - 1][0] === "." ? this._hidden ? "allow" : "ignore" : "allow";
         }
-        debug('%s dotfile "%s"', access, path8);
+        debug('%s dotfile "%s"', access, path9);
         switch (access) {
           case "allow":
             break;
@@ -19639,13 +19639,13 @@ var require_send = __commonJS({
         }
       }
       if (this._index.length && this.hasTrailingSlash()) {
-        this.sendIndex(path8);
+        this.sendIndex(path9);
         return res;
       }
-      this.sendFile(path8);
+      this.sendFile(path9);
       return res;
     };
-    SendStream.prototype.send = function send2(path8, stat) {
+    SendStream.prototype.send = function send2(path9, stat) {
       var len = stat.size;
       var options = this.options;
       var opts = {};
@@ -19657,9 +19657,9 @@ var require_send = __commonJS({
         this.headersAlreadySent();
         return;
       }
-      debug('pipe "%s"', path8);
-      this.setHeader(path8, stat);
-      this.type(path8);
+      debug('pipe "%s"', path9);
+      this.setHeader(path9, stat);
+      this.type(path9);
       if (this.isConditionalGET()) {
         if (this.isPreconditionFailure()) {
           this.error(412);
@@ -19708,28 +19708,28 @@ var require_send = __commonJS({
         res.end();
         return;
       }
-      this.stream(path8, opts);
+      this.stream(path9, opts);
     };
-    SendStream.prototype.sendFile = function sendFile(path8) {
+    SendStream.prototype.sendFile = function sendFile(path9) {
       var i5 = 0;
       var self2 = this;
-      debug('stat "%s"', path8);
-      fs4.stat(path8, function onstat(err, stat) {
-        if (err && err.code === "ENOENT" && !extname(path8) && path8[path8.length - 1] !== sep2) {
+      debug('stat "%s"', path9);
+      fs5.stat(path9, function onstat(err, stat) {
+        if (err && err.code === "ENOENT" && !extname(path9) && path9[path9.length - 1] !== sep2) {
           return next(err);
         }
         if (err) return self2.onStatError(err);
-        if (stat.isDirectory()) return self2.redirect(path8);
-        self2.emit("file", path8, stat);
-        self2.send(path8, stat);
+        if (stat.isDirectory()) return self2.redirect(path9);
+        self2.emit("file", path9, stat);
+        self2.send(path9, stat);
       });
       function next(err) {
         if (self2._extensions.length <= i5) {
           return err ? self2.onStatError(err) : self2.error(404);
         }
-        var p3 = path8 + "." + self2._extensions[i5++];
+        var p3 = path9 + "." + self2._extensions[i5++];
         debug('stat "%s"', p3);
-        fs4.stat(p3, function(err2, stat) {
+        fs5.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -19737,7 +19737,7 @@ var require_send = __commonJS({
         });
       }
     };
-    SendStream.prototype.sendIndex = function sendIndex(path8) {
+    SendStream.prototype.sendIndex = function sendIndex(path9) {
       var i5 = -1;
       var self2 = this;
       function next(err) {
@@ -19745,9 +19745,9 @@ var require_send = __commonJS({
           if (err) return self2.onStatError(err);
           return self2.error(404);
         }
-        var p3 = join5(path8, self2._index[i5]);
+        var p3 = join5(path9, self2._index[i5]);
         debug('stat "%s"', p3);
-        fs4.stat(p3, function(err2, stat) {
+        fs5.stat(p3, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p3, stat);
@@ -19756,10 +19756,10 @@ var require_send = __commonJS({
       }
       next();
     };
-    SendStream.prototype.stream = function stream(path8, options) {
+    SendStream.prototype.stream = function stream(path9, options) {
       var self2 = this;
       var res = this.res;
-      var stream2 = fs4.createReadStream(path8, options);
+      var stream2 = fs5.createReadStream(path9, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -19774,10 +19774,10 @@ var require_send = __commonJS({
         self2.emit("end");
       });
     };
-    SendStream.prototype.type = function type(path8) {
+    SendStream.prototype.type = function type(path9) {
       var res = this.res;
       if (res.getHeader("Content-Type")) return;
-      var type2 = mime.lookup(path8);
+      var type2 = mime.lookup(path9);
       if (!type2) {
         debug("no content-type");
         return;
@@ -19786,9 +19786,9 @@ var require_send = __commonJS({
       debug("content-type %s", type2);
       res.setHeader("Content-Type", type2 + (charset ? "; charset=" + charset : ""));
     };
-    SendStream.prototype.setHeader = function setHeader(path8, stat) {
+    SendStream.prototype.setHeader = function setHeader(path9, stat) {
       var res = this.res;
-      this.emit("headers", res, path8, stat);
+      this.emit("headers", res, path9, stat);
       if (this._acceptRanges && !res.getHeader("Accept-Ranges")) {
         debug("accept ranges");
         res.setHeader("Accept-Ranges", "bytes");
@@ -19847,9 +19847,9 @@ var require_send = __commonJS({
       }
       return err instanceof Error ? createError(status, err, { expose: false }) : createError(status, err);
     }
-    function decode2(path8) {
+    function decode2(path9) {
       try {
-        return decodeURIComponent(path8);
+        return decodeURIComponent(path9);
       } catch (err) {
         return -1;
       }
@@ -20774,10 +20774,10 @@ var require_utils2 = __commonJS({
     var querystring = __require("querystring");
     exports.etag = createETagGenerator({ weak: false });
     exports.wetag = createETagGenerator({ weak: true });
-    exports.isAbsolute = function(path7) {
-      if ("/" === path7[0]) return true;
-      if (":" === path7[1] && ("\\" === path7[2] || "/" === path7[2])) return true;
-      if ("\\\\" === path7.substring(0, 2)) return true;
+    exports.isAbsolute = function(path8) {
+      if ("/" === path8[0]) return true;
+      if (":" === path8[1] && ("\\" === path8[2] || "/" === path8[2])) return true;
+      if ("\\\\" === path8.substring(0, 2)) return true;
     };
     exports.flatten = deprecate.function(
       flatten,
@@ -20989,7 +20989,7 @@ var require_application = __commonJS({
     };
     app2.use = function use(fn) {
       var offset = 0;
-      var path7 = "/";
+      var path8 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -20997,7 +20997,7 @@ var require_application = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path7 = fn;
+          path8 = fn;
         }
       }
       var fns = flatten(slice.call(arguments, offset));
@@ -21008,12 +21008,12 @@ var require_application = __commonJS({
       var router22 = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router22.use(path7, fn2);
+          return router22.use(path8, fn2);
         }
-        debug(".use app under %s", path7);
-        fn2.mountpath = path7;
+        debug(".use app under %s", path8);
+        fn2.mountpath = path8;
         fn2.parent = this;
-        router22.use(path7, function mounted_app(req, res, next) {
+        router22.use(path8, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -21025,9 +21025,9 @@ var require_application = __commonJS({
       }, this);
       return this;
     };
-    app2.route = function route(path7) {
+    app2.route = function route(path8) {
       this.lazyrouter();
-      return this._router.route(path7);
+      return this._router.route(path8);
     };
     app2.engine = function engine(ext, fn) {
       if (typeof fn !== "function") {
@@ -21078,7 +21078,7 @@ var require_application = __commonJS({
       }
       return this;
     };
-    app2.path = function path7() {
+    app2.path = function path8() {
       return this.parent ? this.parent.path() + this.mountpath : "";
     };
     app2.enabled = function enabled(setting) {
@@ -21094,19 +21094,19 @@ var require_application = __commonJS({
       return this.set(setting, false);
     };
     methods.forEach(function(method) {
-      app2[method] = function(path7) {
+      app2[method] = function(path8) {
         if (method === "get" && arguments.length === 1) {
-          return this.set(path7);
+          return this.set(path8);
         }
         this.lazyrouter();
-        var route = this._router.route(path7);
+        var route = this._router.route(path8);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
     });
-    app2.all = function all(path7) {
+    app2.all = function all(path8) {
       this.lazyrouter();
-      var route = this._router.route(path7);
+      var route = this._router.route(path8);
       var args = slice.call(arguments, 1);
       for (var i5 = 0; i5 < methods.length; i5++) {
         route[methods[i5]].apply(route, args);
@@ -21865,7 +21865,7 @@ var require_request = __commonJS({
       var subdomains2 = !isIP2(hostname) ? hostname.split(".").reverse() : [hostname];
       return subdomains2.slice(offset);
     });
-    defineGetter(req, "path", function path7() {
+    defineGetter(req, "path", function path8() {
       return parse2(this).pathname;
     });
     defineGetter(req, "hostname", function hostname() {
@@ -22187,7 +22187,7 @@ var require_response = __commonJS({
     var http = __require("http");
     var isAbsolute = require_utils2().isAbsolute;
     var onFinished = require_on_finished();
-    var path7 = __require("path");
+    var path8 = __require("path");
     var statuses = require_statuses();
     var merge2 = require_utils_merge();
     var sign3 = require_cookie_signature().sign;
@@ -22196,9 +22196,9 @@ var require_response = __commonJS({
     var setCharset = require_utils2().setCharset;
     var cookie = require_cookie();
     var send = require_send();
-    var extname = path7.extname;
+    var extname = path8.extname;
     var mime = send.mime;
-    var resolve = path7.resolve;
+    var resolve = path8.resolve;
     var vary = require_vary();
     var res = Object.create(http.ServerResponse.prototype);
     module.exports = res;
@@ -22375,26 +22375,26 @@ var require_response = __commonJS({
       this.type("txt");
       return this.send(body);
     };
-    res.sendFile = function sendFile(path8, options, callback) {
+    res.sendFile = function sendFile(path9, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
       var next = req.next;
       var opts = options || {};
-      if (!path8) {
+      if (!path9) {
         throw new TypeError("path argument is required to res.sendFile");
       }
-      if (typeof path8 !== "string") {
+      if (typeof path9 !== "string") {
         throw new TypeError("path must be a string to res.sendFile");
       }
       if (typeof options === "function") {
         done = options;
         opts = {};
       }
-      if (!opts.root && !isAbsolute(path8)) {
+      if (!opts.root && !isAbsolute(path9)) {
         throw new TypeError("path must be absolute or specify root to res.sendFile");
       }
-      var pathname = encodeURI(path8);
+      var pathname = encodeURI(path9);
       var file = send(req, pathname, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
@@ -22404,7 +22404,7 @@ var require_response = __commonJS({
         }
       });
     };
-    res.sendfile = function(path8, options, callback) {
+    res.sendfile = function(path9, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
@@ -22414,7 +22414,7 @@ var require_response = __commonJS({
         done = options;
         opts = {};
       }
-      var file = send(req, path8, opts);
+      var file = send(req, path9, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
         if (err && err.code === "EISDIR") return next();
@@ -22427,7 +22427,7 @@ var require_response = __commonJS({
       res.sendfile,
       "res.sendfile: Use res.sendFile instead"
     );
-    res.download = function download(path8, filename, options, callback) {
+    res.download = function download(path9, filename, options, callback) {
       var done = callback;
       var name = filename;
       var opts = options || null;
@@ -22444,7 +22444,7 @@ var require_response = __commonJS({
         opts = filename;
       }
       var headers = {
-        "Content-Disposition": contentDisposition(name || path8)
+        "Content-Disposition": contentDisposition(name || path9)
       };
       if (opts && opts.headers) {
         var keys = Object.keys(opts.headers);
@@ -22457,7 +22457,7 @@ var require_response = __commonJS({
       }
       opts = Object.create(opts);
       opts.headers = headers;
-      var fullPath = !opts.root ? resolve(path8) : path8;
+      var fullPath = !opts.root ? resolve(path9) : path9;
       return this.sendFile(fullPath, opts, done);
     };
     res.contentType = res.type = function contentType(type) {
@@ -22758,11 +22758,11 @@ var require_serve_static = __commonJS({
         }
         var forwardError = !fallthrough;
         var originalUrl = parseUrl2.original(req);
-        var path7 = parseUrl2(req).pathname;
-        if (path7 === "/" && originalUrl.pathname.substr(-1) !== "/") {
-          path7 = "";
+        var path8 = parseUrl2(req).pathname;
+        if (path8 === "/" && originalUrl.pathname.substr(-1) !== "/") {
+          path8 = "";
         }
-        var stream = send(req, path7, opts);
+        var stream = send(req, path8, opts);
         stream.on("directory", onDirectory);
         if (setHeaders) {
           stream.on("headers", setHeaders);
@@ -23339,8 +23339,8 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs4 = __require("fs");
-    var path7 = __require("path");
+    var fs5 = __require("fs");
+    var path8 = __require("path");
     var os = __require("os");
     var crypto7 = __require("crypto");
     var packageJson = require_package();
@@ -23448,7 +23448,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs4.existsSync(filepath)) {
+            if (fs5.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -23456,15 +23456,15 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path7.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path8.resolve(process.cwd(), ".env.vault");
       }
-      if (fs4.existsSync(possibleVaultPath)) {
+      if (fs5.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path7.join(os.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path8.join(os.homedir(), envPath.slice(1)) : envPath;
     }
     function _configVault(options) {
       const debug = Boolean(options && options.debug);
@@ -23481,7 +23481,7 @@ var require_main = __commonJS({
       return { parsed: parsed2 };
     }
     function configDotenv(options) {
-      const dotenvPath = path7.resolve(process.cwd(), ".env");
+      const dotenvPath = path8.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -23505,13 +23505,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path8 of optionPaths) {
+      for (const path9 of optionPaths) {
         try {
-          const parsed2 = DotenvModule.parse(fs4.readFileSync(path8, { encoding }));
+          const parsed2 = DotenvModule.parse(fs5.readFileSync(path9, { encoding }));
           DotenvModule.populate(parsedAll, parsed2, options);
         } catch (e5) {
           if (debug) {
-            _debug(`Failed to load ${path8} ${e5.message}`);
+            _debug(`Failed to load ${path9} ${e5.message}`);
           }
           lastError = e5;
         }
@@ -23526,7 +23526,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path7.relative(process.cwd(), filePath);
+            const relative = path8.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e5) {
             if (debug) {
@@ -24038,8 +24038,8 @@ var init_parseUtil = __esm({
     init_errors();
     init_en();
     makeIssue = (params) => {
-      const { data, path: path7, errorMaps, issueData } = params;
-      const fullPath = [...path7, ...issueData.path || []];
+      const { data, path: path8, errorMaps, issueData } = params;
+      const fullPath = [...path8, ...issueData.path || []];
       const fullIssue = {
         ...issueData,
         path: fullPath
@@ -24347,11 +24347,11 @@ var init_types = __esm({
     init_parseUtil();
     init_util();
     ParseInputLazyPath = class {
-      constructor(parent, value, path7, key) {
+      constructor(parent, value, path8, key) {
         this._cachedPath = [];
         this.parent = parent;
         this.data = value;
-        this._path = path7;
+        this._path = path8;
         this._key = key;
       }
       get path() {
@@ -34438,10 +34438,10 @@ function parseUri(text) {
   const groups = match.groups;
   const scheme = groups["scheme"];
   const authority = groups["authority"] !== void 0 ? parseAuthority(groups["authority"]) : void 0;
-  const path7 = percentDecode(groups["path"]);
+  const path8 = percentDecode(groups["path"]);
   const query = groups["query"] !== void 0 ? parseQuery(groups["query"]) : void 0;
   const fragment = groups["fragment"] !== void 0 ? percentDecode(groups["fragment"]) : void 0;
-  return { scheme, authority, path: path7, query, fragment };
+  return { scheme, authority, path: path8, query, fragment };
 }
 function parseAuthority(text) {
   const match = AUTHORITY_RE.exec(text);
@@ -34491,7 +34491,7 @@ function percentDecode(text) {
     throw e5;
   }
 }
-function encodeBaseUrl(scheme, authority, path7) {
+function encodeBaseUrl(scheme, authority, path8) {
   if (authority === void 0) {
     throw new LibsqlError(`URL with scheme ${JSON.stringify(scheme + ":")} requires authority (the "//" part)`, "URL_INVALID");
   }
@@ -34500,7 +34500,7 @@ function encodeBaseUrl(scheme, authority, path7) {
   const portText = encodePort(authority.port);
   const userinfoText = encodeUserinfo(authority.userinfo);
   const authorityText = `//${userinfoText}${hostText}${portText}`;
-  let pathText = path7.split("/").map(encodeURIComponent).join("/");
+  let pathText = path8.split("/").map(encodeURIComponent).join("/");
   if (pathText !== "" && !pathText.startsWith("/")) {
     pathText = "/" + pathText;
   }
@@ -34640,7 +34640,7 @@ function expandConfig(config, preferHttp) {
     }
   }
   const connectionQueryParamsString = connectionQueryParams.length === 0 ? "" : `?${connectionQueryParams.join("&")}`;
-  const path7 = uri.path + connectionQueryParamsString;
+  const path8 = uri.path + connectionQueryParamsString;
   let scheme;
   if (originalUriScheme === "libsql") {
     if (tls === false) {
@@ -34672,7 +34672,7 @@ function expandConfig(config, preferHttp) {
     return {
       scheme: "file",
       tls: false,
-      path: path7,
+      path: path8,
       intMode,
       concurrency,
       syncUrl: config.syncUrl,
@@ -34691,7 +34691,7 @@ function expandConfig(config, preferHttp) {
     scheme,
     tls,
     authority: uri.authority,
-    path: path7,
+    path: path8,
     authToken,
     intMode,
     concurrency,
@@ -35729,6 +35729,9 @@ function getConfig() {
   return { url, anonKey, syncSecret };
 }
 function isSupabaseEnabled() {
+  if (process.env.HALDER_DISABLE_CLOUD_SYNC === "1" || process.env.NODE_ENV === "test") {
+    return false;
+  }
   const { url, anonKey, syncSecret } = getConfig();
   return Boolean(url && anonKey && syncSecret);
 }
@@ -35786,7 +35789,7 @@ async function callSupabaseRpc(fnName, body, maxRetries = 3) {
   throw lastError;
 }
 function beginSupabaseTx() {
-  if (!isSupabaseEnabled() || isHydrating2) return;
+  if (!isSupabaseEnabled() || !isSupabaseReady || isHydrating2) return;
   activeTxTables = /* @__PURE__ */ new Set();
 }
 function commitSupabaseTx() {
@@ -35806,7 +35809,7 @@ function rollbackSupabaseTx() {
   activeTxTables = null;
 }
 function recordSupabaseWrite(sql) {
-  if (!isSupabaseEnabled() || isHydrating2) return;
+  if (!isSupabaseEnabled() || !isSupabaseReady || isHydrating2) return;
   const table = extractTouchedTable(sql);
   if (!table) return;
   if (activeTxTables) {
@@ -44316,14 +44319,14 @@ var init_readFile = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/readFile.js"() {
     filePromises = {};
     fileIntercept = {};
-    readFile2 = (path7, options) => {
-      if (fileIntercept[path7] !== void 0) {
-        return fileIntercept[path7];
+    readFile2 = (path8, options) => {
+      if (fileIntercept[path8] !== void 0) {
+        return fileIntercept[path8];
       }
-      if (!filePromises[path7] || options?.ignoreCache) {
-        filePromises[path7] = fsReadFile(path7, "utf8");
+      if (!filePromises[path8] || options?.ignoreCache) {
+        filePromises[path8] = fsReadFile(path8, "utf8");
       }
-      return filePromises[path7];
+      return filePromises[path8];
     };
   }
 });
@@ -44435,8 +44438,8 @@ var init_externalDataInterceptor = __esm({
       getFileRecord() {
         return fileIntercept;
       },
-      interceptFile(path7, contents) {
-        fileIntercept[path7] = Promise.resolve(contents);
+      interceptFile(path8, contents) {
+        fileIntercept[path8] = Promise.resolve(contents);
       },
       getTokenRecord() {
         return tokenIntercept;
@@ -45234,8 +45237,8 @@ var init_createConfigValueProvider = __esm({
               return endpoint.url.href;
             }
             if ("hostname" in endpoint) {
-              const { protocol, hostname, port, path: path7 } = endpoint;
-              return `${protocol}//${hostname}${port ? ":" + port : ""}${path7}`;
+              const { protocol, hostname, port, path: path8 } = endpoint;
+              return `${protocol}//${hostname}${port ? ":" + port : ""}${path8}`;
             }
           }
           return endpoint;
@@ -45610,18 +45613,18 @@ var getAttrPathList;
 var init_getAttrPathList = __esm({
   "node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/lib/getAttrPathList.js"() {
     init_types3();
-    getAttrPathList = (path7) => {
-      const parts = path7.split(".");
+    getAttrPathList = (path8) => {
+      const parts = path8.split(".");
       const pathList = [];
       for (const part of parts) {
         const squareBracketIndex = part.indexOf("[");
         if (squareBracketIndex !== -1) {
           if (part.indexOf("]") !== part.length - 1) {
-            throw new EndpointError(`Path: '${path7}' does not end with ']'`);
+            throw new EndpointError(`Path: '${path8}' does not end with ']'`);
           }
           const arrayIndex = part.slice(squareBracketIndex + 1, -1);
           if (Number.isNaN(parseInt(arrayIndex))) {
-            throw new EndpointError(`Invalid array index: '${arrayIndex}' in path: '${path7}'`);
+            throw new EndpointError(`Invalid array index: '${arrayIndex}' in path: '${path8}'`);
           }
           if (squareBracketIndex !== 0) {
             pathList.push(part.slice(0, squareBracketIndex));
@@ -45642,9 +45645,9 @@ var init_getAttr = __esm({
   "node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/lib/getAttr.js"() {
     init_types3();
     init_getAttrPathList();
-    getAttr = (value, path7) => getAttrPathList(path7).reduce((acc, index) => {
+    getAttr = (value, path8) => getAttrPathList(path8).reduce((acc, index) => {
       if (typeof acc !== "object") {
-        throw new EndpointError(`Index '${index}' in '${path7}' not found in '${JSON.stringify(value)}'`);
+        throw new EndpointError(`Index '${index}' in '${path8}' not found in '${JSON.stringify(value)}'`);
       } else if (Array.isArray(acc)) {
         const i5 = parseInt(index);
         return acc[i5 < 0 ? acc.length + i5 : i5];
@@ -45705,8 +45708,8 @@ var init_parseURL = __esm({
             return value;
           }
           if (typeof value === "object" && "hostname" in value) {
-            const { hostname: hostname2, port, protocol: protocol2 = "", path: path7 = "", query = {} } = value;
-            const url = new URL(`${protocol2}//${hostname2}${port ? `:${port}` : ""}${path7}`);
+            const { hostname: hostname2, port, protocol: protocol2 = "", path: path8 = "", query = {} } = value;
+            const url = new URL(`${protocol2}//${hostname2}${port ? `:${port}` : ""}${path8}`);
             url.search = Object.entries(query).map(([k5, v]) => `${k5}=${v}`).join("&");
             return url;
           }
@@ -49347,11 +49350,11 @@ var init_HttpBindingProtocol = __esm({
           const opTraits = translateTraits(operationSchema.traits);
           if (opTraits.http) {
             request.method = opTraits.http[0];
-            const [path7, search] = opTraits.http[1].split("?");
+            const [path8, search] = opTraits.http[1].split("?");
             if (request.path == "/") {
-              request.path = path7;
+              request.path = path8;
             } else {
-              request.path += path7;
+              request.path += path8;
             }
             const traitSearchParams = new URLSearchParams(search ?? "");
             for (const [key, value] of traitSearchParams) {
@@ -49762,8 +49765,8 @@ var init_requestBuilder = __esm({
         return this;
       }
       p(memberName, labelValueProvider, uriLabel, isGreedyLabel) {
-        this.resolvePathStack.push((path7) => {
-          this.path = resolvedPath(path7, this.input, memberName, labelValueProvider, uriLabel, isGreedyLabel);
+        this.resolvePathStack.push((path8) => {
+          this.path = resolvedPath(path8, this.input, memberName, labelValueProvider, uriLabel, isGreedyLabel);
         });
         return this;
       }
@@ -51880,9 +51883,9 @@ var init_createPaginator = __esm({
       command5 = withCommand(command5) ?? command5;
       return await client.send(command5, ...args);
     };
-    get = (fromObject, path7) => {
+    get = (fromObject, path8) => {
       let cursor = fromObject;
-      const pathComponents = path7.split(".");
+      const pathComponents = path8.split(".");
       for (const step of pathComponents) {
         if (!cursor || typeof cursor !== "object") {
           return void 0;
@@ -55141,10 +55144,10 @@ ${longDate}
 ${credentialScope}
 ${toHex2(hashedRequest)}`;
       }
-      getCanonicalPath({ path: path7 }) {
+      getCanonicalPath({ path: path8 }) {
         if (this.uriEscapePath) {
           const normalizedPathSegments = [];
-          for (const pathSegment of path7.split("/")) {
+          for (const pathSegment of path8.split("/")) {
             if (pathSegment?.length === 0)
               continue;
             if (pathSegment === ".")
@@ -55155,11 +55158,11 @@ ${toHex2(hashedRequest)}`;
               normalizedPathSegments.push(pathSegment);
             }
           }
-          const normalizedPath = `${path7?.startsWith("/") ? "/" : ""}${normalizedPathSegments.join("/")}${normalizedPathSegments.length > 0 && path7?.endsWith("/") ? "/" : ""}`;
+          const normalizedPath = `${path8?.startsWith("/") ? "/" : ""}${normalizedPathSegments.join("/")}${normalizedPathSegments.length > 0 && path8?.endsWith("/") ? "/" : ""}`;
           const doubleEncoded = escapeUri2(normalizedPath);
           return doubleEncoded.replace(/%2F/g, "/");
         }
-        return path7;
+        return path8;
       }
       validateResolvedCredentials(credentials) {
         if (typeof credentials !== "object" || typeof credentials.accessKeyId !== "string" || typeof credentials.secretAccessKey !== "string") {
@@ -55814,15 +55817,15 @@ var init_arn = __esm({
 // node_modules/@aws-sdk/core/dist-es/submodules/util/util-format-url/format-url.js
 function formatUrl(request) {
   const { port, query } = request;
-  let { protocol, path: path7, hostname } = request;
+  let { protocol, path: path8, hostname } = request;
   if (protocol && protocol.slice(-1) !== ":") {
     protocol += ":";
   }
   if (port) {
     hostname += `:${port}`;
   }
-  if (path7 && path7.charAt(0) !== "/") {
-    path7 = `/${path7}`;
+  if (path8 && path8.charAt(0) !== "/") {
+    path8 = `/${path8}`;
   }
   let queryString = query ? buildQueryString(query) : "";
   if (queryString && queryString[0] !== "?") {
@@ -55838,7 +55841,7 @@ function formatUrl(request) {
   if (request.fragment) {
     fragment = `#${request.fragment}`;
   }
-  return `${protocol}//${auth}${hostname}${path7}${queryString}${fragment}`;
+  return `${protocol}//${auth}${hostname}${path8}${queryString}${fragment}`;
 }
 var init_format_url = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/util/util-format-url/format-url.js"() {
@@ -60397,12 +60400,12 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             const password = request.password ?? "";
             auth = `${username}:${password}`;
           }
-          let path7 = request.path;
+          let path8 = request.path;
           if (queryString) {
-            path7 += `?${queryString}`;
+            path8 += `?${queryString}`;
           }
           if (request.fragment) {
-            path7 += `#${request.fragment}`;
+            path8 += `#${request.fragment}`;
           }
           let hostname = request.hostname ?? "";
           if (hostname[0] === "[" && hostname.endsWith("]")) {
@@ -60414,7 +60417,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             headers: request.headers,
             host: hostname,
             method: request.method,
-            path: path7,
+            path: path8,
             port: request.port,
             agent,
             auth
@@ -60822,16 +60825,16 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             reject(err);
           };
           const queryString = query ? buildQueryString2(query) : "";
-          let path7 = request.path;
+          let path8 = request.path;
           if (queryString) {
-            path7 += `?${queryString}`;
+            path8 += `?${queryString}`;
           }
           if (request.fragment) {
-            path7 += `#${request.fragment}`;
+            path8 += `#${request.fragment}`;
           }
           const clientHttp2Stream = session.request({
             ...request.headers,
-            [constants.HTTP2_HEADER_PATH]: path7,
+            [constants.HTTP2_HEADER_PATH]: path8,
             [constants.HTTP2_HEADER_METHOD]: method
           });
           if (effectiveRequestTimeout) {
@@ -60920,7 +60923,7 @@ var require_dist_cjs8 = __commonJS({
     var { setCredentialFeature: setCredentialFeature2 } = (init_client6(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2 } = (init_config3(), __toCommonJS(config_exports));
     var { NodeHttpHandler } = require_dist_cjs7();
-    var fs4 = __require("node:fs/promises");
+    var fs5 = __require("node:fs/promises");
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var { sdkStreamMixin: sdkStreamMixin3, parseRfc3339DateTime: parseRfc3339DateTime2 } = (init_serde(), __toCommonJS(serde_exports));
     var ECS_CONTAINER_HOST = "169.254.170.2";
@@ -61044,7 +61047,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       const provider = retryWrapper(async () => {
         const request = createGetRequest(url);
         if (tokenFile) {
-          request.headers.Authorization = validateToken((await fs4.readFile(tokenFile)).toString());
+          request.headers.Authorization = validateToken((await fs5.readFile(tokenFile)).toString());
         } else if (token) {
           request.headers.Authorization = validateToken(token);
         }
@@ -76441,6 +76444,282 @@ var init_pushNotificationService = __esm({
   }
 });
 
+// server/src/services/customerProfileService.ts
+var CustomerProfileService;
+var init_customerProfileService = __esm({
+  "server/src/services/customerProfileService.ts"() {
+    init_database();
+    init_errors3();
+    init_sanitize();
+    init_audit();
+    init_esm();
+    init_storageService();
+    CustomerProfileService = class {
+      static getProfile(customerId) {
+        const user = Database.get(
+          `SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at, updated_at 
+       FROM users WHERE id = ?`,
+          [customerId]
+        );
+        if (!user) {
+          throw AppError.notFound("Customer not found");
+        }
+        let profile = Database.get(
+          "SELECT * FROM customer_profiles WHERE user_id = ?",
+          [customerId]
+        );
+        if (!profile) {
+          const profId = `cust-prof-${v4_default()}`;
+          const now = (/* @__PURE__ */ new Date()).toISOString();
+          Database.run(
+            `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
+         VALUES (?, ?, '', '', ?, ?)`,
+            [profId, customerId, now, now]
+          );
+          profile = Database.get("SELECT * FROM customer_profiles WHERE user_id = ?", [customerId]);
+        }
+        let defaultAddress = null;
+        if (profile.default_address_id) {
+          defaultAddress = Database.get(
+            "SELECT * FROM customer_addresses WHERE id = ? AND customer_id = ?",
+            [profile.default_address_id, customerId]
+          );
+        }
+        if (!defaultAddress) {
+          defaultAddress = Database.get(
+            "SELECT * FROM customer_addresses WHERE customer_id = ? ORDER BY is_default DESC, created_at DESC LIMIT 1",
+            [customerId]
+          );
+        }
+        const totalAddresses = Database.get(
+          "SELECT COUNT(*) as cnt FROM customer_addresses WHERE customer_id = ?",
+          [customerId]
+        )?.cnt || 0;
+        const orderStats = Database.get(
+          `SELECT 
+        COUNT(*) as totalOrders,
+        SUM(CASE WHEN order_status IN ('placed', 'accepted', 'preparing', 'ready', 'out_for_delivery') THEN 1 ELSE 0 END) as activeOrders,
+        SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) as deliveredOrders,
+        COALESCE(SUM(total_amount), 0) as totalSpend
+       FROM orders WHERE customer_id = ?`,
+          [customerId]
+        ) || { totalOrders: 0, activeOrders: 0, deliveredOrders: 0, totalSpend: 0 };
+        const favoritesCount = Database.get(
+          "SELECT COUNT(*) as cnt FROM favorites WHERE user_id = ?",
+          [customerId]
+        )?.cnt || 0;
+        const isGoogleConnected = Boolean(
+          Database.get(
+            "SELECT 1 FROM auth_identities WHERE user_id = ? AND provider = 'google'",
+            [customerId]
+          )
+        );
+        let notificationPrefs = {
+          orders: true,
+          delivery: true,
+          payments: true,
+          promos: false,
+          chat: true
+        };
+        if (profile.notification_preferences) {
+          try {
+            notificationPrefs = {
+              ...notificationPrefs,
+              ...JSON.parse(profile.notification_preferences)
+            };
+          } catch {
+          }
+        }
+        return {
+          id: user.id,
+          halderId: user.halder_id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          status: user.status,
+          avatar: user.profile_image || profile.avatar || "",
+          bio: profile.bio || "",
+          dateOfBirth: profile.date_of_birth || null,
+          gender: profile.gender || null,
+          createdAt: user.created_at,
+          defaultAddress,
+          totalAddresses,
+          orderStats: {
+            total: orderStats.totalOrders || 0,
+            active: orderStats.activeOrders || 0,
+            delivered: orderStats.deliveredOrders || 0,
+            totalSpend: Number((orderStats.totalSpend || 0).toFixed(2))
+          },
+          favoritesCount,
+          isGoogleConnected,
+          notificationPreferences: notificationPrefs
+        };
+      }
+      static updateProfile(customerId, input) {
+        const user = Database.get("SELECT * FROM users WHERE id = ?", [customerId]);
+        if (!user) throw AppError.notFound("Customer not found");
+        if (input.phone && input.phone.trim()) {
+          const phoneConflict = Database.get(
+            "SELECT id FROM users WHERE phone = ? AND id != ?",
+            [input.phone.trim(), customerId]
+          );
+          if (phoneConflict) {
+            throw AppError.badRequest("This phone number is already registered with another HALDER account.");
+          }
+        }
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        Database.transaction(() => {
+          if (input.name !== void 0 || input.phone !== void 0) {
+            Database.run(
+              `UPDATE users SET
+            name = COALESCE(?, name),
+            phone = COALESCE(?, phone),
+            updated_at = ?
+           WHERE id = ?`,
+              [
+                input.name !== void 0 ? sanitizeText(input.name.trim()) : null,
+                input.phone !== void 0 ? sanitizeText(input.phone.trim()) : null,
+                now,
+                customerId
+              ]
+            );
+          }
+          let profile = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
+          if (!profile) {
+            Database.run(
+              `INSERT INTO customer_profiles (id, user_id, bio, avatar, date_of_birth, gender, created_at, updated_at)
+           VALUES (?, ?, ?, '', ?, ?, ?, ?)`,
+              [
+                `cust-prof-${v4_default()}`,
+                customerId,
+                input.bio !== void 0 ? sanitizeText(input.bio.trim()) : "",
+                input.dateOfBirth || null,
+                input.gender || null,
+                now,
+                now
+              ]
+            );
+          } else {
+            Database.run(
+              `UPDATE customer_profiles SET
+            bio = COALESCE(?, bio),
+            date_of_birth = COALESCE(?, date_of_birth),
+            gender = COALESCE(?, gender),
+            updated_at = ?
+           WHERE user_id = ?`,
+              [
+                input.bio !== void 0 ? sanitizeText(input.bio.trim()) : null,
+                input.dateOfBirth !== void 0 ? input.dateOfBirth : null,
+                input.gender !== void 0 ? input.gender : null,
+                now,
+                customerId
+              ]
+            );
+          }
+        });
+        logAuditEvent(customerId, user.role, "CUSTOMER_PROFILE_UPDATED", "customer_profiles", customerId, {
+          name: input.name,
+          phone: input.phone
+        });
+        return this.getProfile(customerId);
+      }
+      static async updateAvatar(customerId, base64Data, baseUrl) {
+        if (!base64Data || typeof base64Data !== "string") {
+          throw AppError.badRequest("Avatar image data is required");
+        }
+        if (base64Data.length > 7e6) {
+          throw AppError.badRequest("Avatar image size exceeds the 5MB maximum limit.");
+        }
+        const isDataUrl = base64Data.startsWith("data:image/");
+        const isHttpUrl = base64Data.startsWith("http://") || base64Data.startsWith("https://");
+        const isUploadPath = base64Data.startsWith("/uploads/");
+        if (!isDataUrl && !isHttpUrl && !isUploadPath) {
+          throw AppError.badRequest("Invalid image format. Supported formats: JPEG, PNG, WebP.");
+        }
+        const processedAvatar = await StorageService.processImagePayload(base64Data, "avatars", baseUrl);
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        Database.transaction(() => {
+          Database.run(
+            "UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?",
+            [processedAvatar, now, customerId]
+          );
+          let cp = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
+          if (!cp) {
+            Database.run(
+              `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
+           VALUES (?, ?, '', ?, ?, ?)`,
+              [`cust-prof-${v4_default()}`, customerId, processedAvatar, now, now]
+            );
+          } else {
+            Database.run(
+              "UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
+              [processedAvatar, now, customerId]
+            );
+          }
+        });
+        logAuditEvent(customerId, "customer", "CUSTOMER_AVATAR_UPDATED", "users", customerId);
+        return { success: true, avatar: processedAvatar };
+      }
+      static removeAvatar(customerId) {
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        Database.transaction(() => {
+          Database.run(
+            'UPDATE users SET profile_image = "", updated_at = ? WHERE id = ?',
+            [now, customerId]
+          );
+          Database.run(
+            'UPDATE customer_profiles SET avatar = "", updated_at = ? WHERE user_id = ?',
+            [now, customerId]
+          );
+        });
+        logAuditEvent(customerId, "customer", "CUSTOMER_AVATAR_REMOVED", "users", customerId);
+        return { success: true, avatar: "" };
+      }
+      static getSettings(customerId) {
+        const profile = Database.get(
+          "SELECT notification_preferences FROM customer_profiles WHERE user_id = ?",
+          [customerId]
+        );
+        let prefs = {
+          orders: true,
+          delivery: true,
+          payments: true,
+          promos: false,
+          chat: true
+        };
+        if (profile?.notification_preferences) {
+          try {
+            prefs = { ...prefs, ...JSON.parse(profile.notification_preferences) };
+          } catch {
+          }
+        }
+        return prefs;
+      }
+      static updateSettings(customerId, settings) {
+        const current = this.getSettings(customerId);
+        const merged = { ...current, ...settings };
+        const jsonStr = JSON.stringify(merged);
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        const existing = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
+        if (existing) {
+          Database.run(
+            "UPDATE customer_profiles SET notification_preferences = ?, updated_at = ? WHERE user_id = ?",
+            [jsonStr, now, customerId]
+          );
+        } else {
+          Database.run(
+            `INSERT OR IGNORE INTO customer_profiles (id, user_id, notification_preferences, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?)`,
+            [`cprof-${customerId}`, customerId, jsonStr, now, now]
+          );
+        }
+        return merged;
+      }
+    };
+  }
+});
+
 // server/src/services/notificationService.ts
 var notificationService_exports = {};
 __export(notificationService_exports, {
@@ -76452,6 +76731,7 @@ var init_notificationService = __esm({
     init_database();
     init_esm();
     init_pushNotificationService();
+    init_customerProfileService();
     NotificationService = class {
       static getForUser(userId) {
         return Database.query(
@@ -76460,23 +76740,66 @@ var init_notificationService = __esm({
         );
       }
       static createAndPush(input) {
-        const id = `notif-${v4_default()}`;
-        const now = (/* @__PURE__ */ new Date()).toISOString();
-        Database.run(
-          `INSERT INTO notifications (id, user_id, recipient_role, type, title, message, is_read, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, 0, ?)`,
-          [id, input.userId, input.recipientRole, input.type, input.title, input.message, now]
-        );
         try {
-          PushNotificationService.sendPushToUser(input.userId, {
-            title: input.title,
-            body: input.message,
-            data: input.data
+          if (input.type === "chat") {
+            const prefs = CustomerProfileService.getSettings(input.userId);
+            if (prefs.chat === false) {
+              return { skipped: true, reason: "chat_notifications_disabled" };
+            }
+          }
+          if (input.sourceKey) {
+            const existing = Database.get(
+              "SELECT * FROM notifications WHERE user_id = ? AND source_key = ?",
+              [input.userId, input.sourceKey]
+            );
+            if (existing) {
+              return { ...existing, deduplicated: true };
+            }
+          }
+          const id = `notif-${v4_default()}`;
+          const now = (/* @__PURE__ */ new Date()).toISOString();
+          Database.run(
+            `INSERT INTO notifications (id, user_id, recipient_role, type, title, message, conversation_id, message_id, source_key, is_read, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+            [
+              id,
+              input.userId,
+              input.recipientRole,
+              input.type,
+              input.title,
+              input.message,
+              input.conversationId || null,
+              input.messageId || null,
+              input.sourceKey || null,
+              now
+            ]
+          );
+          Promise.resolve(
+            PushNotificationService.sendPushToUser(input.userId, {
+              title: input.title,
+              body: input.message,
+              data: {
+                ...input.data || {},
+                type: input.type,
+                conversationId: input.conversationId,
+                messageId: input.messageId
+              }
+            })
+          ).catch((err) => {
+            console.warn("[Push Notification] Push trigger warning:", err);
           });
+          return {
+            id,
+            ...input,
+            conversation_id: input.conversationId || null,
+            message_id: input.messageId || null,
+            is_read: 0,
+            created_at: now
+          };
         } catch (err) {
-          console.warn("[Push Notification] Push trigger warning:", err);
+          console.warn("[NotificationService] createAndPush warning:", err?.message || err);
+          return null;
         }
-        return { id, ...input, is_read: 0, created_at: now };
       }
       static markAsRead(id, userId) {
         Database.run("UPDATE notifications SET is_read = 1, read_at = ? WHERE id = ? AND user_id = ?", [
@@ -77027,19 +77350,19 @@ var require_utils3 = __commonJS({
       if (decode2)
         return decode2(data, hint);
     }
-    function basename(path7) {
-      if (typeof path7 !== "string")
+    function basename(path8) {
+      if (typeof path8 !== "string")
         return "";
-      for (let i5 = path7.length - 1; i5 >= 0; --i5) {
-        switch (path7.charCodeAt(i5)) {
+      for (let i5 = path8.length - 1; i5 >= 0; --i5) {
+        switch (path8.charCodeAt(i5)) {
           case 47:
           // '/'
           case 92:
-            path7 = path7.slice(i5 + 1);
-            return path7 === ".." || path7 === "." ? "" : path7;
+            path8 = path8.slice(i5 + 1);
+            return path8 === ".." || path8 === "." ? "" : path8;
         }
       }
-      return path7 === ".." || path7 === "." ? "" : path7;
+      return path8 === ".." || path8 === "." ? "" : path8;
     }
     var TOKEN = [
       0,
@@ -80706,7 +81029,7 @@ var require_make_middleware = __commonJS({
         var options = setup();
         var limits = options.limits;
         var storage2 = options.storage;
-        var fileFilter2 = options.fileFilter;
+        var fileFilter = options.fileFilter;
         var fileStrategy = options.fileStrategy;
         var preservePath = options.preservePath;
         req.body = /* @__PURE__ */ Object.create(null);
@@ -80772,7 +81095,7 @@ var require_make_middleware = __commonJS({
             mimetype: mimeType
           };
           var placeholder = appender.insertPlaceholder(file);
-          fileFilter2(req, file, function(err, includeFile) {
+          fileFilter(req, file, function(err, includeFile) {
             if (err) {
               appender.removePlaceholder(placeholder);
               return abortWithError(err);
@@ -80841,8 +81164,8 @@ var require_make_middleware = __commonJS({
 // node_modules/mkdirp/index.js
 var require_mkdirp = __commonJS({
   "node_modules/mkdirp/index.js"(exports, module) {
-    var path7 = __require("path");
-    var fs4 = __require("fs");
+    var path8 = __require("path");
+    var fs5 = __require("fs");
     var _0777 = parseInt("0777", 8);
     module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
     function mkdirP(p3, opts, f5, made) {
@@ -80853,7 +81176,7 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs4;
+      var xfs = opts.fs || fs5;
       if (mode === void 0) {
         mode = _0777;
       }
@@ -80861,7 +81184,7 @@ var require_mkdirp = __commonJS({
       var cb = f5 || /* istanbul ignore next */
       function() {
       };
-      p3 = path7.resolve(p3);
+      p3 = path8.resolve(p3);
       xfs.mkdir(p3, mode, function(er) {
         if (!er) {
           made = made || p3;
@@ -80869,8 +81192,8 @@ var require_mkdirp = __commonJS({
         }
         switch (er.code) {
           case "ENOENT":
-            if (path7.dirname(p3) === p3) return cb(er);
-            mkdirP(path7.dirname(p3), opts, function(er2, made2) {
+            if (path8.dirname(p3) === p3) return cb(er);
+            mkdirP(path8.dirname(p3), opts, function(er2, made2) {
               if (er2) cb(er2, made2);
               else mkdirP(p3, opts, cb, made2);
             });
@@ -80892,19 +81215,19 @@ var require_mkdirp = __commonJS({
         opts = { mode: opts };
       }
       var mode = opts.mode;
-      var xfs = opts.fs || fs4;
+      var xfs = opts.fs || fs5;
       if (mode === void 0) {
         mode = _0777;
       }
       if (!made) made = null;
-      p3 = path7.resolve(p3);
+      p3 = path8.resolve(p3);
       try {
         xfs.mkdirSync(p3, mode);
         made = made || p3;
       } catch (err0) {
         switch (err0.code) {
           case "ENOENT":
-            made = sync(path7.dirname(p3), opts, made);
+            made = sync(path8.dirname(p3), opts, made);
             sync(p3, opts, made);
             break;
           // In the case of any other error, just see if there's a dir
@@ -80929,9 +81252,9 @@ var require_mkdirp = __commonJS({
 // node_modules/multer/storage/disk.js
 var require_disk = __commonJS({
   "node_modules/multer/storage/disk.js"(exports, module) {
-    var fs4 = __require("fs");
+    var fs5 = __require("fs");
     var os = __require("os");
-    var path7 = __require("path");
+    var path8 = __require("path");
     var crypto7 = __require("crypto");
     var mkdirp = require_mkdirp();
     function getFilename(req, file, cb) {
@@ -80959,8 +81282,8 @@ var require_disk = __commonJS({
         if (err) return cb(err);
         that.getFilename(req, file, function(err2, filename) {
           if (err2) return cb(err2);
-          var finalPath = path7.join(destination, filename);
-          var outStream = fs4.createWriteStream(finalPath);
+          var finalPath = path8.join(destination, filename);
+          var outStream = fs5.createWriteStream(finalPath);
           file.stream.pipe(outStream);
           outStream.on("error", cb);
           outStream.on("finish", function() {
@@ -80975,11 +81298,11 @@ var require_disk = __commonJS({
       });
     };
     DiskStorage.prototype._removeFile = function _removeFile(req, file, cb) {
-      var path8 = file.path;
+      var path9 = file.path;
       delete file.destination;
       delete file.filename;
       delete file.path;
-      fs4.unlink(path8, cb);
+      fs5.unlink(path9, cb);
     };
     module.exports = function(opts) {
       return new DiskStorage(opts);
@@ -83731,7 +84054,7 @@ var require_multer = __commonJS({
     }
     Multer.prototype._makeMiddleware = function(fields, fileStrategy) {
       function setup() {
-        var fileFilter2 = this.fileFilter;
+        var fileFilter = this.fileFilter;
         var filesLeft = /* @__PURE__ */ Object.create(null);
         fields.forEach(function(field) {
           if (typeof field.maxCount === "number") {
@@ -83745,7 +84068,7 @@ var require_multer = __commonJS({
             return cb(new MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname));
           }
           filesLeft[file.fieldname] -= 1;
-          fileFilter2(req, file, cb);
+          fileFilter(req, file, cb);
         }
         return {
           limits: this.limits,
@@ -84371,7 +84694,7 @@ var helmet = Object.assign(
 // server/src/app.ts
 var import_cookie_parser = __toESM(require_cookie_parser(), 1);
 init_env();
-import path5 from "path";
+import path6 from "path";
 
 // server/src/routes/index.ts
 var import_express24 = __toESM(require_express2(), 1);
@@ -89438,6 +89761,18 @@ var VALID_STATUS_TRANSITIONS = {
 };
 var ALLOWED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 var MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+var ALLOWED_CHAT_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+  "text/plain",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+];
+var ALLOWED_CHAT_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".pdf", ".txt", ".doc", ".docx"];
+var MAX_CHAT_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 // server/src/services/orderService.ts
 init_notificationService();
@@ -91104,86 +91439,219 @@ init_database();
 init_errors3();
 init_esm();
 init_sanitize();
+init_notificationService();
+var CONVERSATION_BASE_SELECT = `
+  SELECT 
+    c.id,
+    c.customer_id,
+    c.farmer_id,
+    c.product_id,
+    c.last_message_at,
+    c.muted_by_customer,
+    c.muted_by_farmer,
+    c.created_at,
+    c.updated_at,
+    cu.id AS cust_user_id,
+    cu.name AS cust_name,
+    cu.phone AS cust_phone,
+    cu.profile_image AS cust_avatar,
+    cu.halder_id AS cust_halder_id,
+    cu.last_seen_at AS cust_last_seen_at,
+    fp.id AS farm_profile_id,
+    fp.user_id AS farm_user_id,
+    fp.farm_name AS farm_name,
+    fp.location AS farm_location,
+    fp.avatar AS farm_avatar,
+    fp.city AS farm_city,
+    fp.verification_status AS farm_verification_status,
+    fp.rating AS farm_rating,
+    fp.total_orders AS farm_total_orders,
+    fu.name AS farm_owner_name,
+    fu.phone AS farm_phone,
+    fu.profile_image AS farm_user_avatar,
+    fu.halder_id AS farm_halder_id,
+    fu.last_seen_at AS farm_last_seen_at,
+    p.name AS product_name,
+    p.image AS product_image,
+    p.unit AS product_unit,
+    (
+      SELECT COUNT(*) FROM messages um
+      WHERE um.conversation_id = c.id AND um.sender_id != ? AND um.read_at IS NULL AND um.deleted_at IS NULL
+    ) AS unread_count
+  FROM conversations c
+  LEFT JOIN users cu ON c.customer_id = cu.id
+  LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+  LEFT JOIN users fu ON fp.user_id = fu.id
+  LEFT JOIN products p ON c.product_id = p.id
+`;
+function parseAttachments(raw) {
+  if (!raw) return [];
+  try {
+    const parsed2 = JSON.parse(raw);
+    return Array.isArray(parsed2) ? parsed2 : [];
+  } catch {
+    return [];
+  }
+}
+function formatMessageRow(m3, replyMap) {
+  const isDeleted = Boolean(m3.deleted_at);
+  const status = m3.read_at ? "read" : m3.delivered_at || m3.status === "delivered" ? "delivered" : "sent";
+  const attachments = isDeleted ? [] : parseAttachments(m3.attachments_json);
+  const replyTo = m3.reply_to_id && replyMap ? replyMap.get(m3.reply_to_id) || null : null;
+  return {
+    id: m3.id,
+    conversation_id: m3.conversation_id,
+    conversationId: m3.conversation_id,
+    sender_id: m3.sender_id,
+    senderId: m3.sender_id,
+    sender_role: m3.sender_role,
+    senderRole: m3.sender_role,
+    message: isDeleted ? "" : m3.message || "",
+    client_msg_id: m3.client_msg_id || null,
+    clientMessageId: m3.client_msg_id || null,
+    status,
+    delivered_at: m3.delivered_at || null,
+    deliveredAt: m3.delivered_at || null,
+    read_at: m3.read_at || null,
+    readAt: m3.read_at || null,
+    edited_at: m3.edited_at || null,
+    editedAt: m3.edited_at || null,
+    deleted_at: m3.deleted_at || null,
+    deletedAt: m3.deleted_at || null,
+    reply_to_id: m3.reply_to_id || null,
+    replyToId: m3.reply_to_id || null,
+    replyTo,
+    attachments,
+    created_at: m3.created_at,
+    createdAt: m3.created_at
+  };
+}
 var ChatService = class {
-  /**
-   * Get or create a conversation between a customer and farmer.
-   */
-  static getOrCreateConversation(customerIdOrInitiator, farmerIdOrTarget, productId) {
-    if (!customerIdOrInitiator || !farmerIdOrTarget) {
-      throw AppError.badRequest("Both customerId and farmerId are required to initialize a conversation.");
+  static buildReplyMap(rows) {
+    const replyIds = Array.from(new Set(rows.map((r5) => r5.reply_to_id).filter(Boolean)));
+    const map3 = /* @__PURE__ */ new Map();
+    if (replyIds.length === 0) return map3;
+    const placeholders = replyIds.map(() => "?").join(", ");
+    const targets = Database.query(
+      `SELECT id, sender_id, sender_role, message, deleted_at, attachments_json
+       FROM messages WHERE id IN (${placeholders})`,
+      replyIds
+    );
+    for (const t of targets) {
+      map3.set(t.id, {
+        id: t.id,
+        senderId: t.sender_id,
+        senderRole: t.sender_role,
+        message: t.deleted_at ? "" : t.message || "",
+        deletedAt: t.deleted_at || null,
+        hasAttachments: !t.deleted_at && parseAttachments(t.attachments_json).length > 0
+      });
     }
-    const initiatorUser = Database.get("SELECT id, name, role FROM users WHERE id = ?", [customerIdOrInitiator]);
+    return map3;
+  }
+  /**
+   * Resolves authentic conversation participants from DB without creating synthetic accounts.
+   */
+  static getOrCreateConversation(initiatorUserId, targetPartyId, productId) {
+    if (!initiatorUserId || !targetPartyId) {
+      throw AppError.badRequest("Both initiator and target participant IDs are required.");
+    }
+    const initiatorUser = Database.get(
+      "SELECT id, name, role, status FROM users WHERE id = ?",
+      [initiatorUserId]
+    );
     if (!initiatorUser) {
       throw AppError.notFound("Initiator user not found.");
     }
-    let targetFp = Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [farmerIdOrTarget]);
-    if (!targetFp) {
-      targetFp = Database.get("SELECT * FROM farmer_profiles WHERE user_id = ?", [farmerIdOrTarget]);
+    if (initiatorUser.status === "suspended") {
+      throw AppError.forbidden("Suspended accounts cannot start conversations.");
     }
+    const initiatorFp = Database.get("SELECT * FROM farmer_profiles WHERE user_id = ?", [initiatorUser.id]);
+    let targetFp = Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [targetPartyId]);
     if (!targetFp) {
-      const targetUser = Database.get("SELECT id, name, role FROM users WHERE id = ?", [farmerIdOrTarget]);
-      if (targetUser) {
-        const newFpId = `farmer-${targetUser.id.replace("user-", "")}`;
-        const now2 = (/* @__PURE__ */ new Date()).toISOString();
-        Database.run(
-          `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at)
-           VALUES (?, ?, ?, 'Direct seller on HALDER', 'Dehradun', 'Dehradun', 'verified', 5.0, ?, ?)`,
-          [newFpId, targetUser.id, targetUser.name ? `${targetUser.name}'s Produce` : "Direct Producer", now2, now2]
-        );
-        targetFp = Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [newFpId]);
-      }
+      targetFp = Database.get("SELECT * FROM farmer_profiles WHERE user_id = ?", [targetPartyId]);
     }
-    if (!targetFp) {
-      const fallbackUserId = `user-${farmerIdOrTarget.replace(/^farmer-|^user-/, "")}`;
-      let fallbackUser = Database.get("SELECT id FROM users WHERE id = ?", [fallbackUserId]);
-      const now2 = (/* @__PURE__ */ new Date()).toISOString();
-      if (!fallbackUser) {
-        Database.run(
-          `INSERT OR IGNORE INTO users (id, halder_id, email, phone, name, role, status, created_at, updated_at)
-           VALUES (?, ?, ?, '+919876543210', 'Verified Seller', 'farmer', 'active', ?, ?)`,
-          [fallbackUserId, `HAL-FAR-${Date.now().toString().slice(-8)}`, `${fallbackUserId}@halder.org`, now2, now2]
-        );
-      }
-      const newFpId = farmerIdOrTarget.startsWith("farmer-") ? farmerIdOrTarget : `farmer-${fallbackUserId}`;
-      Database.run(
-        `INSERT OR IGNORE INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at)
-         VALUES (?, ?, 'Direct Farm Fresh', 'Verified Direct Farm Seller', 'Dehradun', 'Dehradun', 'verified', 5.0, ?, ?)`,
-        [newFpId, fallbackUserId, now2, now2]
+    const targetUser = Database.get(
+      "SELECT id, name, role, status FROM users WHERE id = ?",
+      [targetFp ? targetFp.user_id : targetPartyId]
+    );
+    if (!targetUser) {
+      throw AppError.notFound("Target user or seller does not exist.");
+    }
+    if (targetUser.id === initiatorUser.id) {
+      throw AppError.badRequest("Cannot start a conversation with yourself.");
+    }
+    let customerId;
+    let farmerProfileId;
+    if (targetFp) {
+      const existingPair = Database.get(
+        `SELECT * FROM conversations
+         WHERE (customer_id = ? AND farmer_id = ?)
+            OR (customer_id = ? AND farmer_id IN (SELECT id FROM farmer_profiles WHERE user_id = ?))`,
+        [initiatorUser.id, targetFp.id, targetUser.id, initiatorUser.id]
       );
-      targetFp = Database.get("SELECT * FROM farmer_profiles WHERE id = ? OR user_id = ?", [newFpId, fallbackUserId]);
-    }
-    if (!targetFp) {
-      throw AppError.notFound("Target seller or farmer profile not found.");
+      if (existingPair) {
+        return this.touchAndFormatConversation(existingPair, initiatorUserId, productId);
+      }
+      customerId = initiatorUser.id;
+      farmerProfileId = targetFp.id;
+    } else if (initiatorFp) {
+      const existingPair = Database.get(
+        `SELECT * FROM conversations WHERE customer_id = ? AND farmer_id = ?`,
+        [targetUser.id, initiatorFp.id]
+      );
+      if (existingPair) {
+        return this.touchAndFormatConversation(existingPair, initiatorUserId, productId);
+      }
+      customerId = targetUser.id;
+      farmerProfileId = initiatorFp.id;
+    } else {
+      const newFpId = `farmer-${targetUser.id.replace(/^user-/, "")}`;
+      const now2 = (/* @__PURE__ */ new Date()).toISOString();
+      Database.run(
+        `INSERT OR IGNORE INTO farmer_profiles (
+          id, user_id, farm_name, description, location, city, verification_status, rating, created_at, updated_at
+        ) VALUES (?, ?, ?, '', '', '', 'pending', 5.0, ?, ?)`,
+        [newFpId, targetUser.id, targetUser.name, now2, now2]
+      );
+      const createdFp = Database.get("SELECT * FROM farmer_profiles WHERE user_id = ?", [targetUser.id]);
+      if (!createdFp) {
+        throw AppError.notFound("Target seller profile could not be resolved.");
+      }
+      customerId = initiatorUser.id;
+      farmerProfileId = createdFp.id;
     }
     let conv = Database.get(
-      `SELECT * FROM conversations 
-       WHERE (customer_id = ? AND farmer_id = ?)
-          OR (customer_id = ? AND farmer_id IN (SELECT id FROM farmer_profiles WHERE user_id = ?))`,
-      [initiatorUser.id, targetFp.id, targetFp.user_id, initiatorUser.id]
+      "SELECT * FROM conversations WHERE customer_id = ? AND farmer_id = ?",
+      [customerId, farmerProfileId]
     );
     const now = (/* @__PURE__ */ new Date()).toISOString();
     if (!conv) {
+      let validProductId = null;
+      if (productId) {
+        const prodExists = Database.get("SELECT id FROM products WHERE id = ?", [productId]);
+        if (prodExists) validProductId = prodExists.id;
+      }
       const convId = `conv-${v4_default()}`;
       Database.run(
-        "INSERT INTO conversations (id, customer_id, farmer_id, product_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-        [convId, initiatorUser.id, targetFp.id, productId || null, now, now]
+        `INSERT INTO conversations (id, customer_id, farmer_id, product_id, last_message_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [convId, customerId, farmerProfileId, validProductId, now, now, now]
       );
-      conv = Database.get("SELECT * FROM conversations WHERE id = ?", [convId]);
-    } else {
-      Database.run("UPDATE conversations SET updated_at = ? WHERE id = ?", [now, conv.id]);
-      if (productId && !conv.product_id) {
+      return this.getFormattedConversationForUser(convId, initiatorUserId) || Database.get("SELECT * FROM conversations WHERE id = ?", [convId]);
+    }
+    return this.touchAndFormatConversation(conv, initiatorUserId, productId);
+  }
+  static touchAndFormatConversation(conv, viewerUserId, productId) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run("UPDATE conversations SET updated_at = ? WHERE id = ?", [now, conv.id]);
+    if (productId && !conv.product_id) {
+      const prodExists = Database.get("SELECT id FROM products WHERE id = ?", [productId]);
+      if (prodExists) {
         Database.run("UPDATE conversations SET product_id = ? WHERE id = ?", [productId, conv.id]);
-        conv.product_id = productId;
       }
     }
-    return {
-      ...conv,
-      customerId: conv.customer_id,
-      farmerId: conv.farmer_id,
-      productId: conv.product_id,
-      createdAt: conv.created_at,
-      updatedAt: conv.updated_at
-    };
+    return this.getFormattedConversationForUser(conv.id, viewerUserId);
   }
   /**
    * Get a conversation by ID.
@@ -91196,234 +91664,504 @@ var ChatService = class {
       customerId: conv.customer_id,
       farmerId: conv.farmer_id,
       productId: conv.product_id,
+      lastMessageAt: conv.last_message_at || conv.updated_at,
       createdAt: conv.created_at,
       updatedAt: conv.updated_at
     };
   }
   /**
-   * Get all conversations for a specific authenticated user.
+   * Verify user participates in conversation (defense-in-depth helper).
    */
-  static getUserConversations(userId, role, farmerProfileId) {
+  static verifyParticipant(conv, userId, role) {
+    if (role === "admin") return true;
+    if (conv.customer_id === userId) return true;
+    if (conv.farmer_id === userId) return true;
+    const fp = Database.get("SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?", [
+      conv.farmer_id,
+      userId
+    ]);
+    return fp != null;
+  }
+  /**
+   * Resolve customer and farmer user IDs plus mute status for a conversation.
+   */
+  static getConversationMeta(conversationId) {
+    return Database.get(
+      `SELECT c.id, c.customer_id, c.farmer_id, c.muted_by_customer, c.muted_by_farmer,
+              fp.user_id AS farmer_user_id
+       FROM conversations c
+       LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+       WHERE c.id = ?`,
+      [conversationId]
+    );
+  }
+  /**
+   * Returns all user IDs that share at least one conversation with `userId`.
+   */
+  static getPartnerUserIds(userId) {
+    const rows = Database.query(
+      `SELECT DISTINCT
+         CASE
+           WHEN c.customer_id = ? THEN fp.user_id
+           ELSE c.customer_id
+         END AS partner_user_id
+       FROM conversations c
+       LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+       WHERE (c.customer_id = ? OR fp.user_id = ?)`,
+      [userId, userId, userId]
+    );
+    return rows.map((r5) => r5.partner_user_id).filter((id) => Boolean(id) && id !== userId);
+  }
+  static formatConversationRow(row, userId, isOnlineCheck) {
+    const isBuyer = row.cust_user_id === userId;
+    const convType = isBuyer ? "buying" : "selling";
+    const lastMsgRaw = Database.get(
+      `SELECT id, conversation_id, sender_id, sender_role, message, client_msg_id, status,
+              delivered_at, read_at, edited_at, deleted_at, reply_to_id, attachments_json, created_at
+       FROM messages
+       WHERE conversation_id = ?
+       ORDER BY created_at DESC LIMIT 1`,
+      [row.id]
+    );
+    let lastMessage = null;
+    if (lastMsgRaw) {
+      const formattedMsg = formatMessageRow(lastMsgRaw);
+      const previewText = lastMsgRaw.deleted_at ? "This message was deleted" : !formattedMsg.message && formattedMsg.attachments.length > 0 ? `\u{1F4CE} ${formattedMsg.attachments[0].filename}` : formattedMsg.message;
+      lastMessage = {
+        ...formattedMsg,
+        message: previewText
+      };
+    }
+    const otherUserId = isBuyer ? row.farm_user_id || row.farmer_id : row.cust_user_id || row.customer_id;
+    const otherParty = isBuyer ? {
+      id: otherUserId,
+      userId: otherUserId,
+      farmerProfileId: row.farm_profile_id || row.farmer_id,
+      name: row.farm_owner_name || row.farm_name || "Seller",
+      phone: row.farm_phone || void 0,
+      avatar: row.farm_avatar || row.farm_user_avatar || "",
+      farmName: row.farm_name || "",
+      city: row.farm_city || "",
+      location: row.farm_location || row.farm_city || "",
+      halderId: row.farm_halder_id || void 0,
+      role: "farmer",
+      verificationStatus: row.farm_verification_status || "pending",
+      rating: typeof row.farm_rating === "number" ? row.farm_rating : null,
+      reviewsCount: Number(row.farm_total_orders || 0),
+      isOnline: isOnlineCheck ? isOnlineCheck(otherUserId) : false,
+      lastSeenAt: row.farm_last_seen_at || null
+    } : {
+      id: otherUserId,
+      userId: otherUserId,
+      name: row.cust_name || "Customer",
+      phone: row.cust_phone || void 0,
+      avatar: row.cust_avatar || "",
+      farmName: "",
+      city: "",
+      location: "",
+      halderId: row.cust_halder_id || void 0,
+      role: "customer",
+      verificationStatus: "pending",
+      rating: null,
+      reviewsCount: 0,
+      isOnline: isOnlineCheck ? isOnlineCheck(otherUserId) : false,
+      lastSeenAt: row.cust_last_seen_at || null
+    };
+    const product = row.product_name ? {
+      id: row.product_id,
+      name: row.product_name,
+      image: row.product_image || "",
+      unit: row.product_unit || ""
+    } : null;
+    const isMuted = isBuyer ? Boolean(row.muted_by_customer) : Boolean(row.muted_by_farmer);
+    return {
+      id: row.id,
+      customer_id: row.customer_id,
+      customerId: row.customer_id,
+      farmer_id: row.farmer_id,
+      farmerId: row.farmer_id,
+      product_id: row.product_id,
+      productId: row.product_id,
+      type: convType,
+      isMuted,
+      lastMessageAt: row.last_message_at || row.updated_at,
+      created_at: row.created_at,
+      createdAt: row.created_at,
+      updated_at: row.updated_at,
+      updatedAt: row.updated_at,
+      otherParty,
+      product,
+      lastMessage,
+      unreadCount: Number(row.unread_count || 0)
+    };
+  }
+  static getFormattedConversationForUser(conversationId, userId, isUserOnline) {
+    const row = Database.get(`${CONVERSATION_BASE_SELECT} WHERE c.id = ?`, [userId, conversationId]);
+    if (!row) return null;
+    return this.formatConversationRow(row, userId, isUserOnline);
+  }
+  /**
+   * Get all conversations for the authenticated user using real DB fields only.
+   */
+  static getUserConversations(userId, role, farmerProfileId, options) {
     let actualFarmerProfileId = farmerProfileId;
     if (!actualFarmerProfileId) {
       const fp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [userId]);
       actualFarmerProfileId = fp?.id;
     }
-    let rows = [];
-    if (role === "admin") {
-      rows = Database.query(
-        `SELECT 
-          c.id,
-          c.customer_id,
-          c.farmer_id,
-          c.product_id,
-          c.created_at,
-          c.updated_at,
-          cu.id AS cust_user_id,
-          cu.name AS cust_name,
-          cu.phone AS cust_phone,
-          cu.email AS cust_email,
-          cu.profile_image AS cust_avatar,
-          cu.halder_id AS cust_halder_id,
-          fp.id AS farm_profile_id,
-          fp.user_id AS farm_user_id,
-          fp.farm_name AS farm_name,
-          fp.avatar AS farm_avatar,
-          fp.city AS farm_city,
-          fp.verification_status AS farm_verification_status,
-          fu.name AS farm_owner_name,
-          fu.phone AS farm_phone,
-          fu.email AS farm_email,
-          fu.halder_id AS farm_halder_id,
-          p.name AS product_name,
-          p.image AS product_image,
-          p.price AS product_price,
-          p.unit AS product_unit
-        FROM conversations c
-        LEFT JOIN users cu ON c.customer_id = cu.id
-        LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
-        LEFT JOIN users fu ON fp.user_id = fu.id
-        LEFT JOIN products p ON c.product_id = p.id
-        ORDER BY c.updated_at DESC`
-      );
-    } else {
-      rows = Database.query(
-        `SELECT 
-          c.id,
-          c.customer_id,
-          c.farmer_id,
-          c.product_id,
-          c.created_at,
-          c.updated_at,
-          cu.id AS cust_user_id,
-          cu.name AS cust_name,
-          cu.phone AS cust_phone,
-          cu.email AS cust_email,
-          cu.profile_image AS cust_avatar,
-          cu.halder_id AS cust_halder_id,
-          fp.id AS farm_profile_id,
-          fp.user_id AS farm_user_id,
-          fp.farm_name AS farm_name,
-          fp.avatar AS farm_avatar,
-          fp.city AS farm_city,
-          fp.verification_status AS farm_verification_status,
-          fu.name AS farm_owner_name,
-          fu.phone AS farm_phone,
-          fu.email AS farm_email,
-          fu.halder_id AS farm_halder_id,
-          p.name AS product_name,
-          p.image AS product_image,
-          p.price AS product_price,
-          p.unit AS product_unit
-        FROM conversations c
-        LEFT JOIN users cu ON c.customer_id = cu.id
-        LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
-        LEFT JOIN users fu ON fp.user_id = fu.id
-        LEFT JOIN products p ON c.product_id = p.id
-        WHERE c.customer_id = ? OR fp.user_id = ? OR c.farmer_id = ?
-        ORDER BY c.updated_at DESC`,
-        [userId, userId, actualFarmerProfileId || ""]
-      );
-    }
-    return rows.map((row) => {
-      const isBuyer = row.cust_user_id === userId;
-      const convType = isBuyer ? "buying" : "selling";
-      const lastMsgRaw = Database.get(
-        "SELECT id, conversation_id, sender_id, sender_role, message, read_at, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT 1",
-        [row.id]
-      );
-      const lastMessage = lastMsgRaw ? {
-        id: lastMsgRaw.id,
-        conversation_id: lastMsgRaw.conversation_id,
-        conversationId: lastMsgRaw.conversation_id,
-        sender_id: lastMsgRaw.sender_id,
-        senderId: lastMsgRaw.sender_id,
-        sender_role: lastMsgRaw.sender_role,
-        senderRole: lastMsgRaw.sender_role,
-        message: lastMsgRaw.message,
-        read_at: lastMsgRaw.read_at,
-        readAt: lastMsgRaw.read_at,
-        created_at: lastMsgRaw.created_at,
-        createdAt: lastMsgRaw.created_at
-      } : null;
-      const unreadCountRow = Database.get(
-        "SELECT COUNT(*) as count FROM messages WHERE conversation_id = ? AND sender_id != ? AND read_at IS NULL",
-        [row.id, userId]
-      );
-      const unreadCount = unreadCountRow ? unreadCountRow.count : 0;
-      const otherParty = isBuyer ? {
-        id: row.farm_user_id || row.farmer_id,
-        name: row.farm_owner_name || row.farm_name || "Farmer",
-        phone: row.farm_phone,
-        email: row.farm_email,
-        avatar: row.farm_avatar || "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200",
-        farmName: row.farm_name || "Direct Farm Harvest",
-        city: row.farm_city || "Dehradun",
-        halderId: row.farm_halder_id,
-        role: "farmer",
-        verificationStatus: row.farm_verification_status || "verified"
-      } : {
-        id: row.cust_user_id || row.customer_id,
-        name: row.cust_name || "Customer",
-        phone: row.cust_phone,
-        email: row.cust_email,
-        avatar: row.cust_avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200",
-        farmName: "Direct Buyer",
-        city: "Dehradun",
-        halderId: row.cust_halder_id,
-        role: "customer",
-        verificationStatus: "verified"
-      };
-      const product = row.product_name ? {
-        id: row.product_id,
-        name: row.product_name,
-        image: row.product_image,
-        price: row.product_price,
-        unit: row.product_unit
-      } : null;
-      return {
-        id: row.id,
-        customer_id: row.customer_id,
-        customerId: row.customer_id,
-        farmer_id: row.farmer_id,
-        farmerId: row.farmer_id,
-        product_id: row.product_id,
-        productId: row.product_id,
-        type: convType,
-        created_at: row.created_at,
-        createdAt: row.created_at,
-        updated_at: row.updated_at,
-        updatedAt: row.updated_at,
-        otherParty,
-        product,
-        lastMessage,
-        unreadCount
-      };
+    const rows = role === "admin" ? Database.query(
+      `${CONVERSATION_BASE_SELECT} ORDER BY COALESCE(c.last_message_at, c.updated_at) DESC`,
+      [userId]
+    ) : Database.query(
+      `${CONVERSATION_BASE_SELECT}
+             WHERE c.customer_id = ? OR fp.user_id = ? OR c.farmer_id = ?
+             ORDER BY COALESCE(c.last_message_at, c.updated_at) DESC`,
+      [userId, userId, userId, actualFarmerProfileId || ""]
+    );
+    const formatted = rows.map((row) => this.formatConversationRow(row, userId, options?.isUserOnline));
+    const query = options?.search?.trim().toLowerCase();
+    if (!query) return formatted;
+    return formatted.filter((c5) => {
+      const nameMatch = c5.otherParty.name.toLowerCase().includes(query);
+      const farmMatch = c5.otherParty.farmName.toLowerCase().includes(query);
+      const prodMatch = c5.product?.name?.toLowerCase().includes(query);
+      const msgMatch = c5.lastMessage?.message?.toLowerCase().includes(query);
+      return Boolean(nameMatch || farmMatch || prodMatch || msgMatch);
     });
   }
   /**
-   * Get message history for a conversation.
+   * Retrieve paginated, incremental (`after`), or searchable (`search`) conversation history.
    */
-  static getMessages(conversationId) {
-    const rawMessages = Database.query(
-      "SELECT id, conversation_id, sender_id, sender_role, message, read_at, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at ASC",
-      [conversationId]
-    );
-    return rawMessages.map((m3) => ({
-      id: m3.id,
-      conversation_id: m3.conversation_id,
-      conversationId: m3.conversation_id,
-      sender_id: m3.sender_id,
-      senderId: m3.sender_id,
-      sender_role: m3.sender_role,
-      senderRole: m3.sender_role,
-      message: m3.message,
-      read_at: m3.read_at,
-      readAt: m3.read_at,
-      created_at: m3.created_at,
-      createdAt: m3.created_at
-    }));
-  }
-  /**
-   * Send a new chat message and persist to database.
-   */
-  static sendMessage(conversationId, senderId, senderRole, text) {
-    if (!text || !text.trim()) {
-      throw AppError.badRequest("Message text cannot be empty");
-    }
-    const sanitized = sanitizeText(text);
-    if (!sanitized || !sanitized.trim()) {
-      throw AppError.badRequest("Message text cannot be empty after sanitization");
-    }
+  static getMessages(conversationId, options) {
     const conv = Database.get("SELECT id FROM conversations WHERE id = ?", [conversationId]);
     if (!conv) {
       throw AppError.notFound("Conversation not found");
     }
-    const messageId = `msg-${v4_default()}`;
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.run(
-      "INSERT INTO messages (id, conversation_id, sender_id, sender_role, message, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-      [messageId, conversationId, senderId, senderRole, sanitized, now]
-    );
-    Database.run("UPDATE conversations SET updated_at = ? WHERE id = ?", [now, conversationId]);
-    const msg = Database.get("SELECT * FROM messages WHERE id = ?", [messageId]);
+    if (options?.after) {
+      const afterRows = Database.query(
+        `SELECT id, conversation_id, sender_id, sender_role, message, client_msg_id, status,
+                delivered_at, read_at, edited_at, deleted_at, reply_to_id, attachments_json, created_at
+         FROM messages
+         WHERE conversation_id = ?
+           AND (
+             created_at > ?
+             OR (edited_at IS NOT NULL AND edited_at > ?)
+             OR (deleted_at IS NOT NULL AND deleted_at > ?)
+           )
+         ORDER BY created_at ASC`,
+        [conversationId, options.after, options.after, options.after]
+      );
+      const replyMap2 = this.buildReplyMap(afterRows);
+      const messages2 = afterRows.map((m3) => formatMessageRow(m3, replyMap2));
+      return {
+        messages: messages2,
+        hasMore: false,
+        nextCursor: messages2.length > 0 ? messages2[0].createdAt : null
+      };
+    }
+    if (options?.search && options.search.trim()) {
+      const escaped = options.search.trim().replace(/[%_]/g, "\\$&");
+      const matched = Database.query(
+        `SELECT id, conversation_id, sender_id, sender_role, message, client_msg_id, status,
+                delivered_at, read_at, edited_at, deleted_at, reply_to_id, attachments_json, created_at
+         FROM messages
+         WHERE conversation_id = ? AND deleted_at IS NULL AND message LIKE ? ESCAPE '\\'
+         ORDER BY created_at DESC LIMIT 50`,
+        [conversationId, `%${escaped}%`]
+      );
+      matched.reverse();
+      const replyMap2 = this.buildReplyMap(matched);
+      const messages2 = matched.map((m3) => formatMessageRow(m3, replyMap2));
+      return {
+        messages: messages2,
+        hasMore: false,
+        nextCursor: messages2.length > 0 ? messages2[0].createdAt : null
+      };
+    }
+    const limit = Math.min(100, Math.max(1, options?.limit || 50));
+    let rows;
+    if (options?.before) {
+      const beforeRef = options.before.startsWith("msg-") ? Database.get("SELECT created_at FROM messages WHERE id = ? AND conversation_id = ?", [
+        options.before,
+        conversationId
+      ])?.created_at || options.before : options.before;
+      rows = Database.query(
+        `SELECT id, conversation_id, sender_id, sender_role, message, client_msg_id, status,
+                delivered_at, read_at, edited_at, deleted_at, reply_to_id, attachments_json, created_at
+         FROM messages
+         WHERE conversation_id = ? AND created_at < ?
+         ORDER BY created_at DESC LIMIT ?`,
+        [conversationId, beforeRef, limit + 1]
+      );
+    } else {
+      rows = Database.query(
+        `SELECT id, conversation_id, sender_id, sender_role, message, client_msg_id, status,
+                delivered_at, read_at, edited_at, deleted_at, reply_to_id, attachments_json, created_at
+         FROM messages
+         WHERE conversation_id = ?
+         ORDER BY created_at DESC LIMIT ?`,
+        [conversationId, limit + 1]
+      );
+    }
+    const hasMore = rows.length > limit;
+    const pageRows = hasMore ? rows.slice(0, limit) : rows;
+    pageRows.reverse();
+    const replyMap = this.buildReplyMap(pageRows);
+    const messages = pageRows.map((m3) => formatMessageRow(m3, replyMap));
     return {
-      id: msg.id,
-      conversation_id: msg.conversation_id,
-      conversationId: msg.conversation_id,
-      sender_id: msg.sender_id,
-      senderId: msg.sender_id,
-      sender_role: msg.sender_role,
-      senderRole: msg.sender_role,
-      message: msg.message,
-      read_at: msg.read_at,
-      readAt: msg.read_at,
-      created_at: msg.created_at,
-      createdAt: msg.created_at
+      messages,
+      hasMore,
+      nextCursor: messages.length > 0 ? messages[0].createdAt : null
     };
   }
   /**
-   * Mark all unread messages in a conversation as read.
+   * Transaction-safe, idempotent message persistence supporting replies & validated attachments.
+   */
+  static sendMessage(conversationId, senderId, senderRole, text, options) {
+    const cleanText = sanitizeText(text || "");
+    const clientMsgId = options?.clientMessageId?.trim() || null;
+    const attachmentIds = Array.isArray(options?.attachmentIds) ? Array.from(new Set(options.attachmentIds.filter((id) => typeof id === "string" && id.trim()))) : [];
+    if (!cleanText.trim() && attachmentIds.length === 0) {
+      throw AppError.badRequest("Message text or at least one attachment is required.");
+    }
+    return Database.transaction(() => {
+      const conv = Database.get(
+        `SELECT c.id, c.customer_id, c.farmer_id, fp.user_id AS farmer_user_id
+         FROM conversations c
+         LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+         WHERE c.id = ?`,
+        [conversationId]
+      );
+      if (!conv) {
+        throw AppError.notFound("Conversation not found");
+      }
+      if (!this.verifyParticipant(conv, senderId, senderRole)) {
+        throw AppError.forbidden("You are not a participant in this conversation.");
+      }
+      if (clientMsgId) {
+        const existing = Database.get(
+          "SELECT * FROM messages WHERE conversation_id = ? AND client_msg_id = ?",
+          [conversationId, clientMsgId]
+        );
+        if (existing) {
+          const replyMap2 = this.buildReplyMap([existing]);
+          return { ...formatMessageRow(existing, replyMap2), deduplicated: true };
+        }
+      }
+      let validReplyToId = null;
+      if (options?.replyToId) {
+        const replyTarget = Database.get(
+          "SELECT id FROM messages WHERE id = ? AND conversation_id = ?",
+          [options.replyToId, conversationId]
+        );
+        if (!replyTarget) {
+          throw AppError.badRequest("Reply target message does not exist in this conversation.");
+        }
+        validReplyToId = replyTarget.id;
+      }
+      let attachmentsMeta = [];
+      if (attachmentIds.length > 0) {
+        if (attachmentIds.length > 5) {
+          throw AppError.badRequest("A maximum of 5 attachments can be sent per message.");
+        }
+        const placeholders = attachmentIds.map(() => "?").join(", ");
+        const foundAttachments = Database.query(
+          `SELECT id, conversation_id, original_name, mime_type, size_bytes
+           FROM chat_attachments
+           WHERE id IN (${placeholders}) AND conversation_id = ? AND uploader_id = ?`,
+          [...attachmentIds, conversationId, senderId]
+        );
+        if (foundAttachments.length !== attachmentIds.length) {
+          throw AppError.badRequest("One or more attachments are invalid or do not belong to this conversation.");
+        }
+        attachmentsMeta = foundAttachments.map((a5) => ({
+          id: a5.id,
+          filename: a5.original_name,
+          mimeType: a5.mime_type,
+          sizeBytes: a5.size_bytes,
+          url: `/api/v1/chat/conversations/${conversationId}/attachments/${a5.id}`
+        }));
+      }
+      const messageId = `msg-${v4_default()}`;
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const deliveredAt = options?.recipientOnline ? now : null;
+      const initialStatus = deliveredAt ? "delivered" : "sent";
+      const attachmentsJson = attachmentsMeta.length > 0 ? JSON.stringify(attachmentsMeta) : null;
+      try {
+        Database.run(
+          `INSERT INTO messages (
+            id, conversation_id, sender_id, sender_role, message, client_msg_id,
+            status, delivered_at, reply_to_id, attachments_json, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            messageId,
+            conversationId,
+            senderId,
+            senderRole,
+            cleanText,
+            clientMsgId,
+            initialStatus,
+            deliveredAt,
+            validReplyToId,
+            attachmentsJson,
+            now
+          ]
+        );
+      } catch (err) {
+        if (clientMsgId && String(err?.message || "").toLowerCase().includes("unique")) {
+          const raceExisting = Database.get(
+            "SELECT * FROM messages WHERE conversation_id = ? AND client_msg_id = ?",
+            [conversationId, clientMsgId]
+          );
+          if (raceExisting) {
+            const replyMap2 = this.buildReplyMap([raceExisting]);
+            return { ...formatMessageRow(raceExisting, replyMap2), deduplicated: true };
+          }
+        }
+        throw err;
+      }
+      if (attachmentIds.length > 0) {
+        const attPlaceholders = attachmentIds.map(() => "?").join(", ");
+        Database.run(
+          `UPDATE chat_attachments SET message_id = ? WHERE id IN (${attPlaceholders})`,
+          [messageId, ...attachmentIds]
+        );
+      }
+      Database.run(
+        "UPDATE conversations SET updated_at = ?, last_message_at = ? WHERE id = ?",
+        [now, now, conversationId]
+      );
+      const inserted = Database.get("SELECT * FROM messages WHERE id = ?", [messageId]);
+      const replyMap = this.buildReplyMap([inserted]);
+      return { ...formatMessageRow(inserted, replyMap), deduplicated: false };
+    });
+  }
+  /**
+   * Edit an existing message sent by `userId`.
+   */
+  static editMessage(conversationId, messageId, userId, newText) {
+    const cleanText = sanitizeText(newText || "");
+    if (!cleanText.trim()) {
+      throw AppError.badRequest("Edited message text cannot be empty.");
+    }
+    const msg = Database.get(
+      "SELECT * FROM messages WHERE id = ? AND conversation_id = ?",
+      [messageId, conversationId]
+    );
+    if (!msg) {
+      throw AppError.notFound("Message not found.");
+    }
+    if (msg.sender_id !== userId) {
+      throw AppError.forbidden("You can only edit your own messages.");
+    }
+    if (msg.deleted_at) {
+      throw AppError.badRequest("Deleted messages cannot be edited.");
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run("UPDATE messages SET message = ?, edited_at = ? WHERE id = ?", [cleanText, now, messageId]);
+    Database.run("UPDATE conversations SET updated_at = ? WHERE id = ?", [now, conversationId]);
+    const updated = Database.get("SELECT * FROM messages WHERE id = ?", [messageId]);
+    const replyMap = this.buildReplyMap([updated]);
+    return formatMessageRow(updated, replyMap);
+  }
+  /**
+   * Soft-delete an existing message authored by `userId` (or admin).
+   */
+  static deleteMessage(conversationId, messageId, userId, role) {
+    const msg = Database.get(
+      "SELECT * FROM messages WHERE id = ? AND conversation_id = ?",
+      [messageId, conversationId]
+    );
+    if (!msg) {
+      throw AppError.notFound("Message not found.");
+    }
+    if (msg.sender_id !== userId && role !== "admin") {
+      throw AppError.forbidden("You can only delete your own messages.");
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    if (!msg.deleted_at) {
+      Database.run(
+        `UPDATE messages SET deleted_at = ?, message = '', attachments_json = NULL WHERE id = ?`,
+        [now, messageId]
+      );
+      Database.run("UPDATE conversations SET updated_at = ? WHERE id = ?", [now, conversationId]);
+    }
+    const updated = Database.get("SELECT * FROM messages WHERE id = ?", [messageId]);
+    return formatMessageRow(updated);
+  }
+  /**
+   * Mark a specific message as delivered.
+   */
+  static markMessageDelivered(messageId) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `UPDATE messages
+       SET delivered_at = COALESCE(delivered_at, ?),
+           status = CASE WHEN read_at IS NOT NULL THEN 'read' ELSE 'delivered' END
+       WHERE id = ? AND delivered_at IS NULL`,
+      [now, messageId]
+    );
+    return now;
+  }
+  /**
+   * Mark all incoming undelivered messages for `userId` across conversations as delivered.
+   * Returns notification summaries grouped by (conversationId, senderId).
+   */
+  static markAllDeliveredForUser(userId) {
+    const pendingRows = Database.query(
+      `SELECT m.id, m.conversation_id, m.sender_id
+       FROM messages m
+       JOIN conversations c ON m.conversation_id = c.id
+       LEFT JOIN farmer_profiles fp ON c.farmer_id = fp.id
+       WHERE (c.customer_id = ? OR fp.user_id = ? OR c.farmer_id = ?)
+         AND m.sender_id != ?
+         AND m.delivered_at IS NULL
+         AND m.deleted_at IS NULL`,
+      [userId, userId, userId, userId]
+    );
+    if (pendingRows.length === 0) return [];
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.transaction(() => {
+      const ids = pendingRows.map((r5) => r5.id);
+      const placeholders = ids.map(() => "?").join(", ");
+      Database.run(
+        `UPDATE messages
+         SET delivered_at = ?, status = CASE WHEN read_at IS NOT NULL THEN 'read' ELSE 'delivered' END
+         WHERE id IN (${placeholders})`,
+        [now, ...ids]
+      );
+    });
+    const grouped = /* @__PURE__ */ new Map();
+    for (const r5 of pendingRows) {
+      const key = `${r5.conversation_id}::${r5.sender_id}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, { conversationId: r5.conversation_id, senderId: r5.sender_id, messageIds: [] });
+      }
+      grouped.get(key).messageIds.push(r5.id);
+    }
+    return Array.from(grouped.values()).map((g5) => ({ ...g5, deliveredAt: now }));
+  }
+  /**
+   * Mark incoming messages in a conversation as delivered for `userId`.
+   */
+  static markConversationDelivered(conversationId, userId) {
+    const undelivered = Database.get(
+      "SELECT COUNT(*) as count FROM messages WHERE conversation_id = ? AND sender_id != ? AND delivered_at IS NULL",
+      [conversationId, userId]
+    );
+    if (!undelivered || undelivered.count === 0) return null;
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `UPDATE messages
+       SET delivered_at = COALESCE(delivered_at, ?),
+           status = CASE WHEN read_at IS NOT NULL THEN 'read' ELSE 'delivered' END
+       WHERE conversation_id = ? AND sender_id != ? AND delivered_at IS NULL`,
+      [now, conversationId, userId]
+    );
+    return now;
+  }
+  /**
+   * Mark all unread messages in a conversation from other participants as read.
    */
   static markMessagesRead(conversationId, userId) {
     const conv = Database.get("SELECT id FROM conversations WHERE id = ?", [conversationId]);
@@ -91436,8 +92174,10 @@ var ChatService = class {
       [conversationId, userId]
     );
     Database.run(
-      "UPDATE messages SET read_at = ? WHERE conversation_id = ? AND sender_id != ? AND read_at IS NULL",
-      [now, conversationId, userId]
+      `UPDATE messages
+       SET delivered_at = COALESCE(delivered_at, ?), read_at = ?, status = 'read'
+       WHERE conversation_id = ? AND sender_id != ? AND read_at IS NULL`,
+      [now, now, conversationId, userId]
     );
     return {
       success: true,
@@ -91446,17 +92186,93 @@ var ChatService = class {
       conversationId
     };
   }
+  /**
+   * Mute or unmute notifications for a conversation for the calling participant.
+   */
+  static setConversationMuted(conversationId, userId, muted) {
+    const meta = this.getConversationMeta(conversationId);
+    if (!meta) {
+      throw AppError.notFound("Conversation not found");
+    }
+    const isCustomer = meta.customer_id === userId;
+    const isFarmer = meta.farmer_user_id === userId || meta.farmer_id === userId;
+    if (!isCustomer && !isFarmer) {
+      throw AppError.forbidden("You are not a participant in this conversation.");
+    }
+    const val = muted ? 1 : 0;
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    if (isCustomer) {
+      Database.run("UPDATE conversations SET muted_by_customer = ?, updated_at = ? WHERE id = ?", [
+        val,
+        now,
+        conversationId
+      ]);
+    } else {
+      Database.run("UPDATE conversations SET muted_by_farmer = ?, updated_at = ? WHERE id = ?", [
+        val,
+        now,
+        conversationId
+      ]);
+    }
+    return { success: true, conversationId, isMuted: muted };
+  }
+  /**
+   * Persist user last-seen activity timestamp.
+   */
+  static updateUserLastSeen(userId, timestamp = (/* @__PURE__ */ new Date()).toISOString()) {
+    try {
+      Database.run("UPDATE users SET last_seen_at = ? WHERE id = ?", [timestamp, userId]);
+    } catch {
+    }
+  }
+  /**
+   * Shared notification dispatcher used by both REST & WebSocket send paths.
+   * Respects mute settings, notification preferences, deduplication, and never fails message send.
+   */
+  static dispatchChatNotification(params) {
+    try {
+      const meta = this.getConversationMeta(params.conversationId);
+      if (!meta) return null;
+      const isSenderCustomer = params.senderId === meta.customer_id;
+      const recipientUserId = isSenderCustomer ? meta.farmer_user_id || meta.farmer_id : meta.customer_id;
+      if (!recipientUserId || recipientUserId === params.senderId) return null;
+      const isMuted = isSenderCustomer ? Boolean(meta.muted_by_farmer) : Boolean(meta.muted_by_customer);
+      if (isMuted) return recipientUserId;
+      const recipientUser = Database.get("SELECT role FROM users WHERE id = ?", [recipientUserId]);
+      const preview = params.message.message?.trim() || (params.message.attachments?.length > 0 ? `\u{1F4CE} ${params.message.attachments[0].filename}` : "New message");
+      NotificationService.createAndPush({
+        userId: recipientUserId,
+        recipientRole: recipientUser?.role || "customer",
+        type: "chat",
+        title: `New message from ${params.senderName}`,
+        message: preview.slice(0, 140),
+        conversationId: params.conversationId,
+        messageId: params.message.id,
+        sourceKey: `chat:${params.message.id}`,
+        data: { conversationId: params.conversationId, messageId: params.message.id }
+      });
+      return recipientUserId;
+    } catch (err) {
+      console.warn("[ChatService] Notification dispatch warning:", err?.message || err);
+      return null;
+    }
+  }
 };
 
 // server/src/websocket/chatSocket.ts
 init_wrapper();
 init_database();
+var WS_MSG_RATE_WINDOW_MS = 6e4;
+var WS_MSG_RATE_MAX = 60;
 var ChatSocketService = class {
   static wss = null;
+  static heartbeatInterval = null;
   // Map conversationId -> Set of ExtWebSockets
   static rooms = /* @__PURE__ */ new Map();
   // Map userId -> Set of ExtWebSockets (for multi-device presence)
   static userSockets = /* @__PURE__ */ new Map();
+  // Map userId -> recent send timestamps (sliding window rate limiter)
+  static msgRateWindows = /* @__PURE__ */ new Map();
   static init(server) {
     if (this.wss) return this.wss;
     const wss = new import_websocket_server.default({ noServer: true });
@@ -91472,13 +92288,14 @@ var ChatSocketService = class {
         } else {
           socket.destroy();
         }
-      } catch (e5) {
+      } catch {
         socket.destroy();
       }
     });
     wss.on("connection", (ws, req) => {
       ws.isAlive = true;
       ws.rooms = /* @__PURE__ */ new Set();
+      ws.typingRooms = /* @__PURE__ */ new Set();
       ws.on("pong", () => {
         ws.isAlive = true;
       });
@@ -91490,7 +92307,7 @@ var ChatSocketService = class {
           await this.handleIncomingEvent(ws, payload);
         } catch (err) {
           this.sendEvent(ws, "chat:error", {
-            message: err.message || "Invalid message format",
+            message: err?.message || "Invalid message format",
             code: "BAD_REQUEST"
           });
         }
@@ -91524,17 +92341,23 @@ var ChatSocketService = class {
         extWs.ping();
       });
     }, 3e4);
+    interval.unref?.();
+    this.heartbeatInterval = interval;
+    server.on("close", () => {
+      this.reset();
+    });
     wss.on("close", () => {
-      clearInterval(interval);
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+      }
       this.rooms.clear();
       this.userSockets.clear();
+      this.msgRateWindows.clear();
     });
     console.log("\u{1F33E} [ChatSocket] Live WebSocket server mounted on /ws");
     return wss;
   }
-  /**
-   * Parse token and authenticate WebSocket on initial connection.
-   */
   static authenticateConnection(ws, req) {
     try {
       const url = new URL(req.url || "", `http://${req.headers.host || "localhost"}`);
@@ -91552,8 +92375,37 @@ var ChatSocketService = class {
     } catch {
     }
   }
+  static isUserActiveInDb(userId) {
+    const row = Database.get("SELECT status FROM users WHERE id = ?", [userId]);
+    return Boolean(row && row.status === "active");
+  }
+  static checkMessageRateLimit(userId) {
+    if (process.env.LOAD_TEST === "1") return true;
+    const now = Date.now();
+    const recent = (this.msgRateWindows.get(userId) || []).filter((ts) => now - ts < WS_MSG_RATE_WINDOW_MS);
+    if (recent.length >= WS_MSG_RATE_MAX) {
+      this.msgRateWindows.set(userId, recent);
+      return false;
+    }
+    recent.push(now);
+    this.msgRateWindows.set(userId, recent);
+    return true;
+  }
+  static notifyPartnersPresence(userId, isOnline, lastSeenAt) {
+    try {
+      const partnerIds = ChatService.getPartnerUserIds(userId);
+      for (const pid of partnerIds) {
+        this.sendToUser(pid, "chat:presence", {
+          userId,
+          isOnline,
+          lastSeenAt
+        });
+      }
+    } catch {
+    }
+  }
   /**
-   * Validate token and register user to socket.
+   * Validate token, register socket in multi-device map, flush pending delivery acks, and broadcast presence.
    */
   static applyUserToken(ws, token) {
     try {
@@ -91567,6 +92419,7 @@ var ChatSocketService = class {
       }
       const fp = Database.get("SELECT id FROM farmer_profiles WHERE user_id = ?", [user.id]);
       const farmerProfileId = fp?.id;
+      const wasOnline = this.isUserOnline(user.id);
       ws.user = {
         id: user.id,
         name: user.name,
@@ -91580,14 +92433,40 @@ var ChatSocketService = class {
         this.userSockets.set(user.id, /* @__PURE__ */ new Set());
       }
       this.userSockets.get(user.id).add(ws);
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      ChatService.updateUserLastSeen(user.id, now);
+      if (!wasOnline) {
+        this.notifyPartnersPresence(user.id, true, now);
+        const deliveredGroups = ChatService.markAllDeliveredForUser(user.id);
+        for (const group4 of deliveredGroups) {
+          this.broadcastConversationEvent(group4.conversationId, group4.senderId, "chat:delivered", {
+            conversationId: group4.conversationId,
+            userId: user.id,
+            deliveredAt: group4.deliveredAt,
+            messageIds: group4.messageIds
+          });
+        }
+      }
       return true;
     } catch {
       return false;
     }
   }
+  static resolveRecipientUserId(conversationId, senderId) {
+    const meta = ChatService.getConversationMeta(conversationId);
+    if (!meta) return null;
+    if (senderId === meta.customer_id) return meta.farmer_user_id || meta.farmer_id;
+    return meta.customer_id;
+  }
   /**
-   * Handle incoming WebSocket client events.
+   * Broadcasts an event to room sockets and any additional devices of `recipientUserId` not in that room.
    */
+  static broadcastConversationEvent(conversationId, recipientUserId, eventType, payload, excludeWs) {
+    this.broadcastToConversation(conversationId, eventType, payload, excludeWs);
+    if (recipientUserId) {
+      this.sendToUserExcludingRoom(recipientUserId, conversationId, eventType, payload);
+    }
+  }
   static async handleIncomingEvent(ws, payload) {
     const eventType = payload.type || payload.event || payload.action;
     const data = payload.data || payload;
@@ -91597,6 +92476,9 @@ var ChatSocketService = class {
     }
     switch (eventType) {
       case "ping": {
+        if (ws.user) {
+          ChatService.updateUserLastSeen(ws.user.id);
+        }
         this.sendEvent(ws, "pong", { timestamp: (/* @__PURE__ */ new Date()).toISOString() });
         break;
       }
@@ -91643,14 +92525,20 @@ var ChatSocketService = class {
             conversationId
           });
         }
+        if (!this.isUserActiveInDb(ws.user.id)) {
+          return this.sendEvent(ws, "chat:error", {
+            message: "Account suspended or unavailable.",
+            code: "FORBIDDEN",
+            conversationId
+          });
+        }
         if (!conversationId) {
           return this.sendEvent(ws, "chat:error", {
             message: "conversationId is required to join room",
             code: "BAD_REQUEST"
           });
         }
-        const isAuthorized = this.verifyConversationAccess(ws.user, conversationId);
-        if (!isAuthorized) {
+        if (!this.verifyConversationAccess(ws.user, conversationId)) {
           return this.sendEvent(ws, "chat:error", {
             message: "You are not a participant in this conversation.",
             code: "FORBIDDEN",
@@ -91662,9 +92550,31 @@ var ChatSocketService = class {
         }
         this.rooms.get(conversationId).add(ws);
         ws.rooms?.add(conversationId);
+        const deliveredAt = ChatService.markConversationDelivered(conversationId, ws.user.id);
+        const partnerUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+        if (deliveredAt) {
+          this.broadcastConversationEvent(conversationId, partnerUserId, "chat:delivered", {
+            conversationId,
+            userId: ws.user.id,
+            deliveredAt
+          });
+        }
+        let partnerPresence = null;
+        if (partnerUserId) {
+          const partnerRow = Database.get(
+            "SELECT last_seen_at FROM users WHERE id = ?",
+            [partnerUserId]
+          );
+          partnerPresence = {
+            userId: partnerUserId,
+            isOnline: this.isUserOnline(partnerUserId),
+            lastSeenAt: partnerRow?.last_seen_at || null
+          };
+        }
         this.sendEvent(ws, "chat:joined", {
           conversationId,
           success: true,
+          partnerPresence,
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         });
         break;
@@ -91676,6 +92586,15 @@ var ChatSocketService = class {
         if (conversationId && ws.rooms) {
           this.rooms.get(conversationId)?.delete(ws);
           ws.rooms.delete(conversationId);
+          if (ws.typingRooms?.has(conversationId) && ws.user) {
+            ws.typingRooms.delete(conversationId);
+            this.broadcastToConversation(
+              conversationId,
+              "chat:typing",
+              { conversationId, userId: ws.user.id, userName: ws.user.name, isTyping: false },
+              ws
+            );
+          }
           this.sendEvent(ws, "chat:left", { conversationId, success: true });
         }
         break;
@@ -91684,59 +92603,161 @@ var ChatSocketService = class {
       case "send_message":
       case "message": {
         const conversationId = data.conversationId || payload.conversationId;
-        const messageText = data.message || payload.message || data.text || payload.text;
+        const messageText = data.message ?? payload.message ?? data.text ?? payload.text ?? "";
+        const clientMessageId = data.clientMessageId || payload.clientMessageId;
+        const replyToId = data.replyToId || payload.replyToId;
+        const attachmentIds = data.attachmentIds || payload.attachmentIds;
         if (!ws.user) {
           return this.sendEvent(ws, "chat:error", {
             message: "Authentication required to send messages",
             code: "UNAUTHORIZED",
-            conversationId
+            conversationId,
+            clientMessageId
           });
         }
-        if (!conversationId || !messageText) {
+        if (!this.isUserActiveInDb(ws.user.id)) {
           return this.sendEvent(ws, "chat:error", {
-            message: "conversationId and message are required",
-            code: "BAD_REQUEST"
+            message: "Account suspended.",
+            code: "FORBIDDEN",
+            conversationId,
+            clientMessageId
           });
         }
-        const isAuthorized = this.verifyConversationAccess(ws.user, conversationId);
-        if (!isAuthorized) {
+        if (!conversationId || !String(messageText).trim() && (!Array.isArray(attachmentIds) || attachmentIds.length === 0)) {
+          return this.sendEvent(ws, "chat:error", {
+            message: "conversationId and message or attachmentIds are required",
+            code: "BAD_REQUEST",
+            clientMessageId
+          });
+        }
+        if (!this.checkMessageRateLimit(ws.user.id)) {
+          return this.sendEvent(ws, "chat:error", {
+            message: "You are sending messages too quickly. Please wait a moment.",
+            code: "RATE_LIMITED",
+            conversationId,
+            clientMessageId
+          });
+        }
+        if (!this.verifyConversationAccess(ws.user, conversationId)) {
+          return this.sendEvent(ws, "chat:error", {
+            message: "You are not a participant in this conversation.",
+            code: "FORBIDDEN",
+            conversationId,
+            clientMessageId
+          });
+        }
+        const recipientUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+        const recipientOnline = Boolean(recipientUserId && this.isUserOnline(recipientUserId));
+        const senderRole = ws.user.role === "farmer" ? "farmer" : "user";
+        try {
+          const msg = ChatService.sendMessage(conversationId, ws.user.id, senderRole, String(messageText), {
+            clientMessageId,
+            replyToId,
+            attachmentIds,
+            recipientOnline
+          });
+          ws.typingRooms?.delete(conversationId);
+          this.sendEvent(ws, "chat:ack", {
+            clientMessageId: clientMessageId || msg.clientMessageId,
+            messageId: msg.id,
+            conversationId,
+            status: msg.status,
+            deduplicated: Boolean(msg.deduplicated),
+            message: msg
+          });
+          if (!msg.deduplicated) {
+            this.broadcastConversationEvent(conversationId, recipientUserId, "chat:message", msg);
+            if (recipientUserId && recipientUserId !== ws.user.id) {
+              this.sendToUser(recipientUserId, "chat:notification", {
+                conversationId,
+                message: msg
+              });
+            }
+            ChatService.dispatchChatNotification({
+              conversationId,
+              senderId: ws.user.id,
+              senderName: ws.user.name,
+              message: msg
+            });
+          }
+        } catch (err) {
+          this.sendEvent(ws, "chat:error", {
+            message: err?.message || "Failed to send message",
+            code: err?.code || "BAD_REQUEST",
+            conversationId,
+            clientMessageId
+          });
+        }
+        break;
+      }
+      case "chat:edit": {
+        const conversationId = data.conversationId || payload.conversationId;
+        const messageId = data.messageId || payload.messageId;
+        const newText = data.message || payload.message;
+        if (!ws.user || !conversationId || !messageId) return;
+        if (!this.verifyConversationAccess(ws.user, conversationId)) {
           return this.sendEvent(ws, "chat:error", {
             message: "You are not a participant in this conversation.",
             code: "FORBIDDEN",
             conversationId
           });
         }
-        const senderRole = ws.user.role === "farmer" ? "farmer" : "user";
-        const msg = ChatService.sendMessage(conversationId, ws.user.id, senderRole, messageText);
-        this.broadcastToConversation(conversationId, "chat:message", msg);
         try {
-          const conv = Database.get("SELECT customer_id, farmer_id FROM conversations WHERE id = ?", [conversationId]);
-          if (conv) {
-            let recipientUserId = conv.customer_id;
-            if (ws.user.id === conv.customer_id) {
-              const fp = Database.get("SELECT user_id FROM farmer_profiles WHERE id = ?", [conv.farmer_id]);
-              recipientUserId = fp?.user_id || conv.farmer_id;
-            }
-            if (recipientUserId && recipientUserId !== ws.user.id) {
-              this.sendToUser(recipientUserId, "chat:message", msg);
-              this.sendToUser(recipientUserId, "chat:notification", {
-                conversationId,
-                message: msg
-              });
-            }
-          }
-        } catch (e5) {
-          console.warn("[ChatSocket] Failed to send user-level notification:", e5);
+          const updated = ChatService.editMessage(conversationId, messageId, ws.user.id, newText);
+          const recipientUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+          this.broadcastConversationEvent(conversationId, recipientUserId, "chat:message_edited", {
+            conversationId,
+            message: updated
+          });
+        } catch (err) {
+          this.sendEvent(ws, "chat:error", {
+            message: err?.message || "Failed to edit message",
+            code: err?.code || "BAD_REQUEST",
+            conversationId
+          });
+        }
+        break;
+      }
+      case "chat:delete": {
+        const conversationId = data.conversationId || payload.conversationId;
+        const messageId = data.messageId || payload.messageId;
+        if (!ws.user || !conversationId || !messageId) return;
+        if (!this.verifyConversationAccess(ws.user, conversationId)) {
+          return this.sendEvent(ws, "chat:error", {
+            message: "You are not a participant in this conversation.",
+            code: "FORBIDDEN",
+            conversationId
+          });
+        }
+        try {
+          const deleted = ChatService.deleteMessage(conversationId, messageId, ws.user.id, ws.user.role);
+          const recipientUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+          this.broadcastConversationEvent(conversationId, recipientUserId, "chat:message_deleted", {
+            conversationId,
+            messageId: deleted.id,
+            deletedAt: deleted.deletedAt,
+            message: deleted
+          });
+        } catch (err) {
+          this.sendEvent(ws, "chat:error", {
+            message: err?.message || "Failed to delete message",
+            code: err?.code || "BAD_REQUEST",
+            conversationId
+          });
         }
         break;
       }
       case "chat:typing":
       case "typing": {
         const conversationId = data.conversationId || payload.conversationId;
-        const isTyping = data.isTyping !== void 0 ? data.isTyping : payload.isTyping;
+        const isTyping = data.isTyping !== void 0 ? Boolean(data.isTyping) : Boolean(payload.isTyping);
         if (!ws.user || !conversationId) return;
-        const isAuthorized = this.verifyConversationAccess(ws.user, conversationId);
-        if (!isAuthorized) return;
+        if (!this.verifyConversationAccess(ws.user, conversationId)) return;
+        if (isTyping) {
+          ws.typingRooms?.add(conversationId);
+        } else {
+          ws.typingRooms?.delete(conversationId);
+        }
         this.broadcastToConversation(
           conversationId,
           "chat:typing",
@@ -91744,20 +92765,35 @@ var ChatSocketService = class {
             conversationId,
             userId: ws.user.id,
             userName: ws.user.name,
-            isTyping: !!isTyping
+            isTyping
           },
           ws
         );
+        break;
+      }
+      case "chat:delivered": {
+        const conversationId = data.conversationId || payload.conversationId;
+        if (!ws.user || !conversationId) return;
+        if (!this.verifyConversationAccess(ws.user, conversationId)) return;
+        const deliveredAt = ChatService.markConversationDelivered(conversationId, ws.user.id);
+        if (deliveredAt) {
+          const partnerUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+          this.broadcastConversationEvent(conversationId, partnerUserId, "chat:delivered", {
+            conversationId,
+            userId: ws.user.id,
+            deliveredAt
+          });
+        }
         break;
       }
       case "chat:read":
       case "mark_read": {
         const conversationId = data.conversationId || payload.conversationId;
         if (!ws.user || !conversationId) return;
-        const isAuthorized = this.verifyConversationAccess(ws.user, conversationId);
-        if (!isAuthorized) return;
+        if (!this.verifyConversationAccess(ws.user, conversationId)) return;
         const result = ChatService.markMessagesRead(conversationId, ws.user.id);
-        this.broadcastToConversation(conversationId, "chat:read", {
+        const partnerUserId = this.resolveRecipientUserId(conversationId, ws.user.id);
+        this.broadcastConversationEvent(conversationId, partnerUserId, "chat:read", {
           conversationId,
           userId: ws.user.id,
           readAt: result.readAt
@@ -91772,9 +92808,6 @@ var ChatSocketService = class {
       }
     }
   }
-  /**
-   * Zero-Trust check verifying user participates in SQLite conversation.
-   */
   static verifyConversationAccess(user, conversationId) {
     if (user.role === "admin") return true;
     const conv = Database.get(
@@ -91783,16 +92816,13 @@ var ChatSocketService = class {
     );
     if (!conv) return false;
     const isCustomer = conv.customer_id === user.id;
-    const isFarmerDirect = user.farmerProfileId && conv.farmer_id === user.farmerProfileId;
-    const isFarmerLinked = Database.get(
-      "SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?",
-      [conv.farmer_id, user.id]
-    ) != null;
-    return !!(isCustomer || isFarmerDirect || isFarmerLinked);
+    const isFarmerDirect = Boolean(user.farmerProfileId && conv.farmer_id === user.farmerProfileId);
+    const isFarmerLinked = Database.get("SELECT 1 FROM farmer_profiles WHERE id = ? AND user_id = ?", [
+      conv.farmer_id,
+      user.id
+    ]) != null;
+    return Boolean(isCustomer || isFarmerDirect || isFarmerLinked);
   }
-  /**
-   * Broadcast an event to all connected sockets in a conversation room.
-   */
   static broadcastToConversation(conversationId, eventType, payload, excludeWs) {
     const room = this.rooms.get(conversationId);
     if (!room || room.size === 0) return;
@@ -91809,9 +92839,6 @@ var ChatSocketService = class {
       }
     });
   }
-  /**
-   * Broadcast an event to all connected sockets belonging to a specific user.
-   */
   static sendToUser(userId, eventType, payload) {
     const sockets = this.userSockets.get(userId);
     if (!sockets || sockets.size === 0) return;
@@ -91821,9 +92848,16 @@ var ChatSocketService = class {
       }
     });
   }
-  /**
-   * Send typed event to a single WebSocket client.
-   */
+  static sendToUserExcludingRoom(userId, conversationId, eventType, payload) {
+    const sockets = this.userSockets.get(userId);
+    if (!sockets || sockets.size === 0) return;
+    const room = this.rooms.get(conversationId);
+    sockets.forEach((client) => {
+      if (client.readyState === import_websocket.default.OPEN && (!room || !room.has(client))) {
+        this.sendEvent(client, eventType, payload);
+      }
+    });
+  }
   static sendEvent(ws, eventType, payload) {
     if (ws.readyState === import_websocket.default.OPEN) {
       ws.send(
@@ -91836,10 +92870,18 @@ var ChatSocketService = class {
       );
     }
   }
-  /**
-   * Clean up socket references on disconnect.
-   */
   static cleanupSocket(ws) {
+    if (ws.typingRooms && ws.typingRooms.size > 0 && ws.user) {
+      ws.typingRooms.forEach((roomId) => {
+        this.broadcastToConversation(
+          roomId,
+          "chat:typing",
+          { conversationId: roomId, userId: ws.user.id, userName: ws.user.name, isTyping: false },
+          ws
+        );
+      });
+      ws.typingRooms.clear();
+    }
     if (ws.rooms) {
       ws.rooms.forEach((roomId) => {
         const room = this.rooms.get(roomId);
@@ -91858,43 +92900,249 @@ var ChatSocketService = class {
         userSet.delete(ws);
         if (userSet.size === 0) {
           this.userSockets.delete(ws.user.id);
+          const now = (/* @__PURE__ */ new Date()).toISOString();
+          ChatService.updateUserLastSeen(ws.user.id, now);
+          this.notifyPartnersPresence(ws.user.id, false, now);
         }
       }
     }
   }
-  /**
-   * Return number of active WebSocket clients.
-   */
   static getConnectedClientsCount() {
     return this.wss ? this.wss.clients.size : 0;
   }
-  /**
-   * Check if a specific user has at least one active WebSocket connection.
-   */
   static isUserOnline(userId) {
     const set = this.userSockets.get(userId);
     return !!(set && set.size > 0);
   }
-  /**
-   * Reset instance (for testing teardowns)
-   */
   static reset() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
     if (this.wss) {
       this.wss.close();
       this.wss = null;
     }
     this.rooms.clear();
     this.userSockets.clear();
+    this.msgRateWindows.clear();
+  }
+};
+
+// server/src/services/chatAttachmentService.ts
+init_esm();
+init_database();
+init_errors3();
+init_env();
+init_logger();
+import fs3 from "fs";
+import path4 from "path";
+var MIME_EXTENSIONS = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+  "image/gif": [".gif"],
+  "application/pdf": [".pdf"],
+  "text/plain": [".txt"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"]
+};
+function sanitizeFilename(name) {
+  const base = path4.basename(name || "attachment").replace(/[\0<>:"/\\|?*]/g, "_").trim();
+  return (base || "attachment").slice(0, 140);
+}
+function getPrivateChatRootDir() {
+  return process.env.VERCEL ? path4.join("/tmp", "chat_private") : path4.resolve(env.UPLOAD_DIR, "..", "chat_private");
+}
+function verifyAttachmentMagicBytes(buffer, mimeType) {
+  if (!buffer || buffer.length === 0) return false;
+  switch (mimeType) {
+    case "image/jpeg":
+      return buffer.length >= 3 && buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255;
+    case "image/png":
+      return buffer.length >= 8 && buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71;
+    case "image/webp":
+      return buffer.length >= 12 && buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP";
+    case "image/gif": {
+      const hdr = buffer.subarray(0, 6).toString("ascii");
+      return hdr === "GIF87a" || hdr === "GIF89a";
+    }
+    case "application/pdf":
+      return buffer.length >= 5 && buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      return buffer.length >= 4 && buffer[0] === 80 && buffer[1] === 75;
+    case "application/msword":
+      return buffer.length >= 4 && buffer[0] === 208 && buffer[1] === 207 && buffer[2] === 17 && buffer[3] === 224;
+    case "text/plain":
+      return !buffer.includes(0);
+    default:
+      return false;
+  }
+}
+var ChatAttachmentService = class {
+  /**
+   * Validates, stores privately, and persists metadata for a conversation attachment.
+   * Never creates a DB record unless file persistence succeeds.
+   */
+  static async saveAttachment(params) {
+    const { conversationId, uploaderId, file } = params;
+    if (!file || !file.buffer || file.buffer.length === 0) {
+      throw AppError.badRequest("Uploaded attachment file is empty.");
+    }
+    if (file.size > MAX_CHAT_FILE_SIZE_BYTES || file.buffer.length > MAX_CHAT_FILE_SIZE_BYTES) {
+      throw AppError.badRequest("Attachment exceeds the 10 MB maximum file size limit.");
+    }
+    const rawName = file.originalname || "file";
+    if (rawName.includes("..") || rawName.includes("/") || rawName.includes("\\")) {
+      throw AppError.badRequest("Invalid file name characters detected.", "PATH_TRAVERSAL_BLOCKED");
+    }
+    const mimeType = (file.mimetype || "").toLowerCase();
+    if (!ALLOWED_CHAT_MIME_TYPES.includes(mimeType)) {
+      throw AppError.badRequest(
+        `Unsupported attachment type: ${mimeType}. Allowed: JPEG, PNG, WEBP, GIF, PDF, TXT, DOC, DOCX.`,
+        "INVALID_FILE_TYPE"
+      );
+    }
+    const ext = path4.extname(rawName).toLowerCase();
+    if (!ALLOWED_CHAT_EXTENSIONS.includes(ext) || !MIME_EXTENSIONS[mimeType]?.includes(ext)) {
+      throw AppError.badRequest(
+        `File extension "${ext || "none"}" does not match MIME type ${mimeType}.`,
+        "INVALID_FILE_EXTENSION"
+      );
+    }
+    if (!verifyAttachmentMagicBytes(file.buffer, mimeType)) {
+      throw AppError.badRequest(
+        "File contents do not match the declared attachment type.",
+        "INVALID_FILE_SIGNATURE"
+      );
+    }
+    const attachmentId = `att-${v4_default()}`;
+    const safeName = sanitizeFilename(rawName);
+    const storedKey = path4.posix.join(conversationId, `${attachmentId}${ext}`);
+    let storedLocally = false;
+    let cloudStorageUrl = "";
+    const supabaseUrl = (process.env.SUPABASE_URL || env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
+    const supabaseKey = (process.env.SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || "").trim();
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const uploadEndpoint = `${supabaseUrl}/storage/v1/object/halder-media/chat-private/${storedKey}`;
+        const uploadRes = await fetch(uploadEndpoint, {
+          method: "POST",
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": mimeType
+          },
+          body: new Uint8Array(file.buffer)
+        });
+        if (uploadRes.ok) {
+          cloudStorageUrl = uploadEndpoint;
+        } else {
+          const errText = await uploadRes.text().catch(() => "");
+          Logger.warn(`[ChatAttachment] Cloud upload notice (${uploadRes.status}): ${errText}`);
+        }
+      } catch (err) {
+        Logger.warn(`[ChatAttachment] Cloud storage error: ${err?.message || err}`);
+      }
+    }
+    try {
+      const targetDir = path4.join(getPrivateChatRootDir(), conversationId);
+      if (!fs3.existsSync(targetDir)) {
+        fs3.mkdirSync(targetDir, { recursive: true });
+      }
+      const fullPath = path4.join(targetDir, `${attachmentId}${ext}`);
+      fs3.writeFileSync(fullPath, file.buffer);
+      storedLocally = true;
+    } catch (fsErr) {
+      Logger.error("[ChatAttachment] Private disk write failed", fsErr);
+    }
+    if (!storedLocally && !cloudStorageUrl) {
+      throw new AppError(
+        "Attachment storage failed. Please retry uploading the file.",
+        500,
+        "ATTACHMENT_STORAGE_FAILED"
+      );
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    Database.run(
+      `INSERT INTO chat_attachments (
+        id, conversation_id, message_id, uploader_id, original_name,
+        stored_key, mime_type, size_bytes, storage_url, created_at
+      ) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        attachmentId,
+        conversationId,
+        uploaderId,
+        safeName,
+        storedKey,
+        mimeType,
+        file.buffer.length,
+        cloudStorageUrl,
+        now
+      ]
+    );
+    return {
+      id: attachmentId,
+      conversationId,
+      filename: safeName,
+      mimeType,
+      sizeBytes: file.buffer.length,
+      url: `/api/v1/chat/conversations/${conversationId}/attachments/${attachmentId}`
+    };
+  }
+  /**
+   * Reads an attachment belonging strictly to the given conversation.
+   */
+  static async getAttachmentContent(params) {
+    const record = Database.get(
+      "SELECT * FROM chat_attachments WHERE id = ? AND conversation_id = ?",
+      [params.attachmentId, params.conversationId]
+    );
+    if (!record) {
+      throw AppError.notFound("Attachment not found in this conversation.");
+    }
+    const rootDir = path4.resolve(getPrivateChatRootDir());
+    const localPath = path4.resolve(rootDir, ...String(record.stored_key).split("/"));
+    if (!localPath.startsWith(rootDir)) {
+      throw AppError.forbidden("Invalid attachment path.");
+    }
+    if (fs3.existsSync(localPath)) {
+      const buffer = fs3.readFileSync(localPath);
+      return {
+        buffer,
+        mimeType: record.mime_type,
+        filename: record.original_name,
+        sizeBytes: record.size_bytes
+      };
+    }
+    if (record.storage_url) {
+      const supabaseKey = (process.env.SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || "").trim();
+      const headers = {};
+      if (supabaseKey) {
+        headers.apikey = supabaseKey;
+        headers.Authorization = `Bearer ${supabaseKey}`;
+      }
+      const res = await fetch(record.storage_url, { headers });
+      if (res.ok) {
+        const arrBuf = await res.arrayBuffer();
+        return {
+          buffer: Buffer.from(arrBuf),
+          mimeType: record.mime_type,
+          filename: record.original_name,
+          sizeBytes: record.size_bytes
+        };
+      }
+    }
+    throw AppError.notFound("Attachment binary could not be retrieved from storage.");
   }
 };
 
 // server/src/controllers/chatController.ts
-init_database();
-init_notificationService();
+init_errors3();
 var ChatController = class {
   /**
    * POST /api/v1/chat/conversations
-   * Create or retrieve existing conversation between customer and farmer.
+   * Create or retrieve existing conversation between authentic DB participants.
    */
   static async getOrCreate(req, res, next) {
     try {
@@ -91918,15 +93166,34 @@ var ChatController = class {
   }
   /**
    * GET /api/v1/chat/conversations
-   * List all conversations for the authenticated user with other party info, last message, and unread count.
+   * List authenticated user's conversations with presence, mute status, and unread counts.
    */
   static async listConversations(req, res, next) {
     try {
+      const search = typeof req.query.search === "string" ? req.query.search : void 0;
       const conversations = ChatService.getUserConversations(
         req.user.id,
         req.user.role,
-        req.user.farmerProfileId
+        req.user.farmerProfileId,
+        {
+          search,
+          isUserOnline: (uid) => ChatSocketService.isUserOnline(uid)
+        }
       );
+      const deliveredGroups = ChatService.markAllDeliveredForUser(req.user.id);
+      for (const group4 of deliveredGroups) {
+        ChatSocketService.broadcastConversationEvent(
+          group4.conversationId,
+          group4.senderId,
+          "chat:delivered",
+          {
+            conversationId: group4.conversationId,
+            userId: req.user.id,
+            deliveredAt: group4.deliveredAt,
+            messageIds: group4.messageIds
+          }
+        );
+      }
       res.json({
         success: true,
         data: conversations,
@@ -91938,15 +93205,40 @@ var ChatController = class {
   }
   /**
    * GET /api/v1/chat/conversations/:id/messages
-   * Retrieve message history for a conversation (IDOR protected).
+   * Paginated, incremental (`after`), or searchable (`q`) message history (IDOR protected).
    */
   static async getMessages(req, res, next) {
     try {
-      const messages = ChatService.getMessages(req.params.id);
+      const limit = req.query.limit ? Number(req.query.limit) : void 0;
+      const before = typeof req.query.before === "string" ? req.query.before : void 0;
+      const after = typeof req.query.after === "string" ? req.query.after : void 0;
+      const search = typeof req.query.q === "string" ? req.query.q : void 0;
+      const result = ChatService.getMessages(req.params.id, { limit, before, after, search });
+      if (!before && !search) {
+        const deliveredAt = ChatService.markConversationDelivered(req.params.id, req.user.id);
+        if (deliveredAt) {
+          const meta = ChatService.getConversationMeta(req.params.id);
+          const partnerUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
+          ChatSocketService.broadcastConversationEvent(
+            req.params.id,
+            partnerUserId,
+            "chat:delivered",
+            {
+              conversationId: req.params.id,
+              userId: req.user.id,
+              deliveredAt
+            }
+          );
+        }
+      }
       res.json({
         success: true,
-        data: messages,
-        messages
+        data: result.messages,
+        messages: result.messages,
+        pagination: {
+          hasMore: result.hasMore,
+          nextCursor: result.nextCursor
+        }
       });
     } catch (err) {
       next(err);
@@ -91954,41 +93246,40 @@ var ChatController = class {
   }
   /**
    * POST /api/v1/chat/conversations/:id/messages
-   * Send a message in a conversation, save to SQLite, and broadcast via WebSocket to room.
+   * Send a persistent message via REST (with idempotency, replies, attachments & live WS broadcast).
    */
   static async sendMessage(req, res, next) {
     try {
       const senderRole = req.user.role === "farmer" ? "farmer" : "user";
+      const meta = ChatService.getConversationMeta(req.params.id);
+      const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
+      const recipientOnline = Boolean(recipientUserId && ChatSocketService.isUserOnline(recipientUserId));
       const msg = ChatService.sendMessage(
         req.params.id,
         req.user.id,
         senderRole,
-        req.body.message
-      );
-      ChatSocketService.broadcastToConversation(req.params.id, "chat:message", msg);
-      try {
-        const conv = Database.get("SELECT customer_id, farmer_id FROM conversations WHERE id = ?", [req.params.id]);
-        if (conv) {
-          const fp = Database.get("SELECT user_id FROM farmer_profiles WHERE id = ?", [conv.farmer_id]);
-          const recipientUserId = req.user.id === conv.customer_id ? fp?.user_id : conv.customer_id;
-          if (recipientUserId && recipientUserId !== req.user.id) {
-            ChatSocketService.sendToUser(recipientUserId, "chat:message", msg);
-            ChatSocketService.sendToUser(recipientUserId, "chat:notification", {
-              conversationId: req.params.id,
-              message: msg
-            });
-            const recipientUser = Database.get("SELECT role FROM users WHERE id = ?", [recipientUserId]);
-            NotificationService.createAndPush({
-              userId: recipientUserId,
-              recipientRole: recipientUser?.role || "customer",
-              type: "chat",
-              title: `New message from ${req.user.name}`,
-              message: req.body.message.slice(0, 120)
-            });
-          }
+        req.body.message || "",
+        {
+          clientMessageId: req.body.clientMessageId,
+          replyToId: req.body.replyToId,
+          attachmentIds: req.body.attachmentIds,
+          recipientOnline
         }
-      } catch (notifErr) {
-        console.warn("[Chat] Notification dispatch warning:", notifErr.message);
+      );
+      if (!msg.deduplicated) {
+        ChatSocketService.broadcastConversationEvent(req.params.id, recipientUserId, "chat:message", msg);
+        if (recipientUserId && recipientUserId !== req.user.id) {
+          ChatSocketService.sendToUser(recipientUserId, "chat:notification", {
+            conversationId: req.params.id,
+            message: msg
+          });
+        }
+        ChatService.dispatchChatNotification({
+          conversationId: req.params.id,
+          senderId: req.user.id,
+          senderName: req.user.name,
+          message: msg
+        });
       }
       res.status(201).json({
         success: true,
@@ -92000,13 +93291,69 @@ var ChatController = class {
     }
   }
   /**
+   * PATCH /api/v1/chat/conversations/:id/messages/:messageId
+   * Edit own message (strict sender verification + live WS broadcast).
+   */
+  static async editMessage(req, res, next) {
+    try {
+      const updated = ChatService.editMessage(
+        req.params.id,
+        req.params.messageId,
+        req.user.id,
+        req.body.message
+      );
+      const meta = ChatService.getConversationMeta(req.params.id);
+      const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
+      ChatSocketService.broadcastConversationEvent(
+        req.params.id,
+        recipientUserId,
+        "chat:message_edited",
+        { conversationId: req.params.id, message: updated }
+      );
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      next(err);
+    }
+  }
+  /**
+   * DELETE /api/v1/chat/conversations/:id/messages/:messageId
+   * Soft-delete own message (or admin) + live WS tombstone broadcast.
+   */
+  static async deleteMessage(req, res, next) {
+    try {
+      const deleted = ChatService.deleteMessage(
+        req.params.id,
+        req.params.messageId,
+        req.user.id,
+        req.user.role
+      );
+      const meta = ChatService.getConversationMeta(req.params.id);
+      const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
+      ChatSocketService.broadcastConversationEvent(
+        req.params.id,
+        recipientUserId,
+        "chat:message_deleted",
+        {
+          conversationId: req.params.id,
+          messageId: deleted.id,
+          deletedAt: deleted.deletedAt,
+          message: deleted
+        }
+      );
+      res.json({ success: true, data: deleted });
+    } catch (err) {
+      next(err);
+    }
+  }
+  /**
    * PATCH /api/v1/chat/conversations/:id/read or POST /api/v1/chat/conversations/:id/read
-   * Mark all unread messages in the conversation as read and broadcast read event.
    */
   static async markAsRead(req, res, next) {
     try {
       const result = ChatService.markMessagesRead(req.params.id, req.user.id);
-      ChatSocketService.broadcastToConversation(req.params.id, "chat:read", {
+      const meta = ChatService.getConversationMeta(req.params.id);
+      const partnerUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
+      ChatSocketService.broadcastConversationEvent(req.params.id, partnerUserId, "chat:read", {
         conversationId: req.params.id,
         userId: req.user.id,
         readAt: result.readAt
@@ -92016,32 +93363,194 @@ var ChatController = class {
       next(err);
     }
   }
+  /**
+   * PATCH /api/v1/chat/conversations/:id/mute
+   */
+  static async setMuted(req, res, next) {
+    try {
+      const muted = Boolean(req.body.muted);
+      const result = ChatService.setConversationMuted(req.params.id, req.user.id, muted);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+  /**
+   * POST /api/v1/chat/conversations/:id/attachments
+   * Authenticated multipart file upload (Images, PDF, TXT, DOC, DOCX) stored privately.
+   */
+  static async uploadAttachment(req, res, next) {
+    try {
+      const file = req.file;
+      if (!file) {
+        throw AppError.badRequest('No file provided under form field "file".');
+      }
+      const attachment = await ChatAttachmentService.saveAttachment({
+        conversationId: req.params.id,
+        uploaderId: req.user.id,
+        file
+      });
+      res.status(201).json({
+        success: true,
+        data: attachment
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  /**
+   * GET /api/v1/chat/conversations/:id/attachments/:attachmentId
+   * Strictly authenticated & IDOR-verified attachment download.
+   */
+  static async downloadAttachment(req, res, next) {
+    try {
+      const { buffer, mimeType, filename, sizeBytes } = await ChatAttachmentService.getAttachmentContent({
+        conversationId: req.params.id,
+        attachmentId: req.params.attachmentId
+      });
+      const isInlineSafe = mimeType.startsWith("image/") || mimeType === "application/pdf";
+      const safeName = filename.replace(/"/g, "_");
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Content-Length", String(sizeBytes));
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Cache-Control", "private, max-age=3600");
+      res.setHeader(
+        "Content-Disposition",
+        `${isInlineSafe ? "inline" : "attachment"}; filename="${safeName}"`
+      );
+      res.send(buffer);
+    } catch (err) {
+      next(err);
+    }
+  }
 };
 
 // server/src/routes/chatRoutes.ts
 init_zod();
+
+// server/src/middleware/upload.ts
+var import_multer = __toESM(require_multer(), 1);
+import path5 from "path";
+init_errors3();
+var ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+var storage = import_multer.default.memoryStorage();
+var buildFileFilter = (allowedMimes, allowedExts, invalidMsg) => (_req, file, cb) => {
+  if (file.originalname.includes("..") || file.originalname.includes("/") || file.originalname.includes("\\")) {
+    return cb(
+      AppError.badRequest("Invalid file name characters detected.", "PATH_TRAVERSAL_BLOCKED"),
+      false
+    );
+  }
+  const mime = (file.mimetype || "").toLowerCase();
+  if (!allowedMimes.includes(mime)) {
+    return cb(AppError.badRequest(`${invalidMsg}: ${file.mimetype}`, "INVALID_FILE_TYPE"), false);
+  }
+  const ext = path5.extname(file.originalname).toLowerCase();
+  if (!allowedExts.includes(ext)) {
+    return cb(
+      AppError.badRequest(`File extension ${ext} is not allowed.`, "INVALID_FILE_EXTENSION"),
+      false
+    );
+  }
+  cb(null, true);
+};
+var upload = (0, import_multer.default)({
+  storage,
+  limits: {
+    fileSize: MAX_FILE_SIZE_BYTES,
+    files: 5
+  },
+  fileFilter: buildFileFilter(
+    ALLOWED_IMAGE_MIME_TYPES,
+    ALLOWED_EXTENSIONS,
+    "Invalid file format. Allowed formats: JPEG, PNG, WEBP"
+  )
+});
+var chatAttachmentUpload = (0, import_multer.default)({
+  storage,
+  limits: {
+    fileSize: MAX_CHAT_FILE_SIZE_BYTES,
+    files: 1
+  },
+  fileFilter: buildFileFilter(
+    ALLOWED_CHAT_MIME_TYPES,
+    ALLOWED_CHAT_EXTENSIONS,
+    "Invalid attachment format. Allowed: JPEG, PNG, WEBP, GIF, PDF, TXT, DOC, DOCX"
+  )
+});
+
+// server/src/routes/chatRoutes.ts
 var router7 = (0, import_express7.Router)();
 var createConvSchema = external_exports.object({
   customerId: external_exports.string().optional(),
   farmerId: external_exports.string().optional(),
+  userId: external_exports.string().optional(),
+  partnerId: external_exports.string().optional(),
   productId: external_exports.string().optional()
 });
-var messageSchema = external_exports.object({
+var sendMessageSchema = external_exports.object({
+  message: external_exports.string().max(2e3).optional().default(""),
+  clientMessageId: external_exports.string().min(1).max(120).optional(),
+  replyToId: external_exports.string().min(1).max(120).optional(),
+  attachmentIds: external_exports.array(external_exports.string().min(1).max(120)).max(5).optional()
+}).refine(
+  (data) => Boolean(data.message?.trim()) || Array.isArray(data.attachmentIds) && data.attachmentIds.length > 0,
+  { message: "Message text or at least one attachment is required", path: ["message"] }
+);
+var editMessageSchema = external_exports.object({
   message: external_exports.string().min(1).max(2e3)
+});
+var muteSchema = external_exports.object({
+  muted: external_exports.boolean()
 });
 router7.get("/conversations", authenticateUser, ChatController.listConversations);
 router7.post("/conversations", authenticateUser, validateBody(createConvSchema), ChatController.getOrCreate);
+router7.patch(
+  "/conversations/:id/mute",
+  authenticateUser,
+  verifyConversationAccess,
+  validateBody(muteSchema),
+  ChatController.setMuted
+);
 router7.get("/conversations/:id/messages", authenticateUser, verifyConversationAccess, ChatController.getMessages);
 router7.post(
   "/conversations/:id/messages",
   authenticateUser,
   verifyConversationAccess,
   chatLimiter,
-  validateBody(messageSchema),
+  validateBody(sendMessageSchema),
   ChatController.sendMessage
+);
+router7.patch(
+  "/conversations/:id/messages/:messageId",
+  authenticateUser,
+  verifyConversationAccess,
+  chatLimiter,
+  validateBody(editMessageSchema),
+  ChatController.editMessage
+);
+router7.delete(
+  "/conversations/:id/messages/:messageId",
+  authenticateUser,
+  verifyConversationAccess,
+  ChatController.deleteMessage
 );
 router7.patch("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
 router7.post("/conversations/:id/read", authenticateUser, verifyConversationAccess, ChatController.markAsRead);
+router7.post(
+  "/conversations/:id/attachments",
+  authenticateUser,
+  verifyConversationAccess,
+  uploadLimiter,
+  chatAttachmentUpload.single("file"),
+  ChatController.uploadAttachment
+);
+router7.get(
+  "/conversations/:id/attachments/:attachmentId",
+  authenticateUser,
+  verifyConversationAccess,
+  ChatController.downloadAttachment
+);
 var chatRoutes_default = router7;
 
 // server/src/routes/notificationRoutes.ts
@@ -92854,51 +94363,6 @@ var adminRoutes_default = router9;
 
 // server/src/routes/uploadRoutes.ts
 var import_express10 = __toESM(require_express2(), 1);
-
-// server/src/middleware/upload.ts
-var import_multer = __toESM(require_multer(), 1);
-import path4 from "path";
-init_errors3();
-var ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-var storage = import_multer.default.memoryStorage();
-var fileFilter = (req, file, cb) => {
-  if (file.originalname.includes("..") || file.originalname.includes("/") || file.originalname.includes("\\")) {
-    return cb(
-      AppError.badRequest("Invalid file name characters detected.", "PATH_TRAVERSAL_BLOCKED"),
-      false
-    );
-  }
-  if (!ALLOWED_IMAGE_MIME_TYPES.includes(file.mimetype)) {
-    return cb(
-      AppError.badRequest(
-        `Invalid file format: ${file.mimetype}. Allowed formats: JPEG, PNG, WEBP.`,
-        "INVALID_FILE_TYPE"
-      ),
-      false
-    );
-  }
-  const ext = path4.extname(file.originalname).toLowerCase();
-  if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    return cb(
-      AppError.badRequest(
-        `File extension ${ext} does not match allowed image extensions.`,
-        "INVALID_FILE_EXTENSION"
-      ),
-      false
-    );
-  }
-  cb(null, true);
-};
-var upload = (0, import_multer.default)({
-  storage,
-  limits: {
-    fileSize: MAX_FILE_SIZE_BYTES,
-    files: 5
-  },
-  fileFilter
-});
-
-// server/src/routes/uploadRoutes.ts
 init_errors3();
 init_storageService();
 var router10 = (0, import_express10.Router)();
@@ -94149,267 +95613,8 @@ var reportRoutes_default = router12;
 // server/src/routes/customerRoutes.ts
 var import_express15 = __toESM(require_express2(), 1);
 
-// server/src/services/customerProfileService.ts
-init_database();
-init_errors3();
-init_sanitize();
-init_audit();
-init_esm();
-init_storageService();
-var CustomerProfileService = class {
-  static getProfile(customerId) {
-    const user = Database.get(
-      `SELECT id, halder_id, name, email, phone, role, profile_image, status, created_at, updated_at 
-       FROM users WHERE id = ?`,
-      [customerId]
-    );
-    if (!user) {
-      throw AppError.notFound("Customer not found");
-    }
-    let profile = Database.get(
-      "SELECT * FROM customer_profiles WHERE user_id = ?",
-      [customerId]
-    );
-    if (!profile) {
-      const profId = `cust-prof-${v4_default()}`;
-      const now = (/* @__PURE__ */ new Date()).toISOString();
-      Database.run(
-        `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
-         VALUES (?, ?, '', '', ?, ?)`,
-        [profId, customerId, now, now]
-      );
-      profile = Database.get("SELECT * FROM customer_profiles WHERE user_id = ?", [customerId]);
-    }
-    let defaultAddress = null;
-    if (profile.default_address_id) {
-      defaultAddress = Database.get(
-        "SELECT * FROM customer_addresses WHERE id = ? AND customer_id = ?",
-        [profile.default_address_id, customerId]
-      );
-    }
-    if (!defaultAddress) {
-      defaultAddress = Database.get(
-        "SELECT * FROM customer_addresses WHERE customer_id = ? ORDER BY is_default DESC, created_at DESC LIMIT 1",
-        [customerId]
-      );
-    }
-    const totalAddresses = Database.get(
-      "SELECT COUNT(*) as cnt FROM customer_addresses WHERE customer_id = ?",
-      [customerId]
-    )?.cnt || 0;
-    const orderStats = Database.get(
-      `SELECT 
-        COUNT(*) as totalOrders,
-        SUM(CASE WHEN order_status IN ('placed', 'accepted', 'preparing', 'ready', 'out_for_delivery') THEN 1 ELSE 0 END) as activeOrders,
-        SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) as deliveredOrders,
-        COALESCE(SUM(total_amount), 0) as totalSpend
-       FROM orders WHERE customer_id = ?`,
-      [customerId]
-    ) || { totalOrders: 0, activeOrders: 0, deliveredOrders: 0, totalSpend: 0 };
-    const favoritesCount = Database.get(
-      "SELECT COUNT(*) as cnt FROM favorites WHERE user_id = ?",
-      [customerId]
-    )?.cnt || 0;
-    const isGoogleConnected = Boolean(
-      Database.get(
-        "SELECT 1 FROM auth_identities WHERE user_id = ? AND provider = 'google'",
-        [customerId]
-      )
-    );
-    let notificationPrefs = {
-      orders: true,
-      delivery: true,
-      payments: true,
-      promos: false,
-      chat: true
-    };
-    if (profile.notification_preferences) {
-      try {
-        notificationPrefs = {
-          ...notificationPrefs,
-          ...JSON.parse(profile.notification_preferences)
-        };
-      } catch {
-      }
-    }
-    return {
-      id: user.id,
-      halderId: user.halder_id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      status: user.status,
-      avatar: user.profile_image || profile.avatar || "",
-      bio: profile.bio || "",
-      dateOfBirth: profile.date_of_birth || null,
-      gender: profile.gender || null,
-      createdAt: user.created_at,
-      defaultAddress,
-      totalAddresses,
-      orderStats: {
-        total: orderStats.totalOrders || 0,
-        active: orderStats.activeOrders || 0,
-        delivered: orderStats.deliveredOrders || 0,
-        totalSpend: Number((orderStats.totalSpend || 0).toFixed(2))
-      },
-      favoritesCount,
-      isGoogleConnected,
-      notificationPreferences: notificationPrefs
-    };
-  }
-  static updateProfile(customerId, input) {
-    const user = Database.get("SELECT * FROM users WHERE id = ?", [customerId]);
-    if (!user) throw AppError.notFound("Customer not found");
-    if (input.phone && input.phone.trim()) {
-      const phoneConflict = Database.get(
-        "SELECT id FROM users WHERE phone = ? AND id != ?",
-        [input.phone.trim(), customerId]
-      );
-      if (phoneConflict) {
-        throw AppError.badRequest("This phone number is already registered with another HALDER account.");
-      }
-    }
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.transaction(() => {
-      if (input.name !== void 0 || input.phone !== void 0) {
-        Database.run(
-          `UPDATE users SET
-            name = COALESCE(?, name),
-            phone = COALESCE(?, phone),
-            updated_at = ?
-           WHERE id = ?`,
-          [
-            input.name !== void 0 ? sanitizeText(input.name.trim()) : null,
-            input.phone !== void 0 ? sanitizeText(input.phone.trim()) : null,
-            now,
-            customerId
-          ]
-        );
-      }
-      let profile = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
-      if (!profile) {
-        Database.run(
-          `INSERT INTO customer_profiles (id, user_id, bio, avatar, date_of_birth, gender, created_at, updated_at)
-           VALUES (?, ?, ?, '', ?, ?, ?, ?)`,
-          [
-            `cust-prof-${v4_default()}`,
-            customerId,
-            input.bio !== void 0 ? sanitizeText(input.bio.trim()) : "",
-            input.dateOfBirth || null,
-            input.gender || null,
-            now,
-            now
-          ]
-        );
-      } else {
-        Database.run(
-          `UPDATE customer_profiles SET
-            bio = COALESCE(?, bio),
-            date_of_birth = COALESCE(?, date_of_birth),
-            gender = COALESCE(?, gender),
-            updated_at = ?
-           WHERE user_id = ?`,
-          [
-            input.bio !== void 0 ? sanitizeText(input.bio.trim()) : null,
-            input.dateOfBirth !== void 0 ? input.dateOfBirth : null,
-            input.gender !== void 0 ? input.gender : null,
-            now,
-            customerId
-          ]
-        );
-      }
-    });
-    logAuditEvent(customerId, user.role, "CUSTOMER_PROFILE_UPDATED", "customer_profiles", customerId, {
-      name: input.name,
-      phone: input.phone
-    });
-    return this.getProfile(customerId);
-  }
-  static async updateAvatar(customerId, base64Data, baseUrl) {
-    if (!base64Data || typeof base64Data !== "string") {
-      throw AppError.badRequest("Avatar image data is required");
-    }
-    if (base64Data.length > 7e6) {
-      throw AppError.badRequest("Avatar image size exceeds the 5MB maximum limit.");
-    }
-    const isDataUrl = base64Data.startsWith("data:image/");
-    const isHttpUrl = base64Data.startsWith("http://") || base64Data.startsWith("https://");
-    const isUploadPath = base64Data.startsWith("/uploads/");
-    if (!isDataUrl && !isHttpUrl && !isUploadPath) {
-      throw AppError.badRequest("Invalid image format. Supported formats: JPEG, PNG, WebP.");
-    }
-    const processedAvatar = await StorageService.processImagePayload(base64Data, "avatars", baseUrl);
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.transaction(() => {
-      Database.run(
-        "UPDATE users SET profile_image = ?, updated_at = ? WHERE id = ?",
-        [processedAvatar, now, customerId]
-      );
-      let cp = Database.get("SELECT id FROM customer_profiles WHERE user_id = ?", [customerId]);
-      if (!cp) {
-        Database.run(
-          `INSERT INTO customer_profiles (id, user_id, bio, avatar, created_at, updated_at)
-           VALUES (?, ?, '', ?, ?, ?)`,
-          [`cust-prof-${v4_default()}`, customerId, processedAvatar, now, now]
-        );
-      } else {
-        Database.run(
-          "UPDATE customer_profiles SET avatar = ?, updated_at = ? WHERE user_id = ?",
-          [processedAvatar, now, customerId]
-        );
-      }
-    });
-    logAuditEvent(customerId, "customer", "CUSTOMER_AVATAR_UPDATED", "users", customerId);
-    return { success: true, avatar: processedAvatar };
-  }
-  static removeAvatar(customerId) {
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.transaction(() => {
-      Database.run(
-        'UPDATE users SET profile_image = "", updated_at = ? WHERE id = ?',
-        [now, customerId]
-      );
-      Database.run(
-        'UPDATE customer_profiles SET avatar = "", updated_at = ? WHERE user_id = ?',
-        [now, customerId]
-      );
-    });
-    logAuditEvent(customerId, "customer", "CUSTOMER_AVATAR_REMOVED", "users", customerId);
-    return { success: true, avatar: "" };
-  }
-  static getSettings(customerId) {
-    const profile = Database.get(
-      "SELECT notification_preferences FROM customer_profiles WHERE user_id = ?",
-      [customerId]
-    );
-    let prefs = {
-      orders: true,
-      delivery: true,
-      payments: true,
-      promos: false,
-      chat: true
-    };
-    if (profile?.notification_preferences) {
-      try {
-        prefs = { ...prefs, ...JSON.parse(profile.notification_preferences) };
-      } catch {
-      }
-    }
-    return prefs;
-  }
-  static updateSettings(customerId, settings) {
-    const current = this.getSettings(customerId);
-    const merged = { ...current, ...settings };
-    const jsonStr = JSON.stringify(merged);
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    Database.run(
-      "UPDATE customer_profiles SET notification_preferences = ?, updated_at = ? WHERE user_id = ?",
-      [jsonStr, now, customerId]
-    );
-    return merged;
-  }
-};
+// server/src/controllers/customerController.ts
+init_customerProfileService();
 
 // server/src/services/addressService.ts
 init_database();
@@ -98107,7 +99312,7 @@ app.use((0, import_cookie_parser.default)());
 app.use(sanitizeRequestInputs);
 app.use("/api", apiLimiter);
 app.use("/api", deviceBanMiddleware);
-var activeUploadDir = process.env.VERCEL ? path5.join("/tmp", "uploads") : env.UPLOAD_DIR;
+var activeUploadDir = process.env.VERCEL ? path6.join("/tmp", "uploads") : env.UPLOAD_DIR;
 app.use(
   "/uploads",
   import_express25.default.static(activeUploadDir, {
@@ -98141,8 +99346,8 @@ init_database();
 
 // server/src/db/migrate.ts
 init_database();
-import fs3 from "fs";
-import path6 from "path";
+import fs4 from "fs";
+import path7 from "path";
 
 // server/src/db/schemaSql.ts
 var SCHEMA_SQL = `-- ==========================================================
@@ -98164,6 +99369,7 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL CHECK(role IN ('customer', 'farmer', 'admin')),
   profile_image TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'suspended')),
+  last_seen_at TEXT DEFAULT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -98404,6 +99610,9 @@ CREATE TABLE IF NOT EXISTS conversations (
   customer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
   product_id TEXT REFERENCES products(id) ON DELETE SET NULL,
+  last_message_at TEXT DEFAULT NULL,
+  muted_by_customer INTEGER NOT NULL DEFAULT 0,
+  muted_by_farmer INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   UNIQUE(customer_id, farmer_id)
@@ -98416,9 +99625,32 @@ CREATE TABLE IF NOT EXISTS messages (
   sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   sender_role TEXT NOT NULL CHECK(sender_role IN ('user', 'farmer', 'admin')),
   message TEXT NOT NULL,
+  client_msg_id TEXT DEFAULT NULL,
+  status TEXT NOT NULL DEFAULT 'sent',
+  delivered_at TEXT DEFAULT NULL,
+  reply_to_id TEXT DEFAULT NULL,
+  attachments_json TEXT DEFAULT NULL,
+  edited_at TEXT DEFAULT NULL,
+  deleted_at TEXT DEFAULT NULL,
   read_at TEXT,
   created_at TEXT NOT NULL
 );
+
+-- 13b. Authenticated Chat File Attachments Table
+CREATE TABLE IF NOT EXISTS chat_attachments (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  message_id TEXT REFERENCES messages(id) ON DELETE SET NULL,
+  uploader_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  original_name TEXT NOT NULL,
+  stored_key TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL CHECK(size_bytes > 0),
+  storage_url TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_chat_attachments_conv ON chat_attachments(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_chat_attachments_msg ON chat_attachments(message_id);
 
 -- 14. Reviews Table
 CREATE TABLE IF NOT EXISTS reviews (
@@ -98439,6 +99671,9 @@ CREATE TABLE IF NOT EXISTS notifications (
   type TEXT NOT NULL CHECK(type IN ('order', 'verification', 'chat', 'system')),
   title TEXT NOT NULL,
   message TEXT NOT NULL,
+  conversation_id TEXT DEFAULT NULL,
+  message_id TEXT DEFAULT NULL,
+  source_key TEXT DEFAULT NULL,
   is_read INTEGER NOT NULL DEFAULT 0,
   read_at TEXT,
   created_at TEXT NOT NULL
@@ -98526,6 +99761,8 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_farmer ON order_items(farmer_id);
 CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(conversation_id, sender_id, read_at);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_actor ON audit_logs(actor_id);
@@ -98931,9 +100168,9 @@ CREATE INDEX IF NOT EXISTS idx_saved_searches_user ON saved_searches(user_id);
 function runMigrations() {
   let schemaSql = SCHEMA_SQL;
   try {
-    const schemaPath = path6.resolve(process.cwd(), "server", "src", "db", "schema.sql");
-    if (fs3.existsSync(schemaPath)) {
-      schemaSql = fs3.readFileSync(schemaPath, "utf8");
+    const schemaPath = path7.resolve(process.cwd(), "server", "src", "db", "schema.sql");
+    if (fs4.existsSync(schemaPath)) {
+      schemaSql = fs4.readFileSync(schemaPath, "utf8");
     }
   } catch {
   }
@@ -99364,6 +100601,79 @@ function runMigrations() {
   try {
     db.exec(`ALTER TABLE products ADD COLUMN show_phone_number INTEGER DEFAULT 1;`);
   } catch {
+  }
+  try {
+    const ensureColumns = (table, defs) => {
+      const existingCols = new Set(
+        db.prepare(`PRAGMA table_info("${table}")`).all().map((c5) => c5.name)
+      );
+      if (existingCols.size === 0) return;
+      for (const col of defs) {
+        if (!existingCols.has(col.name)) {
+          db.exec(`ALTER TABLE "${table}" ADD COLUMN ${col.sql};`);
+        }
+      }
+    };
+    ensureColumns("users", [{ name: "last_seen_at", sql: "last_seen_at TEXT DEFAULT NULL" }]);
+    ensureColumns("conversations", [
+      { name: "last_message_at", sql: "last_message_at TEXT DEFAULT NULL" },
+      { name: "muted_by_customer", sql: "muted_by_customer INTEGER NOT NULL DEFAULT 0" },
+      { name: "muted_by_farmer", sql: "muted_by_farmer INTEGER NOT NULL DEFAULT 0" }
+    ]);
+    ensureColumns("messages", [
+      { name: "client_msg_id", sql: "client_msg_id TEXT DEFAULT NULL" },
+      { name: "status", sql: "status TEXT NOT NULL DEFAULT 'sent'" },
+      { name: "delivered_at", sql: "delivered_at TEXT DEFAULT NULL" },
+      { name: "reply_to_id", sql: "reply_to_id TEXT DEFAULT NULL" },
+      { name: "attachments_json", sql: "attachments_json TEXT DEFAULT NULL" },
+      { name: "edited_at", sql: "edited_at TEXT DEFAULT NULL" },
+      { name: "deleted_at", sql: "deleted_at TEXT DEFAULT NULL" }
+    ]);
+    ensureColumns("notifications", [
+      { name: "conversation_id", sql: "conversation_id TEXT DEFAULT NULL" },
+      { name: "message_id", sql: "message_id TEXT DEFAULT NULL" },
+      { name: "source_key", sql: "source_key TEXT DEFAULT NULL" }
+    ]);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS chat_attachments (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        message_id TEXT REFERENCES messages(id) ON DELETE SET NULL,
+        uploader_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        original_name TEXT NOT NULL,
+        stored_key TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL CHECK(size_bytes > 0),
+        storage_url TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_chat_attachments_conv ON chat_attachments(conversation_id);
+      CREATE INDEX IF NOT EXISTS idx_chat_attachments_msg ON chat_attachments(message_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at DESC);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_client_id ON messages(conversation_id, client_msg_id) WHERE client_msg_id IS NOT NULL;
+      CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(conversation_id, sender_id, read_at);
+      CREATE INDEX IF NOT EXISTS idx_messages_undelivered ON messages(conversation_id, sender_id, delivered_at);
+      CREATE INDEX IF NOT EXISTS idx_conversations_last_msg ON conversations(last_message_at DESC, updated_at DESC);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_source_key ON notifications(user_id, source_key) WHERE source_key IS NOT NULL;
+    `);
+    db.exec(`
+      UPDATE conversations
+      SET last_message_at = COALESCE(
+        (SELECT MAX(created_at) FROM messages m WHERE m.conversation_id = conversations.id),
+        updated_at
+      )
+      WHERE last_message_at IS NULL;
+
+      UPDATE messages
+      SET status = CASE
+        WHEN read_at IS NOT NULL THEN 'read'
+        WHEN delivered_at IS NOT NULL THEN 'delivered'
+        ELSE 'sent'
+      END
+      WHERE status IS NULL OR status = '';
+    `);
+  } catch (chatMigErr) {
+    console.warn("[Migration] Notice on chat schema enhancement:", chatMigErr.message);
   }
   console.log("[Migration] Database schema migrated successfully.");
 }

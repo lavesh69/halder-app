@@ -1,19 +1,33 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ApiClient, getApiBaseUrl } from '../api/client';
+import type { ChatAttachmentItem, ChatPresenceInfo, ChatReplyPreview } from '../types';
+import {
+  type ChatWsMessage,
+  type OutboxQueueItem,
+  computeBackoffDelayMs,
+  generateClientMessageId,
+  isNonRetryableError,
+  loadCachedMessages,
+  loadOutboxQueue,
+  mergeMessages,
+  normalizeMessage,
+  outboxItemToMessage,
+  removeOutboxItem,
+  saveCachedMessages,
+  upsertOutboxItem,
+} from './chatSocketUtils';
 
-export interface ChatWsMessage {
-  id: string;
-  conversation_id?: string;
-  conversationId?: string;
-  sender_id?: string;
-  senderId?: string;
-  sender_role?: 'user' | 'farmer' | 'admin';
-  senderRole?: 'user' | 'farmer' | 'admin';
-  message: string;
-  read_at?: string | null;
-  readAt?: string | null;
-  created_at?: string;
-  createdAt?: string;
+export type { ChatWsMessage };
+export { normalizeMessage };
+
+export type ChatConnectionStatus = 'connected' | 'connecting' | 'reconnecting' | 'fallback' | 'offline';
+
+export interface SendMessagePayloadOptions {
+  replyToId?: string | null;
+  replyTo?: ChatReplyPreview | null;
+  attachmentIds?: string[];
+  attachments?: ChatAttachmentItem[];
+  clientMessageId?: string;
 }
 
 export interface UseChatSocketOptions {
@@ -24,23 +38,41 @@ export interface UseChatSocketOptions {
   onMessageReceived?: (message: ChatWsMessage) => void;
   onTyping?: (data: { conversationId: string; userId: string; userName?: string; isTyping: boolean }) => void;
   onRead?: (data: { conversationId: string; userId: string; readAt: string }) => void;
+  onPresence?: (data: ChatPresenceInfo & { userId: string }) => void;
   autoConnect?: boolean;
 }
 
 export interface UseChatSocketReturn {
   isConnected: boolean;
+  isOnline: boolean;
   isConnecting: boolean;
+  connectionStatus: ChatConnectionStatus;
   messages: ChatWsMessage[];
+  isLoadingHistory: boolean;
+  isLoadingMore: boolean;
+  hasMoreHistory: boolean;
+  historyError: string | null;
   isOtherUserTyping: boolean;
   typingUserName: string | null;
+  partnerPresence: ChatPresenceInfo | null;
+  pendingCount: number;
+  failedCount: number;
   error: string | null;
-  sendMessage: (text: string) => Promise<ChatWsMessage | null>;
+  sendMessage: (text: string, options?: SendMessagePayloadOptions) => Promise<ChatWsMessage | null>;
+  retryMessage: (clientMessageId: string) => Promise<ChatWsMessage | null>;
+  discardFailedMessage: (clientMessageId: string) => void;
+  editMessage: (messageId: string, newText: string) => Promise<ChatWsMessage | null>;
+  deleteMessage: (messageId: string) => Promise<boolean>;
   sendTyping: (isTyping: boolean) => void;
   markAsRead: () => Promise<void>;
   loadHistory: (convId?: string) => Promise<ChatWsMessage[]>;
+  loadOlderMessages: () => Promise<ChatWsMessage[]>;
+  searchMessages: (query: string) => Promise<ChatWsMessage[]>;
   reconnect: () => void;
   clearError: () => void;
 }
+
+const MAX_WS_RECONNECT_ATTEMPTS = 10;
 
 /**
  * Dynamically resolves the WebSocket URL based on environment or window location.
@@ -68,24 +100,10 @@ export function getWebSocketUrl(token?: string | null): string {
   return wsUrl;
 }
 
-/**
- * Normalizes message object from backend (handling snake_case / camelCase parity)
- */
-export function normalizeMessage(msg: any): ChatWsMessage {
-  return {
-    id: msg.id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-    conversation_id: msg.conversation_id || msg.conversationId,
-    conversationId: msg.conversationId || msg.conversation_id,
-    sender_id: msg.sender_id || msg.senderId,
-    senderId: msg.senderId || msg.sender_id,
-    sender_role: msg.sender_role || msg.senderRole || 'user',
-    senderRole: msg.senderRole || msg.sender_role || 'user',
-    message: msg.message || msg.text || '',
-    read_at: msg.read_at !== undefined ? msg.read_at : (msg.readAt !== undefined ? msg.readAt : null),
-    readAt: msg.readAt !== undefined ? msg.readAt : (msg.read_at !== undefined ? msg.read_at : null),
-    created_at: msg.created_at || msg.createdAt || new Date().toISOString(),
-    createdAt: msg.createdAt || msg.created_at || new Date().toISOString(),
-  };
+function notifyChatUpdated(conversationId?: string | null) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('halder:chat-updated', { detail: { conversationId } }));
+  }
 }
 
 export function useChatSocket({
@@ -96,706 +114,979 @@ export function useChatSocket({
   onMessageReceived,
   onTyping,
   onRead,
+  onPresence,
   autoConnect = true,
 }: UseChatSocketOptions = {}): UseChatSocketReturn {
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [isHttpOnline, setIsHttpOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [wsConnected, setWsConnected] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatWsMessage[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [hasMoreHistory, setHasMoreHistory] = useState<boolean>(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState<boolean>(false);
   const [typingUserName, setTypingUserName] = useState<string | null>(null);
+  const [partnerPresence, setPartnerPresence] = useState<ChatPresenceInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const myTypingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const retryCountRef = useRef<number>(0);
-  const isMountedRef = useRef<boolean>(true);
-  const activeConversationIdRef = useRef<string | null | undefined>(conversationId);
+  const reconnectAttemptsRef = useRef<number>(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const outgoingTypingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingEmitRef = useRef<number>(0);
+  const pendingAckWaitersRef = useRef<
+    Map<string, { resolve: (msg: ChatWsMessage) => void; timer: ReturnType<typeof setTimeout> }>
+  >(new Map());
+  const flushingOutboxRef = useRef<boolean>(false);
+  const activeConvIdRef = useRef<string | null | undefined>(conversationId);
+  const currentUserIdRef = useRef<string | null | undefined>(currentUserId);
+  const userRoleRef = useRef(userRole);
+  const isOnlineRef = useRef(isOnline);
+  const wsConnectedRef = useRef(wsConnected);
+  const lastSyncedTimestampRef = useRef<string | null>(null);
+  const connectRef = useRef<() => void>(() => {});
+
+  const onMessageReceivedRef = useRef(onMessageReceived);
+  const onTypingRef = useRef(onTyping);
+  const onReadRef = useRef(onRead);
+  const onPresenceRef = useRef(onPresence);
 
   useEffect(() => {
-    activeConversationIdRef.current = conversationId;
+    activeConvIdRef.current = conversationId;
   }, [conversationId]);
 
-  // Resolve current token
-  const getAuthToken = useCallback(() => {
-    return token || (typeof localStorage !== 'undefined' ? localStorage.getItem('halder-auth-token') : null);
-  }, [token]);
+  useEffect(() => {
+    currentUserIdRef.current = currentUserId;
+    userRoleRef.current = userRole;
+  }, [currentUserId, userRole]);
 
-  // Load message history via REST API and localStorage cache
-  const loadHistory = useCallback(async (convId?: string): Promise<ChatWsMessage[]> => {
-    const targetConvId = convId || activeConversationIdRef.current;
-    if (!targetConvId) return [];
+  useEffect(() => {
+    isOnlineRef.current = isOnline;
+  }, [isOnline]);
 
-    // 1. Instantly hydrate from local storage cache so chat is NEVER blank
-    let cachedList: ChatWsMessage[] = [];
-    try {
-      const saved = localStorage.getItem(`halder-chat-${targetConvId}`);
-      if (saved) {
-        cachedList = JSON.parse(saved).map(normalizeMessage);
-        if (cachedList.length > 0 && isMountedRef.current) {
-          setMessages(cachedList);
-        }
-      }
-    } catch {}
+  useEffect(() => {
+    wsConnectedRef.current = wsConnected;
+  }, [wsConnected]);
 
-    if (!ApiClient.hasToken()) return cachedList;
+  useEffect(() => {
+    onMessageReceivedRef.current = onMessageReceived;
+    onTypingRef.current = onTyping;
+    onReadRef.current = onRead;
+    onPresenceRef.current = onPresence;
+  }, [onMessageReceived, onTyping, onRead, onPresence]);
 
-    try {
-      const res = await ApiClient.getMessages(targetConvId);
-      const rawList = Array.isArray(res) ? res : (res?.messages || res?.data || []);
-      if (Array.isArray(rawList)) {
-        const normalized = rawList.map(normalizeMessage);
-        if (isMountedRef.current) {
-          setMessages(normalized);
-          setIsHttpOnline(true);
-          try {
-            localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(normalized.slice(-50)));
-          } catch {}
-        }
-        return normalized;
-      }
-      return cachedList;
-    } catch (err: any) {
-      console.warn('[useChatSocket] Failed to load message history via REST:', err.message);
-      return cachedList;
+  useEffect(() => {
+    const serverMsgs = messages.filter((m) => !m.localOnly);
+    if (serverMsgs.length > 0) {
+      lastSyncedTimestampRef.current =
+        serverMsgs[serverMsgs.length - 1].createdAt ||
+        serverMsgs[serverMsgs.length - 1].created_at ||
+        null;
     }
-  }, []);
+  }, [messages]);
 
-  // Send typed event via WebSocket
-  const sendWsPayload = useCallback((payload: Record<string, any>): boolean => {
+  const sendRaw = useCallback((data: Record<string, unknown>): boolean => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       try {
-        wsRef.current.send(JSON.stringify(payload));
+        wsRef.current.send(JSON.stringify(data));
         return true;
-      } catch (e) {
-        console.warn('[useChatSocket] Failed to send WebSocket payload:', e);
+      } catch {
         return false;
       }
     }
     return false;
   }, []);
 
-  // Emit Read Receipt (WS + REST fallback)
-  const markAsRead = useCallback(async () => {
-    const targetConvId = activeConversationIdRef.current;
-    if (!targetConvId) return;
+  const joinRoom = useCallback(
+    (convId: string) => {
+      if (!convId) return false;
+      const authToken = token || ApiClient.getToken();
+      return sendRaw({
+        type: 'chat:join',
+        conversationId: convId,
+        token: authToken || undefined,
+      });
+    },
+    [sendRaw, token]
+  );
 
-    // Send via WS
-    sendWsPayload({
-      type: 'chat:read',
-      conversationId: targetConvId,
+  // Merge incoming server messages while preserving persisted outbox entries
+  const applyMergedMessages = useCallback((convId: string, updater: (prev: ChatWsMessage[]) => ChatWsMessage[]) => {
+    setMessages((prev) => {
+      const next = updater(prev);
+      saveCachedMessages(convId, next);
+      return next;
     });
+  }, []);
 
-    // Send via REST fallback
-    try {
-      await ApiClient.request(`/chat/conversations/${targetConvId}/read`, {
-        method: 'PATCH',
-      });
-    } catch {
-      // Ignore or retry via POST
-      try {
-        await ApiClient.request(`/chat/conversations/${targetConvId}/read`, {
-          method: 'POST',
-        });
-      } catch {}
-    }
-
-    // Optimistically mark messages as read locally
-    if (isMountedRef.current) {
-      const now = new Date().toISOString();
-      setMessages((prev) =>
-        prev.map((m) => {
-          if (!m.read_at && !m.readAt) {
-            return {
-              ...m,
-              read_at: now,
-              readAt: now,
-            };
-          }
-          return m;
-        })
-      );
-    }
-  }, [sendWsPayload]);
-
-  // Emit Typing Indicator
-  const sendTyping = useCallback(
-    (isTyping: boolean) => {
-      const targetConvId = activeConversationIdRef.current;
-      if (!targetConvId) return;
-
-      sendWsPayload({
-        type: 'chat:typing',
-        conversationId: targetConvId,
-        isTyping,
-      });
-
-      if (isTyping) {
-        // Auto-stop typing after 3 seconds if no new keystroke
-        if (myTypingStopTimerRef.current) {
-          clearTimeout(myTypingStopTimerRef.current);
-        }
-        myTypingStopTimerRef.current = setTimeout(() => {
-          sendWsPayload({
-            type: 'chat:typing',
-            conversationId: targetConvId,
-            isTyping: false,
-          });
-        }, 3000);
-      }
-    },
-    [sendWsPayload]
-  );
-
-  // Send message via WebSocket with seamless REST fallback
-  const sendMessage = useCallback(
-    async (text: string): Promise<ChatWsMessage | null> => {
-      const targetConvId = activeConversationIdRef.current;
-      const cleanText = text.trim();
-      if (!targetConvId || !cleanText) return null;
-
-      // Stop any typing indicator
-      sendTyping(false);
-
-      const authToken = getAuthToken();
-
-      // Try sending via WebSocket first
-      const sentViaWs = sendWsPayload({
-        type: 'chat:send',
-        conversationId: targetConvId,
-        message: cleanText,
-        token: authToken,
-      });
-
-      if (sentViaWs) {
-        // Optimistic local preview message (will be confirmed or updated on server echo)
-        const optimisticMsg: ChatWsMessage = {
-          id: `opt-${Date.now()}`,
-          conversation_id: targetConvId,
-          conversationId: targetConvId,
-          sender_id: currentUserId || 'current-user',
-          senderId: currentUserId || 'current-user',
-          sender_role: userRole || 'user',
-          senderRole: userRole || 'user',
-          message: cleanText,
-          read_at: null,
-          readAt: null,
-          created_at: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        };
-
-        if (isMountedRef.current) {
-          setMessages((prev) => {
-            const next = [...prev, optimisticMsg];
-            try {
-              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
-            } catch {}
-            return next;
-          });
-        }
-
-        return optimisticMsg;
+  // Load initial paginated history for active conversation
+  const loadHistory = useCallback(
+    async (convId?: string): Promise<ChatWsMessage[]> => {
+      const targetId = convId || activeConvIdRef.current;
+      if (!targetId) {
+        setMessages([]);
+        setHasMoreHistory(false);
+        setNextCursor(null);
+        return [];
       }
 
-      // REST API Fallback if WebSocket is disconnected or send failed
-      try {
-        const res = await ApiClient.sendChatMessage(targetConvId, cleanText);
-        const serverMsg = res?.message || res?.data || res;
-        const normalized = normalizeMessage(serverMsg);
+      const cached = loadCachedMessages(targetId);
+      const outbox = loadOutboxQueue(targetId).map(outboxItemToMessage);
+      if (cached.length > 0 || outbox.length > 0) {
+        setMessages(mergeMessages(cached, outbox));
+      }
 
-        if (isMountedRef.current) {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === normalized.id)) return prev;
-            const next = [...prev, normalized];
-            try {
-              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
-            } catch {}
+      setIsLoadingHistory(true);
+      setHistoryError(null);
+      try {
+        const res = await ApiClient.getMessages(targetId, { limit: 30 });
+        const list = res?.messages || res?.data || [];
+        const normalized = Array.isArray(list) ? list.map(normalizeMessage) : [];
+        const latestOutbox = loadOutboxQueue(targetId).map(outboxItemToMessage);
+        if (activeConvIdRef.current === targetId) {
+          applyMergedMessages(targetId, (prev) => {
+            const inFlightConfirmed = prev.filter(
+              (m) => !m.localOnly && (m.conversationId === targetId || m.conversation_id === targetId)
+            );
+            const next = mergeMessages(inFlightConfirmed, mergeMessages(normalized, latestOutbox));
+            saveCachedMessages(targetId, next);
             return next;
           });
+          setHasMoreHistory(Boolean(res?.pagination?.hasMore));
+          setNextCursor(res?.pagination?.nextCursor || (normalized[0]?.createdAt ?? null));
         }
-        return normalized;
+        return mergeMessages(normalized, latestOutbox);
       } catch (err: any) {
-        console.warn('[useChatSocket] REST send fallback to local message:', err.message);
-        const localMsg: ChatWsMessage = {
-          id: `local-${Date.now()}`,
-          conversation_id: targetConvId,
-          conversationId: targetConvId,
-          sender_id: currentUserId || 'local-buyer',
-          senderId: currentUserId || 'local-buyer',
-          sender_role: userRole || 'user',
-          senderRole: userRole || 'user',
-          message: cleanText,
-          read_at: null,
-          readAt: null,
-          created_at: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
+        if (activeConvIdRef.current === targetId) {
+          setHistoryError(err?.message || 'Unable to load conversation history.');
+        }
+        return [];
+      } finally {
+        if (activeConvIdRef.current === targetId) {
+          setIsLoadingHistory(false);
+        }
+      }
+    },
+    []
+  );
+
+  // Lazy-load older message pages via cursor pagination
+  const loadOlderMessages = useCallback(async (): Promise<ChatWsMessage[]> => {
+    const targetId = activeConvIdRef.current;
+    if (!targetId || !nextCursor || isLoadingMore || !hasMoreHistory) return [];
+
+    setIsLoadingMore(true);
+    try {
+      const res = await ApiClient.getMessages(targetId, { limit: 30, before: nextCursor });
+      const list = res?.messages || res?.data || [];
+      const normalized = Array.isArray(list) ? list.map(normalizeMessage) : [];
+      if (activeConvIdRef.current === targetId) {
+        applyMergedMessages(targetId, (prev) => mergeMessages(normalized, prev));
+        setHasMoreHistory(Boolean(res?.pagination?.hasMore));
+        setNextCursor(res?.pagination?.nextCursor || (normalized[0]?.createdAt ?? nextCursor));
+      }
+      return normalized;
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load older messages.');
+      return [];
+    } finally {
+      if (activeConvIdRef.current === targetId) {
+        setIsLoadingMore(false);
+      }
+    }
+  }, [nextCursor, isLoadingMore, hasMoreHistory, applyMergedMessages]);
+
+  // Incremental delta sync on reconnect / visibility restore / REST fallback
+  const syncMissedMessages = useCallback(async (convId?: string) => {
+    const targetId = convId || activeConvIdRef.current;
+    if (!targetId || !isOnlineRef.current) return;
+    const since = lastSyncedTimestampRef.current;
+    try {
+      const res = since
+        ? await ApiClient.getMessages(targetId, { after: since })
+        : await ApiClient.getMessages(targetId, { limit: 30 });
+      const list = res?.messages || res?.data || [];
+      const normalized = Array.isArray(list) ? list.map(normalizeMessage) : [];
+      if (normalized.length > 0 && activeConvIdRef.current === targetId) {
+        applyMergedMessages(targetId, (prev) => mergeMessages(prev, normalized));
+        notifyChatUpdated(targetId);
+      }
+    } catch {
+      // Non-fatal background delta sync
+    }
+  }, [applyMergedMessages]);
+
+  const searchMessages = useCallback(async (query: string): Promise<ChatWsMessage[]> => {
+    const targetId = activeConvIdRef.current;
+    if (!targetId || !query.trim()) return [];
+    const res = await ApiClient.getMessages(targetId, { q: query.trim() });
+    const list = res?.messages || res?.data || [];
+    return Array.isArray(list) ? list.map(normalizeMessage) : [];
+  }, []);
+
+  // Internal dispatch function shared by new send, manual retry, and auto-flush
+  const dispatchOutboxItem = useCallback(
+    async (item: OutboxQueueItem): Promise<ChatWsMessage | null> => {
+      const targetConvId = item.conversationId;
+
+      if (!isOnlineRef.current) {
+        const failedItem: OutboxQueueItem = {
+          ...item,
+          status: 'failed',
+          error: 'You appear offline. Message queued to retry when back online.',
         };
-
-        if (isMountedRef.current) {
-          setMessages((prev) => {
-            const next = [...prev, localMsg];
-            try {
-              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
-            } catch {}
-            return next;
-          });
+        upsertOutboxItem(targetConvId, failedItem);
+        if (activeConvIdRef.current === targetConvId) {
+          applyMergedMessages(targetConvId, (prev) =>
+            mergeMessages(prev, [outboxItemToMessage(failedItem)])
+          );
         }
-
-        // Automatic simulated response from farmer for local/guest preview
-        setTimeout(() => {
-          if (!isMountedRef.current) return;
-          const isHindi = typeof window !== 'undefined' && localStorage.getItem('halder-language') === 'hi';
-          let replyText = isHindi
-            ? 'नमस्ते! यह फसल आज सुबह ही ताज़ा तोड़ी गई है। आप सीधे ऑर्डर कर सकते हैं।'
-            : 'Hello! This produce was harvested fresh today. You can order directly.';
-          const lower = cleanText.toLowerCase();
-          if (lower.includes('price') || lower.includes('rate') || lower.includes('भाव') || lower.includes('कम')) {
-            replyText = isHindi
-              ? 'यह हमारा सर्वोत्तम मंडी-सीधा रेट है, कोई बिचौलिया कमीशन नहीं है।'
-              : 'This is our best direct-from-farm mandi rate with zero middleman markup.';
-          } else if (lower.includes('available') || lower.includes('उपलब्ध') || lower.includes('stock')) {
-            replyText = isHindi
-              ? 'हाँजी, हमारे पास पर्याप्त ताज़ा स्टॉक उपलब्ध है!'
-              : 'Yes, we have plenty of fresh stock ready for dispatch!';
-          } else if (lower.includes('delivery') || lower.includes('location') || lower.includes('farm')) {
-            replyText = isHindi
-              ? 'हम फार्म से सीधा डिलीवरी या पिकअप दोनों की सुविधा देते हैं।'
-              : 'We provide both direct farm pickup and fast delivery options.';
-          }
-
-          const replyMsg: ChatWsMessage = {
-            id: `reply-${Date.now()}`,
-            conversation_id: targetConvId,
-            conversationId: targetConvId,
-            sender_id: 'farmer-auto-reply',
-            senderId: 'farmer-auto-reply',
-            sender_role: 'farmer',
-            senderRole: 'farmer',
-            message: replyText,
-            read_at: null,
-            readAt: null,
-            created_at: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-          };
-
-          setMessages((prev) => {
-            const next = [...prev, replyMsg];
-            try {
-              localStorage.setItem(`halder-chat-${targetConvId}`, JSON.stringify(next.slice(-50)));
-            } catch {}
-            return next;
-          });
-        }, 800);
-
-        return localMsg;
+        return null;
       }
-    },
-    [sendWsPayload, sendTyping, getAuthToken, currentUserId, userRole]
-  );
 
-  // Handle incoming WebSocket messages
-  const handleIncomingMessage = useCallback(
-    (event: MessageEvent) => {
+      // 1. Try real-time WS path first with explicit chat:ack confirmation
+      const wsDispatched =
+        wsRef.current?.readyState === WebSocket.OPEN &&
+        sendRaw({
+          type: 'chat:send',
+          conversationId: targetConvId,
+          message: item.message,
+          clientMessageId: item.clientMessageId,
+          replyToId: item.replyToId || undefined,
+          attachmentIds: item.attachmentIds,
+        });
+
+      if (wsDispatched) {
+        const acked = await new Promise<ChatWsMessage | null>((resolve) => {
+          const timer = setTimeout(() => {
+            pendingAckWaitersRef.current.delete(item.clientMessageId);
+            resolve(null);
+          }, 4000);
+          pendingAckWaitersRef.current.set(item.clientMessageId, {
+            resolve: (serverMsg) => {
+              clearTimeout(timer);
+              resolve(serverMsg);
+            },
+            timer,
+          });
+        });
+
+        if (acked) {
+          removeOutboxItem(targetConvId, item.clientMessageId);
+          notifyChatUpdated(targetConvId);
+          return acked;
+        }
+      }
+
+      // 2. Reliable REST fallback using identical clientMessageId for idempotency
       try {
-        const payload = JSON.parse(event.data);
-        const eventType = payload.type || payload.event || '';
-        const data = payload.data || payload;
-
-        switch (eventType) {
-          case 'connected':
-          case 'chat:authenticated': {
-            if (isMountedRef.current) {
-              setIsConnected(true);
-              setIsConnecting(false);
-              setError(null);
-            }
-            retryCountRef.current = 0;
-
-            // Join conversation room if active
-            const currentConv = activeConversationIdRef.current;
-            if (currentConv) {
-              const currentToken = getAuthToken();
-              sendWsPayload({
-                type: 'chat:join',
-                conversationId: currentConv,
-                token: currentToken,
-              });
-            }
-            break;
-          }
-
-          case 'pong':
-          case 'chat:pong': {
-            // Heartbeat received
-            break;
-          }
-
-          case 'chat:joined': {
-            // Successfully joined room
-            break;
-          }
-
-          case 'chat:message':
-          case 'new_message':
-          case 'message': {
-            const rawMsg = data.message || data;
-            const normalized = normalizeMessage(rawMsg);
-
-            if (isMountedRef.current) {
-              setMessages((prev) => {
-                // Deduplicate by message ID or replace matching optimistic message
-                const exists = prev.some((m) => m.id === normalized.id);
-                if (exists) return prev;
-                // Remove optimistic messages with identical text if sent recently
-                const filtered = prev.filter((m) => !m.id.startsWith('opt-') || m.message !== normalized.message);
-                return [...filtered, normalized];
-              });
-
-              // If message is from other party and conversation is open, mark as read
-              if (normalized.sender_id && currentUserId && normalized.sender_id !== currentUserId) {
-                markAsRead();
-              }
-            }
-
-            if (onMessageReceived) {
-              onMessageReceived(normalized);
-            }
-            break;
-          }
-
-          case 'chat:typing':
-          case 'user_typing':
-          case 'typing': {
-            const typingData = {
-              conversationId: data.conversationId || payload.conversationId,
-              userId: data.userId || payload.userId,
-              userName: data.userName || payload.userName || 'User',
-              isTyping: Boolean(data.isTyping !== undefined ? data.isTyping : payload.isTyping),
-            };
-
-            const isCurrentConv = typingData.conversationId === activeConversationIdRef.current;
-            const isNotMe = !currentUserId || typingData.userId !== currentUserId;
-
-            if (isCurrentConv && isNotMe && isMountedRef.current) {
-              setIsOtherUserTyping(typingData.isTyping);
-              setTypingUserName(typingData.isTyping ? typingData.userName : null);
-
-              // Auto-clear typing after 4 seconds
-              if (typingTimerRef.current) {
-                clearTimeout(typingTimerRef.current);
-              }
-              if (typingData.isTyping) {
-                typingTimerRef.current = setTimeout(() => {
-                  if (isMountedRef.current) {
-                    setIsOtherUserTyping(false);
-                    setTypingUserName(null);
-                  }
-                }, 4000);
-              }
-            }
-
-            if (onTyping) {
-              onTyping(typingData);
-            }
-            break;
-          }
-
-          case 'chat:read':
-          case 'messages_read':
-          case 'read': {
-            const readData = {
-              conversationId: data.conversationId || payload.conversationId,
-              userId: data.userId || payload.userId,
-              readAt: data.readAt || payload.readAt || new Date().toISOString(),
-            };
-
-            if (readData.conversationId === activeConversationIdRef.current && isMountedRef.current) {
-              setMessages((prev) =>
-                prev.map((m) => {
-                  if (!m.read_at && !m.readAt) {
-                    return {
-                      ...m,
-                      read_at: readData.readAt,
-                      readAt: readData.readAt,
-                    };
-                  }
-                  return m;
-                })
-              );
-            }
-
-            if (onRead) {
-              onRead(readData);
-            }
-            break;
-          }
-
-          case 'chat:error':
-          case 'error': {
-            console.warn('[useChatSocket] Server Error Event:', data.message || payload.message);
-            if (isMountedRef.current && data.code !== 'BAD_REQUEST') {
-              setError(data.message || 'WebSocket server error');
-            }
-            break;
-          }
-
-          default:
-            break;
+        const res = await ApiClient.sendChatMessage(targetConvId, item.message, {
+          clientMessageId: item.clientMessageId,
+          replyToId: item.replyToId || undefined,
+          attachmentIds: item.attachmentIds,
+        });
+        const confirmed = normalizeMessage(res?.data || res);
+        removeOutboxItem(targetConvId, item.clientMessageId);
+        if (activeConvIdRef.current === targetConvId) {
+          applyMergedMessages(targetConvId, (prev) => mergeMessages(prev, [confirmed]));
         }
-      } catch (err) {
-        console.warn('[useChatSocket] Error parsing incoming WS frame:', err);
+        notifyChatUpdated(targetConvId);
+        return confirmed;
+      } catch (err: any) {
+        const errMsg = err?.message || 'Failed to deliver message to server.';
+        if (isNonRetryableError(err)) {
+          setError(errMsg);
+        }
+        const failedItem: OutboxQueueItem = {
+          ...item,
+          status: 'failed',
+          error: errMsg,
+          attempts: item.attempts + 1,
+        };
+        upsertOutboxItem(targetConvId, failedItem);
+        if (activeConvIdRef.current === targetConvId) {
+          applyMergedMessages(targetConvId, (prev) =>
+            mergeMessages(prev, [outboxItemToMessage(failedItem)])
+          );
+        }
+        return null;
       }
     },
-    [getAuthToken, sendWsPayload, currentUserId, markAsRead, onMessageReceived, onTyping, onRead]
+    [sendRaw, applyMergedMessages]
   );
 
-  // Connect / Reconnect function with exponential backoff
-  const connectRef = useRef<() => void>(() => {});
-  const connect = useCallback(() => {
-    if (typeof window === 'undefined') return;
+  // Flush queued/failed outbox items sequentially on reconnect or network restoration
+  const flushOutbox = useCallback(async () => {
+    const targetId = activeConvIdRef.current;
+    if (!targetId || flushingOutboxRef.current || !isOnlineRef.current) return;
 
-    // Close any previous socket cleanly
+    const queued = loadOutboxQueue(targetId);
+    if (queued.length === 0) return;
+
+    flushingOutboxRef.current = true;
+    try {
+      for (const item of queued) {
+        const sendingState: OutboxQueueItem = { ...item, status: 'sending', error: undefined };
+        upsertOutboxItem(targetId, sendingState);
+        if (activeConvIdRef.current === targetId) {
+          applyMergedMessages(targetId, (prev) =>
+            mergeMessages(prev, [outboxItemToMessage(sendingState)])
+          );
+        }
+        await dispatchOutboxItem(sendingState);
+      }
+    } finally {
+      flushingOutboxRef.current = false;
+    }
+  }, [dispatchOutboxItem, applyMergedMessages]);
+
+  // Connect & bind WebSocket lifecycle
+  const connect = useCallback(() => {
+    const authToken = token || ApiClient.getToken();
+    if (!authToken) return;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setIsOnline(false);
+      setWsConnected(false);
+      setIsConnecting(false);
+      return;
+    }
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      if (activeConvIdRef.current) {
+        joinRoom(activeConvIdRef.current);
+      }
+      return;
+    }
+
     if (wsRef.current) {
       try {
-        wsRef.current.onclose = null;
-        wsRef.current.onerror = null;
-        wsRef.current.onmessage = null;
-        wsRef.current.onopen = null;
         wsRef.current.close();
       } catch {}
-      wsRef.current = null;
     }
 
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
     }
-
-    if (heartbeatIntervalRef.current) {
-      clearInterval(heartbeatIntervalRef.current);
-      heartbeatIntervalRef.current = null;
-    }
-
-    const authToken = getAuthToken();
-    const wsUrl = getWebSocketUrl(authToken);
 
     setIsConnecting(true);
-
     try {
+      const wsUrl = getWebSocketUrl(authToken);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        if (!isMountedRef.current) return;
-        setIsConnected(true);
+        if (wsRef.current !== ws) return;
+        reconnectAttemptsRef.current = 0;
+        setWsConnected(true);
         setIsConnecting(false);
+        setIsReconnecting(false);
         setError(null);
-        retryCountRef.current = 0;
 
-        // Authenticate explicitly if token present
-        if (authToken) {
-          sendWsPayload({ type: 'auth', token: authToken });
+        sendRaw({ type: 'authenticate', token: authToken });
+        if (activeConvIdRef.current) {
+          joinRoom(activeConvIdRef.current);
+          syncMissedMessages(activeConvIdRef.current);
         }
+        flushOutbox();
 
-        // Join room
-        const activeConv = activeConversationIdRef.current;
-        if (activeConv) {
-          sendWsPayload({
-            type: 'chat:join',
-            conversationId: activeConv,
-            token: authToken,
-          });
-        }
-
-        // Setup 25-second heartbeat ping
-        heartbeatIntervalRef.current = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'ping' }));
-          }
+        if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
+        pingIntervalRef.current = setInterval(() => {
+          sendRaw({ type: 'ping' });
         }, 25000);
       };
 
-      ws.onmessage = handleIncomingMessage;
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          const eventType = payload.type || payload.event;
+          const data = payload.data || payload;
 
-      ws.onerror = (err) => {
-        console.warn('[useChatSocket] WebSocket error event:', err);
+          switch (eventType) {
+            case 'connected':
+            case 'authenticated':
+            case 'chat:authenticated': {
+              if (data?.authenticated !== false && activeConvIdRef.current) {
+                joinRoom(activeConvIdRef.current);
+              }
+              break;
+            }
+
+            case 'chat:joined': {
+              if (data?.conversationId === activeConvIdRef.current && data?.partnerPresence) {
+                setPartnerPresence(data.partnerPresence);
+              }
+              break;
+            }
+
+            case 'chat:ack': {
+              const clientMsgId = data?.clientMessageId || data?.message?.clientMessageId;
+              const serverMsg = data?.message ? normalizeMessage(data.message) : null;
+              if (serverMsg && activeConvIdRef.current === serverMsg.conversationId) {
+                removeOutboxItem(serverMsg.conversationId!, clientMsgId || serverMsg.id);
+                applyMergedMessages(serverMsg.conversationId!, (prev) =>
+                  mergeMessages(prev, [serverMsg])
+                );
+              }
+              if (clientMsgId && pendingAckWaitersRef.current.has(clientMsgId)) {
+                const waiter = pendingAckWaitersRef.current.get(clientMsgId)!;
+                pendingAckWaitersRef.current.delete(clientMsgId);
+                if (serverMsg) waiter.resolve(serverMsg);
+              }
+              break;
+            }
+
+            case 'chat:message':
+            case 'message':
+            case 'new_message': {
+              const rawMsg = data?.message && typeof data.message === 'object' ? data.message : data;
+              const norm = normalizeMessage(rawMsg);
+              const msgConvId = norm.conversationId || norm.conversation_id;
+
+              if (msgConvId && msgConvId === activeConvIdRef.current) {
+                if (norm.clientMessageId) {
+                  removeOutboxItem(msgConvId, norm.clientMessageId);
+                }
+                applyMergedMessages(msgConvId, (prev) => mergeMessages(prev, [norm]));
+
+                if (norm.senderId !== currentUserIdRef.current) {
+                  setIsOtherUserTyping(false);
+                  setTypingUserName(null);
+                  sendRaw({ type: 'chat:delivered', conversationId: msgConvId });
+                }
+              }
+
+              notifyChatUpdated(msgConvId);
+              onMessageReceivedRef.current?.(norm);
+              break;
+            }
+
+            case 'chat:delivered': {
+              const convId = data?.conversationId;
+              const deliveredAt = data?.deliveredAt || new Date().toISOString();
+              const ids: string[] | null = Array.isArray(data?.messageIds) ? data.messageIds : null;
+
+              if (convId && convId === activeConvIdRef.current) {
+                applyMergedMessages(convId, (prev) =>
+                  prev.map((m) => {
+                    const isMine = m.senderId === currentUserIdRef.current;
+                    if (!isMine || m.status === 'read') return m;
+                    if (ids && !ids.includes(m.id)) return m;
+                    return {
+                      ...m,
+                      status: m.readAt ? 'read' : 'delivered',
+                      delivered_at: m.delivered_at || deliveredAt,
+                      deliveredAt: m.deliveredAt || deliveredAt,
+                    };
+                  })
+                );
+              }
+              break;
+            }
+
+            case 'chat:read':
+            case 'read': {
+              const convId = data?.conversationId;
+              const readAt = data?.readAt || new Date().toISOString();
+              if (convId && convId === activeConvIdRef.current) {
+                applyMergedMessages(convId, (prev) =>
+                  prev.map((m) =>
+                    m.senderId === currentUserIdRef.current || data.userId !== m.senderId
+                      ? {
+                          ...m,
+                          status: 'read',
+                          delivered_at: m.delivered_at || readAt,
+                          deliveredAt: m.deliveredAt || readAt,
+                          read_at: m.read_at || readAt,
+                          readAt: m.readAt || readAt,
+                        }
+                      : m
+                  )
+                );
+              }
+              onReadRef.current?.(data);
+              notifyChatUpdated(convId);
+              break;
+            }
+
+            case 'chat:message_edited': {
+              const convId = data?.conversationId;
+              const updated = data?.message ? normalizeMessage(data.message) : null;
+              if (updated && convId === activeConvIdRef.current) {
+                applyMergedMessages(convId, (prev) => mergeMessages(prev, [updated]));
+              }
+              notifyChatUpdated(convId);
+              break;
+            }
+
+            case 'chat:message_deleted': {
+              const convId = data?.conversationId;
+              const msgId = data?.messageId || data?.message?.id;
+              const deletedAt = data?.deletedAt || data?.message?.deletedAt || new Date().toISOString();
+              if (msgId && convId === activeConvIdRef.current) {
+                applyMergedMessages(convId, (prev) =>
+                  prev.map((m) =>
+                    m.id === msgId
+                      ? {
+                          ...m,
+                          message: '',
+                          attachments: [],
+                          deletedAt,
+                          deleted_at: deletedAt,
+                        }
+                      : m
+                  )
+                );
+              }
+              notifyChatUpdated(convId);
+              break;
+            }
+
+            case 'chat:typing':
+            case 'typing': {
+              if (
+                data.conversationId === activeConvIdRef.current &&
+                data.userId !== currentUserIdRef.current
+              ) {
+                setIsOtherUserTyping(Boolean(data.isTyping));
+                setTypingUserName(data.isTyping ? data.userName || 'User' : null);
+
+                if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                if (data.isTyping) {
+                  typingTimeoutRef.current = setTimeout(() => {
+                    setIsOtherUserTyping(false);
+                    setTypingUserName(null);
+                  }, 4000);
+                }
+              }
+              onTypingRef.current?.(data);
+              break;
+            }
+
+            case 'chat:presence': {
+              if (data?.userId && data.userId !== currentUserIdRef.current) {
+                setPartnerPresence((prev) => {
+                  if (prev?.userId && prev.userId !== data.userId) return prev;
+                  return {
+                    userId: data.userId,
+                    isOnline: Boolean(data.isOnline),
+                    lastSeenAt: data.lastSeenAt || prev?.lastSeenAt || null,
+                  };
+                });
+                onPresenceRef.current?.(data);
+              }
+              break;
+            }
+
+            case 'chat:notification': {
+              notifyChatUpdated(data?.conversationId);
+              break;
+            }
+
+            case 'chat:error':
+            case 'error': {
+              setError(data?.message || payload?.message || 'Chat operation error');
+              break;
+            }
+
+            default:
+              break;
+          }
+        } catch {
+          // Ignore malformed WS frames
+        }
       };
 
-      ws.onclose = (event) => {
-        if (!isMountedRef.current) return;
-        setIsConnected(false);
+      ws.onclose = () => {
+        if (wsRef.current === ws) {
+          wsRef.current = null;
+        }
+        setWsConnected(false);
         setIsConnecting(false);
 
-        if (heartbeatIntervalRef.current) {
-          clearInterval(heartbeatIntervalRef.current);
-          heartbeatIntervalRef.current = null;
+        if (pingIntervalRef.current) {
+          clearInterval(pingIntervalRef.current);
+          pingIntervalRef.current = null;
         }
 
-        // If not deliberately closed (e.g. 1000 normal closure), schedule auto-reconnection with backoff
-        if (event.code !== 1000) {
-          const attempt = retryCountRef.current;
-          // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s + jitter
-          const baseDelay = Math.min(1000 * Math.pow(2, attempt), 30000);
-          const jitter = Math.random() * 800;
-          const delay = baseDelay + jitter;
-          retryCountRef.current += 1;
+        if (!autoConnect || !isOnlineRef.current) return;
 
-          reconnectTimeoutRef.current = setTimeout(() => {
-            if (isMountedRef.current) {
-              connectRef.current();
-            }
+        if (reconnectAttemptsRef.current < MAX_WS_RECONNECT_ATTEMPTS) {
+          const delay = computeBackoffDelayMs(reconnectAttemptsRef.current);
+          reconnectAttemptsRef.current += 1;
+          setIsReconnecting(true);
+          reconnectTimerRef.current = setTimeout(() => {
+            connectRef.current();
           }, delay);
+        } else {
+          setIsReconnecting(false);
         }
       };
-    } catch (err: any) {
-      console.warn('[useChatSocket] Connection initiation error:', err);
+
+      ws.onerror = () => {
+        setIsConnecting(false);
+      };
+    } catch {
       setIsConnecting(false);
-      setIsConnected(false);
+      setWsConnected(false);
     }
-  }, [getAuthToken, sendWsPayload, handleIncomingMessage]);
+  }, [token, autoConnect, joinRoom, sendRaw, applyMergedMessages, flushOutbox, syncMissedMessages]);
+
+  // Network online/offline + cross-tab storage/visibility listeners
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      isOnlineRef.current = true;
+      reconnectAttemptsRef.current = 0;
+      connect();
+      syncMissedMessages();
+      flushOutbox();
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      isOnlineRef.current = false;
+      setWsConnected(false);
+      setIsReconnecting(false);
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+    };
+    const handleVisibility = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && isOnlineRef.current) {
+        syncMissedMessages();
+        if (!wsConnectedRef.current && autoConnect) {
+          reconnectAttemptsRef.current = 0;
+          connect();
+        }
+      }
+    };
+    const handleStorage = (ev: StorageEvent) => {
+      const targetId = activeConvIdRef.current;
+      if (!targetId || !ev.key) return;
+      if (ev.key === `halder-chat-cache-${targetId}` || ev.key === `halder-chat-outbox-${targetId}`) {
+        const cached = loadCachedMessages(targetId);
+        const outbox = loadOutboxQueue(targetId).map(outboxItemToMessage);
+        setMessages(mergeMessages(cached, outbox));
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+      window.addEventListener('storage', handleStorage);
+      document?.addEventListener?.('visibilitychange', handleVisibility);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener('storage', handleStorage);
+        document?.removeEventListener?.('visibilitychange', handleVisibility);
+      }
+    };
+  }, [autoConnect, connect, flushOutbox, syncMissedMessages]);
 
   useEffect(() => {
     connectRef.current = connect;
   }, [connect]);
 
-  // Initial connection & cleanup lifecycle
+  // Connect WebSocket when active/authenticated
   useEffect(() => {
-    isMountedRef.current = true;
-
-    if (autoConnect) {
-      connect();
+    let active = true;
+    const hasAuth = Boolean(token || ApiClient.getToken());
+    const ackWaiters = pendingAckWaitersRef.current;
+    if (autoConnect && hasAuth && isOnline) {
+      queueMicrotask(() => {
+        if (active) connectRef.current();
+      });
     }
 
     return () => {
-      isMountedRef.current = false;
-
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-      }
-      if (myTypingStopTimerRef.current) {
-        clearTimeout(myTypingStopTimerRef.current);
-      }
-
+      active = false;
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (outgoingTypingStopTimerRef.current) clearTimeout(outgoingTypingStopTimerRef.current);
+      ackWaiters.forEach((waiter) => clearTimeout(waiter.timer));
+      ackWaiters.clear();
       if (wsRef.current) {
         try {
-          // Send leave before closing
-          const conv = activeConversationIdRef.current;
-          if (conv && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: 'chat:leave', conversationId: conv }));
-          }
-          wsRef.current.close(1000, 'Component unmounted');
+          wsRef.current.close();
         } catch {}
         wsRef.current = null;
       }
     };
-  }, [autoConnect, connect]);
+  }, [autoConnect, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle conversationId change: join new room, leave old room, load message history
+  // Load history and join room whenever conversationId switches
   useEffect(() => {
-    if (conversationId) {
-      loadHistory(conversationId);
-
-      if (isConnected && wsRef.current?.readyState === WebSocket.OPEN) {
-        const authToken = getAuthToken();
-        sendWsPayload({
-          type: 'chat:join',
-          conversationId,
-          token: authToken,
-        });
-      }
-    } else {
-      setMessages([]);
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
       setIsOtherUserTyping(false);
       setTypingUserName(null);
+      setPartnerPresence(null);
+      setHasMoreHistory(false);
+      setNextCursor(null);
+      setHistoryError(null);
+      if (!conversationId) {
+        setMessages([]);
+      }
+    });
+    lastSyncedTimestampRef.current = null;
+
+    if (conversationId) {
+      loadHistory(conversationId).then(() => {
+        if (active) flushOutbox();
+      });
+
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        joinRoom(conversationId);
+      }
     }
 
     return () => {
-      if (conversationId && wsRef.current?.readyState === WebSocket.OPEN) {
-        sendWsPayload({
-          type: 'chat:leave',
-          conversationId,
-        });
-      }
+      active = false;
     };
-  }, [conversationId, isConnected, getAuthToken, sendWsPayload, loadHistory]);
+  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Active REST polling fallback for Vercel Serverless / disconnected environments
-  useEffect(() => {
-    if (!conversationId) return;
-    // If real WebSocket is alive and functional, skip polling
-    if (isConnected) return;
+  // Public sendMessage with persistent outbox + idempotent clientMessageId
+  const sendMessage = useCallback(
+    async (text: string, options?: SendMessagePayloadOptions): Promise<ChatWsMessage | null> => {
+      const targetConvId = activeConvIdRef.current;
+      const trimmed = (text || '').trim();
+      const hasAttachments = Boolean(options?.attachmentIds && options.attachmentIds.length > 0);
+      if (!targetConvId || (!trimmed && !hasAttachments)) return null;
 
-    let isPollingActive = true;
-    const fetchLatest = async () => {
-      if (!isPollingActive || !isMountedRef.current) return;
-      if (!ApiClient.hasToken()) return;
+      const senderId = currentUserIdRef.current || '';
+      const clientMessageId = options?.clientMessageId || generateClientMessageId();
+      const item: OutboxQueueItem = {
+        clientMessageId,
+        conversationId: targetConvId,
+        senderId,
+        senderRole: userRoleRef.current,
+        message: trimmed,
+        replyToId: options?.replyToId || null,
+        replyTo: options?.replyTo || null,
+        attachmentIds: options?.attachmentIds,
+        attachments: options?.attachments,
+        status: 'sending',
+        createdAt: new Date().toISOString(),
+        attempts: 0,
+      };
+
+      upsertOutboxItem(targetConvId, item);
+      const optimisticMsg = outboxItemToMessage(item);
+      applyMergedMessages(targetConvId, (prev) => mergeMessages(prev, [optimisticMsg]));
+
+      // Clear typing indicator on send
+      if (outgoingTypingStopTimerRef.current) {
+        clearTimeout(outgoingTypingStopTimerRef.current);
+        outgoingTypingStopTimerRef.current = null;
+      }
+      sendRaw({ type: 'chat:typing', conversationId: targetConvId, isTyping: false });
+
+      return dispatchOutboxItem(item);
+    },
+    [applyMergedMessages, dispatchOutboxItem, sendRaw]
+  );
+
+  const retryMessage = useCallback(
+    async (clientMessageId: string): Promise<ChatWsMessage | null> => {
+      const targetConvId = activeConvIdRef.current;
+      if (!targetConvId) return null;
+      const queue = loadOutboxQueue(targetConvId);
+      const item = queue.find((q) => q.clientMessageId === clientMessageId);
+      if (!item) return null;
+
+      const retrying: OutboxQueueItem = { ...item, status: 'sending', error: undefined };
+      upsertOutboxItem(targetConvId, retrying);
+      applyMergedMessages(targetConvId, (prev) =>
+        mergeMessages(prev, [outboxItemToMessage(retrying)])
+      );
+      return dispatchOutboxItem(retrying);
+    },
+    [applyMergedMessages, dispatchOutboxItem]
+  );
+
+  const discardFailedMessage = useCallback((clientMessageId: string) => {
+    const targetConvId = activeConvIdRef.current;
+    if (!targetConvId) return;
+    removeOutboxItem(targetConvId, clientMessageId);
+    setMessages((prev) => prev.filter((m) => m.id !== clientMessageId && m.clientMessageId !== clientMessageId));
+  }, []);
+
+  const editMessage = useCallback(
+    async (messageId: string, newText: string): Promise<ChatWsMessage | null> => {
+      const targetConvId = activeConvIdRef.current;
+      const trimmed = newText.trim();
+      if (!targetConvId || !messageId || !trimmed) return null;
+
       try {
-        const res = await ApiClient.getMessages(conversationId);
-        const rawList = Array.isArray(res) ? res : (res?.messages || res?.data || []);
-        if (Array.isArray(rawList) && isMountedRef.current) {
-          const normalized = rawList.map(normalizeMessage);
-          setIsHttpOnline(true);
-          setMessages((prev) => {
-            // Check if identical to prevent re-render
-            if (prev.length === normalized.length && prev.length > 0) {
-              const lastOld = prev[prev.length - 1];
-              const lastNew = normalized[normalized.length - 1];
-              if (
-                lastOld?.id === lastNew?.id &&
-                (lastOld?.readAt || lastOld?.read_at) === (lastNew?.readAt || lastNew?.read_at)
-              ) {
-                return prev;
-              }
-            }
-            // Preserve any pending optimistic messages that haven't been echoed yet
-            const serverIds = new Set(normalized.map((m) => m.id));
-            const pendingOptimistic = prev.filter(
-              (m) => (m.id.startsWith('msg-') || m.id.startsWith('opt-') || m.id.startsWith('local-')) && !serverIds.has(m.id)
-            );
-            const merged = [...normalized, ...pendingOptimistic];
-            try {
-              localStorage.setItem(`halder-chat-${conversationId}`, JSON.stringify(merged.slice(-50)));
-            } catch {}
-            return merged;
-          });
-        }
-      } catch {
-        // Silent catch during periodic background polling
+        const res = await ApiClient.editChatMessage(targetConvId, messageId, trimmed);
+        const updated = normalizeMessage(res?.data || res);
+        applyMergedMessages(targetConvId, (prev) => mergeMessages(prev, [updated]));
+        notifyChatUpdated(targetConvId);
+        return updated;
+      } catch (err: any) {
+        setError(err?.message || 'Failed to edit message.');
+        return null;
       }
-    };
+    },
+    [applyMergedMessages]
+  );
 
-    fetchLatest();
-    const pollTimer = setInterval(fetchLatest, 2000);
+  const deleteMessage = useCallback(
+    async (messageId: string): Promise<boolean> => {
+      const targetConvId = activeConvIdRef.current;
+      if (!targetConvId || !messageId) return false;
 
-    return () => {
-      isPollingActive = false;
-      clearInterval(pollTimer);
-    };
-  }, [conversationId, isConnected]);
+      try {
+        const res = await ApiClient.deleteChatMessage(targetConvId, messageId);
+        const deleted = normalizeMessage(res?.data || res);
+        applyMergedMessages(targetConvId, (prev) => mergeMessages(prev, [deleted]));
+        notifyChatUpdated(targetConvId);
+        return true;
+      } catch (err: any) {
+        setError(err?.message || 'Failed to delete message.');
+        return false;
+      }
+    },
+    [applyMergedMessages]
+  );
+
+  const sendTyping = useCallback(
+    (isTyping: boolean) => {
+      const targetId = activeConvIdRef.current;
+      if (!targetId || wsRef.current?.readyState !== WebSocket.OPEN) return;
+
+      if (!isTyping) {
+        if (outgoingTypingStopTimerRef.current) {
+          clearTimeout(outgoingTypingStopTimerRef.current);
+          outgoingTypingStopTimerRef.current = null;
+        }
+        sendRaw({ type: 'chat:typing', conversationId: targetId, isTyping: false });
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastTypingEmitRef.current >= 1500) {
+        lastTypingEmitRef.current = now;
+        sendRaw({ type: 'chat:typing', conversationId: targetId, isTyping: true });
+      }
+
+      if (outgoingTypingStopTimerRef.current) {
+        clearTimeout(outgoingTypingStopTimerRef.current);
+      }
+      outgoingTypingStopTimerRef.current = setTimeout(() => {
+        sendRaw({ type: 'chat:typing', conversationId: targetId, isTyping: false });
+      }, 2500);
+    },
+    [sendRaw]
+  );
+
+  const markAsRead = useCallback(async () => {
+    const targetId = activeConvIdRef.current;
+    if (!targetId) return;
+
+    const readAtNow = new Date().toISOString();
+    applyMergedMessages(targetId, (prev) =>
+      prev.map((m) =>
+        m.senderId !== currentUserIdRef.current && !m.readAt
+          ? {
+              ...m,
+              read_at: readAtNow,
+              readAt: readAtNow,
+              delivered_at: m.delivered_at || readAtNow,
+              deliveredAt: m.deliveredAt || readAtNow,
+              status: 'read',
+            }
+          : m
+      )
+    );
+
+    const wsSent = sendRaw({ type: 'chat:read', conversationId: targetId });
+    if (!wsSent) {
+      try {
+        await ApiClient.markConversationRead(targetId);
+      } catch {
+        // Ignore network transient read error
+      }
+    }
+    notifyChatUpdated(targetId);
+  }, [applyMergedMessages, sendRaw]);
+
+  // Infrequent incremental fallback sync ONLY while WS is disconnected on a visible online tab
+  useEffect(() => {
+    if (!conversationId || wsConnected || !isOnline) return;
+    const pollTimer = setInterval(() => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+        syncMissedMessages(conversationId);
+      }
+    }, 12000);
+
+    return () => clearInterval(pollTimer);
+  }, [conversationId, wsConnected, isOnline, syncMissedMessages]);
+
+  const manualReconnect = useCallback(() => {
+    reconnectAttemptsRef.current = 0;
+    setError(null);
+    connect();
+    syncMissedMessages();
+    flushOutbox();
+  }, [connect, syncMissedMessages, flushOutbox]);
 
   const clearError = useCallback(() => setError(null), []);
 
+  const connectionStatus: ChatConnectionStatus = !isOnline
+    ? 'offline'
+    : wsConnected
+      ? 'connected'
+      : isReconnecting
+        ? 'reconnecting'
+        : isConnecting
+          ? 'connecting'
+          : 'fallback';
+
+  const pendingCount = messages.filter((m) => m.status === 'sending').length;
+  const failedCount = messages.filter((m) => m.status === 'failed').length;
+
   return {
-    isConnected: isConnected || isHttpOnline,
+    isConnected: wsConnected,
+    isOnline,
     isConnecting,
+    connectionStatus,
     messages,
+    isLoadingHistory,
+    isLoadingMore,
+    hasMoreHistory,
+    historyError,
     isOtherUserTyping,
     typingUserName,
+    partnerPresence,
+    pendingCount,
+    failedCount,
     error,
     sendMessage,
+    retryMessage,
+    discardFailedMessage,
+    editMessage,
+    deleteMessage,
     sendTyping,
     markAsRead,
     loadHistory,
-    reconnect: connect,
+    loadOlderMessages,
+    searchMessages,
+    reconnect: manualReconnect,
     clearError,
   };
 }

@@ -304,10 +304,19 @@ export class CustomerProfileService {
     const jsonStr = JSON.stringify(merged);
     const now = new Date().toISOString();
 
-    Database.run(
-      'UPDATE customer_profiles SET notification_preferences = ?, updated_at = ? WHERE user_id = ?',
-      [jsonStr, now, customerId]
-    );
+    const existing = Database.get<any>('SELECT id FROM customer_profiles WHERE user_id = ?', [customerId]);
+    if (existing) {
+      Database.run(
+        'UPDATE customer_profiles SET notification_preferences = ?, updated_at = ? WHERE user_id = ?',
+        [jsonStr, now, customerId]
+      );
+    } else {
+      Database.run(
+        `INSERT OR IGNORE INTO customer_profiles (id, user_id, notification_preferences, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [`cprof-${customerId}`, customerId, jsonStr, now, now]
+      );
+    }
 
     return merged;
   }

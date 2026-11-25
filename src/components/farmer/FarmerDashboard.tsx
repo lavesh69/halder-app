@@ -38,6 +38,7 @@ export const FarmerDashboard: React.FC = () => {
     currentUser,
     unreadChatCount,
     openFarmerChat,
+    showToast,
   } = useApp();
 
   const currentFarmerId = currentUser?.farmerProfileId || currentUser?.id || 'farmer-1';
@@ -358,12 +359,22 @@ export const FarmerDashboard: React.FC = () => {
 
                     <button
                       onClick={() => {
-                        openFarmerChat({
-                          id: dem.buyer_id || dem.buyerId || 'buyer-1',
-                          name: dem.buyer_name || dem.buyerName || 'Verified Buyer',
-                          phone: dem.buyer_phone || dem.buyerPhone || '+91 98765 43210',
-                          location: dem.city || 'Local Mandi',
-                        } as any, `Namaste! Regarding your requirement for ${dem.product_name || dem.productName} (${dem.required_quantity || dem.requiredQuantity} ${dem.unit || 'kg'}), I can supply fresh morning harvest.`);
+                        const buyerId = dem.buyer_id || dem.buyerId;
+                        if (!buyerId) {
+                          showToast('Buyer profile unavailable for this requirement.', 'info');
+                          return;
+                        }
+                        openFarmerChat(
+                          {
+                            id: buyerId,
+                            user_id: buyerId,
+                            name: dem.buyer_name || dem.buyerName || 'Buyer',
+                            phone: dem.buyer_phone || dem.buyerPhone || '',
+                            location: dem.city || dem.location || '',
+                            city: dem.city || '',
+                          } as any,
+                          `Namaste! Regarding your requirement for ${dem.product_name || dem.productName} (${dem.required_quantity || dem.requiredQuantity} ${dem.unit || 'kg'}), I can supply fresh morning harvest.`
+                        );
                       }}
                       className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-soft"
                     >

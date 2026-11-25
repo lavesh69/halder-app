@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL CHECK(role IN ('customer', 'farmer', 'admin')),
   profile_image TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'suspended')),
+  last_seen_at TEXT DEFAULT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -257,6 +258,9 @@ CREATE TABLE IF NOT EXISTS conversations (
   customer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   farmer_id TEXT NOT NULL REFERENCES farmer_profiles(id) ON DELETE CASCADE,
   product_id TEXT REFERENCES products(id) ON DELETE SET NULL,
+  last_message_at TEXT DEFAULT NULL,
+  muted_by_customer INTEGER NOT NULL DEFAULT 0,
+  muted_by_farmer INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   UNIQUE(customer_id, farmer_id)
@@ -269,9 +273,32 @@ CREATE TABLE IF NOT EXISTS messages (
   sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   sender_role TEXT NOT NULL CHECK(sender_role IN ('user', 'farmer', 'admin')),
   message TEXT NOT NULL,
+  client_msg_id TEXT DEFAULT NULL,
+  status TEXT NOT NULL DEFAULT 'sent',
+  delivered_at TEXT DEFAULT NULL,
+  reply_to_id TEXT DEFAULT NULL,
+  attachments_json TEXT DEFAULT NULL,
+  edited_at TEXT DEFAULT NULL,
+  deleted_at TEXT DEFAULT NULL,
   read_at TEXT,
   created_at TEXT NOT NULL
 );
+
+-- 13b. Authenticated Chat File Attachments Table
+CREATE TABLE IF NOT EXISTS chat_attachments (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  message_id TEXT REFERENCES messages(id) ON DELETE SET NULL,
+  uploader_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  original_name TEXT NOT NULL,
+  stored_key TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL CHECK(size_bytes > 0),
+  storage_url TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_chat_attachments_conv ON chat_attachments(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_chat_attachments_msg ON chat_attachments(message_id);
 
 -- 14. Reviews Table
 CREATE TABLE IF NOT EXISTS reviews (
@@ -292,6 +319,9 @@ CREATE TABLE IF NOT EXISTS notifications (
   type TEXT NOT NULL CHECK(type IN ('order', 'verification', 'chat', 'system')),
   title TEXT NOT NULL,
   message TEXT NOT NULL,
+  conversation_id TEXT DEFAULT NULL,
+  message_id TEXT DEFAULT NULL,
+  source_key TEXT DEFAULT NULL,
   is_read INTEGER NOT NULL DEFAULT 0,
   read_at TEXT,
   created_at TEXT NOT NULL
@@ -379,6 +409,8 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_farmer ON order_items(farmer_id);
 CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(conversation_id, sender_id, read_at);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_actor ON audit_logs(actor_id);

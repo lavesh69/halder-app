@@ -43,6 +43,19 @@ export const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'] as con
 export const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
+export const ALLOWED_CHAT_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'application/pdf',
+  'text/plain',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+] as const;
+export const ALLOWED_CHAT_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.pdf', '.txt', '.doc', '.docx'] as const;
+export const MAX_CHAT_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
 export const DEFAULT_DELIVERY_FEE = 25;
 export const FREE_DELIVERY_THRESHOLD = 200;
 export const DEFAULT_FARMER_TIP = 10;

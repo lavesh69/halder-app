@@ -104,8 +104,8 @@ export const MainApp: React.FC = () => {
     return <SplashScreen />;
   }
 
-  // Onboarding / Sign In
-  if (!hasSeenOnboarding) {
+  // Onboarding / Sign In (skip marketing carousel when navigating directly to /admin)
+  if (!hasSeenOnboarding && role !== 'admin') {
     return <Onboarding />;
   }
 
@@ -192,6 +192,15 @@ export const MainApp: React.FC = () => {
               className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
             >
               Sign In as Admin
+            </button>
+            <button
+              onClick={() => {
+                localStorage.setItem('halder-role', 'customer');
+                window.location.href = '/';
+              }}
+              className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline"
+            >
+              Return to Marketplace
             </button>
           </div>
         );

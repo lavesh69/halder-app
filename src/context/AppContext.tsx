@@ -184,9 +184,13 @@ interface AppContextType {
   setActiveConversationId: (id: string | null) => void;
   activeConversationProductId: string | null;
   setActiveConversationProductId: (id: string | null) => void;
+  pendingChatInitialMessage: string | null;
+  setPendingChatInitialMessage: (msg: string | null) => void;
+  chatConversationError: string | null;
+  isOpeningChat: boolean;
   openFarmerChat: (farmer: Farmer, initialMessage?: string, productId?: string) => void;
-  chatMessages: Record<string, ChatMessage[]>;
-  sendChatMessage: (farmerId: string, text: string) => void;
+  retryOpenChat: () => void;
+  openConversationById: (conversationId: string) => Promise<void>;
   unreadChatCount: number;
   setUnreadChatCount: (count: number) => void;
   chatConversations: any[];
@@ -265,8 +269,6 @@ const initialFilterState: FilterState = {
   sortBy: 'nearest',
 };
 
-const initialChatMessages: Record<string, ChatMessage[]> = {};
-
 const initialPlatformSettings: PlatformSettings = {
   platformCommissionRate: 0,
   freeDeliveryThreshold: 200,
@@ -341,6 +343,12 @@ const safeStorageSet = (key: string, value: string) => {
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>(() => {
+    if (
+      typeof window !== 'undefined' &&
+      (window.location.pathname.startsWith('/admin') || window.location.search.includes('role=admin'))
+    ) {
+      return 'admin';
+    }
     return (localStorage.getItem('halder-role') as Role) || 'customer';
   });
 
@@ -626,7 +634,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [chatFarmer, setChatFarmer] = useState<Farmer | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [activeConversationProductId, setActiveConversationProductId] = useState<string | null>(null);
-  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>(initialChatMessages);
+  const [pendingChatInitialMessage, setPendingChatInitialMessage] = useState<string | null>(null);
+  const [chatConversationError, setChatConversationError] = useState<string | null>(null);
+  const [isOpeningChat, setIsOpeningChat] = useState<boolean>(false);
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
   const [chatConversations, setChatConversations] = useState<any[]>([]);
 
@@ -849,6 +859,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (isMounted && meRes?.user) {
           setCurrentUser(meRes.user);
           setIsLoggedInState(true);
+          if (meRes.user.role) {
+            setRoleState(meRes.user.role);
+          }
           if (meRes.user.farmerProfileId) {
             ApiClient.getProducts({
               farmerId: meRes.user.farmerProfileId,
@@ -948,6 +961,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             type: n.type,
             isRead: Boolean(n.is_read),
             createdAt: n.created_at,
+            conversationId: n.conversation_id || n.conversationId || undefined,
+            messageId: n.message_id || n.messageId || undefined,
           })));
         }
       } catch {}
@@ -1550,7 +1565,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Chat
   const refreshChatConversations = async () => {
     try {
-      const res = await ApiClient.request('/chat/conversations');
+      const res = await ApiClient.getConversations();
       const list = Array.isArray(res) ? res : (res?.conversations || res?.data || []);
       if (Array.isArray(list)) {
         setChatConversations(list);
@@ -1562,94 +1577,159 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Periodic background check for new incoming messages across the entire app
+  // Event-driven + visibility-aware conversation refresh (no tight unnecessary polling)
   useEffect(() => {
     if (!isLoggedIn) return;
     refreshChatConversations();
-    const interval = setInterval(() => {
+
+    const handleChatEvent = () => {
       refreshChatConversations();
-    }, 6000);
-    return () => clearInterval(interval);
+    };
+    window.addEventListener('halder:chat-updated', handleChatEvent);
+
+    const interval = setInterval(() => {
+      if (
+        (typeof document === 'undefined' || document.visibilityState === 'visible') &&
+        (typeof navigator === 'undefined' || navigator.onLine)
+      ) {
+        refreshChatConversations();
+      }
+    }, 25000);
+
+    return () => {
+      window.removeEventListener('halder:chat-updated', handleChatEvent);
+      clearInterval(interval);
+    };
   }, [isLoggedIn]);
 
-  const openFarmerChat = (farmer: Farmer, initialMsg?: string, productId?: string) => {
-    setChatFarmer(farmer);
-    setActiveConversationProductId(productId || null);
-    setIsChatModalOpen(true);
-
-    // Asynchronously resolve or create backend SQLite conversation
+  const initiateConversationForFarmer = (farmer: Farmer, productId?: string) => {
+    if (!ApiClient.hasToken()) {
+      setChatConversationError('Please sign in to start a live chat with this participant.');
+      setIsOpeningChat(false);
+      return;
+    }
+    setIsOpeningChat(true);
+    setChatConversationError(null);
     ApiClient.createConversation(farmer.id, productId)
       .then((res: any) => {
         const conv = res?.data || res;
         if (conv?.id) {
           setActiveConversationId(conv.id);
-          if (initialMsg) {
-            ApiClient.sendChatMessage(conv.id, initialMsg).catch(() => {});
+          if (conv.otherParty) {
+            setChatFarmer((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    name: conv.otherParty.name || prev.name,
+                    avatar: conv.otherParty.avatar ?? prev.avatar,
+                    phone: conv.otherParty.phone ?? prev.phone,
+                    location: conv.otherParty.location ?? prev.location,
+                    farm_name: conv.otherParty.farmName ?? prev.farm_name,
+                    farmName: conv.otherParty.farmName ?? prev.farmName,
+                    verification_status:
+                      conv.otherParty.verificationStatus === 'verified'
+                        ? 'verified'
+                        : conv.otherParty.verificationStatus === 'rejected'
+                          ? 'rejected'
+                          : prev.verification_status,
+                    verified:
+                      typeof conv.otherParty.verificationStatus === 'string'
+                        ? conv.otherParty.verificationStatus === 'verified'
+                        : prev.verified,
+                    rating: typeof conv.otherParty.rating === 'number' ? conv.otherParty.rating : prev.rating,
+                  }
+                : prev
+            );
           }
+          refreshChatConversations();
+        } else {
+          setChatConversationError('Unable to open conversation. Please retry.');
         }
       })
-      .catch((e) => {
-        console.warn('[HALDER Chat] Offline/local conversation fallback:', e.message);
-        setActiveConversationId(`conv-${farmer.id}`);
+      .catch((e: any) => {
+        setChatConversationError(e?.message || 'Unable to start conversation. Please retry.');
+      })
+      .finally(() => {
+        setIsOpeningChat(false);
       });
+  };
 
-    if (initialMsg) {
-      sendChatMessage(farmer.id, initialMsg);
+  const openFarmerChat = (farmer: Farmer, initialMsg?: string, productId?: string) => {
+    if (!farmer?.id) {
+      showToast('Participant profile unavailable.', 'error');
+      return;
+    }
+    setChatFarmer(farmer);
+    setActiveConversationId(null);
+    setActiveConversationProductId(productId || null);
+    setPendingChatInitialMessage(initialMsg || null);
+    setChatConversationError(null);
+    setIsChatModalOpen(true);
+
+    initiateConversationForFarmer(farmer, productId);
+  };
+
+  const retryOpenChat = () => {
+    if (chatFarmer) {
+      initiateConversationForFarmer(chatFarmer, activeConversationProductId || undefined);
     }
   };
 
-  const sendChatMessage = (farmerId: string, text: string) => {
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      farmerId,
-      sender: 'user',
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  const openConversationById = async (conversationId: string) => {
+    if (!conversationId) return;
+    let conv = chatConversations.find((c: any) => c.id === conversationId);
+    if (!conv) {
+      try {
+        const res = await ApiClient.getConversations();
+        const list = Array.isArray(res) ? res : (res?.conversations || res?.data || []);
+        if (Array.isArray(list)) {
+          setChatConversations(list);
+          conv = list.find((c: any) => c.id === conversationId);
+        }
+      } catch {
+        // Ignore network error and validate below
+      }
+    }
+
+    if (!conv || !conv.otherParty) {
+      showToast('Conversation could not be found or access was denied.', 'error');
+      return;
+    }
+
+    const other = conv.otherParty;
+    const participant: Farmer = {
+      id: other.farmerProfileId || other.userId || conv.farmerId || conv.customerId,
+      user_id: other.userId || '',
+      name: other.name,
+      farm_name: other.farmName || '',
+      farmName: other.farmName || '',
+      bio: '',
+      description: '',
+      avatar: other.avatar || '',
+      cover_image: '',
+      phone: other.phone || '',
+      location: other.location || '',
+      city: other.location || '',
+      latitude: 0,
+      longitude: 0,
+      verification_status: other.verificationStatus === 'verified' ? 'verified' : other.verificationStatus === 'rejected' ? 'rejected' : 'pending',
+      verified: other.verificationStatus === 'verified',
+      rating: typeof other.rating === 'number' ? other.rating : 0,
+      reviews_count: 0,
+      total_orders: 0,
+      total_listings_count: 0,
+      response_rate: 0,
+      joined_year: 0,
+      badges: [],
+      created_at: conv.createdAt || new Date().toISOString(),
     };
 
-    setChatMessages((prev) => ({
-      ...prev,
-      [farmerId]: [...(prev[farmerId] || []), newMsg],
-    }));
-
-    setTimeout(() => {
-      const isHindi = typeof window !== 'undefined' && localStorage.getItem('halder-language') === 'hi';
-      let replyText = isHindi
-        ? 'हाँजी, यह फसल आज सुबह ही ताज़ा तोड़ी गई है! आप सीधे ऑर्डर कर सकते हैं।'
-        : 'Yes, this produce is freshly harvested today! You can place the order directly.';
-
-      const lower = text.toLowerCase();
-      if (lower.includes('available') || lower.includes('उपलब्ध') || lower.includes('stock')) {
-        replyText = isHindi
-          ? 'हाँजी, हमारे पास पर्याप्त ताज़ा स्टॉक उपलब्ध है। सुबह की ताज़ा कटाई!'
-          : 'Yes, we have fresh stock available right now. Plucked early morning!';
-      } else if (lower.includes('location') || lower.includes('farm') || lower.includes('खेत') || lower.includes('कहाँ')) {
-        replyText = isHindi
-          ? 'हमारा खेत पास ही में है, आप फार्म से सीधा पिकअप या डिलीवरी ले सकते हैं।'
-          : 'Our farm is at Rajpur Road, just 2.4 km from Clock Tower.';
-      } else if (lower.includes('price') || lower.includes('rate') || lower.includes('भाव') || lower.includes('कम')) {
-        replyText = isHindi
-          ? 'यह हमारा सर्वोत्तम मंडी-सीधा रेट है, बिना किसी बिचौलिया कमीशन के।'
-          : 'This is our best direct-from-farm mandi rate with zero middleman markup.';
-      } else if (lower.includes('5 kg') || lower.includes('kg') || lower.includes('किलो')) {
-        replyText = isHindi
-          ? 'ज़रूर! आप जितनी मात्रा चाहें चुनकर घर बैठे डिलीवरी ले सकते हैं।'
-          : 'Sure! Please select the desired quantity and place your order.';
-      }
-
-      const reply: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        farmerId,
-        sender: 'farmer',
-        text: replyText,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-
-      setChatMessages((prev) => ({
-        ...prev,
-        [farmerId]: [...(prev[farmerId] || []), reply],
-      }));
-    }, 900);
+    setChatFarmer(participant);
+    setActiveConversationProductId(conv.productId || conv.product?.id || null);
+    setPendingChatInitialMessage(null);
+    setChatConversationError(null);
+    setActiveConversationId(conv.id);
+    setIsChatModalOpen(true);
   };
 
   // Orders
@@ -2220,9 +2300,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveConversationId,
         activeConversationProductId,
         setActiveConversationProductId,
+        pendingChatInitialMessage,
+        setPendingChatInitialMessage,
+        chatConversationError,
+        isOpeningChat,
         openFarmerChat,
-        chatMessages,
-        sendChatMessage,
+        retryOpenChat,
+        openConversationById,
         unreadChatCount,
         setUnreadChatCount,
         chatConversations,

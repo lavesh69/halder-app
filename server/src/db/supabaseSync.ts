@@ -68,6 +68,9 @@ function getConfig() {
 }
 
 export function isSupabaseEnabled(): boolean {
+  if (process.env.HALDER_DISABLE_CLOUD_SYNC === '1' || process.env.NODE_ENV === 'test') {
+    return false;
+  }
   const { url, anonKey, syncSecret } = getConfig();
   return Boolean(url && anonKey && syncSecret);
 }
@@ -134,7 +137,7 @@ async function callSupabaseRpc<T>(fnName: string, body: Record<string, unknown>,
 }
 
 export function beginSupabaseTx(): void {
-  if (!isSupabaseEnabled() || isHydrating) return;
+  if (!isSupabaseEnabled() || !isSupabaseReady || isHydrating) return;
   activeTxTables = new Set<string>();
 }
 
@@ -158,7 +161,7 @@ export function rollbackSupabaseTx(): void {
 }
 
 export function recordSupabaseWrite(sql: string): void {
-  if (!isSupabaseEnabled() || isHydrating) return;
+  if (!isSupabaseEnabled() || !isSupabaseReady || isHydrating) return;
   const table = extractTouchedTable(sql);
   if (!table) return;
 

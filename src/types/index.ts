@@ -229,6 +229,90 @@ export interface Order {
   vehicleNumber?: string;
 }
 
+export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+
+export interface ChatAttachmentItem {
+  id: string;
+  conversationId?: string;
+  messageId?: string | null;
+  uploaderId?: string;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  isImage?: boolean;
+  url: string;
+  createdAt?: string;
+}
+
+export interface ChatReplyPreview {
+  id: string;
+  senderId?: string;
+  senderRole?: string;
+  message: string;
+  deletedAt?: string | null;
+}
+
+export interface ChatMessageItem {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderRole: 'user' | 'farmer' | 'admin';
+  message: string;
+  clientMessageId?: string;
+  status: ChatMessageStatus;
+  deliveredAt?: string | null;
+  readAt?: string | null;
+  editedAt?: string | null;
+  deletedAt?: string | null;
+  replyToId?: string | null;
+  replyTo?: ChatReplyPreview | null;
+  attachments?: ChatAttachmentItem[];
+  createdAt: string;
+  error?: string;
+}
+
+export interface ChatPresenceInfo {
+  userId?: string;
+  isOnline: boolean;
+  lastSeenAt?: string | null;
+}
+
+export interface ChatOtherParty {
+  userId: string;
+  farmerProfileId?: string;
+  name: string;
+  role: string;
+  avatar?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  verificationStatus?: string;
+  farmName?: string;
+  rating?: number;
+  isOnline?: boolean;
+  lastSeenAt?: string | null;
+}
+
+export interface ChatConversationItem {
+  id: string;
+  customerId: string;
+  farmerId: string;
+  productId?: string | null;
+  lastMessage?: string | null;
+  lastMessageAt?: string | null;
+  unreadCount: number;
+  isMuted: boolean;
+  product?: {
+    id: string;
+    name: string;
+    unit?: string;
+    image?: string;
+  } | null;
+  otherParty?: ChatOtherParty | null;
+  partnerPresence?: ChatPresenceInfo | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ChatMessage {
   id: string;
   farmerId: string;
@@ -257,6 +341,8 @@ export interface AppNotification {
   type: 'order' | 'verification' | 'chat' | 'system' | 'offer' | 'negotiation' | 'deal' | 'requirement' | 'quotation' | 'alert' | 'stock';
   isRead: boolean;
   createdAt: string;
+  conversationId?: string;
+  messageId?: string;
 }
 
 export interface FilterState {

@@ -41,6 +41,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
     notifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
+    openConversationById,
     role,
     showToast,
   } = useApp();
@@ -60,6 +61,11 @@ export const NotificationModal: React.FC<NotificationModalProps> = () => {
 
   const handleNotificationClick = (notif: any) => {
     markNotificationAsRead(notif.id);
+    const convId = notif.conversationId || notif.conversation_id;
+    if (notif.type === 'chat' && convId) {
+      setIsNotificationModalOpen(false);
+      openConversationById(convId);
+    }
   };
 
   return (

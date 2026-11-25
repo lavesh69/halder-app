@@ -523,8 +523,10 @@ export class ApiClient {
   }
 
   // Chat APIs
-  static getConversations() {
-    return this.request('/chat/conversations');
+  static getConversations(search?: string) {
+    return this.request('/chat/conversations', {
+      params: search?.trim() ? { search: search.trim() } : undefined,
+    });
   }
 
   static createConversation(farmerId: string, productId?: string) {
@@ -534,14 +536,41 @@ export class ApiClient {
     });
   }
 
-  static getMessages(conversationId: string) {
-    return this.request(`/chat/conversations/${conversationId}/messages`);
+  static getMessages(
+    conversationId: string,
+    options?: { limit?: number; before?: string; after?: string; q?: string }
+  ) {
+    return this.request(`/chat/conversations/${conversationId}/messages`, {
+      params: options,
+    });
   }
 
-  static sendChatMessage(conversationId: string, message: string) {
+  static sendChatMessage(
+    conversationId: string,
+    message: string,
+    options?: { clientMessageId?: string; replyToId?: string; attachmentIds?: string[] }
+  ) {
     return this.request(`/chat/conversations/${conversationId}/messages`, {
       method: 'POST',
+      body: {
+        message,
+        clientMessageId: options?.clientMessageId,
+        replyToId: options?.replyToId,
+        attachmentIds: options?.attachmentIds,
+      },
+    });
+  }
+
+  static editChatMessage(conversationId: string, messageId: string, message: string) {
+    return this.request(`/chat/conversations/${conversationId}/messages/${messageId}`, {
+      method: 'PATCH',
       body: { message },
+    });
+  }
+
+  static deleteChatMessage(conversationId: string, messageId: string) {
+    return this.request(`/chat/conversations/${conversationId}/messages/${messageId}`, {
+      method: 'DELETE',
     });
   }
 
@@ -549,6 +578,116 @@ export class ApiClient {
     return this.request(`/chat/conversations/${conversationId}/read`, {
       method: 'PATCH',
     });
+  }
+
+  static setConversationMuted(conversationId: string, muted: boolean) {
+    return this.request(`/chat/conversations/${conversationId}/mute`, {
+      method: 'PATCH',
+      body: { muted },
+    });
+  }
+
+  static resolveChatAttachmentUrl(rawUrl: string): string {
+    if (!rawUrl) return '';
+    if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith('blob:')) return rawUrl;
+    const apiBase = getApiBaseUrl();
+    const originBase = apiBase.replace(/\/api\/v1$/, '');
+    if (rawUrl.startsWith('/api/v1/')) {
+      return `${originBase}${rawUrl}`;
+    }
+    return `${apiBase}${rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`}`;
+  }
+
+  static uploadChatAttachment(
+    conversationId: string,
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<any> {
+    const MAX_BYTES = 10 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      return Promise.reject(new Error('Attachment size exceeds the 10 MB limit.'));
+    }
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = `${getApiBaseUrl()}/chat/conversations/${conversationId}/attachments`;
+      xhr.open('POST', url, true);
+      xhr.timeout = 45000;
+
+      const token = this.getToken();
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+
+      xhr.upload.onprogress = (ev) => {
+        if (ev.lengthComputable && onProgress) {
+          onProgress(Math.min(100, Math.round((ev.loaded / ev.total) * 100)));
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 401) {
+          this.clearToken();
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('halder:auth-expired'));
+          }
+        }
+
+        let parsed: any = null;
+        try {
+          parsed = JSON.parse(xhr.responseText || '{}');
+        } catch {
+          parsed = null;
+        }
+
+        if (xhr.status >= 200 && xhr.status < 300 && parsed?.success !== false) {
+          onProgress?.(100);
+          resolve(parsed?.data || parsed);
+        } else {
+          reject(
+            new Error(
+              parsed?.error?.message ||
+                parsed?.message ||
+                `Attachment upload failed (${xhr.status || 'network error'})`
+            )
+          );
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during attachment upload. Please retry.'));
+      xhr.ontimeout = () => reject(new Error('Attachment upload timed out. Please retry.'));
+
+      const formData = new FormData();
+      formData.append('file', file);
+      xhr.send(formData);
+    });
+  }
+
+  static async fetchChatAttachmentBlob(rawUrl: string): Promise<Blob> {
+    const resolvedUrl = this.resolveChatAttachmentUrl(rawUrl);
+    const headers: Record<string, string> = {};
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(resolvedUrl, { headers });
+    if (res.status === 401) {
+      this.clearToken();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('halder:auth-expired'));
+      }
+      throw new Error('Authentication required to view attachment.');
+    }
+    if (!res.ok) {
+      let msg = `Failed to load attachment (${res.status})`;
+      try {
+        const data = await res.json();
+        if (data?.error?.message) msg = data.error.message;
+      } catch {}
+      throw new Error(msg);
+    }
+    return res.blob();
   }
 
   // File Upload API

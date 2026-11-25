@@ -478,6 +478,88 @@ export function runMigrations() {
     db.exec(`ALTER TABLE products ADD COLUMN show_phone_number INTEGER DEFAULT 1;`);
   } catch {}
 
+  // Migration: Chat Production Hardening (Presence, Delivery/Read State, Idempotency, Replies, Attachments, Muting, Indexes)
+  try {
+    const ensureColumns = (table: string, defs: Array<{ name: string; sql: string }>) => {
+      const existingCols = new Set(
+        (db.prepare(`PRAGMA table_info("${table}")`).all() as any[]).map((c) => c.name)
+      );
+      if (existingCols.size === 0) return;
+      for (const col of defs) {
+        if (!existingCols.has(col.name)) {
+          db.exec(`ALTER TABLE "${table}" ADD COLUMN ${col.sql};`);
+        }
+      }
+    };
+
+    ensureColumns('users', [{ name: 'last_seen_at', sql: 'last_seen_at TEXT DEFAULT NULL' }]);
+
+    ensureColumns('conversations', [
+      { name: 'last_message_at', sql: 'last_message_at TEXT DEFAULT NULL' },
+      { name: 'muted_by_customer', sql: 'muted_by_customer INTEGER NOT NULL DEFAULT 0' },
+      { name: 'muted_by_farmer', sql: 'muted_by_farmer INTEGER NOT NULL DEFAULT 0' },
+    ]);
+
+    ensureColumns('messages', [
+      { name: 'client_msg_id', sql: 'client_msg_id TEXT DEFAULT NULL' },
+      { name: 'status', sql: "status TEXT NOT NULL DEFAULT 'sent'" },
+      { name: 'delivered_at', sql: 'delivered_at TEXT DEFAULT NULL' },
+      { name: 'reply_to_id', sql: 'reply_to_id TEXT DEFAULT NULL' },
+      { name: 'attachments_json', sql: 'attachments_json TEXT DEFAULT NULL' },
+      { name: 'edited_at', sql: 'edited_at TEXT DEFAULT NULL' },
+      { name: 'deleted_at', sql: 'deleted_at TEXT DEFAULT NULL' },
+    ]);
+
+    ensureColumns('notifications', [
+      { name: 'conversation_id', sql: 'conversation_id TEXT DEFAULT NULL' },
+      { name: 'message_id', sql: 'message_id TEXT DEFAULT NULL' },
+      { name: 'source_key', sql: 'source_key TEXT DEFAULT NULL' },
+    ]);
+
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS chat_attachments (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        message_id TEXT REFERENCES messages(id) ON DELETE SET NULL,
+        uploader_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        original_name TEXT NOT NULL,
+        stored_key TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL CHECK(size_bytes > 0),
+        storage_url TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_chat_attachments_conv ON chat_attachments(conversation_id);
+      CREATE INDEX IF NOT EXISTS idx_chat_attachments_msg ON chat_attachments(message_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at DESC);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_client_id ON messages(conversation_id, client_msg_id) WHERE client_msg_id IS NOT NULL;
+      CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(conversation_id, sender_id, read_at);
+      CREATE INDEX IF NOT EXISTS idx_messages_undelivered ON messages(conversation_id, sender_id, delivered_at);
+      CREATE INDEX IF NOT EXISTS idx_conversations_last_msg ON conversations(last_message_at DESC, updated_at DESC);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_source_key ON notifications(user_id, source_key) WHERE source_key IS NOT NULL;
+    `);
+
+    // Backfill non-destructively for pre-existing conversations and messages
+    db.exec(`
+      UPDATE conversations
+      SET last_message_at = COALESCE(
+        (SELECT MAX(created_at) FROM messages m WHERE m.conversation_id = conversations.id),
+        updated_at
+      )
+      WHERE last_message_at IS NULL;
+
+      UPDATE messages
+      SET status = CASE
+        WHEN read_at IS NOT NULL THEN 'read'
+        WHEN delivered_at IS NOT NULL THEN 'delivered'
+        ELSE 'sent'
+      END
+      WHERE status IS NULL OR status = '';
+    `);
+  } catch (chatMigErr: any) {
+    console.warn('[Migration] Notice on chat schema enhancement:', chatMigErr.message);
+  }
+
   console.log('[Migration] Database schema migrated successfully.');
 }
 

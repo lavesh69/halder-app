@@ -733,13 +733,13 @@ async function runChatAndI18nTests() {
 
     Database.run(
       `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
-       VALUES (?, 'HAL-CUS-E2E001', 'Pooja Hegde', 'pooja.e2e@halder.com', '+91 9111122222', 'hash', 'customer', 'active', ?, ?)`,
-      [e2eCustId, now, now]
+       VALUES (?, ?, 'Pooja Hegde', ?, ?, 'hash', 'customer', 'active', ?, ?)`,
+      [e2eCustId, `HAL-CUS-E2E${timestamp.toString().slice(-5)}`, `pooja.e2e.${timestamp}@halder.com`, `91${timestamp.toString().slice(-8)}`, now, now]
     );
     Database.run(
       `INSERT INTO users (id, halder_id, name, email, phone, password_hash, role, status, created_at, updated_at)
-       VALUES (?, 'HAL-FRM-E2E001', 'Harpreet Singh', 'harpreet.e2e@punjabfarm.in', '+91 9333344444', 'hash', 'farmer', 'active', ?, ?)`,
-      [e2eFarmerUserId, now, now]
+       VALUES (?, ?, 'Harpreet Singh', ?, ?, 'hash', 'farmer', 'active', ?, ?)`,
+      [e2eFarmerUserId, `HAL-FRM-E2E${timestamp.toString().slice(-5)}`, `harpreet.e2e.${timestamp}@punjabfarm.in`, `93${timestamp.toString().slice(-8)}`, now, now]
     );
     Database.run(
       `INSERT INTO farmer_profiles (id, user_id, farm_name, description, location, city, verification_status, rating, total_orders, joined_year, created_at, updated_at)
