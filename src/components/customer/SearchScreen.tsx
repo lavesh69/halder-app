@@ -168,14 +168,17 @@ export const SearchScreen: React.FC = () => {
     if (a.isUrgent && !b.isUrgent) return -1;
     if (!a.isUrgent && b.isUrgent) return 1;
 
-    if (filterState.sortBy === 'nearest') return a.distanceKm - b.distanceKm;
-    return 0;
+    if ((filterState.sortBy as string) === 'organic') {
+      const orgDiff = (b.isOrganic ? 1 : 0) - (a.isOrganic ? 1 : 0);
+      if (orgDiff !== 0) return orgDiff;
+    }
+    return a.distanceKm - b.distanceKm;
   });
 
   const handleSaveThisSearch = async () => {
     if (!inputVal.trim()) return;
     if (!ApiClient.hasToken()) {
-      showToast('Please sign in to set crop price alerts', 'info');
+      showToast('Please sign in to set crop alerts', 'info');
       setIsLoginModalOpen(true);
       return;
     }
@@ -184,8 +187,6 @@ export const SearchScreen: React.FC = () => {
         query: inputVal.trim(),
         category: filterState.category !== 'All' ? filterState.category : undefined,
         radiusKm: filterState.maxDistanceKm || 25,
-        minPrice: filterState.minPrice || undefined,
-        maxPrice: filterState.maxPrice || undefined,
       });
       showToast(`🔔 Crop alert saved for "${inputVal.trim()}". You'll receive instant alerts when matching produce is posted!`);
     } catch (err: any) {
@@ -366,8 +367,7 @@ export const SearchScreen: React.FC = () => {
                   className="px-2 py-1.5 rounded-xl bg-white dark:bg-[#1B201D] text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-bold focus:outline-none"
                 >
                   <option value="nearest">Nearest</option>
-                  <option value="price_low">Price: Low</option>
-                  <option value="price_high">Price: High</option>
+                  <option value="organic">Organic First</option>
                 </select>
               </div>
             </div>

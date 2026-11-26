@@ -150,7 +150,7 @@ async function runAdversarialI18nSuite() {
     const untranslatedKeys: string[] = [];
 
     for (const [key, value] of Object.entries(dict)) {
-      if (key.startsWith('language.') || key === 'catalog.per_unit' || key === 'ads.price_per_unit') continue;
+      if (exemptKeysFromScriptCheck.has(key) || key.startsWith('language.') || key === 'ads.price_per_unit') continue;
 
       // Check if value contains characters in the expected native script
       if (!regex.test(value)) {
@@ -289,7 +289,7 @@ async function runAdversarialI18nSuite() {
     {
       key: 'mandi.benchmark_comparison',
       params: { mandi: 40, halder: 32 },
-      expectedSubstrings: { en: '₹40 | HALDER Direct: ₹32', hi: '₹40 | HALDER सीधा भाव: ₹32' },
+      expectedSubstrings: { en: '₹40 | HALDHAR Direct: ₹32', hi: '₹40 | HALDHAR सीधा भाव: ₹32' },
     },
   ];
 
@@ -445,15 +445,6 @@ async function runAdversarialI18nSuite() {
     ['en', 'hi', 'pa', 'mr', 'bn'].includes(initialLang)
   );
 
-  // Test 5.2: State change & listener broadcast
-  let listenerCallCount = 0;
-  let lastBroadcastLang: SupportedLanguage | null = null;
-
-  const testListener = (newLang: SupportedLanguage) => {
-    listenerCallCount++;
-    lastBroadcastLang = newLang;
-  };
-
   // Setup mock localStorage to verify storage interaction
   const mockStorage: Record<string, string> = {};
   const originalLocalStorage = (globalThis as any).localStorage;
@@ -537,13 +528,13 @@ async function runAdversarialI18nSuite() {
       bnVal: '১০০% কৃষক সরাসরি ডেলিভারি গ্যারান্টি',
     },
     {
-      domain: 'APMC Mandi vs HALDER Benchmark Comparison',
+      domain: 'APMC Mandi vs HALDHAR Benchmark Comparison',
       enKey: 'mandi.benchmark_comparison',
-      enVal: 'APMC Mandi Rate: ₹{mandi} | HALDER Direct: ₹{halder}',
-      hiVal: 'APMC मंडी दर: ₹{mandi} | HALDER सीधा भाव: ₹{halder}',
+      enVal: 'APMC Mandi Rate: ₹{mandi} | HALDHAR Direct: ₹{halder}',
+      hiVal: 'APMC मंडी दर: ₹{mandi} | HALDHAR सीधा भाव: ₹{halder}',
       paVal: 'ਏਪੀਐਮਸੀ ਮੰਡੀ ਰੇਟ: ₹{mandi} | ਹਾਲਡਰ ਸਿੱਧਾ ਭਾਅ: ₹{halder}',
-      mrVal: 'APMC बाजारभाव: ₹{mandi} | HALDER थेट भाव: ₹{halder}',
-      bnVal: 'APMC মান্ডি দর: ₹{mandi} | HALDER সরাসরি দর: ₹{halder}',
+      mrVal: 'APMC बाजारभाव: ₹{mandi} | HALDHAR थेट भाव: ₹{halder}',
+      bnVal: 'APMC মান্ডি দর: ₹{mandi} | HALDHAR সরাসরি দর: ₹{halder}',
     },
     {
       domain: '300 km Geo Radius Freshness Filter',

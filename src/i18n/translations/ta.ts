@@ -567,5 +567,7 @@ export const taTranslations: TranslationDictionary = {
   'chat.open_error': 'உரையாடலுடன் இணைய முடியவில்லை',
   'chat.today': 'இன்று',
   'chat.yesterday': 'நேற்று',
+  'auth.logout': 'வெளியேறு',
+  'auth.logout_confirm': 'நீங்கள் வெளியேற விரும்புகிறீர்களா?',
   'chat.last_seen': 'கடைசியாக {time} க்கு பார்க்கப்பட்டது',
 };

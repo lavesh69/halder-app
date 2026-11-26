@@ -606,5 +606,7 @@ export const paTranslations: TranslationDictionary = {
   'chat.open_error': 'ਗੱਲਬਾਤ ਖੋਲ੍ਹਣ ਵਿੱਚ ਅਸਮਰੱਥ',
   'chat.today': 'ਅੱਜ',
   'chat.yesterday': 'ਕੱਲ੍ਹ',
+  'auth.logout': 'ਲੌਗ ਆਉਟ',
+  'auth.logout_confirm': 'ਕੀ ਤੁਸੀਂ ਲੌਗ ਆਉਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?',
   'chat.last_seen': 'ਆਖਰੀ ਵਾਰ {time} ਤੇ ਦੇਖਿਆ',
 };

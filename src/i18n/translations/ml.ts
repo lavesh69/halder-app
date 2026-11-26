@@ -567,5 +567,7 @@ export const mlTranslations: TranslationDictionary = {
   'chat.open_error': 'സംഭാഷണത്തിലേക്ക് കണക്റ്റ് ചെയ്യാനായില്ല',
   'chat.today': 'ഇന്ന്',
   'chat.yesterday': 'ഇന്നലെ',
+  'auth.logout': 'ലോഗ് ഔട്ട്',
+  'auth.logout_confirm': 'നിങ്ങൾക്ക് ലോഗ് ഔട്ട് ചെയ്യണോ?',
   'chat.last_seen': 'അവസാനം കണ്ടത് {time}',
 };

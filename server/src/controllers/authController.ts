@@ -201,24 +201,19 @@ export class AuthController {
             const fProfId = `farmer-${uuidv4()}`;
             Database.run(
               `INSERT INTO farmer_profiles (id, user_id, farm_name, village, taluk, district, state, pin_code, total_acreage, created_at, updated_at)
-               VALUES (?, ?, ?, 'Rampur', 'Dehradun', 'Dehradun', 'Uttarakhand', '248001', 5.0, ?, ?)`,
-              [fProfId, newUserId, `${name}'s Organic Farm`, now, now]
+               VALUES (?, ?, ?, '', '', '', '', '', 0, ?, ?)`,
+              [fProfId, newUserId, `${name}'s Farm`, now, now]
             );
           } else {
-            const addrId = `addr-${uuidv4()}`;
+            const cartId = `cart-${uuidv4()}`;
+            Database.run(
+              `INSERT INTO carts (id, user_id, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+              [cartId, newUserId, now, now]
+            );
             Database.run(
               `INSERT INTO customer_profiles (id, user_id, bio, created_at, updated_at)
-               VALUES (?, ?, 'HALDER Direct Member', ?, ?)`,
+               VALUES (?, ?, '', ?, ?)`,
               [`cust-${uuidv4()}`, newUserId, now, now]
-            );
-            Database.run(
-              `INSERT INTO customer_addresses (id, customer_id, label, name, phone, house_building, street_locality, city, state, postal_code, is_default, created_at, updated_at)
-               VALUES (?, ?, 'Home', ?, ?, 'Flat / House', 'Main Market', 'Dehradun', 'Uttarakhand', '248001', 1, ?, ?)`,
-              [addrId, newUserId, name, cleanPhone, now, now]
-            );
-            Database.run(
-              `UPDATE customer_profiles SET default_address_id = ? WHERE user_id = ?`,
-              [addrId, newUserId]
             );
           }
         });

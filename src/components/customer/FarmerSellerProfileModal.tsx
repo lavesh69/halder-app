@@ -133,8 +133,12 @@ export const FarmerSellerProfileModal: React.FC = () => {
 
             <button
               onClick={() => {
-                const text = `Hello ${selectedFarmer.name}, I am contacting you regarding your farm produce on HALDER.`;
-                window.open(getWhatsAppUrl(selectedFarmer.phone || '9876543210', text), '_blank');
+                if (!selectedFarmer.phone) {
+                  showToast('Phone number not shared — use Chat to message this farmer.', 'info');
+                  return;
+                }
+                const text = `Hello ${selectedFarmer.name}, I am contacting you regarding your farm produce on HALDHAR.`;
+                window.open(getWhatsAppUrl(selectedFarmer.phone, text), '_blank');
               }}
               className="min-h-[48px] py-2 px-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 rounded-2xl font-bold border border-emerald-200 dark:border-emerald-800/50 transition-colors flex flex-col items-center justify-center gap-1 active:scale-95"
             >
@@ -142,14 +146,24 @@ export const FarmerSellerProfileModal: React.FC = () => {
               <span className="text-[10px]">WhatsApp</span>
             </button>
 
-            <a
-              href={`tel:${selectedFarmer.phone.replace(/\s+/g, '')}`}
-              onClick={() => showToast(`Dialing ${selectedFarmer.name} (${selectedFarmer.phone})`)}
-              className="min-h-[48px] py-2 px-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 rounded-2xl font-bold border border-zinc-200 dark:border-zinc-700 transition-colors flex flex-col items-center justify-center gap-1 active:scale-95"
-            >
-              <Phone className="w-4 h-4 text-emerald-600" />
-              <span className="text-[10px]">Call</span>
-            </a>
+            {selectedFarmer.phone ? (
+              <a
+                href={`tel:${selectedFarmer.phone.replace(/\s+/g, '')}`}
+                onClick={() => showToast(`Dialing ${selectedFarmer.name} (${selectedFarmer.phone})`)}
+                className="min-h-[48px] py-2 px-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 rounded-2xl font-bold border border-zinc-200 dark:border-zinc-700 transition-colors flex flex-col items-center justify-center gap-1 active:scale-95"
+              >
+                <Phone className="w-4 h-4 text-emerald-600" />
+                <span className="text-[10px]">Call</span>
+              </a>
+            ) : (
+              <button
+                onClick={handleOpenChat}
+                className="min-h-[48px] py-2 px-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 rounded-2xl font-bold border border-zinc-200 dark:border-zinc-700 transition-colors flex flex-col items-center justify-center gap-1 active:scale-95"
+              >
+                <Phone className="w-4 h-4 text-zinc-400" />
+                <span className="text-[10px]">Message</span>
+              </button>
+            )}
           </div>
 
           {/* Trust Badges */}

@@ -64,9 +64,14 @@ if (!parsed.success) {
 
 export const env = parsed.data;
 
-if (
-  env.NODE_ENV === 'production' &&
-  env.JWT_SECRET === 'halder_super_secure_jwt_secret_production_2026_mandi'
-) {
-  console.warn('[SECURITY WARNING] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!');
+export const IS_DEFAULT_JWT_SECRET =
+  env.JWT_SECRET === 'halder_super_secure_jwt_secret_production_2026_mandi';
+
+if (env.NODE_ENV === 'production' && IS_DEFAULT_JWT_SECRET) {
+  console.error(
+    '[CRITICAL SECURITY] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!'
+  );
+  if (process.env.REQUIRE_STRICT_ENV === 'true') {
+    throw new Error('Refusing to start in strict production mode with default JWT_SECRET.');
+  }
 }

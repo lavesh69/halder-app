@@ -17,16 +17,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-interface CropCalcPreset {
-  id: string;
-  name: string;
-  hindiName: string;
-  emoji: string;
-  avgYieldPerAcre: number; // in quintals
-  avgCostPerAcre: number; // in rupees
-  benchmarkPrice: number; // in rupees per quintal
-}
-
 export const FarmerDashboard: React.FC = () => {
   const { t } = useTranslation();
   const {

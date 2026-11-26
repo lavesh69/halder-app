@@ -7,7 +7,6 @@ import {
   X,
   CheckCheck,
   Package,
-  ShieldCheck,
   MessageCircle,
   Sparkles,
   HandCoins,

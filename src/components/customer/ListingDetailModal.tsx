@@ -86,7 +86,7 @@ export const ListingDetailModal: React.FC = () => {
     id: selectedProduct.farmerId || 'farmer-1',
     name: selectedProduct.farmerName || 'Local Farmer',
     farmName: selectedProduct.farmName || 'Direct Farm Harvest',
-    phone: selectedProduct.farmerPhone || '+91 98450 12345',
+    phone: selectedProduct.farmerPhone || '',
     avatar: selectedProduct.farmerAvatar || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
     rating: selectedProduct.rating || 4.8,
     reviewsCount: 34,
@@ -110,7 +110,7 @@ export const ListingDetailModal: React.FC = () => {
       showToast('Phone number not shared — please use Direct Chat to message this farmer.', 'info');
       return;
     }
-    const text = `Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" on HALDER. Is it available?`;
+    const text = `Hello ${selectedProduct.farmerName}, I saw your ad for "${selectedProduct.name}" on HALDHAR. Is it available?`;
     window.open(getWhatsAppUrl(rawPhone, text), '_blank');
   };
 

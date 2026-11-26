@@ -567,5 +567,7 @@ export const knTranslations: TranslationDictionary = {
   'chat.open_error': 'ಸಂಭಾಷಣೆಗೆ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ',
   'chat.today': 'ಇಂದು',
   'chat.yesterday': 'ನಿನ್ನೆ',
+  'auth.logout': 'ಲಾಗ್ ಔಟ್',
+  'auth.logout_confirm': 'ನೀವು ಲಾಗ್ ಔಟ್ ಮಾಡಲು ಬಯಸುವಿರಾ?',
   'chat.last_seen': 'ಕೊನೆಯದಾಗಿ {time} ಕ್ಕೆ ನೋಡಲಾಗಿದೆ',
 };

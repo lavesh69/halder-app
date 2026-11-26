@@ -606,5 +606,7 @@ export const bnTranslations: TranslationDictionary = {
   'chat.open_error': 'কথোপকথনে সংযোগ করা যায়নি',
   'chat.today': 'আজ',
   'chat.yesterday': 'গতকাল',
+  'auth.logout': 'লগ আউট',
+  'auth.logout_confirm': 'আপনি কি লগ আউট করতে চান?',
   'chat.last_seen': 'সর্বশেষ দেখা {time}',
 };

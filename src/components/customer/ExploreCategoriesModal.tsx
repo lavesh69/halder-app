@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
-import { X, ChevronRight, Layers, Sparkles } from 'lucide-react';
+import { X, ChevronRight, Layers } from 'lucide-react';
 
 interface CategoryCardInfo {
   name: string;

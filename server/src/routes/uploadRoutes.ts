@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { upload } from '../middleware/upload';
-import { authenticateUser, optionalAuth } from '../middleware/auth';
+import { authenticateUser } from '../middleware/auth';
 import { AppError } from '../utils/errors';
 import { uploadLimiter } from '../middleware/rateLimiter';
 import { StorageService } from '../services/storageService';

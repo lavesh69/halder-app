@@ -57,8 +57,8 @@ export const AdminBackendDataView: React.FC<AdminBackendDataViewProps> = ({ show
   const [searchQuery, setSearchQuery] = useState('');
 
   // Inline Admin Login state (when viewer switched to Admin role without an Admin JWT)
-  const [adminEmail, setAdminEmail] = useState('admin@halder.com');
-  const [adminPassword, setAdminPassword] = useState('halder123');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const loadBackendData = async () => {
@@ -224,6 +224,7 @@ export const AdminBackendDataView: React.FC<AdminBackendDataViewProps> = ({ show
               <input
                 type="email"
                 required
+                placeholder="admin@halder.com"
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -236,6 +237,7 @@ export const AdminBackendDataView: React.FC<AdminBackendDataViewProps> = ({ show
               <input
                 type="password"
                 required
+                placeholder="Enter admin password"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"

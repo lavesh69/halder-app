@@ -27734,7 +27734,7 @@ var init_zod = __esm({
 
 // server/src/config/env.ts
 import path from "path";
-var import_dotenv, envSchema, parsed, env;
+var import_dotenv, envSchema, parsed, env, IS_DEFAULT_JWT_SECRET;
 var init_env = __esm({
   "server/src/config/env.ts"() {
     import_dotenv = __toESM(require_main(), 1);
@@ -27792,8 +27792,14 @@ var init_env = __esm({
       process.exit(1);
     }
     env = parsed.data;
-    if (env.NODE_ENV === "production" && env.JWT_SECRET === "halder_super_secure_jwt_secret_production_2026_mandi") {
-      console.warn("[SECURITY WARNING] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!");
+    IS_DEFAULT_JWT_SECRET = env.JWT_SECRET === "halder_super_secure_jwt_secret_production_2026_mandi";
+    if (env.NODE_ENV === "production" && IS_DEFAULT_JWT_SECRET) {
+      console.error(
+        "[CRITICAL SECURITY] Using default fallback JWT_SECRET in production. Set a strong random JWT_SECRET env var immediately!"
+      );
+      if (process.env.REQUIRE_STRICT_ENV === "true") {
+        throw new Error("Refusing to start in strict production mode with default JWT_SECRET.");
+      }
     }
   }
 });
@@ -87475,24 +87481,19 @@ var AuthController = class {
             const fProfId = `farmer-${v4_default()}`;
             Database.run(
               `INSERT INTO farmer_profiles (id, user_id, farm_name, village, taluk, district, state, pin_code, total_acreage, created_at, updated_at)
-               VALUES (?, ?, ?, 'Rampur', 'Dehradun', 'Dehradun', 'Uttarakhand', '248001', 5.0, ?, ?)`,
-              [fProfId, newUserId, `${name}'s Organic Farm`, now, now]
+               VALUES (?, ?, ?, '', '', '', '', '', 0, ?, ?)`,
+              [fProfId, newUserId, `${name}'s Farm`, now, now]
             );
           } else {
-            const addrId = `addr-${v4_default()}`;
+            const cartId = `cart-${v4_default()}`;
+            Database.run(
+              `INSERT INTO carts (id, user_id, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+              [cartId, newUserId, now, now]
+            );
             Database.run(
               `INSERT INTO customer_profiles (id, user_id, bio, created_at, updated_at)
-               VALUES (?, ?, 'HALDER Direct Member', ?, ?)`,
+               VALUES (?, ?, '', ?, ?)`,
               [`cust-${v4_default()}`, newUserId, now, now]
-            );
-            Database.run(
-              `INSERT INTO customer_addresses (id, customer_id, label, name, phone, house_building, street_locality, city, state, postal_code, is_default, created_at, updated_at)
-               VALUES (?, ?, 'Home', ?, ?, 'Flat / House', 'Main Market', 'Dehradun', 'Uttarakhand', '248001', 1, ?, ?)`,
-              [addrId, newUserId, name, cleanPhone, now, now]
-            );
-            Database.run(
-              `UPDATE customer_profiles SET default_address_id = ? WHERE user_id = ?`,
-              [addrId, newUserId]
             );
           }
         });
@@ -87572,7 +87573,7 @@ function authenticateUser(req, res, next) {
       farmerProfileId
     };
     next();
-  } catch (err) {
+  } catch {
     return next(AppError.unauthorized("Invalid or expired authentication token."));
   }
 }
@@ -96743,7 +96744,7 @@ var FinanceController = class {
   // POST /api/v1/finance/withdraw
   static requestWithdrawal(req, res, next) {
     try {
-      const { farmerId, amount, payoutMethod, bankDetails } = req.body;
+      const { farmerId, amount, payoutMethod } = req.body;
       if (!farmerId || !amount || Number(amount) <= 0) {
         throw AppError.badRequest("Valid farmerId and positive withdrawal amount are required");
       }

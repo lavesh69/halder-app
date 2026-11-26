@@ -42,6 +42,8 @@ android/build
 android/app/*.jks
 *.keystore
 android/app/*.keystore
+android/keystore.properties
+android/app/google-services.json
 *.p12
 *.pfx
 

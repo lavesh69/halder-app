@@ -597,5 +597,7 @@ export const teTranslations: TranslationDictionary = {
   'chat.open_error': 'సంభాషణకు కనెక్ట్ కాలేకపోయింది',
   'chat.today': 'ఈరోజు',
   'chat.yesterday': 'నిన్న',
+  'auth.logout': 'లాగ్ అవుట్',
+  'auth.logout_confirm': 'మీరు లాగ్ అవుట్ చేయాలనుకుంటున్నారా?',
   'chat.last_seen': 'చివరిగా {time} కి కనిపించారు',
 };

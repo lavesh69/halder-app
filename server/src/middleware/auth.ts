@@ -68,7 +68,7 @@ export function authenticateUser(req: Request, res: Response, next: NextFunction
     };
 
     next();
-  } catch (err: any) {
+  } catch {
     return next(AppError.unauthorized('Invalid or expired authentication token.'));
   }
 }

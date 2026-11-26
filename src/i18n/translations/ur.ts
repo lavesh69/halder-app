@@ -567,5 +567,7 @@ export const urTranslations: TranslationDictionary = {
   'chat.open_error': 'گفتگو سے منسلک نہیں ہو سکا',
   'chat.today': 'آج',
   'chat.yesterday': 'کل',
+  'auth.logout': 'لاگ آؤٹ',
+  'auth.logout_confirm': 'کیا آپ لاگ آؤٹ کرنا چاہتے ہیں؟',
   'chat.last_seen': 'آخری بار {time} پر دیکھا گیا',
 };

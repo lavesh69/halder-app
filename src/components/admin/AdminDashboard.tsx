@@ -46,12 +46,8 @@ import {
   Edit2,
   Star,
   Navigation,
-  Smartphone,
-  CreditCard,
   Send,
-  Info,
   Download,
-  Printer,
   UserPlus,
   Cpu,
   Server,
@@ -59,7 +55,6 @@ import {
   Settings,
   Percent,
   HelpCircle,
-  Truck,
   KeyRound,
   LogOut,
 } from 'lucide-react';
@@ -91,9 +86,7 @@ export const AdminDashboard: React.FC = () => {
     deleteCategory,
     toggleCategoryActive,
     showToast,
-    resetDemoData,
     clearAllDummyAccounts,
-    setRole,
     platformSettings,
     updatePlatformSettings,
     currentUser,
@@ -123,8 +116,8 @@ export const AdminDashboard: React.FC = () => {
   const [platformCommissionRate, setPlatformCommissionRate] = useState<number>(platformSettings?.platformCommissionRate ?? 0);
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number>(platformSettings?.freeDeliveryThreshold ?? 200);
   const [standardDeliveryFee, setStandardDeliveryFee] = useState<number>(platformSettings?.standardDeliveryFee ?? 25);
-  const [helplinePhone, setHelplinePhone] = useState<string>(platformSettings?.helplinePhone ?? '+91 98765 43210');
-  const [supportEmail, setSupportEmail] = useState<string>(platformSettings?.supportEmail ?? 'support@halder.farm');
+  const [helplinePhone, setHelplinePhone] = useState<string>(platformSettings?.helplinePhone ?? '');
+  const [supportEmail, setSupportEmail] = useState<string>(platformSettings?.supportEmail ?? '');
   const [emergencyAlert, setEmergencyAlert] = useState<string>(platformSettings?.emergencyAlert ?? '');
 
   // Keep local settings in sync if platformSettings change in context
@@ -133,8 +126,8 @@ export const AdminDashboard: React.FC = () => {
       setPlatformCommissionRate(platformSettings.platformCommissionRate ?? 0);
       setFreeDeliveryThreshold(platformSettings.freeDeliveryThreshold ?? 200);
       setStandardDeliveryFee(platformSettings.standardDeliveryFee ?? 25);
-      setHelplinePhone(platformSettings.helplinePhone ?? '+91 98765 43210');
-      setSupportEmail(platformSettings.supportEmail ?? 'support@halder.farm');
+      setHelplinePhone(platformSettings.helplinePhone ?? '');
+      setSupportEmail(platformSettings.supportEmail ?? '');
       setEmergencyAlert(platformSettings.emergencyAlert ?? '');
     }
   }, [platformSettings]);
@@ -1710,7 +1703,7 @@ export const AdminDashboard: React.FC = () => {
                       <div className="flex items-start justify-between gap-1">
                         <h4 className="font-black text-sm text-zinc-900 dark:text-white line-clamp-1">{prod.name}</h4>
                         <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 shrink-0">
-                          {formatCurrency(prod.price)} / {prod.unit}
+                          {prod.price > 0 ? `${formatCurrency(prod.price)} / ${prod.unit}` : 'Negotiable'}
                         </span>
                       </div>
                       <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mt-0.5">
@@ -2633,14 +2626,18 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Action Bar inside modal */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-              <a
-                href={`https://wa.me/91${(inspectingKycDoc.phone || '9876543210').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inspectingKycDoc.farmer_name}! We are reviewing your HALDHAR Farmer Verification documents.`)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3.5 py-2 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
-              >
-                <span>💬 WhatsApp Farmer</span>
-              </a>
+              {inspectingKycDoc.phone ? (
+                <a
+                  href={`https://wa.me/${inspectingKycDoc.phone.replace(/[^0-9]/g, '').length === 10 ? `91${inspectingKycDoc.phone.replace(/[^0-9]/g, '')}` : inspectingKycDoc.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inspectingKycDoc.farmer_name}! We are reviewing your HALDHAR Farmer Verification documents.`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-2 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
+                >
+                  <span>💬 WhatsApp Farmer</span>
+                </a>
+              ) : (
+                <span className="text-xs text-zinc-400">No phone number on file</span>
+              )}
 
               <div className="flex items-center gap-2">
                 <button

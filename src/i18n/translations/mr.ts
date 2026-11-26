@@ -606,5 +606,7 @@ export const mrTranslations: TranslationDictionary = {
   'chat.open_error': 'संभाषणाशी जोडता आले नाही',
   'chat.today': 'आज',
   'chat.yesterday': 'काल',
+  'auth.logout': 'लॉग आउट',
+  'auth.logout_confirm': 'तुम्हाला लॉग आउट करायचे आहे का?',
   'chat.last_seen': 'शेवटचे {time} वाजता पाहिले',
 };

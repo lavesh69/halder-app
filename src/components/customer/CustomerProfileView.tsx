@@ -494,73 +494,93 @@ export const CustomerProfileView: React.FC = () => {
 
             {/* Quick Contact Action Cards */}
             <div className="space-y-2.5">
-              <a
-                href={`tel:${(platformSettings?.helplinePhone || '+919876543210').replace(/\s+/g, '')}`}
-                className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-600 text-white rounded-xl">
+              {platformSettings?.helplinePhone ? (
+                <a
+                  href={`tel:${platformSettings.helplinePhone.replace(/\s+/g, '')}`}
+                  className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-emerald-600 text-white rounded-xl">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white block">
+                        Toll-Free Kisan & Buyer Helpline
+                      </span>
+                      <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                        {platformSettings.helplinePhone}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    Call Now
+                  </span>
+                </a>
+              ) : (
+                <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700 flex items-center gap-3">
+                  <div className="p-2.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
                     <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                      Toll-Free Kisan & Buyer Helpline
+                      Kisan & Buyer Helpline
                     </span>
-                    <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
-                      {platformSettings?.helplinePhone || '+91 98765 43210'}
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      Helpline phone is being updated. Use in-app messaging or support email if configured.
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  Call Now
-                </span>
-              </a>
+              )}
 
-              <a
-                href={`mailto:${platformSettings?.supportEmail || 'support@halder.farm'}`}
-                className="p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-800/60 flex items-center justify-between hover:bg-blue-100 dark:hover:bg-blue-900/40 transition group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-600 text-white rounded-xl">
-                    <Mail className="w-4 h-4" />
+              {platformSettings?.supportEmail && (
+                <a
+                  href={`mailto:${platformSettings.supportEmail}`}
+                  className="p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-800/60 flex items-center justify-between hover:bg-blue-100 dark:hover:bg-blue-900/40 transition group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-blue-600 text-white rounded-xl">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white block">
+                        Dispute & Escalation Email
+                      </span>
+                      <span className="text-xs font-mono text-blue-700 dark:text-blue-400">
+                        {platformSettings.supportEmail}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                      Dispute & Escalation Email
-                    </span>
-                    <span className="text-xs font-mono text-blue-700 dark:text-blue-400">
-                      {platformSettings?.supportEmail || 'support@halder.farm'}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                  Email
-                </span>
-              </a>
+                  <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    Email
+                  </span>
+                </a>
+              )}
 
-              <a
-                href={`https://wa.me/919876543210?text=${encodeURIComponent('Namaste HALDER Support Team! I need assistance with an order on HALDER.')}`}
-                target="_blank"
-                rel="noreferrer"
-                className="p-3.5 bg-green-50 dark:bg-green-950/40 rounded-2xl border border-green-200 dark:border-green-800/60 flex items-center justify-between hover:bg-green-100 dark:hover:bg-green-900/40 transition group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-green-600 text-white rounded-xl">
-                    <span className="text-base">💬</span>
+              {platformSettings?.helplinePhone && (
+                <a
+                  href={`https://wa.me/${platformSettings.helplinePhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Namaste HALDHAR Support Team! I need assistance with an order on HALDHAR.')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 bg-green-50 dark:bg-green-950/40 rounded-2xl border border-green-200 dark:border-green-800/60 flex items-center justify-between hover:bg-green-100 dark:hover:bg-green-900/40 transition group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-green-600 text-white rounded-xl">
+                      <span className="text-base">💬</span>
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white block">
+                        WhatsApp Instant Support
+                      </span>
+                      <span className="text-[11px] text-green-700 dark:text-green-400">
+                        Chat with a support executive in Hindi/English
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white block">
-                      WhatsApp Instant Support
-                    </span>
-                    <span className="text-[11px] text-green-700 dark:text-green-400">
-                      Chat with a support executive in Hindi/English
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
-                  Chat
-                </span>
-              </a>
+                  <span className="text-[10px] font-bold bg-white dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                    Chat
+                  </span>
+                </a>
+              )}
             </div>
 
             {/* Quick FAQs */}

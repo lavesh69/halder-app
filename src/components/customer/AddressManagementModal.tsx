@@ -9,35 +9,6 @@ interface AddressManagementModalProps {
   showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
 
-const DEFAULT_SEED_ADDRESSES = [
-  {
-    id: 'addr-seed-1',
-    label: 'Home',
-    name: 'Aman Sharma',
-    phone: '+91 98765 43210',
-    house_building: 'Flat 402, Pine Wood Apartments',
-    street_locality: 'Rajpur Road',
-    city: 'Dehradun',
-    state: 'Uttarakhand',
-    postal_code: '248001',
-    landmark: 'Opposite Silver City Mall',
-    is_default: true,
-  },
-  {
-    id: 'addr-seed-2',
-    label: 'Work',
-    name: 'Aman Sharma',
-    phone: '+91 98765 43210',
-    house_building: 'Suite 2B, IT Park Sahastradhara',
-    street_locality: 'Sahastradhara Road',
-    city: 'Dehradun',
-    state: 'Uttarakhand',
-    postal_code: '248013',
-    landmark: 'Near Doon IT Towers',
-    is_default: false,
-  },
-];
-
 export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
   isOpen,
   onClose,
@@ -59,9 +30,9 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
   const [phone, setPhone] = useState('');
   const [houseBuilding, setHouseBuilding] = useState('');
   const [streetLocality, setStreetLocality] = useState('');
-  const [city, setCity] = useState('Dehradun');
-  const [state, setState] = useState('Uttarakhand');
-  const [postalCode, setPostalCode] = useState('248001');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   const [landmark, setLandmark] = useState('');
   const [isDefault, setIsDefault] = useState(false);
 
@@ -70,14 +41,14 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
     setError(null);
     try {
       const data = await ApiClient.getCustomerAddresses();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setAddresses(data);
         localStorage.setItem('halder_saved_addresses', JSON.stringify(data));
         setIsLoading(false);
         return;
       }
     } catch {
-      // API call failed / unauthenticated, fall back to offline/demo storage
+      // API call failed / unauthenticated, fall back to locally cached addresses
     }
 
     try {
@@ -85,11 +56,10 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
       if (cached) {
         setAddresses(JSON.parse(cached));
       } else {
-        setAddresses(DEFAULT_SEED_ADDRESSES);
-        localStorage.setItem('halder_saved_addresses', JSON.stringify(DEFAULT_SEED_ADDRESSES));
+        setAddresses([]);
       }
     } catch {
-      setAddresses(DEFAULT_SEED_ADDRESSES);
+      setAddresses([]);
     } finally {
       setIsLoading(false);
     }
@@ -110,9 +80,9 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
     setPhone('');
     setHouseBuilding('');
     setStreetLocality('');
-    setCity('Dehradun');
-    setState('Uttarakhand');
-    setPostalCode('248001');
+    setCity('');
+    setState('');
+    setPostalCode('');
     setLandmark('');
     setIsDefault(false);
     setEditingId(null);

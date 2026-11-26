@@ -3,14 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
 import {
-  isTursoEnabled,
   recordTursoWrite,
   beginTursoTx,
   commitTursoTx,
   rollbackTursoTx,
 } from './turso';
 import {
-  isSupabaseEnabled,
   recordSupabaseWrite,
   beginSupabaseTx,
   commitSupabaseTx,

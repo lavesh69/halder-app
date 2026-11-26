@@ -597,5 +597,7 @@ export const orTranslations: TranslationDictionary = {
   'chat.open_error': 'ଆଲୋଚନା ସହିତ ସଂଯୋଗ ହୋଇପାରିଲା ନାହିଁ',
   'chat.today': 'ଆଜି',
   'chat.yesterday': 'ଗତକାଲି',
+  'auth.logout': 'ଲଗ୍ ଆଉଟ୍',
+  'auth.logout_confirm': 'ଆପଣ ଲଗ୍ ଆଉଟ୍ କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?',
   'chat.last_seen': 'ଶେଷଥର {time} ରେ ଦେଖାଯାଇଥିଲା',
 };

@@ -630,5 +630,7 @@ export const hiTranslations: TranslationDictionary = {
   'chat.open_error': 'बातचीत से जुड़ने में असमर्थ',
   'chat.today': 'आज',
   'chat.yesterday': 'कल',
+  'auth.logout': 'लॉग आउट',
+  'auth.logout_confirm': 'क्या आप लॉग आउट करना चाहते हैं?',
   'chat.last_seen': 'अंतिम बार देखा गया {time}',
 };

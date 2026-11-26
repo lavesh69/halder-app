@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
-import { Heart, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { Heart, ArrowLeft } from 'lucide-react';
 
 export const FavoritesView: React.FC = () => {
   const { products, favorites, setCustomerTab } = useApp();

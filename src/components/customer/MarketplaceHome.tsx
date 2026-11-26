@@ -90,18 +90,7 @@ export const MarketplaceHome: React.FC = () => {
   const handleCameraScan = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const lowerName = file.name.toLowerCase();
-      let guessed: ProductCategory = 'Vegetables';
-      if (lowerName.includes('apple') || lowerName.includes('orange') || lowerName.includes('fruit') || lowerName.includes('mango') || lowerName.includes('banana')) {
-        guessed = 'Fruits';
-      } else if (lowerName.includes('wheat') || lowerName.includes('rice') || lowerName.includes('paddy') || lowerName.includes('grain') || lowerName.includes('dal') || lowerName.includes('atta')) {
-        guessed = 'Grains';
-      } else if (lowerName.includes('milk') || lowerName.includes('dairy') || lowerName.includes('ghee') || lowerName.includes('paneer')) {
-        guessed = 'Dairy';
-      } else if (lowerName.includes('honey') || lowerName.includes('pickle') || lowerName.includes('organic')) {
-        guessed = 'Homemade';
-      }
-      setDetectedCategory(guessed);
+      setDetectedCategory('Vegetables');
 
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -115,7 +104,7 @@ export const MarketplaceHome: React.FC = () => {
   const handleConfirmAgriCategory = (cat: ProductCategory) => {
     setSelectedCategory(cat);
     setIsAgriVisionOpen(false);
-    showToast(`🌿 Crop Identified: Fresh ${cat}! Filtered listings for you.`, 'success');
+    showToast(`🌿 Filtered fresh ${cat} listings for you.`, 'success');
   };
 
   const handleVoiceSearch = (e: React.MouseEvent) => {
@@ -788,7 +777,7 @@ export const MarketplaceHome: React.FC = () => {
         <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-[#13231A] dark:to-[#0F1A13] border border-emerald-200/60 dark:border-emerald-800/40">
           <div className="flex items-center gap-2 mb-3">
             <span className="p-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs">
-              HALDER
+              HALDHAR
             </span>
             <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
               Mandi Direct Trust Guarantee
@@ -841,7 +830,7 @@ export const MarketplaceHome: React.FC = () => {
             </a>
           </div>
           <p className="text-center sm:text-right font-medium">
-            HALDER Agricultural Marketplace • Empowering Kisan Ecosystem
+            HALDHAR Agricultural Marketplace • Empowering Kisan Ecosystem
           </p>
         </div>
       </div>
@@ -852,7 +841,7 @@ export const MarketplaceHome: React.FC = () => {
         onClose={() => setIsExploreCategoriesOpen(false)}
       />
 
-      {/* Agri-Vision Crop Scanner Modal */}
+      {/* Visual Crop Filter Modal */}
       {isAgriVisionOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
           <div className="bg-white dark:bg-[#1B201D] border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
@@ -863,10 +852,10 @@ export const MarketplaceHome: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-zinc-900 dark:text-white">
-                    Agri-Vision Smart Scanner
+                    Visual Crop Filter
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    AI Crop Analysis
+                    Match your photo with a produce category
                   </p>
                 </div>
               </div>
@@ -879,7 +868,7 @@ export const MarketplaceHome: React.FC = () => {
               </button>
             </div>
 
-            {/* Photo preview with scanning effect */}
+            {/* Photo preview */}
             {scannedPhotoUrl && (
               <div className="relative rounded-2xl overflow-hidden aspect-video bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-inner">
                 <img
@@ -890,7 +879,7 @@ export const MarketplaceHome: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
                   <div className="px-3 py-1 rounded-full bg-emerald-600/90 text-white text-xs font-bold flex items-center gap-1.5 shadow-md">
                     <Check className="w-3.5 h-3.5" />
-                    <span>Identified: {detectedCategory}</span>
+                    <span>Selected Category: {detectedCategory}</span>
                   </div>
                 </div>
               </div>
@@ -899,7 +888,7 @@ export const MarketplaceHome: React.FC = () => {
             {/* Category selection */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                Confirm or change category:
+                Choose crop category to browse:
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[

@@ -14,7 +14,6 @@ const BASE_URL = `http://localhost:${PORT}/api/v1`;
 const WS_URL = `ws://localhost:${PORT}/ws`;
 
 let server: http.Server;
-let wss: any;
 
 // Helper: HTTP REST client
 async function request(endpoint: string, options: {
@@ -162,7 +161,7 @@ async function runChatAndI18nTests() {
   console.log('=============================================================\n');
 
   server = http.createServer(app);
-  wss = initChatSocket(server);
+  initChatSocket(server);
 
   await new Promise<void>((resolve) => {
     server.listen(PORT, () => {
@@ -370,7 +369,7 @@ async function runChatAndI18nTests() {
       mr: mrTranslations,
       bn: bnTranslations,
     };
-    const allDictsValid = Object.entries(dicts).every(([lang, dict]) => {
+    const allDictsValid = Object.entries(dicts).every(([_lang, dict]) => {
       const keysCount = Object.keys(dict).length;
       return typeof dict === 'object' && keysCount >= 180;
     });

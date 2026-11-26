@@ -597,5 +597,7 @@ export const asTranslations: TranslationDictionary = {
   'chat.open_error': 'বাৰ্তালাপত সংযোগ কৰিব পৰা নগ’ল',
   'chat.today': 'আজি',
   'chat.yesterday': 'কালি',
+  'auth.logout': 'লগ আউট',
+  'auth.logout_confirm': 'আপুনি লগ আউট কৰিব বিচাৰেনেকি?',
   'chat.last_seen': 'শেষবাৰ {time} ত দেখা গৈছিল',
 };

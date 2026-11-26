@@ -156,7 +156,7 @@ export class FinanceController {
   // POST /api/v1/finance/withdraw
   static requestWithdrawal(req: Request, res: Response, next: NextFunction) {
     try {
-      const { farmerId, amount, payoutMethod, bankDetails } = req.body;
+      const { farmerId, amount, payoutMethod } = req.body;
 
       if (!farmerId || !amount || Number(amount) <= 0) {
         throw AppError.badRequest('Valid farmerId and positive withdrawal amount are required');

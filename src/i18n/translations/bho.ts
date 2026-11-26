@@ -597,5 +597,7 @@ export const bhoTranslations: TranslationDictionary = {
   'chat.open_error': 'बातचीत से जुड़ल नइखे जा सकत',
   'chat.today': 'आज',
   'chat.yesterday': 'काल्ह',
+  'auth.logout': 'लॉग आउट',
+  'auth.logout_confirm': 'का रउआ लॉग आउट करे के चाहत बानी?',
   'chat.last_seen': 'अंतिम बेर {time} पर देखल गइल',
 };

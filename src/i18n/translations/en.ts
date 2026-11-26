@@ -628,6 +628,8 @@ export const enTranslations = {
   'chat.open_error': 'Unable to connect to conversation',
   'chat.today': 'Today',
   'chat.yesterday': 'Yesterday',
+  'auth.logout': 'Log Out',
+  'auth.logout_confirm': 'Do you want to log out?',
   'chat.last_seen': 'Last seen {time}',
 };
 

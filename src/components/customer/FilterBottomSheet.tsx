@@ -23,7 +23,6 @@ export const FilterBottomSheet: React.FC = () => {
   // Calculate matching count
   const matchingCount = products.filter((p) => {
     if (filterState.category !== 'All' && p.category !== filterState.category) return false;
-    if (p.price < filterState.minPrice || p.price > filterState.maxPrice) return false;
     if (filterState.organicOnly && !p.isOrganic) return false;
     if (filterState.availableTodayOnly && !p.isAvailableToday) return false;
     if (p.distanceKm > filterState.maxDistanceKm) return false;

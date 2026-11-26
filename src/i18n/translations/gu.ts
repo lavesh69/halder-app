@@ -567,5 +567,7 @@ export const guTranslations: TranslationDictionary = {
   'chat.open_error': 'વાતચીત સાથે જોડાઈ શકાયું નથી',
   'chat.today': 'આજે',
   'chat.yesterday': 'ગઈકાલે',
+  'auth.logout': 'લૉગ આઉટ',
+  'auth.logout_confirm': 'શું તમે લૉગ આઉટ કરવા માંગો છો?',
   'chat.last_seen': 'છેલ્લે {time} વાગ્યે જોયું',
 };
