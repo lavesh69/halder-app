@@ -226,7 +226,7 @@ export class PhonePeService {
     merchantTransactionId: string,
     amount: number,
     orderId?: string,
-    userId?: string
+    _userId?: string
   ) {
     try {
       if (orderId) {
@@ -241,7 +241,7 @@ export class PhonePeService {
   /**
    * Mark order as paid upon successful verification
    */
-  static markTransactionSuccess(merchantTransactionId: string, phonePeTransactionId?: string) {
+  static markTransactionSuccess(merchantTransactionId: string, _phonePeTransactionId?: string) {
     try {
       Database.run(
         `UPDATE orders 

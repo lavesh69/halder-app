@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useApp } from '../../context/appContextUtils';
+import { useTheme } from '../../context/themeUtils';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
 import { handleAvatarError } from '../../utils/imageFallback';
 import { LanguageSelector } from '../common/LanguageSelector';
 import {
-  ShoppingBag,
   MapPin,
   Lock,
   Bell,
@@ -14,20 +13,16 @@ import {
   Sun,
   Moon,
   Monitor,
-  RotateCcw,
   ShieldCheck,
   ChevronRight,
   Copy,
   Edit2,
   LogOut,
-  Sparkles,
   Megaphone,
   Heart,
   Phone,
   Mail,
   X,
-  Sprout,
-  HandCoins,
 } from 'lucide-react';
 
 import { PrivacyPolicyModal } from '../common/PrivacyPolicyModal';
@@ -39,9 +34,7 @@ import { NotificationPreferencesModal } from './NotificationPreferencesModal';
 export const CustomerProfileView: React.FC = () => {
   const {
     currentUser,
-    setRole,
     setCustomerTab,
-    resetDemoData,
     showToast,
     logout,
     products,
@@ -59,7 +52,6 @@ export const CustomerProfileView: React.FC = () => {
 
   // Profile data state
   const [profileData, setProfileData] = useState<any>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
   // Modals state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -70,8 +62,7 @@ export const CustomerProfileView: React.FC = () => {
   const [isHelpSupportOpen, setIsHelpSupportOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const loadProfile = async () => {
-    setIsLoadingProfile(true);
+  const loadProfile = useCallback(async () => {
     try {
       const data = await ApiClient.getCustomerProfile();
       if (data) {
@@ -86,12 +77,17 @@ export const CustomerProfileView: React.FC = () => {
         if (cached) setProfileData(JSON.parse(cached));
       } catch {}
     }
-    setIsLoadingProfile(false);
-  };
+  }, []);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadProfile();
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadProfile]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);

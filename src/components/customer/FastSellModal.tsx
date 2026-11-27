@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
 import { compressImageFile, formatBytes, dataUrlToFile } from '../../utils/imageCompression';
@@ -118,65 +118,71 @@ export const FastSellModal: React.FC = () => {
   // Sync state whenever modal opens or editingListing changes
   useEffect(() => {
     if (!isFastSellOpen) return;
-
-    if (editingListing) {
-      setName(editingListing.name || '');
-      setCategory((editingListing.category as ProductCategory) || 'Vegetables');
-      setSubcategory(editingListing.subcategory || '');
-      setDescription(editingListing.description || '');
-      setUnit(editingListing.unit || 'kg');
-      setAvailableQuantity(editingListing.availableQuantity || '');
-      setMinOrderQuantity(editingListing.minOrderQuantity || 1);
-      setIsNegotiable(editingListing.isNegotiable ?? true);
-      setHarvestDate(editingListing.harvestDate || 'Harvested recently');
-      setProductGrade(editingListing.productGrade || 'Grade A (Premium)');
-      setQualityDescription(editingListing.qualityDescription || '');
-      setIsOrganic(!!editingListing.isOrganic);
-      setOrganicCertBody(editingListing.organicCertificationBody || '');
-      setPackagingInfo(editingListing.packagingInfo || '');
-      setState(editingListing.state || 'Uttarakhand');
-      setDistrict(editingListing.district || 'Dehradun');
-      setCity(editingListing.city || activeCity || 'Dehradun');
-      setVillage(editingListing.village || '');
-      setPostalCode(editingListing.postalCode || '');
-      setFarmLocation(editingListing.location || currentLocation || 'Farm Location');
-      setPickupAvailable(editingListing.pickupAvailable ?? true);
-      setFarmerDeliveryAvailable(editingListing.farmerDeliveryAvailable ?? true);
-      const existingPhotos =
-        editingListing.images && editingListing.images.length > 0
-          ? editingListing.images
-          : editingListing.image
-          ? [editingListing.image]
-          : [];
-      setUploadedPhotos(existingPhotos);
-      setStep(1);
-    } else {
-      setName('');
-      setCategory('Vegetables');
-      setSubcategory('');
-      setDescription('');
-      setUnit('kg');
-      setAvailableQuantity(100);
-      setMinOrderQuantity(1);
-      setIsNegotiable(true);
-      setHarvestDate('Harvested today');
-      setProductGrade('Grade A (Premium)');
-      setQualityDescription('Farm fresh produce directly graded at harvest.');
-      setIsOrganic(false);
-      setOrganicCertBody('');
-      setPackagingInfo('Standard crates/bags');
-      setState((currentUser as any)?.state || 'Uttarakhand');
-      setDistrict((currentUser as any)?.district || 'Dehradun');
-      setCity((currentUser as any)?.city || activeCity || 'Dehradun');
-      setVillage((currentUser as any)?.village || '');
-      setPostalCode((currentUser as any)?.postal_code || '');
-      setFarmLocation((currentUser as any)?.location || currentLocation || 'Local Farm');
-      setPickupAvailable(true);
-      setFarmerDeliveryAvailable(true);
-      setUploadedPhotos([]);
-      setStep(1);
-    }
-  }, [isFastSellOpen, editingListing]);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      if (editingListing) {
+        setName(editingListing.name || '');
+        setCategory((editingListing.category as ProductCategory) || 'Vegetables');
+        setSubcategory(editingListing.subcategory || '');
+        setDescription(editingListing.description || '');
+        setUnit(editingListing.unit || 'kg');
+        setAvailableQuantity(editingListing.availableQuantity || '');
+        setMinOrderQuantity(editingListing.minOrderQuantity || 1);
+        setIsNegotiable(editingListing.isNegotiable ?? true);
+        setHarvestDate(editingListing.harvestDate || 'Harvested recently');
+        setProductGrade(editingListing.productGrade || 'Grade A (Premium)');
+        setQualityDescription(editingListing.qualityDescription || '');
+        setIsOrganic(!!editingListing.isOrganic);
+        setOrganicCertBody(editingListing.organicCertificationBody || '');
+        setPackagingInfo(editingListing.packagingInfo || '');
+        setState(editingListing.state || 'Uttarakhand');
+        setDistrict(editingListing.district || 'Dehradun');
+        setCity(editingListing.city || activeCity || 'Dehradun');
+        setVillage(editingListing.village || '');
+        setPostalCode(editingListing.postalCode || '');
+        setFarmLocation(editingListing.location || currentLocation || 'Farm Location');
+        setPickupAvailable(editingListing.pickupAvailable ?? true);
+        setFarmerDeliveryAvailable(editingListing.farmerDeliveryAvailable ?? true);
+        const existingPhotos =
+          editingListing.images && editingListing.images.length > 0
+            ? editingListing.images
+            : editingListing.image
+            ? [editingListing.image]
+            : [];
+        setUploadedPhotos(existingPhotos);
+        setStep(1);
+      } else {
+        setName('');
+        setCategory('Vegetables');
+        setSubcategory('');
+        setDescription('');
+        setUnit('kg');
+        setAvailableQuantity(100);
+        setMinOrderQuantity(1);
+        setIsNegotiable(true);
+        setHarvestDate('Harvested today');
+        setProductGrade('Grade A (Premium)');
+        setQualityDescription('Farm fresh produce directly graded at harvest.');
+        setIsOrganic(false);
+        setOrganicCertBody('');
+        setPackagingInfo('Standard crates/bags');
+        setState((currentUser as any)?.state || 'Uttarakhand');
+        setDistrict((currentUser as any)?.district || 'Dehradun');
+        setCity((currentUser as any)?.city || activeCity || 'Dehradun');
+        setVillage((currentUser as any)?.village || '');
+        setPostalCode((currentUser as any)?.postal_code || '');
+        setFarmLocation((currentUser as any)?.location || currentLocation || 'Local Farm');
+        setPickupAvailable(true);
+        setFarmerDeliveryAvailable(true);
+        setUploadedPhotos([]);
+        setStep(1);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [isFastSellOpen, editingListing, activeCity, currentLocation, currentUser]);
 
   if (!isFastSellOpen) return null;
 
@@ -244,7 +250,7 @@ export const FastSellModal: React.FC = () => {
               }),
           'success'
         );
-      } catch (err: any) {
+      } catch {
         showToast('Failed to process photos', 'error');
       } finally {
         setIsCompressing(false);

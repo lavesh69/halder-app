@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../../types';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { formatDistance } from '../../utils/formatters';
 import { handleImageError, DEFAULT_PRODUCE_IMAGE } from '../../utils/imageFallback';
@@ -62,7 +62,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       return;
     }
     showToast(`Dialing ${product.farmerName} (${phone})`, 'info');
-    window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
+    window.location.assign(`tel:${phone.replace(/\s+/g, '')}`);
   };
 
   const handleQuickChat = (e: React.MouseEvent) => {

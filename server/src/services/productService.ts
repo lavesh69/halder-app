@@ -277,7 +277,7 @@ export class ProductService {
     setImmediate(() => {
       try {
         Database.run('UPDATE products SET views_count = views_count + 1 WHERE id = ?', [id]);
-      } catch (_) {
+      } catch {
         // Suppress non-critical analytics update lock contention
       }
     });

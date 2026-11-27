@@ -1,6 +1,6 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useApp } from '../../context/appContextUtils';
+import { useTheme } from '../../context/themeUtils';
 import { useTranslation } from '../../i18n';
 import { LanguageSelector } from './LanguageSelector';
 import { Logo } from './Logo';
@@ -17,11 +17,7 @@ import {
   Shield,
   Sprout,
   ShoppingBag,
-  Compass,
-  Megaphone,
-  HandCoins,
   Plus,
-  User,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -29,13 +25,11 @@ export const Header: React.FC = () => {
     role,
     setRole: _setRole,
     currentUser,
-    logout,
     currentLocation,
     setIsLocationModalOpen,
     isDeviceFrame,
     setIsDeviceFrame,
     favorites,
-    cart,
     setCustomerTab,
     setIsSearchScreenOpen,
     notifications,

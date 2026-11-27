@@ -1,26 +1,20 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import {
   Home,
-  Clock,
   User,
   LayoutDashboard,
-  Sprout,
   Plus,
   ShieldCheck,
-  Package,
   Layers,
   BarChart3,
   Users,
   MessageCircle,
   Megaphone,
   ShoppingBag,
-  TrendingUp,
   Activity,
   Settings,
-  Truck,
-  CreditCard,
   Database,
   LogOut,
 } from 'lucide-react';
@@ -38,7 +32,6 @@ export const BottomNav: React.FC = () => {
     setIsFastSellOpen,
     setEditingListing,
     setIsSearchScreenOpen,
-    orders,
     products,
     farmers,
     unreadChatCount,

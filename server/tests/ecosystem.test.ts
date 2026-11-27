@@ -1,7 +1,6 @@
 import assert from 'assert';
 import http from 'http';
 import { app } from '../src/app';
-import { Database } from '../src/db/database';
 import { runMigrations } from '../src/db/migrate';
 import { seedDatabase } from '../src/db/seed';
 

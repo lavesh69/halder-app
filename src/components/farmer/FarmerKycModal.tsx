@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { compressImageFile } from '../../utils/imageCompression';
 import {
   X,
   ShieldCheck,
-  FileText,
   CheckCircle2,
   AlertCircle,
   Clock,
   Upload,
   Camera,
-  Image as ImageIcon,
-  Check,
 } from 'lucide-react';
 import { ApiClient } from '../../api/client';
 
@@ -54,7 +51,6 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
   const [docNumber, setDocNumber] = useState('5420-9182-4412');
   const [docUrl, setDocUrl] = useState(DOCUMENT_PRESETS[0].url);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,8 +66,7 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
     rejectionReason: string | null;
   } | null>(null);
 
-  const loadStatus = async () => {
-    setIsLoadingStatus(true);
+  const loadStatus = useCallback(async () => {
     try {
       const res = await ApiClient.getFarmerKYC(farmerId);
       if (res?.data) {
@@ -82,16 +77,19 @@ export const FarmerKycModal: React.FC<FarmerKycModalProps> = ({
       }
     } catch {
       // Ignore initial load error if new profile
-    } finally {
-      setIsLoadingStatus(false);
     }
-  };
+  }, [farmerId]);
 
   useEffect(() => {
-    if (isOpen) {
-      loadStatus();
-    }
-  }, [isOpen, farmerId]);
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadStatus();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, loadStatus]);
 
   if (!isOpen) return null;
 

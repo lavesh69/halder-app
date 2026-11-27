@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Product,
   Farmer,
@@ -8,7 +8,6 @@ import {
   OrderStatus,
   PaymentMethod,
   FilterState,
-  ChatMessage,
   GroupedFarmerCart,
   User,
   Category,
@@ -18,328 +17,23 @@ import {
 import { initialCategories } from '../data/mockData';
 import confetti from 'canvas-confetti';
 import { ApiClient } from '../api/client';
-import { calculateHaversineDistanceKm } from '../utils/geo';
 import { PushNotificationClient } from '../services/pushNotificationClient';
-
-export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
-export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
-export type AdminTab = 'overview' | 'database' | 'users' | 'verification' | 'products' | 'reports' | 'orders' | 'categories' | 'audit' | 'settings' | 'logistics' | 'finance' | 'device-bans';
-
-export interface ToastInfo {
-  id: string;
-  message: string;
-  type: 'success' | 'info' | 'error';
-}
-
-export interface PlatformSettings {
-  platformCommissionRate: number;
-  freeDeliveryThreshold: number;
-  standardDeliveryFee: number;
-  helplinePhone: string;
-  supportEmail: string;
-  emergencyAlert: string;
-}
-
-export interface DisputeRecord {
-  id: string;
-  orderId: string;
-  orderNumber: string;
-  farmerId?: string;
-  farmerName: string;
-  customerName: string;
-  customerPhone: string;
-  category: string;
-  details: string;
-  amount: number;
-  status: 'UNDER_INVESTIGATION' | 'REFUNDED' | 'RESOLVED_DISMISSED';
-  createdAt: string;
-  resolutionNotes?: string;
-}
-
-interface AppContextType {
-  role: Role;
-  setRole: (role: Role) => void;
-  customerTab: CustomerTab;
-  setCustomerTab: (tab: CustomerTab) => void;
-  farmerTab: FarmerTab;
-  setFarmerTab: (tab: FarmerTab) => void;
-  adminTab: AdminTab;
-  setAdminTab: (tab: AdminTab) => void;
-
-  // Onboarding & Auth
-  showSplash: boolean;
-  setShowSplash: (show: boolean) => void;
-  hasSeenOnboarding: boolean;
-  setHasSeenOnboarding: (seen: boolean) => void;
-  isLoggedIn: boolean;
-  setIsLoggedIn: (logged: boolean) => void;
-  isLoginModalOpen: boolean;
-  setIsLoginModalOpen: (open: boolean) => void;
-  setAuthenticatedSession: (user: User, token?: string) => void;
-  loginUser: (role: Role, phone?: string) => void;
-  loginWithGoogle: (idToken: string, role?: Role) => Promise<boolean>;
-  currentUser: User | null;
-  updateCurrentUser: (updates: Partial<User>) => void;
-  users: User[];
-  login: (emailOrPhone: string, role?: Role) => boolean;
-  signup: (name: string, email: string, phone: string, role: Role) => void;
-  logout: () => void;
-  toggleUserStatus: (userId: string) => void;
-  changeUserRole: (userId: string, newRole: Role) => void;
-  toggleProductFeatured: (productId: string) => void;
-  toggleProductUrgent: (productId: string) => void;
-  deleteUser: (userId: string) => void;
-  addUser: (userData: Omit<User, 'id' | 'created_at' | 'updated_at'>) => void;
-
-  // Categories
-  categories: Category[];
-  addCategory: (cat: Omit<Category, 'id'>) => void;
-  toggleCategoryActive: (catId: string) => void;
-  deleteCategory: (catId: string) => void;
-
-  // Farmer verification
-  approveFarmerVerification: (farmerId: string) => void;
-  rejectFarmerVerification: (farmerId: string) => void;
-
-  // Reviews
-  reviews: Review[];
-  addReview: (review: Omit<Review, 'id' | 'createdAt'>) => void;
-
-  // In-app Notifications
-  notifications: AppNotification[];
-  isNotificationModalOpen: boolean;
-  setIsNotificationModalOpen: (open: boolean) => void;
-  markNotificationAsRead: (id: string) => void;
-  markAllNotificationsAsRead: () => void;
-  deleteNotification: (id: string) => void;
-  sendNotification: (title: string, message: string, recipientRole: Role) => void;
-
-  // Marketplace Data
-  products: Product[];
-  isLoadingProducts: boolean;
-  refreshProducts: () => Promise<void>;
-  farmers: Farmer[];
-  orders: Order[];
-  cart: CartItem[];
-  favorites: string[];
-  toggleFavorite: (productId: string) => void;
-  isFavorite: (productId: string) => boolean;
-
-  // Modals & Selected items
-  selectedProduct: Product | null;
-  setSelectedProduct: (p: Product | null) => void;
-  selectedFarmer: Farmer | null;
-  setSelectedFarmer: (f: Farmer | null) => void;
-  isPostRequirementOpen: boolean;
-  setIsPostRequirementOpen: (open: boolean) => void;
-  trackingOrder: Order | null;
-  setTrackingOrder: (o: Order | null) => void;
-
-  // Location-first State
-  currentLocation: string;
-  setCurrentLocation: (loc: string) => void;
-  userCoordinates: { lat: number; lng: number } | null;
-  setUserCoordinates: (coords: { lat: number; lng: number } | null) => void;
-  activeCity: string;
-  setActiveCity: (city: string) => void;
-  isLocationModalOpen: boolean;
-  setIsLocationModalOpen: (open: boolean) => void;
-  searchRadiusKm: number;
-  setSearchRadiusKm: (r: number) => void;
-
-  // Search & Filter
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (c: string) => void;
-  isSearchScreenOpen: boolean;
-  setIsSearchScreenOpen: (open: boolean) => void;
-  isFilterModalOpen: boolean;
-  setIsFilterModalOpen: (open: boolean) => void;
-  filterState: FilterState;
-  setFilterState: React.Dispatch<React.SetStateAction<FilterState>>;
-  resetFilters: () => void;
-
-  // Fast 4-Step "+ Sell" Modal
-  isFastSellOpen: boolean;
-  setIsFastSellOpen: (open: boolean) => void;
-  editingListing: Product | null;
-  setEditingListing: (p: Product | null) => void;
-  publishListing: (listingData: any) => void;
-  addProduct: (listingData: any) => void;
-  updateProductStatusAction: (productId: string, action: 'pause' | 'resume' | 'mark_sold' | 'renew') => Promise<void>;
-
-  // Agricultural Classifieds Modals
-  isSavedSearchesOpen: boolean;
-  setIsSavedSearchesOpen: (open: boolean) => void;
-  stockControlProduct: Product | null;
-  setStockControlProduct: (p: Product | null) => void;
-
-  // Chat / Contact
-  isChatModalOpen: boolean;
-  setIsChatModalOpen: (open: boolean) => void;
-  chatFarmer: Farmer | null;
-  setChatFarmer: (f: Farmer | null) => void;
-  activeConversationId: string | null;
-  setActiveConversationId: (id: string | null) => void;
-  activeConversationProductId: string | null;
-  setActiveConversationProductId: (id: string | null) => void;
-  pendingChatInitialMessage: string | null;
-  setPendingChatInitialMessage: (msg: string | null) => void;
-  chatConversationError: string | null;
-  isOpeningChat: boolean;
-  openFarmerChat: (farmer: Farmer, initialMessage?: string, productId?: string) => void;
-  retryOpenChat: () => void;
-  openConversationById: (conversationId: string) => Promise<void>;
-  unreadChatCount: number;
-  setUnreadChatCount: (count: number) => void;
-  chatConversations: any[];
-  refreshChatConversations: () => Promise<void>;
-
-  // Buy Now vs Multi-Farmer Cart
-  buyNowProduct: { product: Product; quantity: number } | null;
-  setBuyNowProduct: (item: { product: Product; quantity: number } | null) => void;
-  groupedCart: GroupedFarmerCart[];
-
-  // Responsive device frame toggle
-  isDeviceFrame: boolean;
-  setIsDeviceFrame: (isFrame: boolean) => void;
-
-  // Toast
-  toast: ToastInfo | null;
-  showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
-
-  // Cart actions
-  addToCart: (product: Product, quantity?: number) => void;
-  updateCartQuantity: (productId: string, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
-  clearCart: () => void;
-  cartTotal: number;
-  cartItemsCount: number;
-
-  // Order actions
-  placeOrder: (details: {
-    address: string;
-    slot: string;
-    paymentMethod: PaymentMethod;
-    farmerTip: number;
-    isBuyNow?: boolean;
-    instructions?: string;
-  }) => Order;
-  updateOrderStatus: (
-    orderId: string,
-    status: OrderStatus,
-    logistics?: { driverName?: string; driverPhone?: string; vehicleNumber?: string; estTime?: string }
-  ) => void;
-  advanceOrderDemoStep: (orderId: string) => void;
-
-  // Farmer CRUD
-  toggleProductAvailability: (productId: string) => void;
-  toggleProductSold: (productId: string) => void;
-  updateProductPrice: (productId: string, newPrice: number) => void;
-  updateProduct: (productId: string, updates: Partial<Product>) => void;
-  bulkUpdateProducts: (productIds: string[], updates: Partial<Product>) => void;
-  bulkDeleteProducts: (productIds: string[]) => void;
-  boostProduct: (productId: string, plan: 'featured' | 'urgent' | 'combo') => void;
-  deleteProduct: (productId: string) => void;
-  resetDemoData: () => void;
-  clearAllDummyAccounts: () => Promise<void>;
-
-  // Platform Governance & Settings
-  platformSettings: PlatformSettings;
-  updatePlatformSettings: (newSettings: Partial<PlatformSettings>) => void;
-
-  // Disputes & Grievance Redressal
-  disputes: DisputeRecord[];
-  raiseDispute: (disputeData: Omit<DisputeRecord, 'id' | 'status' | 'createdAt'>) => void;
-  resolveDispute: (disputeId: string, action: 'refund' | 'dismiss', notes?: string) => void;
-
-  // Review & Rating Modal Target
-  reviewTarget: { farmerId: string; farmerName: string; orderId?: string } | null;
-  setReviewTarget: (target: { farmerId: string; farmerName: string; orderId?: string } | null) => void;
-}
-
-const initialFilterState: FilterState = {
-  category: 'All',
-  minPrice: 0,
-  maxPrice: 100000,
-  maxDistanceKm: 50,
-  availableTodayOnly: false,
-  organicOnly: false,
-  sortBy: 'nearest',
-};
-
-const initialPlatformSettings: PlatformSettings = {
-  platformCommissionRate: 0,
-  freeDeliveryThreshold: 200,
-  standardDeliveryFee: 25,
-  helplinePhone: '',
-  supportEmail: '',
-  emergencyAlert: '',
-};
-
-const initialDisputes: DisputeRecord[] = [];
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-export const isDummyOrTestAccount = (u: any): boolean => {
-  if (!u) return false;
-  const name = String(u.name || '').toLowerCase();
-  const email = String(u.email || '').toLowerCase();
-  const phone = String(u.phone || '').toLowerCase();
-  const id = String(u.id || '').toLowerCase();
-  const farmName = String(u.farmName || u.farm_name || '').toLowerCase();
-
-  // Whitelist core seed users & genuine farmers
-  if (['user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1'].includes(id)) {
-    return false;
-  }
-  if (['farmer-1', 'farmer-2', 'farmer-3'].includes(id)) {
-    return false;
-  }
-
-  // Preserve user's own genuine account (e.g. lavesh)
-  if (email.includes('laveshdob') || phone.includes('7579406954') || name === 'lavesh') {
-    return false;
-  }
-
-  // Detect test patterns and fixture accounts
-  return (
-    name.includes('test') ||
-    email.includes('test') ||
-    id.includes('test') ||
-    email.includes('1795') ||
-    email.includes('buyer_test') ||
-    name.includes('ramesh negi') ||
-    name.includes('rohit verma') ||
-    name.includes('storage test') ||
-    name.includes('live kisan') ||
-    farmName.includes('storage test') ||
-    farmName.includes('live kisan') ||
-    name.includes('suresh chandra') ||
-    name.includes('kishore singh') ||
-    name.includes('vikas rawat') ||
-    name.includes('balwant singh negi') ||
-    name === 'ramesh singh'
-  );
-};
-
-const safeStorageSet = (key: string, value: string) => {
-  try {
-    localStorage.setItem(key, value);
-  } catch (err: any) {
-    if (err?.name === 'QuotaExceededError' || err?.code === 22) {
-      console.warn(`[HALDER Storage] LocalStorage quota exceeded for ${key}. Pruning non-critical cache.`);
-      try {
-        localStorage.removeItem('halder_recent_searches');
-        localStorage.removeItem('halder_weather_cache');
-        localStorage.setItem(key, value);
-      } catch {
-        console.error('[HALDER Storage] LocalStorage is full. Skipping storage write.');
-      }
-    }
-  }
-};
+import {
+  AdminTab,
+  AppContext,
+  CustomerTab,
+  DisputeRecord,
+  FarmerTab,
+  PlatformSettings,
+  ToastInfo,
+  initialDisputes,
+  initialFilterState,
+  initialPlatformSettings,
+  isDummyOrTestAccount,
+  mapBackendProduct,
+  nextGeneratedId,
+  safeStorageSet,
+} from './appContextUtils';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>(() => {
@@ -690,67 +384,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     safeStorageSet('halder-role', role);
   }, [role]);
 
-  const mapBackendProduct = (p: any): Product => ({
-    id: p.id,
-    name: p.name,
-    category: p.category_name || 'Vegetables',
-    price: Number(p.price),
-    unit: p.unit,
-    availableQuantity: Number(p.available_quantity ?? 0),
-    totalQuantity: p.total_quantity !== undefined ? Number(p.total_quantity) : Number(p.available_quantity ?? 0),
-    reservedQuantity: Number(p.reserved_quantity ?? 0),
-    soldQuantity: Number(p.sold_quantity ?? 0),
-    minOrderQuantity: Number(p.min_order_quantity ?? 1),
-    min_order_quantity: Number(p.min_order_quantity ?? 1),
-    stockStatus: p.stock_status || 'available',
-    stock_status: p.stock_status || 'available',
-    isNegotiable: p.is_negotiable !== 0,
-    productGrade: p.product_grade || 'Grade A',
-    qualityDescription: p.quality_description || '',
-    organicCertificationBody: p.organic_certification_body || '',
-    storageInfo: p.storage_info || '',
-    packagingInfo: p.packaging_info || '',
-    harvestDate: p.harvest_date || '',
-    description: p.description || '',
-    farmerId: p.farmer_id,
-    farmerName: p.farmer_name,
-    farmerPhone: p.farmer_phone || undefined,
-    farmName: p.farm_name,
-    farmerAvatar: p.farmer_avatar || 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200',
-    location: p.location,
-    city: p.city || 'Dehradun',
-    district: p.district || p.city || 'Dehradun',
-    state: p.state || 'Uttarakhand',
-    village: p.village || '',
-    postalCode: p.postal_code || '',
-    pickupAvailable: p.pickup_available !== 0,
-    farmerDeliveryAvailable: p.farmer_delivery_available !== 0,
-    distanceKm: (() => {
-      const lat = p.latitude !== undefined && p.latitude !== null ? Number(p.latitude) : undefined;
-      const lng = p.longitude !== undefined && p.longitude !== null ? Number(p.longitude) : undefined;
-      if (userCoordinates && lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng)) {
-        return Math.round(calculateHaversineDistanceKm(userCoordinates, { lat, lng }) * 10) / 10;
-      }
-      return typeof p.distance_km === 'number' ? p.distance_km : 2.1;
-    })(),
-    latitude: p.latitude !== undefined && p.latitude !== null ? Number(p.latitude) : undefined,
-    longitude: p.longitude !== undefined && p.longitude !== null ? Number(p.longitude) : undefined,
-    isOrganic: Boolean(p.is_organic),
-    availableToday: Boolean(p.available_today),
-    isAvailable: p.status === 'active' || p.status === undefined,
-    status: p.status || 'active',
-    freshnessTag: p.freshness_tag || 'Fresh Harvest',
-    image: p.image,
-    images: Array.isArray(p.images) ? p.images : p.image ? [p.image] : [],
-    priceSlabs: Array.isArray(p.price_slabs) ? p.price_slabs : Array.isArray(p.priceSlabs) ? p.priceSlabs : undefined,
-    price_slabs: Array.isArray(p.price_slabs) ? p.price_slabs : Array.isArray(p.priceSlabs) ? p.priceSlabs : undefined,
-    rating: p.rating || 5.0,
-    viewsCount: p.views_count || 12,
-    likesCount: p.likes_count || 4,
-    createdAt: p.created_at || p.createdAt || new Date().toISOString(),
-    createdAtTime: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Today',
-  });
-
   // URL Deep-Linking for Direct Ad Sharing (?ad=<productId>)
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -773,6 +406,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    let active = true;
     try {
       const params = new URLSearchParams(window.location.search);
       const adId = params.get('ad');
@@ -782,16 +416,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // 1. Check if already present in local products state
         const matched = products.find((p) => p.id === adId);
         if (matched) {
-          setSelectedProduct(matched);
-          return;
+          Promise.resolve().then(() => {
+            if (active) setSelectedProduct(matched);
+          });
+          return () => {
+            active = false;
+          };
         }
 
         // 2. Fallback: Fetch directly from backend server for WhatsApp shared deep links
         ApiClient.getProductById(adId)
           .then((backendProd: any) => {
+            if (!active) return;
             const raw = backendProd?.product || backendProd?.data || backendProd;
             if (raw && (raw.id || raw.name)) {
-              const mapped = mapBackendProduct(raw);
+              const mapped = mapBackendProduct(raw, userCoordinates);
               setProducts((prev) => (prev.some((p) => p.id === mapped.id) ? prev : [mapped, ...prev]));
               setSelectedProduct(mapped);
             }
@@ -801,10 +440,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
       }
     } catch {}
-  }, [products]);
+    return () => {
+      active = false;
+    };
+  }, [products, userCoordinates]);
 
   // Live Server Backend Synchronization
-  const refreshProducts = async () => {
+  const refreshProducts = useCallback(async () => {
     setIsLoadingProducts(true);
     try {
       const prodRes = await ApiClient.getProducts({
@@ -814,7 +456,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         radiusKm: searchRadiusKm,
       });
       if (prodRes?.products?.length > 0) {
-        const mappedProducts: Product[] = prodRes.products.map(mapBackendProduct);
+        const mappedProducts: Product[] = prodRes.products.map((p: any) => mapBackendProduct(p, userCoordinates));
         setProducts(mappedProducts);
       }
     } catch (e) {
@@ -845,14 +487,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         })));
       }
     } catch {}
-  };
+  }, [searchRadiusKm, userCoordinates]);
 
   useEffect(() => {
     let isMounted = true;
-    refreshProducts();
+    Promise.resolve().then(() => {
+      if (isMounted) void refreshProducts();
+    });
 
     async function syncUserData() {
-      let token = localStorage.getItem('halder-auth-token');
+      const token = localStorage.getItem('halder-auth-token');
       if (!token) return;
       try {
         const meRes = await ApiClient.getMe();
@@ -869,7 +513,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               limit: 50,
             }).then((ownRes) => {
               if (isMounted && ownRes?.products?.length > 0) {
-                const ownMapped = ownRes.products.map(mapBackendProduct);
+                const ownMapped = ownRes.products.map((p: any) => mapBackendProduct(p));
                 setProducts((prev) => {
                   const otherProds = prev.filter((p) => p.farmerId !== meRes.user.farmerProfileId);
                   return [...ownMapped, ...otherProds];
@@ -978,16 +622,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch {}
     }
 
-    refreshProducts();
-    syncUserData();
+    Promise.resolve().then(() => {
+      if (isMounted) void syncUserData();
+    });
     return () => { isMounted = false; };
-  }, []);
+  }, [refreshProducts]);
 
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     const id = Date.now().toString();
     setToast({ id, message, type });
     setTimeout(() => {
-      setToast((current) => (current?.id === id ? null : current));
+      setToast((current: ToastInfo | null) => (current?.id === id ? null : current));
     }, 2800);
   };
 
@@ -1472,7 +1117,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    const tempId = `prod-${Date.now()}`;
+    const tempId = nextGeneratedId('prod');
     const newListing: Product = {
       ...listingData,
       id: tempId,
@@ -1509,7 +1154,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const created = await ApiClient.createProduct(payload);
       if (created?.id) {
-        const mapped = mapBackendProduct(created);
+        const mapped = mapBackendProduct(created, userCoordinates);
         setProducts((prev) => prev.map((p) => (p.id === tempId ? mapped : p)));
       }
       showToast(
@@ -1536,7 +1181,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Chat
-  const refreshChatConversations = async () => {
+  const refreshChatConversations = useCallback(async () => {
     try {
       const res = await ApiClient.getConversations();
       const list = Array.isArray(res) ? res : (res?.conversations || res?.data || []);
@@ -1548,12 +1193,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {
       console.warn('[HALDER Chat] Failed to refresh conversations:', e);
     }
-  };
+  }, []);
 
   // Event-driven + visibility-aware conversation refresh (no tight unnecessary polling)
   useEffect(() => {
     if (!isLoggedIn) return;
-    refreshChatConversations();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void refreshChatConversations();
+    });
 
     const handleChatEvent = () => {
       refreshChatConversations();
@@ -1570,10 +1218,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 25000);
 
     return () => {
+      active = false;
       window.removeEventListener('halder:chat-updated', handleChatEvent);
       clearInterval(interval);
     };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, refreshChatConversations]);
 
   const initiateConversationForFarmer = (farmer: Farmer, productId?: string) => {
     if (!ApiClient.hasToken()) {
@@ -1999,7 +1648,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (ApiClient.hasToken()) {
         const updated = await ApiClient.updateProductStatus(productId, action);
         if (updated?.id) {
-          const mapped = mapBackendProduct(updated);
+          const mapped = mapBackendProduct(updated, userCoordinates);
           setProducts((prev) => prev.map((p) => (p.id === productId ? mapped : p)));
         }
       }
@@ -2138,34 +1787,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     showToast('All dummy and test accounts permanently cleared!', 'success');
   };
-
-  // Proactive scrub of dummy and test accounts on application startup
-  useEffect(() => {
-    try {
-      const uRaw = localStorage.getItem('halder-users-v2');
-      if (uRaw) {
-        const uParsed = JSON.parse(uRaw);
-        if (Array.isArray(uParsed)) {
-          const uClean = uParsed.filter((u: any) => !isDummyOrTestAccount(u));
-          if (uClean.length !== uParsed.length) {
-            localStorage.setItem('halder-users-v2', JSON.stringify(uClean));
-            setUsers(uClean);
-          }
-        }
-      }
-      const fRaw = localStorage.getItem('halder-farmers-v2');
-      if (fRaw) {
-        const fParsed = JSON.parse(fRaw);
-        if (Array.isArray(fParsed)) {
-          const fClean = fParsed.filter((f: any) => !isDummyOrTestAccount(f));
-          if (fClean.length !== fParsed.length) {
-            safeStorageSet('halder-farmers-v2', JSON.stringify(fClean));
-            setFarmers(fClean);
-          }
-        }
-      }
-    } catch {}
-  }, []);
 
   return (
     <AppContext.Provider
@@ -2322,12 +1943,4 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {children}
     </AppContext.Provider>
   );
-};
-
-export const useApp = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
-  return context;
 };

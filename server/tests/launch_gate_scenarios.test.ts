@@ -14,7 +14,6 @@ let customerToken = '';
 let customerBToken = '';
 let farmerToken = '';
 let adminToken = '';
-let farmerProfileId = '';
 
 async function api(
   endpoint: string,
@@ -94,7 +93,6 @@ async function runLaunchGateScenarios() {
     });
     assert.strictEqual(farmerLogin.status, 200);
     farmerToken = farmerLogin.data.data.token;
-    farmerProfileId = 'farmer-1';
 
     const adminLogin = await api('/auth/login', {
       method: 'POST',

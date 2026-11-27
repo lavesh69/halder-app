@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, X, Check, Navigation, Building2, Compass } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { cityCoordinatesMap } from '../../utils/geo';
 
 const popularLocations = [
@@ -28,7 +28,6 @@ export const LocationModal: React.FC = () => {
     setIsLocationModalOpen,
     currentLocation,
     setCurrentLocation,
-    userCoordinates,
     setUserCoordinates,
     setActiveCity,
     searchRadiusKm,

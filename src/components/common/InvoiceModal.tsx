@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { formatCurrency } from '../../utils/formatters';
 import { X, Printer, ShieldCheck } from 'lucide-react';
 import { Logo } from './Logo';

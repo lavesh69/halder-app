@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ApiClient } from '../../api/client';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import {
   Sprout,
   Plus,
@@ -46,10 +46,11 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
   const [expectedHarvestDate, setExpectedHarvestDate] = useState('');
   const [estimatedYieldKg, setEstimatedYieldKg] = useState('500');
   const [farmingMethod, setFarmingMethod] = useState('Organic Certified');
-  const [certifications, setCertifications] = useState('NPOP / Jaivik Bharat');
+  const [certifications] = useState('NPOP / Jaivik Bharat');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nowMs] = useState(() => Date.now());
 
-  const fetchCrops = async () => {
+  const fetchCrops = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await ApiClient.getFarmerCrops(farmerId);
@@ -86,13 +87,18 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [farmerId]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchCrops();
-    }
-  }, [isOpen, farmerId]);
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void fetchCrops();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, fetchCrops]);
 
   if (!isOpen) return null;
 
@@ -333,7 +339,7 @@ export const FarmCropCalendarModal: React.FC<Props> = ({ isOpen, onClose, farmer
             <div className="space-y-3">
               {crops.map((crop) => {
                 const daysToHarvest = Math.ceil(
-                  (new Date(crop.expected_harvest_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                  (new Date(crop.expected_harvest_date).getTime() - nowMs) / (1000 * 60 * 60 * 24)
                 );
                 const isReady = daysToHarvest <= 7;
 

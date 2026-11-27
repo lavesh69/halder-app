@@ -16,7 +16,6 @@ let farmerAToken = '';
 let farmerBToken = '';
 let adminToken = '';
 let farmerAProfileId = '';
-let farmerBProfileId = '';
 
 async function request(
   endpoint: string,
@@ -112,7 +111,6 @@ async function runComprehensiveModulesTests() {
     });
     assert.strictEqual(farmLoginB.status, 200);
     farmerBToken = farmLoginB.data.data.token;
-    farmerBProfileId = farmLoginB.data.data.user.farmerProfileId || 'farmer-2';
 
     const adminLogin = await request('/auth/login', {
       method: 'POST',

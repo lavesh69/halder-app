@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { WebSocket, RawData } from 'ws';
 import { app } from '../src/app';
-import { initChatSocket, ChatSocketService } from '../src/websocket/chatSocket';
+import { initChatSocket } from '../src/websocket/chatSocket';
 import { Database } from '../src/db/database';
 import { runMigrations } from '../src/db/migrate';
 import { CryptoUtil } from '../src/utils/crypto';

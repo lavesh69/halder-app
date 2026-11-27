@@ -8,14 +8,10 @@ import {
   MessageCircle,
   ShieldCheck,
   CheckCircle2,
-  MapPin,
-  Calendar,
   AlertCircle,
-  Copy,
   Receipt,
-  Truck,
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 
 export interface DealSummaryData {
   dealReferenceId: string;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, X, Mic } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 
 interface SearchBarProps {
   placeholder?: string;

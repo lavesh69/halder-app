@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ListingCardSkeleton } from '../common/ListingCardSkeleton';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
 import { X, ChevronRight, Layers } from 'lucide-react';

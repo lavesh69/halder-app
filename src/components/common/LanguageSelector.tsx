@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation, SupportedLanguage, SUPPORTED_LANGUAGES, LanguageOption } from '../../i18n';
-import { useApp } from '../../context/AppContext';
+import { useTranslation, SUPPORTED_LANGUAGES, LanguageOption } from '../../i18n';
+import { useApp } from '../../context/appContextUtils';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 
 interface LanguageSelectorProps {

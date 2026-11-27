@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { ApiClient } from '../../api/client';
 import { Star, X, Check, MessageSquare, Loader2 } from 'lucide-react';
 

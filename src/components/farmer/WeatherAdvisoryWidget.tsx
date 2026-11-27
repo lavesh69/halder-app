@@ -1,21 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { fetchAgroWeather, AgroWeatherInfo } from '../../utils/weather';
-import { Sun, CloudRain, Wind, Droplets, Sparkles, RefreshCw } from 'lucide-react';
+import { Sun, CloudRain, Wind, Sparkles, RefreshCw } from 'lucide-react';
 
 export const WeatherAdvisoryWidget: React.FC<{ city?: string }> = ({ city = 'Dehradun' }) => {
   const [weather, setWeather] = useState<AgroWeatherInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadWeather = async () => {
+  const loadWeather = useCallback(async () => {
     setLoading(true);
     const data = await fetchAgroWeather(city);
     setWeather(data);
     setLoading(false);
-  };
+  }, [city]);
 
   useEffect(() => {
-    loadWeather();
-  }, [city]);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadWeather();
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadWeather]);
 
   if (!weather && loading) {
     return (

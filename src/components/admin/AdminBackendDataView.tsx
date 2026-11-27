@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ApiClient } from '../../api/client';
 import {
   Database,
@@ -61,7 +61,7 @@ export const AdminBackendDataView: React.FC<AdminBackendDataViewProps> = ({ show
   const [adminPassword, setAdminPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const loadBackendData = async () => {
+  const loadBackendData = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
@@ -87,11 +87,17 @@ export const AdminBackendDataView: React.FC<AdminBackendDataViewProps> = ({ show
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadBackendData();
-  }, []);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadBackendData();
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadBackendData]);
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();

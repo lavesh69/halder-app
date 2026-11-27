@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
 import { ChatSkeleton } from '../common/ChatSkeleton';

@@ -73,7 +73,6 @@ async function runMasterTest() {
     const custUsername = `buyer_${ts}`;
     const custEmail = `buyer_${ts}@halder.live`;
     const custTenDigit = `9810${ts.padStart(6, '0')}`;
-    const custPhoneSpaced = `+91 ${custTenDigit.slice(0, 5)} ${custTenDigit.slice(5)}`;
     const custPass = 'BuyerPass@2026!';
 
     // 1. Register Customer

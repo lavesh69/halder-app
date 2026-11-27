@@ -86711,7 +86711,7 @@ var AuthService = class {
     const farmerProfile = farmerProfileId ? Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [farmerProfileId]) : null;
     return { user, farmerProfile, token };
   }
-  static async login(usernameOrEmail, password, requestedRole) {
+  static async login(usernameOrEmail, password, _requestedRole) {
     if (!password || !password.trim()) {
       throw AppError.badRequest("Password is required to sign in.", "PASSWORD_REQUIRED");
     }
@@ -89035,7 +89035,7 @@ var ProductService = class _ProductService {
     setImmediate(() => {
       try {
         Database.run("UPDATE products SET views_count = views_count + 1 WHERE id = ?", [id]);
-      } catch (_) {
+      } catch {
       }
     });
     const images = Database.query(
@@ -93826,7 +93826,7 @@ var DeviceBanService = class {
         if (ban.fingerprint_hash) this.bannedFpsCache.set(ban.fingerprint_hash, ban);
       }
       this.cacheLoaded = true;
-    } catch (_) {
+    } catch {
     }
   }
   /**
@@ -94715,7 +94715,7 @@ var PhonePeService = class {
   /**
    * Persist transaction link in database
    */
-  static savePendingTransaction(merchantTransactionId, amount, orderId, userId) {
+  static savePendingTransaction(merchantTransactionId, amount, orderId, _userId) {
     try {
       if (orderId) {
         Database.run(
@@ -94729,7 +94729,7 @@ var PhonePeService = class {
   /**
    * Mark order as paid upon successful verification
    */
-  static markTransactionSuccess(merchantTransactionId, phonePeTransactionId) {
+  static markTransactionSuccess(merchantTransactionId, _phonePeTransactionId) {
     try {
       Database.run(
         `UPDATE orders 

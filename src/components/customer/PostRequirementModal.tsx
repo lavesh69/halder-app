@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import { ApiClient } from '../../api/client';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ProductCategory } from '../../types';
 import {
   X,
   Megaphone,
   MapPin,
-  Calendar,
-  Sparkles,
   Truck,
   ShieldCheck,
-  CheckCircle2,
-  Tag,
-  Clock,
-  Layers,
 } from 'lucide-react';
 
 interface PostRequirementModalProps {
@@ -50,7 +44,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
   onClose,
   onCreated,
 }) => {
-  const { showToast, currentUser } = useApp();
+  const { showToast } = useApp();
   const { t } = useTranslation();
 
   const [productName, setProductName] = useState('');
@@ -62,7 +56,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
   const [requiredDate, setRequiredDate] = useState('');
   const [qualityGrade, setQualityGrade] = useState(QUALITY_GRADES[0]);
   const [deliveryPreference, setDeliveryPreference] = useState<'pickup' | 'farmer_delivery'>('pickup');
-  const [village, setVillage] = useState('');
+  const [village] = useState('');
   const [district, setDistrict] = useState('Meerut');
   const [state, setState] = useState('Uttar Pradesh');
   const [postalCode, setPostalCode] = useState('250001');
@@ -126,7 +120,7 @@ export const PostRequirementModal: React.FC<PostRequirementModalProps> = ({
       showToast(`Requirement "${productName}" posted! Nearby farmers are receiving alerts.`, 'success');
       if (onCreated && createdReq) onCreated(createdReq);
       onClose();
-    } catch (err: any) {
+    } catch {
       const localReq = {
         id: `req-${Date.now()}`,
         product_name: productName.trim(),

@@ -76,7 +76,7 @@ export class DeviceBanService {
         if (ban.fingerprint_hash) this.bannedFpsCache.set(ban.fingerprint_hash, ban);
       }
       this.cacheLoaded = true;
-    } catch (_) {}
+    } catch {}
   }
 
   /**

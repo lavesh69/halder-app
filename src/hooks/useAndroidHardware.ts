@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { App as CapApp } from '@capacitor/app';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../context/appContextUtils';
 
 export function useAndroidHardware() {
   const {
@@ -152,7 +152,7 @@ export function useAndroidHardware() {
     };
 
     // Web Browser History PopState (Desktop & Mobile Browser Back Arrow)
-    const handleWebPopState = (e: PopStateEvent) => {
+    const handleWebPopState = (_e: PopStateEvent) => {
       closeTopModalOrStepBack();
     };
 
@@ -182,6 +182,21 @@ export function useAndroidHardware() {
     farmerTab,
     role,
     backPressedOnce,
+    showToast,
+    setBuyNowProduct,
+    setCustomerTab,
+    setFarmerTab,
+    setIsChatModalOpen,
+    setIsFilterModalOpen,
+    setIsFastSellOpen,
+    setIsLocationModalOpen,
+    setIsNotificationModalOpen,
+    setIsSavedSearchesOpen,
+    setIsSearchScreenOpen,
+    setSelectedFarmer,
+    setSelectedProduct,
+    setStockControlProduct,
+    setTrackingOrder,
   ]);
 
   // Push history state whenever any modal opens so Browser Back closes the modal

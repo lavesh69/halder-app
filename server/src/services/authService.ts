@@ -146,7 +146,7 @@ export class AuthService {
     return { user, farmerProfile, token };
   }
 
-  static async login(usernameOrEmail: string, password?: string, requestedRole?: 'customer' | 'farmer' | 'admin') {
+  static async login(usernameOrEmail: string, password?: string, _requestedRole?: 'customer' | 'farmer' | 'admin') {
     if (!password || !password.trim()) {
       throw AppError.badRequest('Password is required to sign in.', 'PASSWORD_REQUIRED');
     }

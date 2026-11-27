@@ -5,8 +5,9 @@
 import { getDeviceSecurityProfile } from '../utils/deviceFingerprint';
 
 export function getApiBaseUrl(): string {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+  const viteApiUrl = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL;
+  if (viteApiUrl) {
+    return viteApiUrl.replace(/\/+$/, '');
   }
   if (typeof window !== 'undefined') {
     const origin = window.location.origin || '';

@@ -1,7 +1,6 @@
 ﻿import { app } from '../src/app';
 import { Database } from '../src/db/database';
 import { CryptoUtil } from '../src/utils/crypto';
-import { v4 as uuidv4 } from 'uuid';
 
 const PORT = 5098;
 const BASE_URL = `http://localhost:${PORT}/api/v1`;
@@ -120,8 +119,7 @@ async function runSecurityMatrix() {
       [farmerB_profile, farmerB_id, now, now]
     );
 
-    // 3. Admin (Vikram)
-    const admin_id = 'user-adm-1';
+    // 3. Admin (Vikram) — user-adm-1
 
     // Generate authenticated JWT tokens directly via CryptoUtil
     const tokenCustA = CryptoUtil.generateToken({ userId: custA_id, role: 'customer', email: custA_email });

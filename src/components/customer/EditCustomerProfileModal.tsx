@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
 import { X, Camera, Loader2, Check, AlertCircle, Trash2 } from 'lucide-react';
@@ -32,7 +32,10 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
 
   // Sync state whenever modal opens or props/currentUser change
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
       const initialName = currentProfile?.name || currentUser?.name || '';
       const initialPhone = currentProfile?.phone || currentUser?.phone || '';
       const initialBio = currentProfile?.bio || (currentUser as any)?.bio || '';
@@ -45,7 +48,10 @@ export const EditCustomerProfileModal: React.FC<EditCustomerProfileModalProps> =
       setAvatarBase64(null);
       setIsAvatarRemoved(false);
       setError(null);
-    }
+    });
+    return () => {
+      active = false;
+    };
   }, [isOpen, currentProfile, currentUser]);
 
   if (!isOpen) return null;

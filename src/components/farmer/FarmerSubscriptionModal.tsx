@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ApiClient } from '../../api/client';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import {
   Crown,
   CheckCircle2,
@@ -9,7 +9,6 @@ import {
   X,
   Sparkles,
   ArrowRight,
-  TrendingUp,
 } from 'lucide-react';
 
 interface Props {
@@ -18,16 +17,18 @@ interface Props {
   farmerId: string;
 }
 
+const getThirtyDaysExpiryIso = () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
 export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farmerId }) => {
   const { showToast } = useApp();
   const [currentSub, setCurrentSub] = useState<any>(null);
   const [plans, setPlans] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [upgradingId, setUpgradingId] = useState<string | null>(null);
   const [pendingPaidPlan, setPendingPaidPlan] = useState<any | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  const fetchSubscription = async () => {
+  const fetchSubscription = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await ApiClient.getFarmerSubscription(farmerId);
@@ -48,13 +49,18 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [farmerId]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchSubscription();
-    }
-  }, [isOpen, farmerId]);
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void fetchSubscription();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, fetchSubscription]);
 
   if (!isOpen) return null;
 
@@ -75,7 +81,7 @@ export const FarmerSubscriptionModal: React.FC<Props> = ({ isOpen, onClose, farm
         plan_id: selectedPlan.id,
         plan_name: selectedPlan.name,
         max_listings: selectedPlan.maxListings,
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        expires_at: getThirtyDaysExpiryIso(),
       };
       setCurrentSub(updatedSub);
       try {

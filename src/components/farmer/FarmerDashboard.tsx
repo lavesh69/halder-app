@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
 import { WeatherAdvisoryWidget } from './WeatherAdvisoryWidget';

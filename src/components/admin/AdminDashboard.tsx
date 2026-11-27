@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useApp } from '../../context/AppContext';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useApp } from '../../context/appContextUtils';
 import { formatCurrency } from '../../utils/formatters';
-import { StatusBadge } from '../common/StatusBadge';
 import { ApiClient } from '../../api/client';
 import { PushNotificationClient } from '../../services/pushNotificationClient';
 import { AdminBackendDataView } from './AdminBackendDataView';
-import { Role, OrderStatus, Product, Farmer, User, Order } from '../../types';
+import { AdminDeviceBansTab } from './AdminDeviceBansTab';
+import { AdminKycViewerModal } from './AdminKycViewerModal';
+import { Role, User } from '../../types';
 import confetti from 'canvas-confetti';
 import {
   Database as DatabaseIcon,
   Users,
   ShieldCheck,
   ShoppingBag,
-  Package,
   Layers,
   BarChart3,
   CheckCircle2,
-  XCircle,
   Plus,
   Trash2,
   RefreshCw,
@@ -24,28 +23,19 @@ import {
   Copy,
   Bell,
   FileText,
-  ExternalLink,
   AlertCircle,
   Phone,
   MessageCircle,
   Mail,
-  MapPin,
   Eye,
   Zap,
   Flame,
   ShieldAlert,
-  Sliders,
   Activity,
-  ArrowUpRight,
   Lock,
-  Unlock,
-  Radio,
   ChevronRight,
   Check,
-  X,
   Edit2,
-  Star,
-  Navigation,
   Send,
   Download,
   UserPlus,
@@ -122,23 +112,21 @@ export const AdminDashboard: React.FC = () => {
 
   // Keep local settings in sync if platformSettings change in context
   useEffect(() => {
-    if (platformSettings) {
+    if (!platformSettings) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
       setPlatformCommissionRate(platformSettings.platformCommissionRate ?? 0);
       setFreeDeliveryThreshold(platformSettings.freeDeliveryThreshold ?? 200);
       setStandardDeliveryFee(platformSettings.standardDeliveryFee ?? 25);
       setHelplinePhone(platformSettings.helplinePhone ?? '');
       setSupportEmail(platformSettings.supportEmail ?? '');
       setEmergencyAlert(platformSettings.emergencyAlert ?? '');
-    }
+    });
+    return () => {
+      active = false;
+    };
   }, [platformSettings]);
-
-  // Logistics & Fleet States (Module 5)
-  const [deliveryPartners, setDeliveryPartners] = useState<any[]>([]);
-  const [deliveryTasks, setDeliveryTasks] = useState<any[]>([]);
-
-  // Financial Ledger States (Module 6)
-  const [financialDashboard, setFinancialDashboard] = useState<any>(null);
-  const [financialTransactions, setFinancialTransactions] = useState<any[]>([]);
 
   // Overview Metrics Time Range
   const [metricsTimeRange, setMetricsTimeRange] = useState<'today' | 'week' | 'all'>('all');
@@ -156,10 +144,8 @@ export const AdminDashboard: React.FC = () => {
   const [productCategoryFilter, setProductCategoryFilter] = useState('All');
   const [productModerationFilter, setProductModerationFilter] = useState<'all' | 'active' | 'paused' | 'featured' | 'urgent'>('all');
   const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   const [auditSearch, setAuditSearch] = useState('');
-  const [auditActionFilter, setAuditActionFilter] = useState<string>('all');
 
   // Modals & Drawers States
   const [inspectingKycDoc, setInspectingKycDoc] = useState<any | null>(null);
@@ -195,17 +181,23 @@ export const AdminDashboard: React.FC = () => {
   const [manualDeviceIdInput, setManualDeviceIdInput] = useState('');
   const [deviceBanSearch, setDeviceBanSearch] = useState('');
 
-  const loadBannedDevices = async () => {
+  const loadBannedDevices = useCallback(async () => {
     try {
       const res = await ApiClient.getBannedDevices();
       if (Array.isArray(res)) setBannedDevicesList(res);
       else if (res?.data && Array.isArray(res.data)) setBannedDevicesList(res.data);
     } catch {}
-  };
+  }, []);
 
   useEffect(() => {
-    loadBannedDevices();
-  }, []);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadBannedDevices();
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadBannedDevices]);
 
   const handleConfirmDeviceBan = async () => {
     if (!banTarget?.id && !manualDeviceIdInput.trim()) {
@@ -249,48 +241,35 @@ export const AdminDashboard: React.FC = () => {
   const [newCatImage, setNewCatImage] = useState('https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80');
 
   // Load server-side live data
-  const loadServerData = async () => {
+  const loadServerData = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      // 1. Pending KYC queue
-      const kycRes = await ApiClient.adminGetPendingKYC().catch(() => null);
-      if (kycRes?.data) setPendingKyc(kycRes.data);
-
-      // 2. Kill Switch states
-      const killRes = await ApiClient.getKillSwitch().catch(() => null);
-      if (killRes?.data) setKillSwitchStates(killRes.data);
-
-      // 3. Audit Logs
-      const auditRes = await ApiClient.getAuditLogs().catch(() => null);
-      if (auditRes?.data) setAuditLogs(auditRes.data);
-
-      // 4. Logistics Fleet & Tasks (Module 5)
-      const [partnersRes, tasksRes] = await Promise.all([
-        ApiClient.getDeliveryPartners().catch(() => []),
-        ApiClient.getDeliveryTasks().catch(() => []),
-      ]);
-      setDeliveryPartners(partnersRes || []);
-      setDeliveryTasks(tasksRes || []);
-
-      // 5. Financial Dashboard & Transactions (Module 6)
-      const [finRes, txRes, repRes] = await Promise.all([
-        ApiClient.getFinancialDashboard().catch(() => null),
-        ApiClient.getFinancialTransactions({ limit: 50 }).catch(() => []),
+      const [kycRes, killRes, auditRes, repRes] = await Promise.all([
+        ApiClient.adminGetPendingKYC().catch(() => null),
+        ApiClient.getKillSwitch().catch(() => null),
+        ApiClient.getAuditLogs().catch(() => null),
         ApiClient.getAdminReports().catch(() => null),
       ]);
-      if (finRes) setFinancialDashboard(finRes);
-      setFinancialTransactions(txRes || []);
+      if (kycRes?.data) setPendingKyc(kycRes.data);
+      if (killRes?.data) setKillSwitchStates(killRes.data);
+      if (auditRes?.data) setAuditLogs(auditRes.data);
       if (Array.isArray(repRes)) setServerReports(repRes);
     } catch (e: any) {
       console.warn('[AdminDashboard] Server data refresh warning:', e.message);
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadServerData();
-  }, [activeTab]);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadServerData();
+    });
+    return () => {
+      active = false;
+    };
+  }, [activeTab, loadServerData]);
 
   // Handle Kill Switch Toggle
   const handleToggleKillSwitch = async (feature: string, currentState: boolean) => {
@@ -529,41 +508,36 @@ export const AdminDashboard: React.FC = () => {
   }, [farmers, farmerSearch, farmerFilter]);
 
   // Filtered Products (Listings Moderation)
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      if (productCategoryFilter !== 'All' && p.category !== productCategoryFilter) return false;
-      if (productModerationFilter === 'active' && !p.isAvailable) return false;
-      if (productModerationFilter === 'paused' && p.isAvailable) return false;
-      if (productModerationFilter === 'featured' && !p.isFeatured) return false;
-      if (productModerationFilter === 'urgent' && !p.isUrgent) return false;
-      if (productStockFilter === 'out_of_stock' && p.availableQuantity > 0) return false;
-      if (productStockFilter === 'low_stock' && (p.availableQuantity <= 0 || p.availableQuantity > 10)) return false;
-      if (productStockFilter === 'in_stock' && p.availableQuantity <= 10) return false;
-      if (!productSearch.trim()) return true;
-      const q = productSearch.toLowerCase().trim();
-      return (
-        p.name.toLowerCase().includes(q) ||
-        p.farmerName.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q)
-      );
-    });
-  }, [products, productSearch, productCategoryFilter, productModerationFilter, productStockFilter]);
+  const filteredProducts = products.filter((p) => {
+    if (productCategoryFilter !== 'All' && p.category !== productCategoryFilter) return false;
+    if (productModerationFilter === 'active' && !p.isAvailable) return false;
+    if (productModerationFilter === 'paused' && p.isAvailable) return false;
+    if (productModerationFilter === 'featured' && !p.isFeatured) return false;
+    if (productModerationFilter === 'urgent' && !p.isUrgent) return false;
+    if (productStockFilter === 'out_of_stock' && p.availableQuantity > 0) return false;
+    if (productStockFilter === 'low_stock' && (p.availableQuantity <= 0 || p.availableQuantity > 10)) return false;
+    if (productStockFilter === 'in_stock' && p.availableQuantity <= 10) return false;
+    if (!productSearch.trim()) return true;
+    const q = productSearch.toLowerCase().trim();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.farmerName.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.location.toLowerCase().includes(q)
+    );
+  });
 
   // Filtered Audit Logs
-  const filteredAuditLogs = useMemo(() => {
-    return auditLogs.filter((log) => {
-      if (auditActionFilter !== 'all' && !log.action?.toLowerCase().includes(auditActionFilter.toLowerCase())) return false;
-      if (!auditSearch.trim()) return true;
-      const q = auditSearch.toLowerCase().trim();
-      return (
-        log.action?.toLowerCase().includes(q) ||
-        log.target_table?.toLowerCase().includes(q) ||
-        log.target_id?.toLowerCase().includes(q) ||
-        log.actor_id?.toLowerCase().includes(q)
-      );
-    });
-  }, [auditLogs, auditSearch, auditActionFilter]);
+  const filteredAuditLogs = auditLogs.filter((log) => {
+    if (!auditSearch.trim()) return true;
+    const q = auditSearch.toLowerCase().trim();
+    return (
+      log.action?.toLowerCase().includes(q) ||
+      log.target_table?.toLowerCase().includes(q) ||
+      log.target_id?.toLowerCase().includes(q) ||
+      log.actor_id?.toLowerCase().includes(q)
+    );
+  });
 
   // Key Totals
   const totalUsersCount = users.length;
@@ -2334,513 +2308,34 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ========================================================================= */}
       {/* SECTION 9: HARDWARE DEVICE BAN & CYBERSECURITY BLACKLIST */}
-      {/* ========================================================================= */}
       {activeTab === 'device-bans' && (
-        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                <Lock className="w-5 h-5 text-red-600" />
-                <span>Permanent Hardware Device Bans & Blacklist</span>
-              </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Block fraudulent phones and browsers at the hardware level. Survives app re-installation, cache wipes, and account recreation.
-              </p>
-            </div>
-
-            <button
-              onClick={loadBannedDevices}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs self-start sm:self-auto"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh Blacklist</span>
-            </button>
-          </div>
-
-          {/* KPI Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="p-4 bg-red-50/70 dark:bg-red-950/30 border border-red-200/80 dark:border-red-800/60 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 block tracking-wider">
-                Total Banned Devices
-              </span>
-              <span className="text-2xl font-black text-red-900 dark:text-red-200 mt-1 block">
-                {bannedDevicesList.length}
-              </span>
-              <span className="text-[11px] text-red-600 dark:text-red-400 mt-0.5 block">
-                Physical hardware banned permanently
-              </span>
-            </div>
-
-            <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 block tracking-wider">
-                Reinstall Shield
-              </span>
-              <span className="text-2xl font-black text-emerald-900 dark:text-emerald-200 mt-1 block">
-                Active 🛡️
-              </span>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                SSAID & Multi-Store Fingerprinting
-              </span>
-            </div>
-
-            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-zinc-500 block tracking-wider">
-                Enforcement Gate
-              </span>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1 block">
-                Global Gateway
-              </span>
-              <span className="text-[11px] text-zinc-500 mt-0.5 block">
-                Blocks API & Socket requests at Edge
-              </span>
-            </div>
-          </div>
-
-          {/* Manual Device Ban Form */}
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/70 dark:border-zinc-700/70 space-y-3">
-            <h3 className="font-black text-xs uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-red-600" />
-              <span>Quick Hardware Ban Tool</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <input
-                type="text"
-                placeholder="Hardware Device ID or User ID (e.g. user-xxx or hal-dev-xxx)..."
-                value={manualDeviceIdInput}
-                onChange={(e) => setManualDeviceIdInput(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-
-              <input
-                type="text"
-                placeholder="Reason for ban (e.g. Payment fraud, fake produce)..."
-                value={banReasonInput}
-                onChange={(e) => setBanReasonInput(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-
-              <button
-                type="button"
-                disabled={isBanningInProgress || (!manualDeviceIdInput.trim() && !banTarget?.id)}
-                onClick={handleConfirmDeviceBan}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>{isBanningInProgress ? 'Enforcing...' : 'Ban Hardware Device Now'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Search & List of Banned Devices */}
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
-                Active Banned Hardware List ({bannedDevicesList.length})
-              </h3>
-
-              <div className="relative w-full sm:w-72">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                <input
-                  type="text"
-                  placeholder="Search banned ID, user, phone..."
-                  value={deviceBanSearch}
-                  onChange={(e) => setDeviceBanSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400"
-                />
-              </div>
-            </div>
-
-            {bannedDevicesList.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
-                <ShieldCheck className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-                <span className="font-bold text-xs block text-zinc-700 dark:text-zinc-300">No Banned Devices</span>
-                <span className="text-[11px] text-zinc-500">Your marketplace is clean. Any banned hardware devices will appear here.</span>
-              </div>
-            ) : (
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/40">
-                {bannedDevicesList
-                  .filter((b) => {
-                    const q = deviceBanSearch.toLowerCase();
-                    return (
-                      (b.device_id || '').toLowerCase().includes(q) ||
-                      (b.user_name || '').toLowerCase().includes(q) ||
-                      (b.user_phone || '').toLowerCase().includes(q) ||
-                      (b.reason || '').toLowerCase().includes(q)
-                    );
-                  })
-                  .map((ban) => (
-                    <div key={ban.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-red-600 dark:text-red-400 truncate max-w-xs sm:max-w-md">
-                            {ban.device_id}
-                          </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 uppercase">
-                            Banned
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                          {ban.user_name && (
-                            <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                              User: {ban.user_name}
-                            </span>
-                          )}
-                          {ban.user_phone && <span>• {ban.user_phone}</span>}
-                          {ban.device_model && <span>• Model: {ban.device_model}</span>}
-                          <span>• Date: {new Date(ban.banned_at).toLocaleDateString()}</span>
-                        </div>
-
-                        <p className="text-[11px] text-red-700 dark:text-red-400 font-medium">
-                          Reason: {ban.reason}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => handleUnbanDevice(ban.id)}
-                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 hover:text-emerald-700 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 transition self-end md:self-center shrink-0"
-                      >
-                        Unban Hardware
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <AdminDeviceBansTab
+          bannedDevicesList={bannedDevicesList}
+          manualDeviceIdInput={manualDeviceIdInput}
+          setManualDeviceIdInput={setManualDeviceIdInput}
+          banReasonInput={banReasonInput}
+          setBanReasonInput={setBanReasonInput}
+          banTarget={banTarget}
+          isBanningInProgress={isBanningInProgress}
+          deviceBanSearch={deviceBanSearch}
+          setDeviceBanSearch={setDeviceBanSearch}
+          onRefresh={loadBannedDevices}
+          onConfirmDeviceBan={handleConfirmDeviceBan}
+          onUnbanDevice={handleUnbanDevice}
+        />
       )}
 
-      {/* ========================================================================= */}
       {/* MODAL 1: INTERACTIVE KYC PROOF DOCUMENT VIEWER */}
-      {/* ========================================================================= */}
-      {inspectingKycDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="w-full max-w-2xl bg-white dark:bg-[#181F1A] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-6 h-6 text-emerald-600" />
-                <div>
-                  <h3 className="font-black text-base text-zinc-900 dark:text-white">
-                    Official Farmer Proof Document Review
-                  </h3>
-                  <span className="text-xs text-zinc-500">{inspectingKycDoc.farmer_name} • {inspectingKycDoc.farm_name}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setInspectingKycDoc(null)}
-                className="p-1.5 text-zinc-400 hover:text-zinc-600 rounded-full"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Simulated Government Aadhaar Card */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                1. Government Aadhaar Card
-              </span>
-
-              <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border-2 border-amber-300 dark:border-amber-700/60 shadow-md relative overflow-hidden">
-                {/* Tricolor top border accent */}
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 via-white to-emerald-600" />
-
-                <div className="flex items-center justify-between pb-2 border-b border-amber-200 dark:border-zinc-700">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🇮🇳</span>
-                    <div>
-                      <span className="font-black text-xs text-amber-950 dark:text-amber-200 block">
-                        Government of India
-                      </span>
-                      <span className="text-[9px] text-zinc-500">Unique Identification Authority of India</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold bg-amber-200/60 dark:bg-amber-950 px-2 py-0.5 rounded text-amber-900 dark:text-amber-300">
-                    AADHAAR VERIFIED
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 pt-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160"
-                    alt="Farmer Aadhaar photo"
-                    className="w-16 h-20 rounded-lg object-cover border-2 border-amber-400 dark:border-amber-600 shadow-sm shrink-0"
-                  />
-                  <div className="space-y-1 text-xs text-zinc-800 dark:text-zinc-200 min-w-0">
-                    <p className="font-black text-sm text-zinc-900 dark:text-white">
-                      Name: {inspectingKycDoc.farmer_name}
-                    </p>
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                      DOB: 14/08/1982 | Gender: Male
-                    </p>
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                      Address: Village {inspectingKycDoc.city}, {inspectingKycDoc.location}, India
-                    </p>
-                    <p className="font-mono font-black text-sm text-amber-950 dark:text-amber-300 tracking-widest pt-1">
-                      {inspectingKycDoc.kyc_document_number || 'XXXX XXXX 8921'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Simulated 7/12 (Saat-Baara) Land Record Certificate */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                2. Land Title & 7/12 Saat-Baara Record
-              </span>
-
-              <div className="p-4 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800 space-y-2.5">
-                <div className="flex items-center justify-between pb-1.5 border-b border-emerald-200 dark:border-emerald-800">
-                  <span className="font-black text-xs text-emerald-950 dark:text-emerald-200">
-                    State Land Revenue Dept • Form VII-XII
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                    Khasra # {Math.abs((inspectingKycDoc.id || 'khasra').split('').reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 800) + 120}/B
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">Farm / Khata Name:</span>
-                    <span className="font-bold text-zinc-900 dark:text-white">{inspectingKycDoc.farm_name}</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">Verified Agricultural Area:</span>
-                    <span className="font-bold text-zinc-900 dark:text-white">4.5 Hectares</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">District / Taluka:</span>
-                    <span className="font-bold text-zinc-900 dark:text-white">{inspectingKycDoc.city}</span>
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 text-[10px] block">Status of Cultivation:</span>
-                    <span className="font-bold text-emerald-600">Active Crop Season (Kharif / Rabi)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Bar inside modal */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-              {inspectingKycDoc.phone ? (
-                <a
-                  href={`https://wa.me/${inspectingKycDoc.phone.replace(/[^0-9]/g, '').length === 10 ? `91${inspectingKycDoc.phone.replace(/[^0-9]/g, '')}` : inspectingKycDoc.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inspectingKycDoc.farmer_name}! We are reviewing your HALDHAR Farmer Verification documents.`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-2 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
-                >
-                  <span>💬 WhatsApp Farmer</span>
-                </a>
-              ) : (
-                <span className="text-xs text-zinc-400">No phone number on file</span>
-              )}
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedFarmerForReject(inspectingKycDoc.id);
-                    setIsRejectModalOpen(true);
-                  }}
-                  className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl font-bold text-xs transition"
-                >
-                  Reject Documents
-                </button>
-                <button
-                  onClick={() => handleApproveKyc(inspectingKycDoc.id)}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center gap-1.5"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Approve & Grant Verified Green Badge</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* SECTION 9: HARDWARE DEVICE BAN & CYBERSECURITY BLACKLIST */}
-      {/* ========================================================================= */}
-      {activeTab === 'device-bans' && (
-        <div className="p-5 bg-white dark:bg-[#181F1A] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-soft space-y-6 animate-fade-in">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="font-black text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                <Lock className="w-5 h-5 text-red-600" />
-                <span>Permanent Hardware Device Bans & Blacklist</span>
-              </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Block fraudulent phones and browsers at the hardware level. Survives app re-installation, cache wipes, and account recreation.
-              </p>
-            </div>
-
-            <button
-              onClick={loadBannedDevices}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition text-xs shadow-2xs self-start sm:self-auto"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh Blacklist</span>
-            </button>
-          </div>
-
-          {/* KPI Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="p-4 bg-red-50/70 dark:bg-red-950/30 border border-red-200/80 dark:border-red-800/60 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 block tracking-wider">
-                Total Banned Devices
-              </span>
-              <span className="text-2xl font-black text-red-900 dark:text-red-200 mt-1 block">
-                {bannedDevicesList.length}
-              </span>
-              <span className="text-[11px] text-red-600 dark:text-red-400 mt-0.5 block">
-                Physical hardware banned permanently
-              </span>
-            </div>
-
-            <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 block tracking-wider">
-                Reinstall Shield
-              </span>
-              <span className="text-2xl font-black text-emerald-900 dark:text-emerald-200 mt-1 block">
-                Active 🛡️
-              </span>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                SSAID & Multi-Store Fingerprinting
-              </span>
-            </div>
-
-            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl">
-              <span className="text-[10px] uppercase font-bold text-zinc-500 block tracking-wider">
-                Enforcement Gate
-              </span>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1 block">
-                Global Gateway
-              </span>
-              <span className="text-[11px] text-zinc-500 mt-0.5 block">
-                Blocks API & Socket requests at Edge
-              </span>
-            </div>
-          </div>
-
-          {/* Manual Device Ban Form */}
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-200/70 dark:border-zinc-700/70 space-y-3">
-            <h3 className="font-black text-xs uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-red-600" />
-              <span>Quick Hardware Ban Tool</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <input
-                type="text"
-                placeholder="Hardware Device ID or User ID (e.g. user-xxx or hal-dev-xxx)..."
-                value={manualDeviceIdInput}
-                onChange={(e) => setManualDeviceIdInput(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-
-              <input
-                type="text"
-                placeholder="Reason for ban (e.g. Payment fraud, fake produce)..."
-                value={banReasonInput}
-                onChange={(e) => setBanReasonInput(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-
-              <button
-                type="button"
-                disabled={isBanningInProgress || (!manualDeviceIdInput.trim() && !banTarget?.id)}
-                onClick={handleConfirmDeviceBan}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>{isBanningInProgress ? 'Enforcing...' : 'Ban Hardware Device Now'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Search & List of Banned Devices */}
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
-                Active Banned Hardware List ({bannedDevicesList.length})
-              </h3>
-
-              <div className="relative w-full sm:w-72">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                <input
-                  type="text"
-                  placeholder="Search banned ID, user, phone..."
-                  value={deviceBanSearch}
-                  onChange={(e) => setDeviceBanSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-400"
-                />
-              </div>
-            </div>
-
-            {bannedDevicesList.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700">
-                <ShieldCheck className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-                <span className="font-bold text-xs block text-zinc-700 dark:text-zinc-300">No Banned Devices</span>
-                <span className="text-[11px] text-zinc-500">Your marketplace is clean. Any banned hardware devices will appear here.</span>
-              </div>
-            ) : (
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/40">
-                {bannedDevicesList
-                  .filter((b) => {
-                    const q = deviceBanSearch.toLowerCase();
-                    return (
-                      (b.device_id || '').toLowerCase().includes(q) ||
-                      (b.user_name || '').toLowerCase().includes(q) ||
-                      (b.user_phone || '').toLowerCase().includes(q) ||
-                      (b.reason || '').toLowerCase().includes(q)
-                    );
-                  })
-                  .map((ban) => (
-                    <div key={ban.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-red-600 dark:text-red-400 truncate max-w-xs sm:max-w-md">
-                            {ban.device_id}
-                          </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 uppercase">
-                            Banned
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                          {ban.user_name && (
-                            <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                              User: {ban.user_name}
-                            </span>
-                          )}
-                          {ban.user_phone && <span>• {ban.user_phone}</span>}
-                          {ban.device_model && <span>• Model: {ban.device_model}</span>}
-                          <span>• Date: {new Date(ban.banned_at).toLocaleDateString()}</span>
-                        </div>
-
-                        <p className="text-[11px] text-red-700 dark:text-red-400 font-medium">
-                          Reason: {ban.reason}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => handleUnbanDevice(ban.id)}
-                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 hover:text-emerald-700 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 transition self-end md:self-center shrink-0"
-                      >
-                        Unban Hardware
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <AdminKycViewerModal
+        inspectingKycDoc={inspectingKycDoc}
+        onClose={() => setInspectingKycDoc(null)}
+        onRejectClick={(fid) => {
+          setSelectedFarmerForReject(fid);
+          setIsRejectModalOpen(true);
+        }}
+        onApproveKyc={handleApproveKyc}
+      />
 
       {/* ========================================================================= */}
       {/* MODAL 2: STRUCTURED KYC REJECTION MODAL */}

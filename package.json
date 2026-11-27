@@ -22,6 +22,7 @@
     "server:earnings": "node --import tsx server/tests/farmer_earnings.test.ts",
     "server:kyc-push": "node --import tsx server/tests/kyc_push.test.ts",
     "server:chat-i18n": "node --import tsx server/tests/chat_i18n.test.ts",
+    "test:ui": "node --import tsx server/tests/frontend_ui_render.test.ts",
     "server:chat-adversarial": "node --import tsx server/tests/adversarial_chat_stress.test.ts",
     "server:profile": "node --import tsx server/tests/profile_system.test.ts",
     "server:verify-profiles": "node --import tsx server/tests/verify_profiles_e2e.ts",

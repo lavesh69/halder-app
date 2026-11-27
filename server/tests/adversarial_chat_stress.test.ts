@@ -12,7 +12,6 @@ const BASE_URL = `http://localhost:${TEST_PORT}/api/v1`;
 const WS_URL = `ws://localhost:${TEST_PORT}/ws`;
 
 let server: http.Server;
-let wss: any;
 
 interface TestResult {
   suite: string;
@@ -70,7 +69,7 @@ class ManagedWsClient {
         } else {
           this.messages.push(parsed);
         }
-      } catch (e) {
+      } catch {
         this.messages.push({ raw: data.toString('utf-8') });
       }
     });
@@ -179,7 +178,7 @@ async function runAdversarialStressSuite() {
   console.log('========================================================================\n');
 
   server = http.createServer(app);
-  wss = initChatSocket(server);
+  initChatSocket(server);
 
   await new Promise<void>((resolve) => {
     server.listen(TEST_PORT, () => {

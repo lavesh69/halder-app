@@ -3,15 +3,10 @@ import { ApiClient } from '../../api/client';
 import { formatCurrency } from '../../utils/formatters';
 import {
   TrendingUp,
-  Users,
   Award,
-  Calendar,
   X,
-  FileSpreadsheet,
   Download,
   CheckCircle2,
-  PackageCheck,
-  ArrowUpRight,
 } from 'lucide-react';
 
 interface Props {
@@ -25,12 +20,15 @@ export const FarmerBusinessInsightsModal: React.FC<Props> = ({ isOpen, onClose, 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true);
-      ApiClient.getFarmerBusinessInsights(farmerId)
-        .then((res) => setData(res))
-        .catch((err) => {
-          console.warn('Failed to load business insights, using demo metrics:', err);
+    if (!isOpen) return;
+    let active = true;
+    ApiClient.getFarmerBusinessInsights(farmerId)
+      .then((res) => {
+        if (active) setData(res);
+      })
+      .catch((err) => {
+        console.warn('Failed to load business insights, using demo metrics:', err);
+        if (active) {
           setData({
             summary: {
               total_sales_amount: 14850,
@@ -47,9 +45,14 @@ export const FarmerBusinessInsightsModal: React.FC<Props> = ({ isOpen, onClose, 
             ],
             recentOrders: [],
           });
-        })
-        .finally(() => setIsLoading(false));
-    }
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [isOpen, farmerId]);
 
   if (!isOpen) return null;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShieldCheck, Lock, Trash2, EyeOff, FileText, CheckCircle2 } from 'lucide-react';
+import { X, ShieldCheck, Lock, Trash2, EyeOff, CheckCircle2 } from 'lucide-react';
 
 interface PrivacyPolicyModalProps {
   isOpen: boolean;

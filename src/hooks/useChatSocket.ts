@@ -274,7 +274,7 @@ export function useChatSocket({
         }
       }
     },
-    []
+    [applyMergedMessages]
   );
 
   // Lazy-load older message pages via cursor pagination

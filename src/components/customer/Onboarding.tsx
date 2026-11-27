@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ArrowRight, Sprout, ShieldCheck, HeartHandshake, Loader2, X, ShoppingBag, User as UserIcon, Mail, Lock, Phone } from 'lucide-react';
 import { GoogleSignInButton } from '../common/GoogleSignInButton';

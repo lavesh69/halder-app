@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Product } from '../../types';
 import { ApiClient } from '../../api/client';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 
 import {
   X,
@@ -47,14 +47,20 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
-    if (product) {
+    if (!product) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
       setCurrentQty(product.availableQuantity || 0);
       setMinOrderQty(product.min_order_quantity || 1);
       setStockStatus(product.stock_status || (product.availableQuantity > 0 ? 'available' : 'out_of_stock'));
-    }
+    });
+    return () => {
+      active = false;
+    };
   }, [product]);
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     if (!product) return;
     try {
       setLoadingHistory(true);
@@ -65,13 +71,18 @@ export const StockControlModal: React.FC<StockControlModalProps> = ({
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, [product, showToast]);
 
   useEffect(() => {
-    if (isOpen && activeTab === 'history') {
-      fetchHistory();
-    }
-  }, [isOpen, activeTab, product]);
+    if (!isOpen || activeTab !== 'history') return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void fetchHistory();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, activeTab, fetchHistory]);
 
   if (!isOpen || !product) return null;
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Logo } from '../common/Logo';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 
 export const SplashScreen: React.FC = () => {
   const { setShowSplash, hasSeenOnboarding } = useApp();

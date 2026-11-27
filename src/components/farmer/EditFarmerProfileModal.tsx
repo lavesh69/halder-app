@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { ApiClient } from '../../api/client';
 import { compressImageFile } from '../../utils/imageCompression';
 import { X, Camera, Loader2, Check, AlertCircle, Sparkles, Trash2 } from 'lucide-react';
@@ -38,7 +38,10 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
 
   // Sync state whenever modal opens or props/currentUser change
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
       setName(currentProfile?.name || currentUser?.name || '');
       setPhone(currentProfile?.phone || currentUser?.phone || '');
       setFarmName(currentProfile?.farmName || (currentUser?.name ? `${currentUser.name}'s Farm` : ''));
@@ -52,7 +55,10 @@ export const EditFarmerProfileModal: React.FC<EditFarmerProfileModalProps> = ({
       setAvatarBase64(null);
       setIsAvatarRemoved(false);
       setError(null);
-    }
+    });
+    return () => {
+      active = false;
+    };
   }, [isOpen, currentProfile, currentUser, activeCity]);
 
   if (!isOpen) return null;

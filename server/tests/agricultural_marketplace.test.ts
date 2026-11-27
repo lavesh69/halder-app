@@ -1,7 +1,6 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { app } from '../src/app';
-import { Database } from '../src/db/database';
 import { runMigrations } from '../src/db/migrate';
 import { seedDatabase } from '../src/db/seed';
 import http from 'http';

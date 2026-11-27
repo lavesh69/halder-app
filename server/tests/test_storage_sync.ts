@@ -96,7 +96,7 @@ async function runStorageAndSyncTests() {
   passed++;
 
   // TEST 6: KYC Proof Document Base64 Optimization
-  const kycRes = await KycService.submitKYC(farmerProfRow.id, {
+  await KycService.submitKYC(farmerProfRow.id, {
     documentType: 'kisan_credit_card',
     documentNumber: 'KCC-98765432',
     documentUrl: test1x1Png,

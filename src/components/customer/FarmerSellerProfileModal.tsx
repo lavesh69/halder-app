@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { ListingCard } from '../common/ListingCard';
 import {
   X,
@@ -21,7 +21,7 @@ export const FarmerSellerProfileModal: React.FC = () => {
     showToast,
   } = useApp();
 
-  const [publicProfile, setPublicProfile] = React.useState<any>(null);
+  const [, setPublicProfile] = React.useState<any>(null);
 
   React.useEffect(() => {
     if (selectedFarmer?.id) {

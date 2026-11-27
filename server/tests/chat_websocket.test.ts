@@ -1,7 +1,7 @@
 ﻿import http from 'http';
 import { WebSocket } from 'ws';
 import { app } from '../src/app';
-import { initChatSocket, ChatSocketService } from '../src/websocket/chatSocket';
+import { initChatSocket } from '../src/websocket/chatSocket';
 import { seedDatabase } from '../src/db/seed';
 import { Database } from '../src/db/database';
 
@@ -11,12 +11,10 @@ const WS_URL = `ws://localhost:${TEST_PORT}/ws`;
 
 let server: http.Server;
 let custToken: string;
-let custId: string;
 let farmerToken: string;
 let farmerUserId: string;
 let farmerProfileId: string;
 let unrelatedCustToken: string;
-let unrelatedCustId: string;
 
 async function request(
   endpoint: string,
@@ -157,7 +155,6 @@ async function runChatTests() {
     });
     assert('Customer Aman Sharma login success (200)', custLogin.status === 200);
     custToken = custLogin.json.data.token;
-    custId = custLogin.json.data.user.id;
 
     const farmLogin = await request('/auth/login', {
       method: 'POST',
@@ -181,7 +178,6 @@ async function runChatTests() {
     });
     assert('Unrelated Customer registration success (201)', unrelatedLogin.status === 201);
     unrelatedCustToken = unrelatedLogin.json.data.token;
-    unrelatedCustId = unrelatedLogin.json.data.user.id;
 
     // ----------------------------------------------------
     // REST API CHAT ENDPOINTS

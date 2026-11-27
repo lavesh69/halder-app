@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SavedSearch } from '../../types';
 import { ApiClient } from '../../api/client';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import {
   X,
   Bell,
   Plus,
   Trash2,
-  CheckCircle2,
-  Sparkles,
-  Search,
-  RotateCcw,
-  Tag,
-  ShieldCheck,
 } from 'lucide-react';
 
 interface SavedSearchesModalProps {
@@ -27,7 +21,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { showToast, setIsLoginModalOpen } = useApp();
+  const { showToast } = useApp();
   const { t } = useTranslation();
 
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -40,7 +34,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchSearches = async () => {
+  const fetchSearches = useCallback(async () => {
     if (!ApiClient.hasToken()) {
       try {
         const local = localStorage.getItem('halder-guest-alerts');
@@ -68,13 +62,18 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchSearches();
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void fetchSearches();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, fetchSearches]);
 
   if (!isOpen) return null;
 
@@ -125,7 +124,7 @@ export const SavedSearchesModal: React.FC<SavedSearchesModalProps> = ({
       setMaxPrice('');
       setShowCreateForm(false);
       await fetchSearches();
-    } catch (err: any) {
+    } catch {
       // Local fallback on API error
       const localAlert: SavedSearch = {
         id: `local-alert-${Date.now()}`,

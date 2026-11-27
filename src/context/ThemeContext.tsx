@@ -1,55 +1,42 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ThemeMode } from '../types';
-
-interface ThemeContextType {
-  theme: ThemeMode;
-  isDark: boolean;
-  setTheme: (theme: ThemeMode) => void;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import { ThemeContext } from './themeUtils';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('halder-theme') as ThemeMode;
-    if (saved && ['light', 'dark', 'system'].includes(saved)) {
-      return saved;
-    }
+    try {
+      const saved = localStorage.getItem('halder-theme') as ThemeMode;
+      if (saved && ['light', 'dark', 'system'].includes(saved)) {
+        return saved;
+      }
+    } catch {}
     return 'light';
   });
 
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [systemDark, setSystemDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  const isDark = theme === 'system' ? systemDark : theme === 'dark';
 
   useEffect(() => {
-    const root = document.documentElement;
-    
-    const applyTheme = () => {
-      let activeIsDark = false;
-      if (theme === 'system') {
-        activeIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      } else {
-        activeIsDark = theme === 'dark';
-      }
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', isDark);
+    }
+    try {
+      localStorage.setItem('halder-theme', theme);
+    } catch {}
 
-      setIsDark(activeIsDark);
-      if (activeIsDark) {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    };
-
-    applyTheme();
-    localStorage.setItem('halder-theme', theme);
-
-    if (theme === 'system') {
+    if (theme === 'system' && typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => applyTheme();
+      const handleChange = (e: MediaQueryListEvent) => setSystemDark(e.matches);
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, [theme]);
+  }, [theme, isDark]);
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
@@ -64,12 +51,4 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </ThemeContext.Provider>
   );
-};
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
 };

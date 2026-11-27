@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useApp } from '../../context/appContextUtils';
+import { useTheme } from '../../context/themeUtils';
 import { useTranslation } from '../../i18n';
 import { ApiClient } from '../../api/client';
 import { handleAvatarError, DEFAULT_AVATAR_IMAGE } from '../../utils/imageFallback';
@@ -13,26 +13,20 @@ import {
   Sun,
   Moon,
   Monitor,
-  Repeat,
-  RotateCcw,
   Copy,
-  Building2,
-  Smartphone,
   CheckCircle2,
   AlertCircle,
   Clock,
   Edit2,
   Lock,
   LogOut,
-  Sparkles,
   Plus,
   Megaphone,
-  TrendingUp,
   ChevronRight,
 } from 'lucide-react';
 
 export const FarmerProfileView: React.FC = () => {
-  const { currentUser, setRole, resetDemoData, showToast, setIsFastSellOpen, setEditingListing, setFarmerTab, products, logout } = useApp();
+  const { currentUser, showToast, setIsFastSellOpen, setEditingListing, setFarmerTab, products, logout } = useApp();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const farmerId = currentUser?.farmerProfileId || 'farmer-1';
@@ -43,7 +37,6 @@ export const FarmerProfileView: React.FC = () => {
   ).length;
 
   const [profile, setProfile] = useState<any>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
   const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -52,8 +45,7 @@ export const FarmerProfileView: React.FC = () => {
 
   const [kycData, setKycData] = useState<any>(null);
 
-  const loadProfile = async () => {
-    setIsLoadingProfile(true);
+  const loadProfile = useCallback(async () => {
     try {
       const data = await ApiClient.getFarmerPrivateProfile();
       if (data) {
@@ -69,10 +61,9 @@ export const FarmerProfileView: React.FC = () => {
         if (cached) setProfile(JSON.parse(cached));
       } catch {}
     }
-    setIsLoadingProfile(false);
-  };
+  }, []);
 
-  const loadKyc = async () => {
+  const loadKyc = useCallback(async () => {
     try {
       const res = await ApiClient.getFarmerKYC(farmerId);
       if (res?.data) {
@@ -84,12 +75,19 @@ export const FarmerProfileView: React.FC = () => {
       const cached = localStorage.getItem(`halder-farmer-kyc-${farmerId}`);
       if (cached) setKycData(JSON.parse(cached));
     } catch {}
-  };
+  }, [farmerId]);
 
   useEffect(() => {
-    loadProfile();
-    loadKyc();
-  }, [farmerId]);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      void loadProfile();
+      void loadKyc();
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadProfile, loadKyc]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);

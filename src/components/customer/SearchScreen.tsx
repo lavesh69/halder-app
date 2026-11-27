@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { ListingCard } from '../common/ListingCard';
 import { ListingCardSkeleton } from '../common/ListingCardSkeleton';
@@ -79,17 +79,33 @@ export const SearchScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    setInputVal(searchQuery);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) setInputVal(searchQuery);
+    });
+    return () => {
+      active = false;
+    };
   }, [searchQuery]);
 
   useEffect(() => {
+    let active = true;
     if (inputVal.trim()) {
-      setIsSearching(true);
+      Promise.resolve().then(() => {
+        if (active) setIsSearching(true);
+      });
       const timer = setTimeout(() => setIsSearching(false), 160);
-      return () => clearTimeout(timer);
-    } else {
-      setIsSearching(false);
+      return () => {
+        active = false;
+        clearTimeout(timer);
+      };
     }
+    Promise.resolve().then(() => {
+      if (active) setIsSearching(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [inputVal]);
 
   const handleSearch = (term: string) => {

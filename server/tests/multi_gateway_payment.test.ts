@@ -1,11 +1,8 @@
 ﻿import assert from 'assert';
-import crypto from 'crypto';
 import http from 'http';
 import { app } from '../src/app';
 import { Database } from '../src/db/database';
 import { PaytmService } from '../src/services/paytmService';
-import { GPayService } from '../src/services/gpayService';
-import { env } from '../src/config/env';
 import { CryptoUtil } from '../src/utils/crypto';
 
 const TEST_PORT = 5099;

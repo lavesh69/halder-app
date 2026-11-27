@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/appContextUtils';
 import { useTranslation } from '../../i18n';
 import { useChatSocket, ChatWsMessage } from '../../hooks/useChatSocket';
 import { ApiClient } from '../../api/client';

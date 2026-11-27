@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ApiClient } from '../../api/client';
 import { X, Bell, Check, Loader2, Package, Truck, CreditCard, MessageSquare, Sparkles } from 'lucide-react';
 
@@ -23,20 +23,25 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadSettings();
-    }
-  }, [isOpen]);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await ApiClient.getCustomerSettings();
       if (data) setPrefs(data);
     } catch {}
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) void loadSettings();
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, loadSettings]);
 
   const handleToggle = (key: keyof typeof prefs) => {
     setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ApiClient } from '../../api/client';
 import { X, MapPin, Plus, Edit2, Trash2, CheckCircle2, Loader2, Home, Briefcase, Tag, AlertCircle } from 'lucide-react';
 
@@ -36,7 +36,7 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
   const [landmark, setLandmark] = useState('');
   const [isDefault, setIsDefault] = useState(false);
 
-  const loadAddresses = async () => {
+  const loadAddresses = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -63,14 +63,20 @@ export const AddressManagementModal: React.FC<AddressManagementModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      loadAddresses();
+    if (!isOpen) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      void loadAddresses();
       setViewMode('list');
-    }
-  }, [isOpen]);
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen, loadAddresses]);
 
   if (!isOpen) return null;
 

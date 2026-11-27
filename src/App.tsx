@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from './context/AppContext';
+import { useApp } from './context/appContextUtils';
 import { Header } from './components/common/Header';
 import { BottomNav } from './components/common/BottomNav';
 import { Toast } from './components/common/Toast';

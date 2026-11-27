@@ -11,20 +11,22 @@ export const PwaInstallBanner: React.FC = () => {
   const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isIos, setIsIos] = useState(false);
+  const [isIos] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
+  });
   const [showIosGuide, setShowIosGuide] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    );
+  });
 
   useEffect(() => {
-    // 1. Check if already installed as PWA or in standalone mode
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-
-    if (isStandalone) {
-      setIsInstalled(true);
-      return;
-    }
+    if (isInstalled) return;
 
     // 2. Check dismissal cooldown (7 days)
     const dismissedAt = localStorage.getItem('halder_pwa_dismissed');
@@ -35,12 +37,8 @@ export const PwaInstallBanner: React.FC = () => {
       }
     }
 
-    // 3. Detect iOS Safari
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
-    if (isIosDevice) {
-      setIsIos(true);
-      // Show for iOS users after a short 2-second delay to not block initial render
+    // 3. Delay banner reveal for iOS Safari users
+    if (isIos) {
       const timer = setTimeout(() => setIsVisible(true), 2500);
       return () => clearTimeout(timer);
     }
@@ -65,7 +63,7 @@ export const PwaInstallBanner: React.FC = () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [isInstalled, isIos]);
 
   const handleInstallClick = async () => {
     if (isIos) {
