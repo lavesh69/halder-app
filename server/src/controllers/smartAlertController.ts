@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { SmartAlertService } from '../services/smartAlertService';
+import { getParam } from '../utils/http';
 
 export class SmartAlertController {
   static async createSavedSearch(req: Request, res: Response, next: NextFunction) {
@@ -25,7 +26,7 @@ export class SmartAlertController {
   static async deleteSavedSearch(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const result = SmartAlertService.deleteSavedSearch(req.params.id, userId);
+      const result = SmartAlertService.deleteSavedSearch(getParam(req, 'id'), userId);
       res.json(result);
     } catch (err) {
       next(err);
@@ -35,7 +36,7 @@ export class SmartAlertController {
   static async toggleSavedSearch(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const result = SmartAlertService.toggleSavedSearch(req.params.id, userId);
+      const result = SmartAlertService.toggleSavedSearch(getParam(req, 'id'), userId);
       res.json(result);
     } catch (err) {
       next(err);

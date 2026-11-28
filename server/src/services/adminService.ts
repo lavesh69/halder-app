@@ -4,7 +4,64 @@ import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
 import { logAuditEvent } from '../middleware/audit';
 
+const CATEGORY_CACHE_TTL_MS = 30000;
+let cachedActiveCategories: any[] | null = null;
+let categoriesExpiresAt = 0;
+
+const PUBLIC_SETTING_KEYS = [
+  'platformCommissionRate',
+  'freeDeliveryThreshold',
+  'standardDeliveryFee',
+  'helplinePhone',
+  'supportEmail',
+  'emergencyAlert',
+] as const;
+
 export class AdminService {
+  static getCachedActiveCategories() {
+    const now = Date.now();
+    if (cachedActiveCategories && now < categoriesExpiresAt) {
+      return cachedActiveCategories;
+    }
+    const categories = Database.query('SELECT * FROM categories WHERE active = 1 ORDER BY name ASC');
+    cachedActiveCategories = categories;
+    categoriesExpiresAt = now + CATEGORY_CACHE_TTL_MS;
+    return categories;
+  }
+
+  static invalidateCategoryCache() {
+    cachedActiveCategories = null;
+    categoriesExpiresAt = 0;
+  }
+
+  static listAllCategories() {
+    return Database.query('SELECT * FROM categories ORDER BY name ASC');
+  }
+
+  static getPublicPlatformSettings() {
+    const placeholders = PUBLIC_SETTING_KEYS.map(() => '?').join(', ');
+    const rows = Database.query<{ key: string; value: string }>(
+      `SELECT key, value FROM platform_settings WHERE key IN (${placeholders})`,
+      [...PUBLIC_SETTING_KEYS]
+    );
+    const result: Record<string, string | number> = {};
+    for (const row of rows) {
+      if (
+        row.key === 'platformCommissionRate' ||
+        row.key === 'freeDeliveryThreshold' ||
+        row.key === 'standardDeliveryFee'
+      ) {
+        const num = Number(row.value);
+        if (!Number.isNaN(num)) {
+          result[row.key] = num;
+        }
+      } else {
+        result[row.key] = row.value;
+      }
+    }
+    return result;
+  }
+
   static getOverviewKPIs() {
     const totalUsers = Database.get<any>('SELECT COUNT(*) as count FROM users')?.count || 0;
     const activeFarmers = Database.get<any>("SELECT COUNT(*) as count FROM farmer_profiles WHERE verification_status = 'verified'")?.count || 0;
@@ -68,7 +125,9 @@ export class AdminService {
   }
 
   static addCategory(name: string, emoji = '🌱', image = '') {
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'category';
+    const existingSlug = Database.get<any>('SELECT id FROM categories WHERE slug = ?', [slugBase]);
+    const slug = existingSlug ? `${slugBase}-${Date.now().toString().slice(-4)}` : slugBase;
     const id = `cat-${uuidv4()}`;
     const now = new Date().toISOString();
 
@@ -84,7 +143,35 @@ export class AdminService {
       ]
     );
 
+    this.invalidateCategoryCache();
     return Database.get<any>('SELECT * FROM categories WHERE id = ?', [id]);
+  }
+
+  static toggleCategoryActive(categoryId: string, adminId: string) {
+    const category = Database.get<any>('SELECT * FROM categories WHERE id = ?', [categoryId]);
+    if (!category) throw AppError.notFound('Category not found');
+
+    const newActive = category.active ? 0 : 1;
+    Database.run('UPDATE categories SET active = ? WHERE id = ?', [newActive, categoryId]);
+    this.invalidateCategoryCache();
+
+    logAuditEvent(adminId, 'admin', newActive ? 'CATEGORY_ACTIVATED' : 'CATEGORY_HIDDEN', 'categories', categoryId, {
+      name: category.name,
+      active: Boolean(newActive),
+    });
+
+    return Database.get<any>('SELECT * FROM categories WHERE id = ?', [categoryId]);
+  }
+
+  static deleteCategory(categoryId: string, adminId: string) {
+    const category = Database.get<any>('SELECT * FROM categories WHERE id = ?', [categoryId]);
+    if (!category) throw AppError.notFound('Category not found');
+
+    Database.run('DELETE FROM categories WHERE id = ?', [categoryId]);
+    this.invalidateCategoryCache();
+
+    logAuditEvent(adminId, 'admin', 'CATEGORY_DELETED', 'categories', categoryId, { name: category.name });
+    return { id: categoryId, deleted: true };
   }
 
   static listAuditLogs() {
@@ -120,13 +207,13 @@ export class AdminService {
         `DELETE FROM users WHERE (name LIKE ? OR email LIKE ?) AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`,
         [pattern, pattern]
       );
-      totalDeleted += res.changes;
+      totalDeleted += Number(res.changes);
     }
 
     const res2 = Database.run(
       `DELETE FROM users WHERE (email LIKE '%1795%' OR email LIKE 'ramesh_%@gmail.com' OR email LIKE '%@test.com') AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`
     );
-    totalDeleted += res2.changes;
+    totalDeleted += Number(res2.changes);
 
     return { purgedCount: totalDeleted };
   }

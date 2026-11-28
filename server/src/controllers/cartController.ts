@@ -1,5 +1,6 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { CartService } from '../services/cartService';
+import { getParam } from '../utils/http';
 
 export class CartController {
   static async getCart(req: Request, res: Response, next: NextFunction) {
@@ -42,7 +43,7 @@ export class CartController {
 
   static async removeItem(req: Request, res: Response, next: NextFunction) {
     try {
-      const cart = CartService.removeItem(req.user!.id, req.params.productId);
+      const cart = CartService.removeItem(req.user!.id, getParam(req, 'productId'));
       res.json({
         success: true,
         data: cart,

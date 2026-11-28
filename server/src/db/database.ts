@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
@@ -53,27 +53,39 @@ export function getDatabase(): DatabaseSync {
   return dbInstance;
 }
 
+type DbParam = string | number | null | boolean | Buffer;
+
+function toSqliteParams(params: DbParam[]): SQLInputValue[] {
+  return params.map((p): SQLInputValue => {
+    if (typeof p === 'boolean') return p ? 1 : 0;
+    return p;
+  });
+}
+
 export class Database {
   static getDB(): DatabaseSync {
     return getDatabase();
   }
 
-  static query<T = any>(sql: string, params: (string | number | null | boolean | Buffer)[] = []): T[] {
+  static query<T = any>(sql: string, params: DbParam[] = []): T[] {
     const db = getDatabase();
     const stmt = db.prepare(sql);
-    return stmt.all(...params) as T[];
+    return stmt.all(...toSqliteParams(params)) as T[];
   }
 
-  static get<T = any>(sql: string, params: (string | number | null | boolean | Buffer)[] = []): T | undefined {
+  static get<T = any>(sql: string, params: DbParam[] = []): T | undefined {
     const db = getDatabase();
     const stmt = db.prepare(sql);
-    return stmt.get(...params) as T | undefined;
+    return stmt.get(...toSqliteParams(params)) as T | undefined;
   }
 
-  static run(sql: string, params: (string | number | null | boolean | Buffer)[] = []): { changes: number; lastInsertRowid: number | bigint } {
+  static run(
+    sql: string,
+    params: DbParam[] = []
+  ): { changes: number | bigint; lastInsertRowid: number | bigint } {
     const db = getDatabase();
     const stmt = db.prepare(sql);
-    const result = stmt.run(...params);
+    const result = stmt.run(...toSqliteParams(params));
     recordSupabaseWrite(sql);
     recordTursoWrite(sql, params);
     return result;

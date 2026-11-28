@@ -3,12 +3,18 @@ import { PaymentService } from '../services/paymentService';
 import { PhonePeService } from '../services/phonepeService';
 import { PaytmService } from '../services/paytmService';
 import { GPayService } from '../services/gpayService';
+import { getParam } from '../utils/http';
 
 export class PaymentController {
   static async verifyPayment(req: Request, res: Response, next: NextFunction) {
     try {
       const { orderId, paymentMethod, transactionRef } = req.body;
-      const result = PaymentService.recordOrderPayment(orderId, paymentMethod, transactionRef);
+      const result = PaymentService.recordOrderPayment(
+        orderId,
+        paymentMethod,
+        transactionRef,
+        req.user ? { id: req.user.id, role: req.user.role } : undefined
+      );
       res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -58,7 +64,7 @@ export class PaymentController {
 
   static async checkPhonePeStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { merchantTransactionId } = req.params;
+      const merchantTransactionId = getParam(req, 'merchantTransactionId');
       const result = await PhonePeService.checkPaymentStatus(merchantTransactionId);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
@@ -95,7 +101,7 @@ export class PaymentController {
 
   static async checkPaytmStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { orderId } = req.params;
+      const orderId = getParam(req, 'orderId');
       const result = await PaytmService.checkStatus(orderId);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
@@ -133,7 +139,8 @@ export class PaymentController {
   static verifyGPay(req: Request, res: Response, next: NextFunction) {
     try {
       const { orderId, txnRef } = req.body;
-      const result = GPayService.verifyPayment(orderId, txnRef);
+      const actor = req.user ? { id: req.user.id, role: req.user.role } : undefined;
+      const result = GPayService.verifyPayment(orderId, txnRef, actor);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);

@@ -73,31 +73,44 @@ export class GPayService {
   /**
    * 2. Verify Google Pay completion & update order status
    */
-  static verifyPayment(orderId: string, txnRef?: string) {
-    if (!orderId) {
-      throw AppError.badRequest('orderId is required for GPay verification.');
+  static verifyPayment(orderId: string, txnRef?: string, actor?: { id: string; role: string }) {
+    const cleanOrderId = typeof orderId === 'string' ? orderId.trim() : '';
+    if (cleanOrderId.length < 3 || /^[_%\s]+$/.test(cleanOrderId)) {
+      throw AppError.badRequest('A valid orderId is required for GPay verification.');
     }
 
-    try {
-      Database.run(
-        `UPDATE orders 
-         SET payment_status = 'paid', 
-             payment_method = 'gpay',
-             updated_at = datetime('now')
-         WHERE id = ? OR notes LIKE ?`,
-        [orderId, `%${orderId}%`]
-      );
-    } catch {}
+    const escapedForLike = cleanOrderId.replace(/[\\%_]/g, '\\$&');
+    const order = Database.get<any>(
+      `SELECT id, customer_id, payment_status FROM orders WHERE id = ? OR notes LIKE ? ESCAPE '\\' LIMIT 1`,
+      [cleanOrderId, `%${escapedForLike}%`]
+    );
 
-    logAuditEvent(null, 'system', 'GPAY_PAYMENT_SUCCESS', 'payments', orderId, {
-      orderId,
+    if (!order) {
+      throw AppError.notFound('Matching order not found for Google Pay verification.');
+    }
+
+    if (actor && actor.role !== 'admin' && order.customer_id !== actor.id) {
+      throw AppError.forbidden('You are not authorized to verify payment for this order.');
+    }
+
+    Database.run(
+      `UPDATE orders 
+       SET payment_status = 'paid', 
+           payment_method = 'gpay',
+           updated_at = datetime('now')
+       WHERE id = ?`,
+      [order.id]
+    );
+
+    logAuditEvent(actor?.id || null, actor?.role || 'system', 'GPAY_PAYMENT_SUCCESS', 'payments', order.id, {
+      orderId: order.id,
       txnRef: txnRef || `GPAY-${Date.now()}`,
     });
 
     return {
       success: true,
       status: 'PAID',
-      orderId,
+      orderId: order.id,
       message: 'Google Pay transaction verified successfully',
     };
   }

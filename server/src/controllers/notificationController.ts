@@ -1,5 +1,6 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { NotificationService } from '../services/notificationService';
+import { getParam } from '../utils/http';
 
 export class NotificationController {
   static async list(req: Request, res: Response, next: NextFunction) {
@@ -16,7 +17,7 @@ export class NotificationController {
 
   static async markRead(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = NotificationService.markAsRead(req.params.id, req.user!.id);
+      const result = NotificationService.markAsRead(getParam(req, 'id'), req.user!.id);
       res.json(result);
     } catch (err) {
       next(err);
@@ -34,7 +35,7 @@ export class NotificationController {
 
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = NotificationService.delete(req.params.id, req.user!.id);
+      const result = NotificationService.delete(getParam(req, 'id'), req.user!.id);
       res.json(result);
     } catch (err) {
       next(err);

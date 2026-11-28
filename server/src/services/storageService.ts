@@ -54,7 +54,7 @@ export class StorageService {
             Authorization: `Bearer ${supabaseKey}`,
             'Content-Type': mimeType,
           },
-          body: buffer,
+          body: new Uint8Array(buffer),
         });
 
         if (uploadRes.ok) {

@@ -236,7 +236,29 @@ async function runEcosystemTests() {
     assert.ok(groupBuys.data.data.length > 0);
     console.log('  ✅ [PASS] Advanced: Community group buying deals listed with target quantity');
 
-    const joinGb = await request(`/advanced/group-buys/${groupBuys.data.data[0].id}/join`, {
+    let targetPool = groupBuys.data.data.find(
+      (g: any) => g.status === 'active' && (Number(g.target_quantity) - Number(g.current_quantity)) >= 5
+    );
+    if (!targetPool) {
+      const productsRes = await request('/products?limit=1');
+      const prodId = productsRes.data?.data?.products?.[0]?.id || 'prod-1';
+      const createGb = await request('/advanced/group-buys', {
+        method: 'POST',
+        token: farmerToken,
+        body: {
+          product_id: prodId,
+          title: `Ecosystem Fresh Pool ${Date.now()}`,
+          target_quantity: 100,
+          discount_percent: 15,
+          min_buyers_count: 2,
+          expires_in_hours: 48,
+        },
+      });
+      assert.strictEqual(createGb.status, 201);
+      targetPool = createGb.data.data;
+    }
+
+    const joinGb = await request(`/advanced/group-buys/${targetPool.id}/join`, {
       method: 'POST',
       token: customerToken,
       body: { quantity: 5.0 },

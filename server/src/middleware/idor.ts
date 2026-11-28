@@ -1,9 +1,10 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
 import { Database } from '../db/database';
+import { getParam } from '../utils/http';
 
 export function verifyProductOwnership(req: Request, res: Response, next: NextFunction) {
-  const productId = req.params.id;
+  const productId = getParam(req, 'id');
   const user = req.user;
 
   if (!user) return next(AppError.unauthorized());
@@ -26,7 +27,7 @@ export function verifyProductOwnership(req: Request, res: Response, next: NextFu
 }
 
 export function verifyOrderAccess(req: Request, res: Response, next: NextFunction) {
-  const orderId = req.params.id;
+  const orderId = getParam(req, 'id');
   const user = req.user;
 
   if (!user) return next(AppError.unauthorized());
@@ -52,7 +53,7 @@ export function verifyOrderAccess(req: Request, res: Response, next: NextFunctio
 }
 
 export function verifyConversationAccess(req: Request, res: Response, next: NextFunction) {
-  const conversationId = req.params.id;
+  const conversationId = getParam(req, 'id');
   const user = req.user;
 
   if (!user) return next(AppError.unauthorized());

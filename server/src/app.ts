@@ -27,6 +27,7 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
+          'https://accounts.google.com',
           'https://*.trycloudflare.com',
         ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
@@ -40,12 +41,13 @@ app.use(
         ],
         connectSrc: [
           "'self'",
+          'https://accounts.google.com',
           'https://*.trycloudflare.com',
           'https://halder-app.vercel.app',
           'ws:',
           'wss:',
         ],
-        frameSrc: ["'self'"],
+        frameSrc: ["'self'", 'https://accounts.google.com'],
         frameAncestors: ["'none'"], // Strict Clickjacking prevention
         objectSrc: ["'none'"],
         upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,

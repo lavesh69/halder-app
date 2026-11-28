@@ -12,8 +12,9 @@ import { teTranslations } from '../src/i18n/translations/te';
 import { orTranslations } from '../src/i18n/translations/or';
 import { bhoTranslations } from '../src/i18n/translations/bho';
 import { asTranslations } from '../src/i18n/translations/as';
-import { translate, translations } from '../src/i18n/LanguageContext';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../src/i18n/types';
+import { asTranslations } from '../src/i18n/translations/as';
+import { ensureLanguageLoaded, translate } from '../src/i18n/translationUtils';
+import { SupportedLanguage } from '../src/i18n/types';
 
 console.log('=== HALDER i18n System Verification (All 14 Languages) ===');
 
@@ -74,6 +75,10 @@ const testCases: Array<{ lang: SupportedLanguage; key: string; params: Record<st
   { lang: 'mr', key: 'chat.typing', params: { name: 'Rajesh' }, expectedSub: 'Rajesh टाइप करत आहेत' },
   { lang: 'bn', key: 'chat.typing', params: { name: 'Rajesh' }, expectedSub: 'Rajesh লিখছেন' },
 ];
+
+await Promise.all(
+  ['hi', 'pa', 'mr', 'bn'].map((code) => ensureLanguageLoaded(code as SupportedLanguage))
+);
 
 for (const tc of testCases) {
   const result = translate(tc.lang, tc.key, tc.params);

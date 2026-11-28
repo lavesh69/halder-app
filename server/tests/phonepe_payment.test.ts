@@ -104,57 +104,53 @@ async function runTests() {
     }
 
     // -------------------------------------------------------------
-    // Tier 2: Payment Initiation API
+    // Tier 2: PhonePe Service Initiation & Decommissioned HTTP 410 Guard
     // -------------------------------------------------------------
-    console.log('\n--- TIER 2: Payment Initiation (POST /api/v1/payments/phonepe/initiate) ---');
+    console.log('\n--- TIER 2: PhonePe Service Initiation & Decommissioned Route (410) ---');
 
     let testMerchantTxnId = '';
 
     try {
-      const res = await makeRequest('/api/v1/payments/phonepe/initiate', {
+      const httpGone = await makeRequest('/api/v1/payments/phonepe/initiate', {
         method: 'POST',
-        body: {
-          amount: 350,
-          customerMobile: '9876543210',
-          redirectUrl: 'http://localhost:5173/payment/callback',
-        },
+        body: { amount: 350 },
+      });
+      assert.strictEqual(httpGone.status, 410, `Expected 410 Gone, got ${httpGone.status}`);
+
+      const svcRes = await PhonePeService.initiatePayment({
+        amount: 350,
+        customerMobile: '9876543210',
+        redirectUrl: 'http://localhost:5173/payment/callback',
       });
 
-      assert.strictEqual(res.status, 200, `Expected 200, got ${res.status}`);
-      assert.strictEqual(res.body.success, true);
-      assert.strictEqual(res.body.data.gateway, 'phonepe');
-      assert.strictEqual(res.body.data.amount, 350);
-      assert.strictEqual(res.body.data.amountInPaise, 35000);
-      assert.ok(res.body.data.merchantTransactionId.startsWith('MT-HLD-'));
-      assert.ok(res.body.data.redirectUrl.length > 0);
+      assert.strictEqual(svcRes.success, true);
+      assert.strictEqual(svcRes.gateway, 'phonepe');
+      assert.strictEqual(svcRes.amount, 350);
+      assert.strictEqual(svcRes.amountInPaise, 35000);
+      assert.ok(svcRes.merchantTransactionId.startsWith('MT-HLD-'));
+      assert.ok(svcRes.redirectUrl.length > 0);
 
-      testMerchantTxnId = res.body.data.merchantTransactionId;
-      pass('3. Initiate PhonePe payment returns 200 OK with MT-HLD- reference and redirect URL');
+      testMerchantTxnId = svcRes.merchantTransactionId;
+      pass('3. PhonePe route returns 410 Gone and PhonePeService.initiatePayment generates MT-HLD- metadata');
     } catch (e) {
       fail('3. Initiate payment', e);
     }
 
     try {
-      const res = await makeRequest('/api/v1/payments/phonepe/initiate', {
-        method: 'POST',
-        body: {
-          amount: -50,
-        },
-      });
-      assert.strictEqual(res.status, 400, 'Negative amount must return 400 Bad Request');
+      await assert.rejects(
+        () => PhonePeService.initiatePayment({ amount: -50 }),
+        (err: any) => err?.statusCode === 400
+      );
       pass('4. Negative payment amount rejected with 400 Bad Request');
     } catch (e) {
       fail('4. Negative amount check', e);
     }
 
     try {
-      const res = await makeRequest('/api/v1/payments/phonepe/initiate', {
-        method: 'POST',
-        body: {
-          amount: 0,
-        },
-      });
-      assert.strictEqual(res.status, 400, 'Zero amount must return 400 Bad Request');
+      await assert.rejects(
+        () => PhonePeService.initiatePayment({ amount: 0 }),
+        (err: any) => err?.statusCode === 400
+      );
       pass('5. Zero payment amount rejected with 400 Bad Request');
     } catch (e) {
       fail('5. Zero amount check', e);
@@ -163,14 +159,16 @@ async function runTests() {
     // -------------------------------------------------------------
     // Tier 3: Query Transaction Status
     // -------------------------------------------------------------
-    console.log('\n--- TIER 3: Query Status (GET /api/v1/payments/phonepe/status/:id) ---');
+    console.log('\n--- TIER 3: Query Status & Decommissioned Route (410) ---');
 
     try {
-      const res = await makeRequest(`/api/v1/payments/phonepe/status/${testMerchantTxnId}`);
-      assert.strictEqual(res.status, 200, `Expected 200, got ${res.status}`);
-      assert.strictEqual(res.body.success, true);
-      assert.strictEqual(res.body.data.merchantTransactionId, testMerchantTxnId);
-      pass('6. Query PhonePe status returns 200 OK with transaction metadata');
+      const httpGone = await makeRequest(`/api/v1/payments/phonepe/status/${testMerchantTxnId}`);
+      assert.strictEqual(httpGone.status, 410, `Expected 410 Gone, got ${httpGone.status}`);
+
+      const svcStatus = await PhonePeService.checkPaymentStatus(testMerchantTxnId);
+      assert.strictEqual(svcStatus.success, true);
+      assert.strictEqual(svcStatus.merchantTransactionId, testMerchantTxnId);
+      pass('6. PhonePe status HTTP route returns 410 and PhonePeService.checkPaymentStatus verifies metadata');
     } catch (e) {
       fail('6. Query status', e);
     }
@@ -234,18 +232,15 @@ async function runTests() {
       const base64Response = Buffer.from(JSON.stringify(webhookPayload)).toString('base64');
       const webhookChecksum = PhonePeService.calculateChecksum(base64Response + env.PHONEPE_SALT_KEY);
 
-      const res = await makeRequest('/api/v1/payments/phonepe/webhook', {
+      const httpGone = await makeRequest('/api/v1/payments/phonepe/webhook', {
         method: 'POST',
-        headers: {
-          'x-verify': webhookChecksum,
-        },
-        body: {
-          response: base64Response,
-        },
+        headers: { 'x-verify': webhookChecksum },
+        body: { response: base64Response },
       });
+      assert.strictEqual(httpGone.status, 410);
 
-      assert.strictEqual(res.status, 200);
-      assert.strictEqual(res.body.success, true);
+      const svcWebhook = await PhonePeService.handleWebhook(webhookChecksum, { response: base64Response });
+      assert.strictEqual(svcWebhook.success, true);
 
       // Verify SQLite state update
       const updatedOrder = Database.get<any>(`SELECT payment_status, payment_method FROM orders WHERE id = ?`, [
@@ -253,19 +248,16 @@ async function runTests() {
       ]);
       assert.strictEqual(updatedOrder.payment_status, 'paid', 'Order payment_status must update to paid');
       assert.strictEqual(updatedOrder.payment_method, 'phonepe', 'Order payment_method must be phonepe');
-      pass('7. Webhook callback with valid signature marks order payment_status = paid');
+      pass('7. Webhook processing with valid signature marks order payment_status = paid');
     } catch (e) {
       fail('7. Webhook processing', e);
     }
 
     try {
-      const invalidWebhookRes = await makeRequest('/api/v1/payments/phonepe/webhook', {
-        method: 'POST',
-        body: {
-          malformed: true,
-        },
-      });
-      assert.strictEqual(invalidWebhookRes.status, 400, 'Malformed webhook payload must return 400');
+      await assert.rejects(
+        () => PhonePeService.handleWebhook(undefined, { malformed: true }),
+        (err: any) => err?.statusCode === 400
+      );
       pass('8. Malformed webhook payload rejected with 400 Bad Request');
     } catch (e) {
       fail('8. Malformed webhook check', e);
@@ -277,7 +269,17 @@ async function runTests() {
     console.log('\n--- TIER 5: Direct Order Creation with PhonePe ---');
 
     try {
-      const products = Database.query<any>(`SELECT id, price FROM products LIMIT 1`);
+      let products = Database.query<any>(
+        `SELECT id, price FROM products WHERE status = 'active' AND moderation_status = 'approved' AND available_quantity >= 5 ORDER BY available_quantity DESC LIMIT 1`
+      );
+      if (products.length === 0) {
+        Database.run(
+          `UPDATE products SET available_quantity = 50, status = 'active', moderation_status = 'approved' WHERE id = (SELECT id FROM products LIMIT 1)`
+        );
+        products = Database.query<any>(
+          `SELECT id, price FROM products WHERE status = 'active' AND moderation_status = 'approved' AND available_quantity >= 5 LIMIT 1`
+        );
+      }
       if (products.length > 0) {
         const prod = products[0];
         const users = Database.query<any>(`SELECT id, phone, name FROM users WHERE role = 'customer' LIMIT 1`);

@@ -15,6 +15,7 @@ import {
   AppNotification,
 } from '../types';
 import { calculateHaversineDistanceKm } from '../utils/geo';
+import { ApiClient } from '../api/client';
 
 export type CustomerTab = 'home' | 'chats' | 'my-ads' | 'search' | 'sell' | 'cart' | 'orders' | 'profile' | 'favorites';
 export type FarmerTab = 'dashboard' | 'listings' | 'my-ads' | 'sell' | 'orders' | 'profile' | 'earnings' | 'chat';
@@ -389,3 +390,43 @@ export const nextGeneratedId = (prefix: string): string => {
   }
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 };
+
+export const mapBackendCategory = (c: any): Category => ({
+  id: c.id,
+  name: c.name,
+  emoji: c.emoji || '🌾',
+  image: c.image || '',
+  active: Boolean(c.active),
+});
+
+export async function syncPublicMetadataToState(
+  isMountedRef: () => boolean,
+  onCategories: (cats: Category[]) => void,
+  onSettings: (remote: Partial<PlatformSettings>) => void
+): Promise<void> {
+  try {
+    const cats = await ApiClient.getCategories();
+    if (isMountedRef() && Array.isArray(cats) && cats.length > 0) {
+      onCategories(cats.map(mapBackendCategory));
+    }
+  } catch {}
+
+  try {
+    const remote = await ApiClient.getPublicSettings();
+    if (isMountedRef() && remote && typeof remote === 'object' && Object.keys(remote).length > 0) {
+      onSettings(remote as Partial<PlatformSettings>);
+    }
+  } catch {}
+}
+
+export async function syncAdminCategoriesToState(
+  isMountedRef: () => boolean,
+  onCategories: (cats: Category[]) => void
+): Promise<void> {
+  try {
+    const adminCats = await ApiClient.getAdminCategories();
+    if (isMountedRef() && Array.isArray(adminCats) && adminCats.length > 0) {
+      onCategories(adminCats.map(mapBackendCategory));
+    }
+  } catch {}
+}

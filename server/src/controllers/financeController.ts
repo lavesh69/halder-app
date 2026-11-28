@@ -1,6 +1,7 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
+import { getParam } from '../utils/http';
 
 export class FinanceController {
   // GET /api/v1/finance/dashboard
@@ -73,7 +74,7 @@ export class FinanceController {
   // GET /api/v1/finance/farmer-earnings/:farmerId
   static getFarmerEarnings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { farmerId } = req.params;
+      const farmerId = getParam(req, 'farmerId');
 
       const farmerOrders = Database.query(`
         SELECT 
@@ -248,16 +249,23 @@ export class FinanceController {
     }
   }
 
-  // PUT /api/v1/finance/settings (Admin only)
+  // PUT/PATCH /api/v1/finance/settings (Admin only)
   static updateSettings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { settings } = req.body;
-      if (!settings || typeof settings !== 'object') {
+      const payload =
+        req.body && typeof req.body.settings === 'object' && req.body.settings !== null
+          ? req.body.settings
+          : req.body && typeof req.body === 'object' && !Array.isArray(req.body) && Object.keys(req.body).length > 0
+          ? req.body
+          : null;
+
+      if (!payload) {
         throw AppError.badRequest('settings object required');
       }
 
       const now = new Date().toISOString();
-      for (const [key, val] of Object.entries(settings)) {
+      for (const [key, val] of Object.entries(payload)) {
+        if (val === undefined || val === null) continue;
         Database.run(
           `INSERT INTO platform_settings (key, value, updated_at) VALUES (?, ?, ?)
            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,

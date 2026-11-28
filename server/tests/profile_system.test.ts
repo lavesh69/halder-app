@@ -193,7 +193,11 @@ async function runProfileSystemTests() {
         token: tokenCustA,
         body: { avatar: dummyBase64 },
       });
-      const ok = res.status === 200 && res.json.data.avatar === dummyBase64;
+      const avatarUrl = res.json?.data?.avatar;
+      const ok =
+        res.status === 200 &&
+        typeof avatarUrl === 'string' &&
+        (avatarUrl === dummyBase64 || avatarUrl.includes('/avatars/'));
       recordTest('Customer A uploads persistent avatar image', ok);
     } catch (err: any) {
       recordTest('Customer A uploads persistent avatar image', false, err.message);

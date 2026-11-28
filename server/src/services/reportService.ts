@@ -159,14 +159,19 @@ export class ReportService {
 
     // Notify the reporting customer/farmer of the resolution update
     try {
-      NotificationService.create({
+      const reporter = Database.get<any>('SELECT role FROM users WHERE id = ?', [report.reporter_id]);
+      const recipientRole: 'customer' | 'farmer' | 'admin' =
+        reporter?.role === 'farmer' || reporter?.role === 'admin' ? reporter.role : 'customer';
+
+      NotificationService.createAndPush({
         userId: report.reporter_id,
-        role: 'customer',
+        recipientRole,
         type: 'order',
         title: `Grievance Ticket #${reportId.slice(-6).toUpperCase()} ${newStatus === 'resolved' ? 'Resolved' : 'Updated'}`,
-        message: resolutionReason 
+        message: resolutionReason
           ? `Status: ${newStatus.toUpperCase()}. Resolution: ${resolutionReason}`
           : `Your support grievance status was updated to ${newStatus}.`,
+        sourceKey: `grievance:${reportId}:${newStatus}:${now}`,
       });
     } catch {}
 

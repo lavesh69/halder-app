@@ -29,7 +29,10 @@ router.patch('/users/:id/toggle-status', AdminController.toggleUserStatus);
 router.patch('/farmers/:id/verify', validateBody(verifyFarmerSchema), AdminController.verifyFarmer);
 router.get('/kyc/pending', AdminController.listPendingKYC);
 router.patch('/farmers/:id/kyc', AdminController.reviewKYC);
+router.get('/categories', AdminController.listCategories);
 router.post('/categories', validateBody(categorySchema), AdminController.addCategory);
+router.patch('/categories/:id/toggle', AdminController.toggleCategoryActive);
+router.delete('/categories/:id', AdminController.deleteCategory);
 router.get('/audit-logs', AdminController.listAuditLogs);
 
 // Device Ban Security Management

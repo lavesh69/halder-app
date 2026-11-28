@@ -208,7 +208,7 @@ function seedExtendedTestEcosystem(now: string) {
       Database.run(
         `INSERT OR IGNORE INTO crop_demand_indicators (id, crop_name, season, demand_level, price_outlook, recommended_selling_window, avg_mandi_modal_price, retail_mandi_spread_pct, profitability_score, insights_summary, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['ind-' + ind[0].toLowerCase().replace(/\s+/g, '-'), ...ind, now]
+        ['ind-' + String(ind[0]).toLowerCase().replace(/\s+/g, '-'), ...ind, now]
       );
     }
   }

@@ -550,10 +550,62 @@ async function runTests() {
     const updateReport = await request(`/reports/${reportId}/status`, {
       method: 'PATCH',
       token: adminToken,
-      body: { status: 'resolved' },
+      body: { status: 'resolved', resolutionReason: 'Harvest dispatched' },
     });
-    assert('Reports: Admin updating report status returns 200 with resolved_at timestamp',
-      updateReport.status === 200 && updateReport.json.data.status === 'resolved' && !!updateReport.json.data.resolved_at
+    const reportNotifs = Database.query<any>(
+      `SELECT id, title FROM notifications WHERE source_key LIKE ?`,
+      [`grievance:${reportId}:resolved:%`]
+    );
+    assert('Reports: Admin updating report status returns 200 with resolved_at timestamp and persists notification',
+      updateReport.status === 200 &&
+      updateReport.json.data.status === 'resolved' &&
+      !!updateReport.json.data.resolved_at &&
+      reportNotifs.length > 0
+    );
+
+    // 9.2B Admin Category Toggle/Delete Cache Invalidation & Public Governance Settings
+    const createCatRes = await request('/admin/categories', {
+      method: 'POST',
+      token: adminToken,
+      body: { name: `TempTestCrop_${Date.now()}`, emoji: '🥦' },
+    });
+    const tempCatId = createCatRes.json?.data?.id;
+    const publicCatsAfterAdd = await request('/categories');
+    const toggleCatRes = await request(`/admin/categories/${tempCatId}/toggle`, {
+      method: 'PATCH',
+      token: adminToken,
+    });
+    const publicCatsAfterHide = await request('/categories');
+    const deleteCatRes = await request(`/admin/categories/${tempCatId}`, {
+      method: 'DELETE',
+      token: adminToken,
+    });
+    assert('Admin Categories: Add, toggle visibility with cache invalidation, and delete persist cleanly',
+      createCatRes.status === 201 &&
+      Boolean(tempCatId) &&
+      publicCatsAfterAdd.json?.data?.some((c: any) => c.id === tempCatId) &&
+      toggleCatRes.status === 200 &&
+      Number(toggleCatRes.json?.data?.active) === 0 &&
+      !publicCatsAfterHide.json?.data?.some((c: any) => c.id === tempCatId) &&
+      deleteCatRes.status === 200
+    );
+
+    const testBanner = `Maintenance Notice ${Date.now()}`;
+    const updateSettingsRes = await request('/finance/settings', {
+      method: 'PUT',
+      token: adminToken,
+      body: { settings: { emergencyAlert: testBanner } },
+    });
+    const publicSettingsRes = await request('/settings/public');
+    await request('/finance/settings', {
+      method: 'PUT',
+      token: adminToken,
+      body: { settings: { emergencyAlert: '' } },
+    });
+    assert('Platform Settings: Admin PUT syncs and public GET exposes safe governance fields',
+      updateSettingsRes.status === 200 &&
+      publicSettingsRes.status === 200 &&
+      publicSettingsRes.json?.data?.emergencyAlert === testBanner
     );
 
     // 9.3 Farmer Live Earnings & Payout Ledger

@@ -337,6 +337,7 @@ export class ProductService {
     image: string;
     images?: string[];
     status?: 'active' | 'draft';
+    showPhoneNumber?: boolean;
     priceSlabs?: Array<{ minQuantity: number; maxQuantity?: number | null; pricePerUnit: number }>;
   }, baseUrl?: string) {
     const safePrice = data.price ?? 0;

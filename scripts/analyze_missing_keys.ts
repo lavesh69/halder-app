@@ -1,7 +1,8 @@
-import { translations } from '../src/i18n/LanguageContext';
-import { SUPPORTED_LANGUAGES } from '../src/i18n/types';
+import { ensureLanguageLoaded, translations } from '../src/i18n/translationUtils';
 
-const baseline = Object.keys(translations.en);
+await ensureLanguageLoaded('pa');
+
+const baseline = Object.keys(translations.en!);
 const paKeys = new Set(Object.keys((translations as any).pa));
 const missing = baseline.filter((k) => !paKeys.has(k));
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { FarmerService } from '../services/farmerService';
 import { KycService } from '../services/kycService';
 import { Database } from '../db/database';
+import { getParam } from '../utils/http';
 
 export class FarmerController {
   static async list(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ export class FarmerController {
 
   static async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const profile = FarmerService.getProfile(req.params.id);
+      const profile = FarmerService.getProfile(getParam(req, 'id'));
       res.json({
         success: true,
         data: profile,
@@ -30,7 +31,7 @@ export class FarmerController {
 
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -50,7 +51,7 @@ export class FarmerController {
 
   static async getEarnings(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -70,7 +71,7 @@ export class FarmerController {
 
   static async updatePayoutSettings(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -90,7 +91,7 @@ export class FarmerController {
 
   static async requestWithdrawal(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -110,7 +111,7 @@ export class FarmerController {
 
   static async recordPayout(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -130,7 +131,7 @@ export class FarmerController {
 
   static async submitKYC(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -151,7 +152,7 @@ export class FarmerController {
 
   static async getKYC(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       if (req.user!.role !== 'admin' && req.user!.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -180,7 +181,7 @@ export class FarmerController {
 
   static async getPublicProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const profile = FarmerService.getPublicProfile(req.params.id);
+      const profile = FarmerService.getPublicProfile(getParam(req, 'id'));
       res.json({ success: true, data: profile });
     } catch (err) {
       next(err);
@@ -219,7 +220,7 @@ export class FarmerController {
   // --- FARM CROPS & HARVEST CALENDAR (MODULE 2) ---
   static async getCrops(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       const crops = Database.query(
         'SELECT * FROM farm_crops WHERE farmer_id = ? ORDER BY expected_harvest_date ASC',
         [farmerId]
@@ -232,7 +233,7 @@ export class FarmerController {
 
   static async addCrop(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
       const farmer = Database.get<any>('SELECT * FROM farmer_profiles WHERE id = ?', [farmerId]);
       if (!farmer) {
         return res.status(404).json({ success: false, error: { message: 'Farmer profile not found' } });
@@ -291,7 +292,7 @@ export class FarmerController {
 
   static async updateCrop(req: Request, res: Response, next: NextFunction) {
     try {
-      const { cropId } = req.params;
+      const cropId = getParam(req, 'cropId');
       const crop = Database.get<any>('SELECT * FROM farm_crops WHERE id = ?', [cropId]);
       if (!crop) {
         return res.status(404).json({ success: false, error: { message: 'Crop not found in calendar' } });
@@ -323,7 +324,7 @@ export class FarmerController {
 
   static async deleteCrop(req: Request, res: Response, next: NextFunction) {
     try {
-      const { cropId } = req.params;
+      const cropId = getParam(req, 'cropId');
       const crop = Database.get<any>('SELECT * FROM farm_crops WHERE id = ?', [cropId]);
       if (!crop) {
         return res.status(404).json({ success: false, error: { message: 'Crop not found in calendar' } });
@@ -343,7 +344,7 @@ export class FarmerController {
   // --- FARMER BUSINESS INSIGHTS & ANALYTICS (MODULE 2) ---
   static async getBusinessInsights(req: Request, res: Response, next: NextFunction) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, 'id');
 
       // Repeat customer count
       const repeatCust = Database.get<any>(`

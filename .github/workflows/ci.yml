@@ -31,8 +31,20 @@ jobs:
       - name: Run Static Analysis & Linter
         run: npm run lint
 
+      - name: Type Check Backend & Serverless API
+        run: npm run typecheck:server
+
       - name: Type Check & Production Frontend Build
         run: npm run build
+
+      - name: Run Frontend UI Render & Component Suite
+        run: npm run test:ui
+
+      - name: Run Adversarial i18n Parity Suite
+        run: node --import tsx server/tests/i18n_adversarial.test.ts
+
+      - name: Run Chat Frontend Unit Suite
+        run: node --import tsx server/tests/chat_frontend_unit.test.ts
 
       - name: Run Core Backend Test Suite
         run: npm run server:test
@@ -72,6 +84,24 @@ jobs:
 
       - name: Run Real-Time WebSocket Chat & 5-Language i18n Tests
         run: npm run server:chat-i18n
+        env:
+          NODE_ENV: test
+          JWT_SECRET: halder_super_secure_ci_jwt_secret_test_2026_mandi
+
+      - name: Run Chat Production Suite
+        run: node --import tsx server/tests/chat_production_suite.test.ts
+        env:
+          NODE_ENV: test
+          JWT_SECRET: halder_super_secure_ci_jwt_secret_test_2026_mandi
+
+      - name: Run Hardware Device Ban Security Suite
+        run: node --import tsx server/tests/device_ban_security.test.ts
+        env:
+          NODE_ENV: test
+          JWT_SECRET: halder_super_secure_ci_jwt_secret_test_2026_mandi
+
+      - name: Run Agricultural Marketplace Integration Suite
+        run: node --import tsx server/tests/agricultural_marketplace.test.ts
         env:
           NODE_ENV: test
           JWT_SECRET: halder_super_secure_ci_jwt_secret_test_2026_mandi

@@ -1,5 +1,6 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { OrderService } from '../services/orderService';
+import { getParam } from '../utils/http';
 
 export class OrderController {
   static async create(req: Request, res: Response, next: NextFunction) {
@@ -21,7 +22,7 @@ export class OrderController {
 
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const order = OrderService.getById(req.params.id);
+      const order = OrderService.getById(getParam(req, 'id'));
       res.json({
         success: true,
         data: order,
@@ -53,7 +54,7 @@ export class OrderController {
   static async updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const order = OrderService.updateStatus(
-        req.params.id,
+        getParam(req, 'id'),
         req.body.status,
         req.user!.role
       );

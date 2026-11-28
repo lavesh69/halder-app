@@ -19001,14 +19001,14 @@ var require_etag = __commonJS({
   "node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto7 = __require("crypto");
+    var crypto8 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash2 = crypto7.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash2 = crypto8.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash2 + '"';
     }
@@ -21917,11 +21917,11 @@ var require_request = __commonJS({
 // node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "node_modules/cookie-signature/index.js"(exports) {
-    var crypto7 = __require("crypto");
+    var crypto8 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if ("string" != typeof secret) throw new TypeError("Secret string must be provided.");
-      return val + "." + crypto7.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto8.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Signed cookie string must be provided.");
@@ -21930,7 +21930,7 @@ var require_cookie_signature = __commonJS({
       return sha1(mac) == sha1(val) ? str : false;
     };
     function sha1(str) {
-      return crypto7.createHash("sha1").update(str).digest("hex");
+      return crypto8.createHash("sha1").update(str).digest("hex");
     }
   }
 });
@@ -23342,7 +23342,7 @@ var require_main = __commonJS({
     var fs5 = __require("fs");
     var path8 = __require("path");
     var os = __require("os");
-    var crypto7 = __require("crypto");
+    var crypto8 = __require("crypto");
     var packageJson = require_package();
     var version2 = packageJson.version;
     var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
@@ -23561,7 +23561,7 @@ var require_main = __commonJS({
       const authTag = ciphertext.subarray(-16);
       ciphertext = ciphertext.subarray(12, -16);
       try {
-        const aesgcm = crypto7.createDecipheriv("aes-256-gcm", key, nonce);
+        const aesgcm = crypto8.createDecipheriv("aes-256-gcm", key, nonce);
         aesgcm.setAuthTag(authTag);
         return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
       } catch (error2) {
@@ -36175,6 +36175,12 @@ function getDatabase() {
   }
   return dbInstance;
 }
+function toSqliteParams(params) {
+  return params.map((p3) => {
+    if (typeof p3 === "boolean") return p3 ? 1 : 0;
+    return p3;
+  });
+}
 var dbInstance, Database;
 var init_database = __esm({
   "server/src/db/database.ts"() {
@@ -36189,17 +36195,17 @@ var init_database = __esm({
       static query(sql, params = []) {
         const db = getDatabase();
         const stmt = db.prepare(sql);
-        return stmt.all(...params);
+        return stmt.all(...toSqliteParams(params));
       }
       static get(sql, params = []) {
         const db = getDatabase();
         const stmt = db.prepare(sql);
-        return stmt.get(...params);
+        return stmt.get(...toSqliteParams(params));
       }
       static run(sql, params = []) {
         const db = getDatabase();
         const stmt = db.prepare(sql);
-        const result = stmt.run(...params);
+        const result = stmt.run(...toSqliteParams(params));
         recordSupabaseWrite(sql);
         recordTursoWrite(sql, params);
         return result;
@@ -36486,14 +36492,14 @@ var require_buffer_equal_constant_time = __commonJS({
 var require_jwa = __commonJS({
   "node_modules/jwa/index.js"(exports, module) {
     var Buffer3 = require_safe_buffer().Buffer;
-    var crypto7 = __require("crypto");
+    var crypto8 = __require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util2 = __require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto7.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto8.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -36583,17 +36589,17 @@ var require_jwa = __commonJS({
       return function sign3(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac = crypto7.createHmac("sha" + bits, secret);
+        var hmac = crypto8.createHmac("sha" + bits, secret);
         var sig = (hmac.update(thing), hmac.digest("base64"));
         return fromBase642(sig);
       };
     }
     var bufferEqual;
-    var timingSafeEqual = "timingSafeEqual" in crypto7 ? function timingSafeEqual2(a5, b5) {
+    var timingSafeEqual = "timingSafeEqual" in crypto8 ? function timingSafeEqual2(a5, b5) {
       if (a5.byteLength !== b5.byteLength) {
         return false;
       }
-      return crypto7.timingSafeEqual(a5, b5);
+      return crypto8.timingSafeEqual(a5, b5);
     } : function timingSafeEqual2(a5, b5) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -36610,7 +36616,7 @@ var require_jwa = __commonJS({
       return function sign3(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto7.createSign("RSA-SHA" + bits);
+        var signer = crypto8.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase642(sig);
       };
@@ -36620,7 +36626,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto7.createVerify("RSA-SHA" + bits);
+        var verifier = crypto8.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -36629,11 +36635,11 @@ var require_jwa = __commonJS({
       return function sign3(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto7.createSign("RSA-SHA" + bits);
+        var signer = crypto8.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto7.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto7.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto8.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto8.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase642(sig);
       };
@@ -36643,12 +36649,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto7.createVerify("RSA-SHA" + bits);
+        var verifier = crypto8.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto7.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto7.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto8.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto8.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -76258,7 +76264,7 @@ var init_storageService = __esm({
                 Authorization: `Bearer ${supabaseKey}`,
                 "Content-Type": mimeType
               },
-              body: buffer
+              body: new Uint8Array(buffer)
             });
             if (uploadRes.ok) {
               const publicUrl = `${supabaseUrl}/storage/v1/object/public/halder-media/${filename}`;
@@ -81261,10 +81267,10 @@ var require_disk = __commonJS({
     var fs5 = __require("fs");
     var os = __require("os");
     var path8 = __require("path");
-    var crypto7 = __require("crypto");
+    var crypto8 = __require("crypto");
     var mkdirp = require_mkdirp();
     function getFilename(req, file, cb) {
-      crypto7.randomBytes(16, function(err, raw) {
+      crypto8.randomBytes(16, function(err, raw) {
         cb(err, err ? void 0 : raw.toString("hex"));
       });
     }
@@ -89458,6 +89464,14 @@ var ProductService = class _ProductService {
 init_database();
 init_esm();
 init_sanitize();
+
+// server/src/utils/http.ts
+function getParam(req, name) {
+  const val = req.params[name];
+  return Array.isArray(val) ? val[0] ?? "" : val ?? "";
+}
+
+// server/src/controllers/productController.ts
 var ProductController = class {
   static async list(req, res, next) {
     try {
@@ -89507,7 +89521,7 @@ var ProductController = class {
   }
   static async getById(req, res, next) {
     try {
-      const product = ProductService.getById(req.params.id, Boolean(req.user));
+      const product = ProductService.getById(getParam(req, "id"), Boolean(req.user));
       res.json({
         success: true,
         data: product
@@ -89567,7 +89581,7 @@ var ProductController = class {
   static async update(req, res, next) {
     try {
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      const product = await ProductService.update(req.params.id, req.body, baseUrl);
+      const product = await ProductService.update(getParam(req, "id"), req.body, baseUrl);
       res.json({
         success: true,
         data: product
@@ -89585,7 +89599,7 @@ var ProductController = class {
           error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can update stock." }
         });
       }
-      const product = ProductService.updateStock(req.params.id, farmerId, req.body);
+      const product = ProductService.updateStock(getParam(req, "id"), farmerId, req.body);
       res.json({
         success: true,
         data: product
@@ -89603,7 +89617,7 @@ var ProductController = class {
           error: { code: "FARMER_PROFILE_REQUIRED", message: "Only registered farmers can view stock history." }
         });
       }
-      const history = ProductService.getStockHistory(req.params.id, farmerId);
+      const history = ProductService.getStockHistory(getParam(req, "id"), farmerId);
       res.json({
         success: true,
         data: history
@@ -89622,7 +89636,7 @@ var ProductController = class {
         });
       }
       const { statusAction } = req.body;
-      const product = ProductService.updateStatus(req.params.id, farmerId, statusAction);
+      const product = ProductService.updateStatus(getParam(req, "id"), farmerId, statusAction);
       res.json({
         success: true,
         data: product
@@ -89633,7 +89647,7 @@ var ProductController = class {
   }
   static async delete(req, res, next) {
     try {
-      const result = ProductService.delete(req.params.id);
+      const result = ProductService.delete(getParam(req, "id"));
       res.json(result);
     } catch (err) {
       next(err);
@@ -89645,7 +89659,7 @@ var ProductController = class {
 init_errors3();
 init_database();
 function verifyProductOwnership(req, res, next) {
-  const productId = req.params.id;
+  const productId = getParam(req, "id");
   const user = req.user;
   if (!user) return next(AppError.unauthorized());
   if (user.role === "admin") return next();
@@ -89662,7 +89676,7 @@ function verifyProductOwnership(req, res, next) {
   next();
 }
 function verifyOrderAccess(req, res, next) {
-  const orderId = req.params.id;
+  const orderId = getParam(req, "id");
   const user = req.user;
   if (!user) return next(AppError.unauthorized());
   if (user.role === "admin") return next();
@@ -89681,7 +89695,7 @@ function verifyOrderAccess(req, res, next) {
   next();
 }
 function verifyConversationAccess(req, res, next) {
-  const conversationId = req.params.id;
+  const conversationId = getParam(req, "id");
   const user = req.user;
   if (!user) return next(AppError.unauthorized());
   if (user.role === "admin") return next();
@@ -90073,8 +90087,8 @@ var OrderService = class _OrderService {
         userId: order.customer_id,
         recipientRole: "customer",
         type: "order",
-        title: newStatus === "dispatched" ? "\u{1F69A} Kisan Fleet En Route!" : newStatus === "delivered" ? "\u2705 Harvest Delivered!" : `Order Update: ${newStatus.toUpperCase()} \u{1F4E6}`,
-        message: newStatus === "dispatched" ? `Farmer ${order.farmer_name} is personally delivering your order ${order.order_number} via Kisan Vahan!` : newStatus === "delivered" ? `Your order ${order.order_number} has been delivered fresh from the farm.` : `Your order ${order.order_number} is now ${newStatus.replace(/_/g, " ")}.`,
+        title: newStatus === "out_for_delivery" ? "\u{1F69A} Kisan Fleet En Route!" : newStatus === "delivered" ? "\u2705 Harvest Delivered!" : `Order Update: ${newStatus.toUpperCase()} \u{1F4E6}`,
+        message: newStatus === "out_for_delivery" ? `Farmer ${order.farmer_name} is personally delivering your order ${order.order_number} via Kisan Vahan!` : newStatus === "delivered" ? `Your order ${order.order_number} has been delivered fresh from the farm.` : `Your order ${order.order_number} is now ${newStatus.replace(/_/g, " ")}.`,
         data: { orderId: order.id, orderNumber: order.order_number, status: newStatus }
       });
     });
@@ -90101,7 +90115,7 @@ var OrderController = class {
   }
   static async getById(req, res, next) {
     try {
-      const order = OrderService.getById(req.params.id);
+      const order = OrderService.getById(getParam(req, "id"));
       res.json({
         success: true,
         data: order
@@ -90130,7 +90144,7 @@ var OrderController = class {
   static async updateStatus(req, res, next) {
     try {
       const order = OrderService.updateStatus(
-        req.params.id,
+        getParam(req, "id"),
         req.body.status,
         req.user.role
       );
@@ -90324,7 +90338,7 @@ var CartController = class {
   }
   static async removeItem(req, res, next) {
     try {
-      const cart = CartService.removeItem(req.user.id, req.params.productId);
+      const cart = CartService.removeItem(req.user.id, getParam(req, "productId"));
       res.json({
         success: true,
         data: cart
@@ -90920,7 +90934,7 @@ var FarmerController = class {
   }
   static async getProfile(req, res, next) {
     try {
-      const profile = FarmerService.getProfile(req.params.id);
+      const profile = FarmerService.getProfile(getParam(req, "id"));
       res.json({
         success: true,
         data: profile
@@ -90931,7 +90945,7 @@ var FarmerController = class {
   }
   static async update(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -90949,7 +90963,7 @@ var FarmerController = class {
   }
   static async getEarnings(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -90967,7 +90981,7 @@ var FarmerController = class {
   }
   static async updatePayoutSettings(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -90985,7 +90999,7 @@ var FarmerController = class {
   }
   static async requestWithdrawal(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -91003,7 +91017,7 @@ var FarmerController = class {
   }
   static async recordPayout(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -91021,7 +91035,7 @@ var FarmerController = class {
   }
   static async submitKYC(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -91040,7 +91054,7 @@ var FarmerController = class {
   }
   static async getKYC(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       if (req.user.role !== "admin" && req.user.farmerProfileId !== farmerId) {
         return res.status(403).json({
           success: false,
@@ -91066,7 +91080,7 @@ var FarmerController = class {
   }
   static async getPublicProfile(req, res, next) {
     try {
-      const profile = FarmerService.getPublicProfile(req.params.id);
+      const profile = FarmerService.getPublicProfile(getParam(req, "id"));
       res.json({ success: true, data: profile });
     } catch (err) {
       next(err);
@@ -91101,7 +91115,7 @@ var FarmerController = class {
   // --- FARM CROPS & HARVEST CALENDAR (MODULE 2) ---
   static async getCrops(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       const crops = Database.query(
         "SELECT * FROM farm_crops WHERE farmer_id = ? ORDER BY expected_harvest_date ASC",
         [farmerId]
@@ -91113,7 +91127,7 @@ var FarmerController = class {
   }
   static async addCrop(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       const farmer = Database.get("SELECT * FROM farmer_profiles WHERE id = ?", [farmerId]);
       if (!farmer) {
         return res.status(404).json({ success: false, error: { message: "Farmer profile not found" } });
@@ -91171,7 +91185,7 @@ var FarmerController = class {
   }
   static async updateCrop(req, res, next) {
     try {
-      const { cropId } = req.params;
+      const cropId = getParam(req, "cropId");
       const crop = Database.get("SELECT * FROM farm_crops WHERE id = ?", [cropId]);
       if (!crop) {
         return res.status(404).json({ success: false, error: { message: "Crop not found in calendar" } });
@@ -91199,7 +91213,7 @@ var FarmerController = class {
   }
   static async deleteCrop(req, res, next) {
     try {
-      const { cropId } = req.params;
+      const cropId = getParam(req, "cropId");
       const crop = Database.get("SELECT * FROM farm_crops WHERE id = ?", [cropId]);
       if (!crop) {
         return res.status(404).json({ success: false, error: { message: "Crop not found in calendar" } });
@@ -91217,7 +91231,7 @@ var FarmerController = class {
   // --- FARMER BUSINESS INSIGHTS & ANALYTICS (MODULE 2) ---
   static async getBusinessInsights(req, res, next) {
     try {
-      const farmerId = req.params.id;
+      const farmerId = getParam(req, "id");
       const repeatCust = Database.get(`
         SELECT COUNT(DISTINCT customer_id) as count
         FROM orders
@@ -91408,7 +91422,7 @@ var ReviewController = class {
   }
   static async getForFarmer(req, res, next) {
     try {
-      const reviews = ReviewService.getForFarmer(req.params.farmerId);
+      const reviews = ReviewService.getForFarmer(getParam(req, "farmerId"));
       res.json({
         success: true,
         data: reviews
@@ -93214,18 +93228,18 @@ var ChatController = class {
       const before = typeof req.query.before === "string" ? req.query.before : void 0;
       const after = typeof req.query.after === "string" ? req.query.after : void 0;
       const search = typeof req.query.q === "string" ? req.query.q : void 0;
-      const result = ChatService.getMessages(req.params.id, { limit, before, after, search });
+      const result = ChatService.getMessages(getParam(req, "id"), { limit, before, after, search });
       if (!before && !search) {
-        const deliveredAt = ChatService.markConversationDelivered(req.params.id, req.user.id);
+        const deliveredAt = ChatService.markConversationDelivered(getParam(req, "id"), req.user.id);
         if (deliveredAt) {
-          const meta = ChatService.getConversationMeta(req.params.id);
+          const meta = ChatService.getConversationMeta(getParam(req, "id"));
           const partnerUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
           ChatSocketService.broadcastConversationEvent(
-            req.params.id,
+            getParam(req, "id"),
             partnerUserId,
             "chat:delivered",
             {
-              conversationId: req.params.id,
+              conversationId: getParam(req, "id"),
               userId: req.user.id,
               deliveredAt
             }
@@ -93252,11 +93266,11 @@ var ChatController = class {
   static async sendMessage(req, res, next) {
     try {
       const senderRole = req.user.role === "farmer" ? "farmer" : "user";
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, "id"));
       const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
       const recipientOnline = Boolean(recipientUserId && ChatSocketService.isUserOnline(recipientUserId));
       const msg = ChatService.sendMessage(
-        req.params.id,
+        getParam(req, "id"),
         req.user.id,
         senderRole,
         req.body.message || "",
@@ -93268,15 +93282,15 @@ var ChatController = class {
         }
       );
       if (!msg.deduplicated) {
-        ChatSocketService.broadcastConversationEvent(req.params.id, recipientUserId, "chat:message", msg);
+        ChatSocketService.broadcastConversationEvent(getParam(req, "id"), recipientUserId, "chat:message", msg);
         if (recipientUserId && recipientUserId !== req.user.id) {
           ChatSocketService.sendToUser(recipientUserId, "chat:notification", {
-            conversationId: req.params.id,
+            conversationId: getParam(req, "id"),
             message: msg
           });
         }
         ChatService.dispatchChatNotification({
-          conversationId: req.params.id,
+          conversationId: getParam(req, "id"),
           senderId: req.user.id,
           senderName: req.user.name,
           message: msg
@@ -93298,18 +93312,18 @@ var ChatController = class {
   static async editMessage(req, res, next) {
     try {
       const updated = ChatService.editMessage(
-        req.params.id,
-        req.params.messageId,
+        getParam(req, "id"),
+        getParam(req, "messageId"),
         req.user.id,
         req.body.message
       );
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, "id"));
       const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
       ChatSocketService.broadcastConversationEvent(
-        req.params.id,
+        getParam(req, "id"),
         recipientUserId,
         "chat:message_edited",
-        { conversationId: req.params.id, message: updated }
+        { conversationId: getParam(req, "id"), message: updated }
       );
       res.json({ success: true, data: updated });
     } catch (err) {
@@ -93323,19 +93337,19 @@ var ChatController = class {
   static async deleteMessage(req, res, next) {
     try {
       const deleted = ChatService.deleteMessage(
-        req.params.id,
-        req.params.messageId,
+        getParam(req, "id"),
+        getParam(req, "messageId"),
         req.user.id,
         req.user.role
       );
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, "id"));
       const recipientUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
       ChatSocketService.broadcastConversationEvent(
-        req.params.id,
+        getParam(req, "id"),
         recipientUserId,
         "chat:message_deleted",
         {
-          conversationId: req.params.id,
+          conversationId: getParam(req, "id"),
           messageId: deleted.id,
           deletedAt: deleted.deletedAt,
           message: deleted
@@ -93351,11 +93365,11 @@ var ChatController = class {
    */
   static async markAsRead(req, res, next) {
     try {
-      const result = ChatService.markMessagesRead(req.params.id, req.user.id);
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const result = ChatService.markMessagesRead(getParam(req, "id"), req.user.id);
+      const meta = ChatService.getConversationMeta(getParam(req, "id"));
       const partnerUserId = meta ? req.user.id === meta.customer_id ? meta.farmer_user_id || meta.farmer_id : meta.customer_id : null;
-      ChatSocketService.broadcastConversationEvent(req.params.id, partnerUserId, "chat:read", {
-        conversationId: req.params.id,
+      ChatSocketService.broadcastConversationEvent(getParam(req, "id"), partnerUserId, "chat:read", {
+        conversationId: getParam(req, "id"),
         userId: req.user.id,
         readAt: result.readAt
       });
@@ -93370,7 +93384,7 @@ var ChatController = class {
   static async setMuted(req, res, next) {
     try {
       const muted = Boolean(req.body.muted);
-      const result = ChatService.setConversationMuted(req.params.id, req.user.id, muted);
+      const result = ChatService.setConversationMuted(getParam(req, "id"), req.user.id, muted);
       res.json(result);
     } catch (err) {
       next(err);
@@ -93387,7 +93401,7 @@ var ChatController = class {
         throw AppError.badRequest('No file provided under form field "file".');
       }
       const attachment = await ChatAttachmentService.saveAttachment({
-        conversationId: req.params.id,
+        conversationId: getParam(req, "id"),
         uploaderId: req.user.id,
         file
       });
@@ -93406,8 +93420,8 @@ var ChatController = class {
   static async downloadAttachment(req, res, next) {
     try {
       const { buffer, mimeType, filename, sizeBytes } = await ChatAttachmentService.getAttachmentContent({
-        conversationId: req.params.id,
-        attachmentId: req.params.attachmentId
+        conversationId: getParam(req, "id"),
+        attachmentId: getParam(req, "attachmentId")
       });
       const isInlineSafe = mimeType.startsWith("image/") || mimeType === "application/pdf";
       const safeName = filename.replace(/"/g, "_");
@@ -93573,7 +93587,7 @@ var NotificationController = class {
   }
   static async markRead(req, res, next) {
     try {
-      const result = NotificationService.markAsRead(req.params.id, req.user.id);
+      const result = NotificationService.markAsRead(getParam(req, "id"), req.user.id);
       res.json(result);
     } catch (err) {
       next(err);
@@ -93589,7 +93603,7 @@ var NotificationController = class {
   }
   static async delete(req, res, next) {
     try {
-      const result = NotificationService.delete(req.params.id, req.user.id);
+      const result = NotificationService.delete(getParam(req, "id"), req.user.id);
       res.json(result);
     } catch (err) {
       next(err);
@@ -93652,7 +93666,54 @@ init_errors3();
 init_esm();
 init_sanitize();
 init_audit();
+var CATEGORY_CACHE_TTL_MS = 3e4;
+var cachedActiveCategories = null;
+var categoriesExpiresAt = 0;
+var PUBLIC_SETTING_KEYS = [
+  "platformCommissionRate",
+  "freeDeliveryThreshold",
+  "standardDeliveryFee",
+  "helplinePhone",
+  "supportEmail",
+  "emergencyAlert"
+];
 var AdminService = class {
+  static getCachedActiveCategories() {
+    const now = Date.now();
+    if (cachedActiveCategories && now < categoriesExpiresAt) {
+      return cachedActiveCategories;
+    }
+    const categories = Database.query("SELECT * FROM categories WHERE active = 1 ORDER BY name ASC");
+    cachedActiveCategories = categories;
+    categoriesExpiresAt = now + CATEGORY_CACHE_TTL_MS;
+    return categories;
+  }
+  static invalidateCategoryCache() {
+    cachedActiveCategories = null;
+    categoriesExpiresAt = 0;
+  }
+  static listAllCategories() {
+    return Database.query("SELECT * FROM categories ORDER BY name ASC");
+  }
+  static getPublicPlatformSettings() {
+    const placeholders = PUBLIC_SETTING_KEYS.map(() => "?").join(", ");
+    const rows = Database.query(
+      `SELECT key, value FROM platform_settings WHERE key IN (${placeholders})`,
+      [...PUBLIC_SETTING_KEYS]
+    );
+    const result = {};
+    for (const row of rows) {
+      if (row.key === "platformCommissionRate" || row.key === "freeDeliveryThreshold" || row.key === "standardDeliveryFee") {
+        const num = Number(row.value);
+        if (!Number.isNaN(num)) {
+          result[row.key] = num;
+        }
+      } else {
+        result[row.key] = row.value;
+      }
+    }
+    return result;
+  }
   static getOverviewKPIs() {
     const totalUsers = Database.get("SELECT COUNT(*) as count FROM users")?.count || 0;
     const activeFarmers = Database.get("SELECT COUNT(*) as count FROM farmer_profiles WHERE verification_status = 'verified'")?.count || 0;
@@ -93707,7 +93768,9 @@ var AdminService = class {
     return { id: farmerId, verificationStatus: status };
   }
   static addCategory(name, emoji = "\u{1F331}", image = "") {
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "category";
+    const existingSlug = Database.get("SELECT id FROM categories WHERE slug = ?", [slugBase]);
+    const slug = existingSlug ? `${slugBase}-${Date.now().toString().slice(-4)}` : slugBase;
     const id = `cat-${v4_default()}`;
     const now = (/* @__PURE__ */ new Date()).toISOString();
     Database.run(
@@ -93721,7 +93784,28 @@ var AdminService = class {
         now
       ]
     );
+    this.invalidateCategoryCache();
     return Database.get("SELECT * FROM categories WHERE id = ?", [id]);
+  }
+  static toggleCategoryActive(categoryId, adminId) {
+    const category = Database.get("SELECT * FROM categories WHERE id = ?", [categoryId]);
+    if (!category) throw AppError.notFound("Category not found");
+    const newActive = category.active ? 0 : 1;
+    Database.run("UPDATE categories SET active = ? WHERE id = ?", [newActive, categoryId]);
+    this.invalidateCategoryCache();
+    logAuditEvent(adminId, "admin", newActive ? "CATEGORY_ACTIVATED" : "CATEGORY_HIDDEN", "categories", categoryId, {
+      name: category.name,
+      active: Boolean(newActive)
+    });
+    return Database.get("SELECT * FROM categories WHERE id = ?", [categoryId]);
+  }
+  static deleteCategory(categoryId, adminId) {
+    const category = Database.get("SELECT * FROM categories WHERE id = ?", [categoryId]);
+    if (!category) throw AppError.notFound("Category not found");
+    Database.run("DELETE FROM categories WHERE id = ?", [categoryId]);
+    this.invalidateCategoryCache();
+    logAuditEvent(adminId, "admin", "CATEGORY_DELETED", "categories", categoryId, { name: category.name });
+    return { id: categoryId, deleted: true };
   }
   static listAuditLogs() {
     return Database.query("SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100");
@@ -93753,12 +93837,12 @@ var AdminService = class {
         `DELETE FROM users WHERE (name LIKE ? OR email LIKE ?) AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`,
         [pattern, pattern]
       );
-      totalDeleted += res.changes;
+      totalDeleted += Number(res.changes);
     }
     const res2 = Database.run(
       `DELETE FROM users WHERE (email LIKE '%1795%' OR email LIKE 'ramesh_%@gmail.com' OR email LIKE '%@test.com') AND id NOT IN ('user-admin-1', 'user-cust-1', 'user-farm-1', 'user-farm-2', 'user-farm-3', 'user-del-1')`
     );
-    totalDeleted += res2.changes;
+    totalDeleted += Number(res2.changes);
     return { purgedCount: totalDeleted };
   }
 };
@@ -94011,7 +94095,7 @@ var AdminController = class {
   }
   static async toggleUserStatus(req, res, next) {
     try {
-      const result = AdminService.toggleUserStatus(req.params.id, req.user.id);
+      const result = AdminService.toggleUserStatus(getParam(req, "id"), req.user.id);
       res.json({
         success: true,
         data: result
@@ -94023,10 +94107,21 @@ var AdminController = class {
   static async verifyFarmer(req, res, next) {
     try {
       const { status } = req.body;
-      const result = AdminService.verifyFarmer(req.params.id, status, req.user.id);
+      const result = AdminService.verifyFarmer(getParam(req, "id"), status, req.user.id);
       res.json({
         success: true,
         data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async listCategories(req, res, next) {
+    try {
+      const categories = AdminService.listAllCategories();
+      res.json({
+        success: true,
+        data: categories
       });
     } catch (err) {
       next(err);
@@ -94039,6 +94134,30 @@ var AdminController = class {
       res.status(201).json({
         success: true,
         data: cat
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async toggleCategoryActive(req, res, next) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const cat = AdminService.toggleCategoryActive(id, req.user.id);
+      res.json({
+        success: true,
+        data: cat
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async deleteCategory(req, res, next) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = AdminService.deleteCategory(id, req.user.id);
+      res.json({
+        success: true,
+        data: result
       });
     } catch (err) {
       next(err);
@@ -94071,7 +94190,7 @@ var AdminController = class {
     try {
       const { KycService: KycService2 } = await Promise.resolve().then(() => (init_kycService(), kycService_exports));
       const { decision, reason } = req.body;
-      const result = KycService2.adminReviewKYC(req.params.id, req.user.id, decision, reason);
+      const result = KycService2.adminReviewKYC(getParam(req, "id"), req.user.id, decision, reason);
       res.json({
         success: true,
         data: result
@@ -94106,7 +94225,7 @@ var AdminController = class {
   }
   static async unbanDevice(req, res, next) {
     try {
-      const result = DeviceBanService.unbanDevice(req.params.id);
+      const result = DeviceBanService.unbanDevice(getParam(req, "id"));
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -94225,7 +94344,10 @@ router9.patch("/users/:id/toggle-status", AdminController.toggleUserStatus);
 router9.patch("/farmers/:id/verify", validateBody(verifyFarmerSchema), AdminController.verifyFarmer);
 router9.get("/kyc/pending", AdminController.listPendingKYC);
 router9.patch("/farmers/:id/kyc", AdminController.reviewKYC);
+router9.get("/categories", AdminController.listCategories);
 router9.post("/categories", validateBody(categorySchema), AdminController.addCategory);
+router9.patch("/categories/:id/toggle", AdminController.toggleCategoryActive);
+router9.delete("/categories/:id", AdminController.deleteCategory);
 router9.get("/audit-logs", AdminController.listAuditLogs);
 router9.post("/devices/ban", AdminController.banDevice);
 router9.get("/devices/banned", AdminController.listBannedDevices);
@@ -94425,10 +94547,13 @@ var PaymentService = class {
    * Record order payment & calculate marketplace split (90% farmer, 10% platform)
    * IDEMPOTENT: Prevents duplicate webhook / payment replay attacks
    */
-  static recordOrderPayment(orderId, paymentMethod, transactionRef) {
+  static recordOrderPayment(orderId, paymentMethod, transactionRef, actor) {
     const order = Database.get("SELECT * FROM orders WHERE id = ?", [orderId]);
     if (!order) {
       throw AppError.notFound("Order record not found for payment verification");
+    }
+    if (actor && actor.role !== "admin" && order.customer_id !== actor.id) {
+      throw AppError.forbidden("You are not authorized to confirm payment for another user's order.");
     }
     const existingPayout = Database.get("SELECT * FROM payout_records WHERE order_id = ?", [orderId]);
     if (existingPayout || order.payment_status === "paid") {
@@ -94941,29 +95066,38 @@ var GPayService = class {
   /**
    * 2. Verify Google Pay completion & update order status
    */
-  static verifyPayment(orderId, txnRef) {
-    if (!orderId) {
-      throw AppError.badRequest("orderId is required for GPay verification.");
+  static verifyPayment(orderId, txnRef, actor) {
+    const cleanOrderId = typeof orderId === "string" ? orderId.trim() : "";
+    if (cleanOrderId.length < 3 || /^[_%\s]+$/.test(cleanOrderId)) {
+      throw AppError.badRequest("A valid orderId is required for GPay verification.");
     }
-    try {
-      Database.run(
-        `UPDATE orders 
-         SET payment_status = 'paid', 
-             payment_method = 'gpay',
-             updated_at = datetime('now')
-         WHERE id = ? OR notes LIKE ?`,
-        [orderId, `%${orderId}%`]
-      );
-    } catch {
+    const escapedForLike = cleanOrderId.replace(/[\\%_]/g, "\\$&");
+    const order = Database.get(
+      `SELECT id, customer_id, payment_status FROM orders WHERE id = ? OR notes LIKE ? ESCAPE '\\' LIMIT 1`,
+      [cleanOrderId, `%${escapedForLike}%`]
+    );
+    if (!order) {
+      throw AppError.notFound("Matching order not found for Google Pay verification.");
     }
-    logAuditEvent(null, "system", "GPAY_PAYMENT_SUCCESS", "payments", orderId, {
-      orderId,
+    if (actor && actor.role !== "admin" && order.customer_id !== actor.id) {
+      throw AppError.forbidden("You are not authorized to verify payment for this order.");
+    }
+    Database.run(
+      `UPDATE orders 
+       SET payment_status = 'paid', 
+           payment_method = 'gpay',
+           updated_at = datetime('now')
+       WHERE id = ?`,
+      [order.id]
+    );
+    logAuditEvent(actor?.id || null, actor?.role || "system", "GPAY_PAYMENT_SUCCESS", "payments", order.id, {
+      orderId: order.id,
       txnRef: txnRef || `GPAY-${Date.now()}`
     });
     return {
       success: true,
       status: "PAID",
-      orderId,
+      orderId: order.id,
       message: "Google Pay transaction verified successfully"
     };
   }
@@ -94974,7 +95108,12 @@ var PaymentController = class {
   static async verifyPayment(req, res, next) {
     try {
       const { orderId, paymentMethod, transactionRef } = req.body;
-      const result = PaymentService.recordOrderPayment(orderId, paymentMethod, transactionRef);
+      const result = PaymentService.recordOrderPayment(
+        orderId,
+        paymentMethod,
+        transactionRef,
+        req.user ? { id: req.user.id, role: req.user.role } : void 0
+      );
       res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -95020,7 +95159,7 @@ var PaymentController = class {
   }
   static async checkPhonePeStatus(req, res, next) {
     try {
-      const { merchantTransactionId } = req.params;
+      const merchantTransactionId = getParam(req, "merchantTransactionId");
       const result = await PhonePeService.checkPaymentStatus(merchantTransactionId);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
@@ -95054,7 +95193,7 @@ var PaymentController = class {
   }
   static async checkPaytmStatus(req, res, next) {
     try {
-      const { orderId } = req.params;
+      const orderId = getParam(req, "orderId");
       const result = await PaytmService.checkStatus(orderId);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
@@ -95089,7 +95228,8 @@ var PaymentController = class {
   static verifyGPay(req, res, next) {
     try {
       const { orderId, txnRef } = req.body;
-      const result = GPayService.verifyPayment(orderId, txnRef);
+      const actor = req.user ? { id: req.user.id, role: req.user.role } : void 0;
+      const result = GPayService.verifyPayment(orderId, txnRef, actor);
       res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -95389,7 +95529,7 @@ var FavoriteController = class {
   }
   static async add(req, res, next) {
     try {
-      const result = FavoriteService.add(req.user.id, req.params.productId);
+      const result = FavoriteService.add(req.user.id, getParam(req, "productId"));
       res.status(201).json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -95397,7 +95537,7 @@ var FavoriteController = class {
   }
   static async remove(req, res, next) {
     try {
-      const result = FavoriteService.remove(req.user.id, req.params.productId);
+      const result = FavoriteService.remove(req.user.id, getParam(req, "productId"));
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -95550,12 +95690,15 @@ var ReportService = class {
       resolutionReason
     });
     try {
-      NotificationService.create({
+      const reporter = Database.get("SELECT role FROM users WHERE id = ?", [report.reporter_id]);
+      const recipientRole = reporter?.role === "farmer" || reporter?.role === "admin" ? reporter.role : "customer";
+      NotificationService.createAndPush({
         userId: report.reporter_id,
-        role: "customer",
+        recipientRole,
         type: "order",
         title: `Grievance Ticket #${reportId.slice(-6).toUpperCase()} ${newStatus === "resolved" ? "Resolved" : "Updated"}`,
-        message: resolutionReason ? `Status: ${newStatus.toUpperCase()}. Resolution: ${resolutionReason}` : `Your support grievance status was updated to ${newStatus}.`
+        message: resolutionReason ? `Status: ${newStatus.toUpperCase()}. Resolution: ${resolutionReason}` : `Your support grievance status was updated to ${newStatus}.`,
+        sourceKey: `grievance:${reportId}:${newStatus}:${now}`
       });
     } catch {
     }
@@ -95594,7 +95737,7 @@ var ReportController = class {
   }
   static async updateStatus(req, res, next) {
     try {
-      const result = ReportService.updateStatus(req.params.id, req.body, req.user.id);
+      const result = ReportService.updateStatus(getParam(req, "id"), req.body, req.user.id);
       res.json({ success: true, message: "Grievance ticket status updated", data: result });
     } catch (err) {
       next(err);
@@ -95859,7 +96002,7 @@ var CustomerController = class {
   }
   static async updateAddress(req, res, next) {
     try {
-      const address = AddressService.updateAddress(req.user.id, req.params.id, req.body);
+      const address = AddressService.updateAddress(req.user.id, getParam(req, "id"), req.body);
       res.json({ success: true, data: address });
     } catch (err) {
       next(err);
@@ -95867,7 +96010,7 @@ var CustomerController = class {
   }
   static async deleteAddress(req, res, next) {
     try {
-      const result = AddressService.deleteAddress(req.user.id, req.params.id);
+      const result = AddressService.deleteAddress(req.user.id, getParam(req, "id"));
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -95875,7 +96018,7 @@ var CustomerController = class {
   }
   static async setDefaultAddress(req, res, next) {
     try {
-      const address = AddressService.setDefaultAddress(req.user.id, req.params.id);
+      const address = AddressService.setDefaultAddress(req.user.id, getParam(req, "id"));
       res.json({ success: true, data: address });
     } catch (err) {
       next(err);
@@ -96238,7 +96381,7 @@ var LogisticsController = class _LogisticsController {
   // PATCH /api/v1/logistics/partners/:id/status
   static updateStatus(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const { is_available, current_lat, current_lng, status } = req.body;
       const partner = Database.get("SELECT * FROM delivery_partners WHERE id = ?", [id]);
       if (!partner) {
@@ -96306,7 +96449,7 @@ var LogisticsController = class _LogisticsController {
   // GET /api/v1/logistics/tasks/order/:orderId
   static getTaskByOrderId(req, res, next) {
     try {
-      const { orderId } = req.params;
+      const orderId = getParam(req, "orderId");
       const task = Database.get(`
         SELECT dt.*, 
                o.order_number, o.customer_name, o.customer_phone, o.farmer_name, o.farm_name, o.order_status,
@@ -96354,7 +96497,7 @@ var LogisticsController = class _LogisticsController {
   // PATCH /api/v1/logistics/tasks/:taskId/assign
   static assignPartner(req, res, next) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, "taskId");
       const { partnerId } = req.body;
       if (!partnerId) {
         throw AppError.badRequest("partnerId is required");
@@ -96379,7 +96522,7 @@ var LogisticsController = class _LogisticsController {
   // PATCH /api/v1/logistics/tasks/:taskId/status
   static updateTaskStatus(req, res, next) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, "taskId");
       const { status, notes, proof_image } = req.body;
       const validStatuses = ["assigned", "pickup_in_progress", "picked_up", "out_for_delivery", "delivered", "failed", "returned", "cancelled"];
       if (!validStatuses.includes(status)) {
@@ -96439,7 +96582,7 @@ var LogisticsController = class _LogisticsController {
   // POST /api/v1/logistics/tasks/:taskId/verify-otp
   static verifyDeliveryOtp(req, res, next) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, "taskId");
       const { otp } = req.body;
       if (!otp) {
         throw AppError.badRequest("OTP code is required");
@@ -96480,7 +96623,7 @@ var LogisticsController = class _LogisticsController {
   // POST /api/v1/logistics/partners/:id/telemetry
   static updateTelemetry(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const { lat, lng, speed_kmh, heading_deg, is_simulated } = req.body;
       if (lat == null || lng == null) {
         throw AppError.badRequest("GPS coordinates (lat, lng) are required");
@@ -96675,7 +96818,7 @@ var FinanceController = class {
   // GET /api/v1/finance/farmer-earnings/:farmerId
   static getFarmerEarnings(req, res, next) {
     try {
-      const { farmerId } = req.params;
+      const farmerId = getParam(req, "farmerId");
       const farmerOrders = Database.query(`
         SELECT 
           id, order_number, total_amount, subtotal, delivery_fee, 
@@ -96830,15 +96973,16 @@ var FinanceController = class {
       next(err);
     }
   }
-  // PUT /api/v1/finance/settings (Admin only)
+  // PUT/PATCH /api/v1/finance/settings (Admin only)
   static updateSettings(req, res, next) {
     try {
-      const { settings } = req.body;
-      if (!settings || typeof settings !== "object") {
+      const payload = req.body && typeof req.body.settings === "object" && req.body.settings !== null ? req.body.settings : req.body && typeof req.body === "object" && !Array.isArray(req.body) && Object.keys(req.body).length > 0 ? req.body : null;
+      if (!payload) {
         throw AppError.badRequest("settings object required");
       }
       const now = (/* @__PURE__ */ new Date()).toISOString();
-      for (const [key, val] of Object.entries(settings)) {
+      for (const [key, val] of Object.entries(payload)) {
+        if (val === void 0 || val === null) continue;
         Database.run(
           `INSERT INTO platform_settings (key, value, updated_at) VALUES (?, ?, ?)
            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
@@ -96877,6 +97021,7 @@ router16.post("/withdraw", FinanceController.requestWithdrawal);
 router16.get("/transactions", FinanceController.getTransactions);
 router16.get("/settings", FinanceController.getSettings);
 router16.put("/settings", requireRole("admin"), FinanceController.updateSettings);
+router16.patch("/settings", requireRole("admin"), FinanceController.updateSettings);
 router16.get("/export", FinanceController.exportCsv);
 var financeRoutes_default = router16;
 
@@ -96886,6 +97031,7 @@ var import_express19 = __toESM(require_express2(), 1);
 // server/src/controllers/advancedController.ts
 init_database();
 init_errors3();
+import crypto7 from "crypto";
 var AdvancedController = class {
   // --- B2B MARKETPLACE ---
   // GET /api/v1/advanced/b2b/profile
@@ -96951,7 +97097,7 @@ var AdvancedController = class {
   // PATCH /api/v1/advanced/b2b/profiles/:id/verify (Admin only)
   static verifyB2bProfile(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const adminId = req.user.id;
       const { action, rejection_reason, credit_limit } = req.body;
       if (!action || !["approve", "reject"].includes(action)) {
@@ -97093,7 +97239,7 @@ var AdvancedController = class {
   // PATCH /api/v1/advanced/b2b/quotations/:id
   static updateQuotationStatus(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const quotation = Database.get("SELECT * FROM wholesale_quotations WHERE id = ?", [id]);
       if (!quotation) throw AppError.notFound("Wholesale quotation not found");
       const userId = req.user.id;
@@ -97241,7 +97387,7 @@ var AdvancedController = class {
   static joinGroupBuy(req, res, next) {
     try {
       const userId = req.user.id;
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const { quantity } = req.body;
       if (!quantity || Number(quantity) <= 0) {
         throw AppError.badRequest("Valid quantity greater than zero is required");
@@ -97266,7 +97412,7 @@ var AdvancedController = class {
       const subtotal = qty * gb.discounted_price;
       const now = (/* @__PURE__ */ new Date()).toISOString();
       Database.transaction(() => {
-        const partId = "gbp-" + Date.now();
+        const partId = "gbp-" + crypto7.randomUUID().slice(0, 12);
         Database.run(
           `INSERT INTO group_buy_participants (id, group_buy_id, user_id, quantity, subtotal, created_at)
            VALUES (?, ?, ?, ?, ?, ?)
@@ -97296,7 +97442,7 @@ var AdvancedController = class {
   static leaveGroupBuy(req, res, next) {
     try {
       const userId = req.user.id;
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const gb = Database.get("SELECT * FROM group_buys WHERE id = ?", [id]);
       if (!gb) throw AppError.notFound("Group buy pool not found");
       if (gb.status === "completed") {
@@ -97382,7 +97528,7 @@ var AdvancedController = class {
   // PUT /api/v1/advanced/procurements/:id (Edit scheduled parameters)
   static updateProcurement(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const userId = req.user.id;
       const role = req.user.role;
       const procurement = Database.get("SELECT * FROM scheduled_procurements WHERE id = ?", [id]);
@@ -97415,7 +97561,7 @@ var AdvancedController = class {
   // PATCH /api/v1/advanced/procurements/:id/status (Pause / Resume / Cancel)
   static updateProcurementStatus(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const userId = req.user.id;
       const role = req.user.role;
       const procurement = Database.get("SELECT * FROM scheduled_procurements WHERE id = ?", [id]);
@@ -97437,7 +97583,7 @@ var AdvancedController = class {
   // POST /api/v1/advanced/procurements/:id/skip (Skip next delivery)
   static skipNextDelivery(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const userId = req.user.id;
       const role = req.user.role;
       const procurement = Database.get("SELECT * FROM scheduled_procurements WHERE id = ?", [id]);
@@ -97470,7 +97616,7 @@ var AdvancedController = class {
   // POST /api/v1/advanced/procurements/:id/execute (Trigger order for scheduled delivery)
   static executeProcurement(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, "id");
       const procurement = Database.get("SELECT * FROM scheduled_procurements WHERE id = ?", [id]);
       if (!procurement) throw AppError.notFound("Procurement schedule not found");
       if (procurement.status !== "active") throw AppError.badRequest("Cannot execute a paused or cancelled schedule");
@@ -97556,7 +97702,7 @@ var AdvancedController = class {
   // GET /api/v1/advanced/subscriptions/:farmerId
   static getSubscription(req, res, next) {
     try {
-      const { farmerId } = req.params;
+      const farmerId = getParam(req, "farmerId");
       const sub = Database.get(
         "SELECT * FROM farmer_subscriptions WHERE farmer_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1",
         [farmerId]
@@ -98160,7 +98306,7 @@ var RequirementController = class {
     try {
       const { latitude, longitude } = req.query;
       const requirement = RequirementService.getRequirementById(
-        req.params.id,
+        getParam(req, "id"),
         latitude ? Number(latitude) : void 0,
         longitude ? Number(longitude) : void 0
       );
@@ -98173,7 +98319,7 @@ var RequirementController = class {
     try {
       const buyerId = req.user.id;
       const { status } = req.body;
-      const updated = RequirementService.updateRequirementStatus(req.params.id, buyerId, status);
+      const updated = RequirementService.updateRequirementStatus(getParam(req, "id"), buyerId, status);
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -98182,7 +98328,7 @@ var RequirementController = class {
   static async delete(req, res, next) {
     try {
       const buyerId = req.user.id;
-      const result = RequirementService.deleteRequirement(req.params.id, buyerId);
+      const result = RequirementService.deleteRequirement(getParam(req, "id"), buyerId);
       res.json(result);
     } catch (err) {
       next(err);
@@ -98191,7 +98337,7 @@ var RequirementController = class {
   static async submitQuotation(req, res, next) {
     try {
       const farmerUserId = req.user.id;
-      const quote = RequirementService.submitQuotation(farmerUserId, req.params.id, req.body);
+      const quote = RequirementService.submitQuotation(farmerUserId, getParam(req, "id"), req.body);
       res.status(201).json({ success: true, data: quote });
     } catch (err) {
       next(err);
@@ -98200,7 +98346,7 @@ var RequirementController = class {
   static async listQuotations(req, res, next) {
     try {
       const currentUserId = req.user.id;
-      const quotes = RequirementService.listQuotationsForRequirement(req.params.id, currentUserId);
+      const quotes = RequirementService.listQuotationsForRequirement(getParam(req, "id"), currentUserId);
       res.json({ success: true, data: quotes });
     } catch (err) {
       next(err);
@@ -98218,7 +98364,7 @@ var RequirementController = class {
     try {
       const currentUserId = req.user.id;
       const { action, counterPrice } = req.body;
-      const result = RequirementService.respondToQuotation(req.params.quoteId, currentUserId, action, counterPrice);
+      const result = RequirementService.respondToQuotation(getParam(req, "quoteId"), currentUserId, action, counterPrice);
       res.json(result);
     } catch (err) {
       next(err);
@@ -98751,7 +98897,7 @@ var NegotiationController = class {
   static async getById(req, res, next) {
     try {
       const userId = req.user.id;
-      const negotiation = NegotiationService.getNegotiationById(req.params.id, userId);
+      const negotiation = NegotiationService.getNegotiationById(getParam(req, "id"), userId);
       res.json({ success: true, data: negotiation });
     } catch (err) {
       next(err);
@@ -98760,7 +98906,7 @@ var NegotiationController = class {
   static async counterOffer(req, res, next) {
     try {
       const userId = req.user.id;
-      const updated = NegotiationService.counterOffer(req.params.id, userId, req.body);
+      const updated = NegotiationService.counterOffer(getParam(req, "id"), userId, req.body);
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -98769,7 +98915,7 @@ var NegotiationController = class {
   static async acceptOffer(req, res, next) {
     try {
       const userId = req.user.id;
-      const accepted = NegotiationService.acceptOffer(req.params.id, userId);
+      const accepted = NegotiationService.acceptOffer(getParam(req, "id"), userId);
       res.json({ success: true, data: accepted });
     } catch (err) {
       next(err);
@@ -98778,7 +98924,7 @@ var NegotiationController = class {
   static async rejectOffer(req, res, next) {
     try {
       const userId = req.user.id;
-      const rejected = NegotiationService.rejectOffer(req.params.id, userId);
+      const rejected = NegotiationService.rejectOffer(getParam(req, "id"), userId);
       res.json({ success: true, data: rejected });
     } catch (err) {
       next(err);
@@ -98787,7 +98933,7 @@ var NegotiationController = class {
   static async withdrawOffer(req, res, next) {
     try {
       const userId = req.user.id;
-      const withdrawn = NegotiationService.withdrawOffer(req.params.id, userId);
+      const withdrawn = NegotiationService.withdrawOffer(getParam(req, "id"), userId);
       res.json({ success: true, data: withdrawn });
     } catch (err) {
       next(err);
@@ -98796,7 +98942,7 @@ var NegotiationController = class {
   static async getDealSummary(req, res, next) {
     try {
       const userId = req.user.id;
-      const thread = NegotiationService.getNegotiationById(req.params.id, userId);
+      const thread = NegotiationService.getNegotiationById(getParam(req, "id"), userId);
       if (!thread.dealSummary) {
         return res.status(400).json({
           success: false,
@@ -98810,7 +98956,7 @@ var NegotiationController = class {
   }
   static async getPriceSlabs(req, res, next) {
     try {
-      const slabs = NegotiationService.getPriceSlabs(req.params.productId);
+      const slabs = NegotiationService.getPriceSlabs(getParam(req, "productId"));
       res.json({ success: true, data: slabs });
     } catch (err) {
       next(err);
@@ -98987,7 +99133,7 @@ var SmartAlertController = class {
   static async deleteSavedSearch(req, res, next) {
     try {
       const userId = req.user.id;
-      const result = SmartAlertService.deleteSavedSearch(req.params.id, userId);
+      const result = SmartAlertService.deleteSavedSearch(getParam(req, "id"), userId);
       res.json(result);
     } catch (err) {
       next(err);
@@ -98996,7 +99142,7 @@ var SmartAlertController = class {
   static async toggleSavedSearch(req, res, next) {
     try {
       const userId = req.user.id;
-      const result = SmartAlertService.toggleSavedSearch(req.params.id, userId);
+      const result = SmartAlertService.toggleSavedSearch(getParam(req, "id"), userId);
       res.json(result);
     } catch (err) {
       next(err);
@@ -99072,17 +99218,13 @@ apiRouter.get("/metrics", (req, res) => {
     platform: process.platform
   });
 });
-var cachedCategories = null;
-var categoriesExpiresAt = 0;
 apiRouter.get("/categories", (req, res) => {
-  const now = Date.now();
-  if (cachedCategories && now < categoriesExpiresAt) {
-    return res.json({ success: true, data: cachedCategories });
-  }
-  const categories = Database.query("SELECT * FROM categories WHERE active = 1 ORDER BY name ASC");
-  cachedCategories = categories;
-  categoriesExpiresAt = now + 3e4;
+  const categories = AdminService.getCachedActiveCategories();
   res.json({ success: true, data: categories });
+});
+apiRouter.get("/settings/public", (req, res) => {
+  const settings = AdminService.getPublicPlatformSettings();
+  res.json({ success: true, data: settings });
 });
 apiRouter.get("/identity/:halderId", (req, res, next) => {
   try {
@@ -99244,6 +99386,7 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
+          "https://accounts.google.com",
           "https://*.trycloudflare.com"
         ],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
@@ -99257,12 +99400,13 @@ app.use(
         ],
         connectSrc: [
           "'self'",
+          "https://accounts.google.com",
           "https://*.trycloudflare.com",
           "https://halder-app.vercel.app",
           "ws:",
           "wss:"
         ],
-        frameSrc: ["'self'"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
         frameAncestors: ["'none'"],
         // Strict Clickjacking prevention
         objectSrc: ["'none'"],
@@ -100877,7 +101021,7 @@ function seedExtendedTestEcosystem(now) {
       Database.run(
         `INSERT OR IGNORE INTO crop_demand_indicators (id, crop_name, season, demand_level, price_outlook, recommended_selling_window, avg_mandi_modal_price, retail_mandi_spread_pct, profitability_score, insights_summary, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        ["ind-" + ind[0].toLowerCase().replace(/\s+/g, "-"), ...ind, now]
+        ["ind-" + String(ind[0]).toLowerCase().replace(/\s+/g, "-"), ...ind, now]
       );
     }
   }

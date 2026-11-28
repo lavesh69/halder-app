@@ -26,6 +26,7 @@ import { Database } from '../db/database';
 import { getTursoStatus } from '../db/turso';
 import { getSupabaseStatus } from '../db/supabaseSync';
 import { IdentityService } from '../services/identityService';
+import { AdminService } from '../services/adminService';
 
 const apiRouter = Router();
 
@@ -81,18 +82,14 @@ apiRouter.get('/metrics', (req, res) => {
   });
 });
 
-let cachedCategories: any[] | null = null;
-let categoriesExpiresAt = 0;
-
 apiRouter.get('/categories', (req, res) => {
-  const now = Date.now();
-  if (cachedCategories && now < categoriesExpiresAt) {
-    return res.json({ success: true, data: cachedCategories });
-  }
-  const categories = Database.query('SELECT * FROM categories WHERE active = 1 ORDER BY name ASC');
-  cachedCategories = categories;
-  categoriesExpiresAt = now + 30000;
+  const categories = AdminService.getCachedActiveCategories();
   res.json({ success: true, data: categories });
+});
+
+apiRouter.get('/settings/public', (req, res) => {
+  const settings = AdminService.getPublicPlatformSettings();
+  res.json({ success: true, data: settings });
 });
 
 // Public identity lookup by HALDER ID (HAL-CUS-XXXXXXXX / HAL-FRM-XXXXXXXX)

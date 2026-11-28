@@ -360,6 +360,36 @@ async function runSecurityMatrix() {
       authProductList.status === 200 && !!authListedItem && authListedItem.farmer_phone === farmerA_phone
     );
 
+    // -------------------------------------------------------------
+    // TEST 9: Payment Verification Hardening (Wildcard Guard & BOLA)
+    // -------------------------------------------------------------
+    console.log('\n--- 9. Payment Verification Wildcard & BOLA Protection ---');
+    const gpayWildcardRes = await request('/payments/gpay/verify', {
+      method: 'POST',
+      body: { orderId: '%' },
+    });
+    const orderAAfterWildcard = Database.get<any>('SELECT payment_status FROM orders WHERE id = ?', [orderA_id]);
+    assert(
+      'GPay verify rejects wildcard orderId (%) with 400 and does not alter orders',
+      gpayWildcardRes.status === 400 && orderAAfterWildcard?.payment_status !== 'paid'
+    );
+
+    const gpayMissingRes = await request('/payments/gpay/verify', {
+      method: 'POST',
+      body: { orderId: `nonexistent-order-${seedTime}` },
+    });
+    assert('GPay verify rejects nonexistent orderId with 404', gpayMissingRes.status === 404);
+
+    const bolaPaymentRes = await request('/payments/verify', {
+      method: 'POST',
+      token: tokenCustB,
+      body: { orderId: orderA_id, paymentMethod: 'upi', transactionRef: 'BOLA-TEST-REF' },
+    });
+    assert(
+      'Cross-user BOLA blocked on POST /payments/verify (403 Forbidden)',
+      bolaPaymentRes.status === 403
+    );
+
     // Clean up temporary test order, product, conversation & users
     Database.run('DELETE FROM orders WHERE id = ?', [orderA_id]);
     Database.run('DELETE FROM products WHERE id = ?', [prodA_id]);

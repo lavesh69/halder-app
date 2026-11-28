@@ -1,6 +1,8 @@
+import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
+import { getParam } from '../utils/http';
 
 export class AdvancedController {
   // --- B2B MARKETPLACE ---
@@ -74,7 +76,7 @@ export class AdvancedController {
   // PATCH /api/v1/advanced/b2b/profiles/:id/verify (Admin only)
   static verifyB2bProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const adminId = (req as any).user.id;
       const { action, rejection_reason, credit_limit } = req.body;
 
@@ -227,7 +229,7 @@ export class AdvancedController {
   // PATCH /api/v1/advanced/b2b/quotations/:id
   static updateQuotationStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const quotation = Database.get<any>('SELECT * FROM wholesale_quotations WHERE id = ?', [id]);
       if (!quotation) throw AppError.notFound('Wholesale quotation not found');
 
@@ -399,7 +401,7 @@ export class AdvancedController {
   static joinGroupBuy(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user.id;
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const { quantity } = req.body;
 
       if (!quantity || Number(quantity) <= 0) {
@@ -435,7 +437,7 @@ export class AdvancedController {
 
       Database.transaction(() => {
         // Record participant
-        const partId = 'gbp-' + Date.now();
+        const partId = 'gbp-' + crypto.randomUUID().slice(0, 12);
         Database.run(
           `INSERT INTO group_buy_participants (id, group_buy_id, user_id, quantity, subtotal, created_at)
            VALUES (?, ?, ?, ?, ?, ?)
@@ -470,7 +472,7 @@ export class AdvancedController {
   static leaveGroupBuy(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user.id;
-      const { id } = req.params;
+      const id = getParam(req, 'id');
 
       const gb = Database.get<any>('SELECT * FROM group_buys WHERE id = ?', [id]);
       if (!gb) throw AppError.notFound('Group buy pool not found');
@@ -560,7 +562,7 @@ export class AdvancedController {
   // PUT /api/v1/advanced/procurements/:id (Edit scheduled parameters)
   static updateProcurement(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const userId = (req as any).user.id;
       const role = (req as any).user.role;
 
@@ -598,7 +600,7 @@ export class AdvancedController {
   // PATCH /api/v1/advanced/procurements/:id/status (Pause / Resume / Cancel)
   static updateProcurementStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const userId = (req as any).user.id;
       const role = (req as any).user.role;
 
@@ -625,7 +627,7 @@ export class AdvancedController {
   // POST /api/v1/advanced/procurements/:id/skip (Skip next delivery)
   static skipNextDelivery(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const userId = (req as any).user.id;
       const role = (req as any).user.role;
 
@@ -668,7 +670,7 @@ export class AdvancedController {
   // POST /api/v1/advanced/procurements/:id/execute (Trigger order for scheduled delivery)
   static executeProcurement(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const procurement = Database.get<any>('SELECT * FROM scheduled_procurements WHERE id = ?', [id]);
       if (!procurement) throw AppError.notFound('Procurement schedule not found');
       if (procurement.status !== 'active') throw AppError.badRequest('Cannot execute a paused or cancelled schedule');
@@ -771,7 +773,7 @@ export class AdvancedController {
   // GET /api/v1/advanced/subscriptions/:farmerId
   static getSubscription(req: Request, res: Response, next: NextFunction) {
     try {
-      const { farmerId } = req.params;
+      const farmerId = getParam(req, 'farmerId');
       const sub = Database.get<any>(
         "SELECT * FROM farmer_subscriptions WHERE farmer_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1",
         [farmerId]

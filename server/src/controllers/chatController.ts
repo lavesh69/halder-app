@@ -3,6 +3,7 @@ import { ChatService } from '../services/chatService';
 import { ChatSocketService } from '../websocket/chatSocket';
 import { ChatAttachmentService } from '../services/chatAttachmentService';
 import { AppError } from '../utils/errors';
+import { getParam } from '../utils/http';
 
 export class ChatController {
   /**
@@ -87,23 +88,23 @@ export class ChatController {
       const after = typeof req.query.after === 'string' ? req.query.after : undefined;
       const search = typeof req.query.q === 'string' ? req.query.q : undefined;
 
-      const result = ChatService.getMessages(req.params.id, { limit, before, after, search });
+      const result = ChatService.getMessages(getParam(req, 'id'), { limit, before, after, search });
 
       if (!before && !search) {
-        const deliveredAt = ChatService.markConversationDelivered(req.params.id, req.user!.id);
+        const deliveredAt = ChatService.markConversationDelivered(getParam(req, 'id'), req.user!.id);
         if (deliveredAt) {
-          const meta = ChatService.getConversationMeta(req.params.id);
+          const meta = ChatService.getConversationMeta(getParam(req, 'id'));
           const partnerUserId = meta
             ? req.user!.id === meta.customer_id
               ? meta.farmer_user_id || meta.farmer_id
               : meta.customer_id
             : null;
           ChatSocketService.broadcastConversationEvent(
-            req.params.id,
+            getParam(req, 'id'),
             partnerUserId,
             'chat:delivered',
             {
-              conversationId: req.params.id,
+              conversationId: getParam(req, 'id'),
               userId: req.user!.id,
               deliveredAt,
             }
@@ -132,7 +133,7 @@ export class ChatController {
   static async sendMessage(req: Request, res: Response, next: NextFunction) {
     try {
       const senderRole = req.user!.role === 'farmer' ? 'farmer' : 'user';
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, 'id'));
       const recipientUserId = meta
         ? req.user!.id === meta.customer_id
           ? meta.farmer_user_id || meta.farmer_id
@@ -141,7 +142,7 @@ export class ChatController {
       const recipientOnline = Boolean(recipientUserId && ChatSocketService.isUserOnline(recipientUserId));
 
       const msg = ChatService.sendMessage(
-        req.params.id,
+        getParam(req, 'id'),
         req.user!.id,
         senderRole,
         req.body.message || '',
@@ -154,17 +155,17 @@ export class ChatController {
       );
 
       if (!msg.deduplicated) {
-        ChatSocketService.broadcastConversationEvent(req.params.id, recipientUserId, 'chat:message', msg);
+        ChatSocketService.broadcastConversationEvent(getParam(req, 'id'), recipientUserId, 'chat:message', msg);
 
         if (recipientUserId && recipientUserId !== req.user!.id) {
           ChatSocketService.sendToUser(recipientUserId, 'chat:notification', {
-            conversationId: req.params.id,
+            conversationId: getParam(req, 'id'),
             message: msg,
           });
         }
 
         ChatService.dispatchChatNotification({
-          conversationId: req.params.id,
+          conversationId: getParam(req, 'id'),
           senderId: req.user!.id,
           senderName: req.user!.name,
           message: msg,
@@ -188,13 +189,13 @@ export class ChatController {
   static async editMessage(req: Request, res: Response, next: NextFunction) {
     try {
       const updated = ChatService.editMessage(
-        req.params.id,
-        req.params.messageId,
+        getParam(req, 'id'),
+        getParam(req, 'messageId'),
         req.user!.id,
         req.body.message
       );
 
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, 'id'));
       const recipientUserId = meta
         ? req.user!.id === meta.customer_id
           ? meta.farmer_user_id || meta.farmer_id
@@ -202,10 +203,10 @@ export class ChatController {
         : null;
 
       ChatSocketService.broadcastConversationEvent(
-        req.params.id,
+        getParam(req, 'id'),
         recipientUserId,
         'chat:message_edited',
-        { conversationId: req.params.id, message: updated }
+        { conversationId: getParam(req, 'id'), message: updated }
       );
 
       res.json({ success: true, data: updated });
@@ -221,13 +222,13 @@ export class ChatController {
   static async deleteMessage(req: Request, res: Response, next: NextFunction) {
     try {
       const deleted = ChatService.deleteMessage(
-        req.params.id,
-        req.params.messageId,
+        getParam(req, 'id'),
+        getParam(req, 'messageId'),
         req.user!.id,
         req.user!.role
       );
 
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, 'id'));
       const recipientUserId = meta
         ? req.user!.id === meta.customer_id
           ? meta.farmer_user_id || meta.farmer_id
@@ -235,11 +236,11 @@ export class ChatController {
         : null;
 
       ChatSocketService.broadcastConversationEvent(
-        req.params.id,
+        getParam(req, 'id'),
         recipientUserId,
         'chat:message_deleted',
         {
-          conversationId: req.params.id,
+          conversationId: getParam(req, 'id'),
           messageId: deleted.id,
           deletedAt: deleted.deletedAt,
           message: deleted,
@@ -257,17 +258,17 @@ export class ChatController {
    */
   static async markAsRead(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = ChatService.markMessagesRead(req.params.id, req.user!.id);
+      const result = ChatService.markMessagesRead(getParam(req, 'id'), req.user!.id);
 
-      const meta = ChatService.getConversationMeta(req.params.id);
+      const meta = ChatService.getConversationMeta(getParam(req, 'id'));
       const partnerUserId = meta
         ? req.user!.id === meta.customer_id
           ? meta.farmer_user_id || meta.farmer_id
           : meta.customer_id
         : null;
 
-      ChatSocketService.broadcastConversationEvent(req.params.id, partnerUserId, 'chat:read', {
-        conversationId: req.params.id,
+      ChatSocketService.broadcastConversationEvent(getParam(req, 'id'), partnerUserId, 'chat:read', {
+        conversationId: getParam(req, 'id'),
         userId: req.user!.id,
         readAt: result.readAt,
       });
@@ -284,7 +285,7 @@ export class ChatController {
   static async setMuted(req: Request, res: Response, next: NextFunction) {
     try {
       const muted = Boolean(req.body.muted);
-      const result = ChatService.setConversationMuted(req.params.id, req.user!.id, muted);
+      const result = ChatService.setConversationMuted(getParam(req, 'id'), req.user!.id, muted);
       res.json(result);
     } catch (err) {
       next(err);
@@ -303,7 +304,7 @@ export class ChatController {
       }
 
       const attachment = await ChatAttachmentService.saveAttachment({
-        conversationId: req.params.id,
+        conversationId: getParam(req, 'id'),
         uploaderId: req.user!.id,
         file,
       });
@@ -324,8 +325,8 @@ export class ChatController {
   static async downloadAttachment(req: Request, res: Response, next: NextFunction) {
     try {
       const { buffer, mimeType, filename, sizeBytes } = await ChatAttachmentService.getAttachmentContent({
-        conversationId: req.params.id,
-        attachmentId: req.params.attachmentId,
+        conversationId: getParam(req, 'id'),
+        attachmentId: getParam(req, 'attachmentId'),
       });
 
       const isInlineSafe = mimeType.startsWith('image/') || mimeType === 'application/pdf';

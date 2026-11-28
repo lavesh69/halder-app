@@ -1,15 +1,21 @@
 // HALDER Service Worker - Offline Agricultural Classifieds Support
-const CACHE_NAME = 'halder-cache-v23-pwa-shimmer-fallback';
+const CACHE_NAME = 'halder-cache-v24-security-cache-fix';
 const STATIC_ASSETS = [
   '/manifest.json',
-  '/favicon.svg',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-192.png',
   '/icon-maskable-512.png',
   '/apple-touch-icon.png',
-  '/logo.svg',
-  '/halder-logo.svg',
+  '/halder-logo.png',
+];
+
+const PUBLIC_CACHEABLE_API_PREFIXES = [
+  '/api/v1/products',
+  '/api/v1/categories',
+  '/api/v1/mandi',
+  '/api/v1/weather',
+  '/api/v1/settings/public',
 ];
 
 // Install Event - Pre-cache core shell & immediately activate
@@ -70,8 +76,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. API Requests: Network-First with cache fallback
-  if (url.pathname.startsWith('/api/v1/products') || url.pathname.startsWith('/api/v1/')) {
+  // 2. Public Read-Only API Requests: Network-First with cache fallback (never cache auth/admin/private endpoints)
+  if (url.pathname.startsWith('/api/')) {
+    const hasAuthHeader = Boolean(request.headers.get('Authorization'));
+    const isPublicCacheable = !hasAuthHeader && PUBLIC_CACHEABLE_API_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+    if (!isPublicCacheable) {
+      return;
+    }
+
     event.respondWith(
       fetch(request)
         .then((response) => {

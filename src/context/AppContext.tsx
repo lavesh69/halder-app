@@ -30,9 +30,12 @@ import {
   initialFilterState,
   initialPlatformSettings,
   isDummyOrTestAccount,
+  mapBackendCategory,
   mapBackendProduct,
   nextGeneratedId,
   safeStorageSet,
+  syncAdminCategoriesToState,
+  syncPublicMetadataToState,
 } from './appContextUtils';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -174,11 +177,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const updatePlatformSettings = (newSettings: Partial<PlatformSettings>) => {
-    setPlatformSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
-      localStorage.setItem('halder-platform-settings-v1', JSON.stringify(updated));
-      return updated;
-    });
+    const updated = { ...platformSettings, ...newSettings };
+    setPlatformSettings(updated);
+    safeStorageSet('halder-platform-settings-v1', JSON.stringify(updated));
+    if (ApiClient.hasToken() && currentUser?.role === 'admin') {
+      void ApiClient.updateFinancialSettings({
+        platformCommissionRate: updated.platformCommissionRate,
+        freeDeliveryThreshold: updated.freeDeliveryThreshold,
+        standardDeliveryFee: updated.standardDeliveryFee,
+        helplinePhone: updated.helplinePhone,
+        supportEmail: updated.supportEmail,
+        emergencyAlert: updated.emergencyAlert,
+      }).catch((err: any) => {
+        showToast(err?.message || 'Failed to sync platform settings to server', 'error');
+      });
+    }
   };
 
   // Disputes Queue
@@ -349,6 +362,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [currentUser]);
 
   useEffect(() => {
+    safeStorageSet('halder-platform-settings-v1', JSON.stringify(platformSettings));
+  }, [platformSettings]);
+
+  useEffect(() => {
     localStorage.setItem('halder-categories-v2', JSON.stringify(categories));
   }, [categories]);
 
@@ -495,6 +512,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (isMounted) void refreshProducts();
     });
 
+    Promise.resolve().then(() => {
+      if (isMounted) {
+        void syncPublicMetadataToState(
+          () => isMounted,
+          setCategories,
+          (remote) => setPlatformSettings((prev) => ({ ...prev, ...remote }))
+        );
+      }
+    });
+
     async function syncUserData() {
       const token = localStorage.getItem('halder-auth-token');
       if (!token) return;
@@ -505,6 +532,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setIsLoggedInState(true);
           if (meRes.user.role) {
             setRoleState(meRes.user.role);
+          }
+          if (meRes.user.role === 'admin') {
+            void syncAdminCategoriesToState(() => isMounted, setCategories);
           }
           if (meRes.user.farmerProfileId) {
             ApiClient.getProducts({
@@ -871,30 +901,81 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addCategory = (cat: Omit<Category, 'id'>) => {
-    const newCat: Category = {
+    const tempId = `cat-${Date.now()}`;
+    const optimisticCat: Category = {
       ...cat,
-      id: `cat-${Date.now()}`,
+      id: tempId,
     };
-    setCategories((prev) => [...prev, newCat]);
+    setCategories((prev) => [...prev, optimisticCat]);
+
+    if (ApiClient.hasToken() && currentUser?.role === 'admin') {
+      void ApiClient.addCategory(cat.name, cat.emoji, cat.image)
+        .then((created: any) => {
+          if (created?.id) {
+            setCategories((prev) =>
+              prev.map((c) =>
+                c.id === tempId
+                  ? mapBackendCategory(created)
+                  : c
+              )
+            );
+          }
+        })
+        .catch((err: any) => {
+          setCategories((prev) => prev.filter((c) => c.id !== tempId));
+          showToast(err?.message || 'Failed to save category to server', 'error');
+        });
+    }
   };
 
   const toggleCategoryActive = (catId: string) => {
     setCategories((prev) =>
       prev.map((c) => (c.id === catId ? { ...c, active: !c.active } : c))
     );
+
+    if (ApiClient.hasToken() && currentUser?.role === 'admin') {
+      void ApiClient.toggleCategoryActive(catId).catch((err: any) => {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === catId ? { ...c, active: !c.active } : c))
+        );
+        showToast(err?.message || 'Failed to update category visibility', 'error');
+      });
+    }
   };
 
   const deleteCategory = (catId: string) => {
+    const removedCat = categories.find((c) => c.id === catId);
     setCategories((prev) => prev.filter((c) => c.id !== catId));
+
+    if (ApiClient.hasToken() && currentUser?.role === 'admin') {
+      void ApiClient.deleteCategory(catId)
+        .then(() => {
+          showToast('Category removed from Mandi taxonomy', 'info');
+        })
+        .catch((err: any) => {
+          if (removedCat) {
+            setCategories((prev) => [...prev, removedCat]);
+          }
+          showToast(err?.message || 'Failed to delete category', 'error');
+        });
+      return;
+    }
+
     showToast('Category removed from Mandi taxonomy', 'info');
   };
 
   const addReview = (review: Omit<Review, 'id' | 'createdAt'>) => {
-    ApiClient.createReview({
-      orderId: review.orderId || 'order-102',
+    const reviewPayload: { orderId?: string; farmerId?: string; rating: number; review: string } = {
+      farmerId: review.farmerId,
       rating: review.rating,
       review: review.review || 'Fresh quality harvest directly from farm!',
-    }).catch((e) => console.warn('[HALDER Sync] Review queued:', e.message));
+    };
+    if (review.orderId) {
+      reviewPayload.orderId = review.orderId;
+    }
+    ApiClient.createReview(reviewPayload).catch((e) =>
+      console.warn('[HALDER Sync] Review queued:', e.message)
+    );
 
     const newRev: Review = {
       ...review,
@@ -1193,7 +1274,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {
       console.warn('[HALDER Chat] Failed to refresh conversations:', e);
     }
-  }, []);
+  }, [setChatConversations, setUnreadChatCount]);
 
   // Event-driven + visibility-aware conversation refresh (no tight unnecessary polling)
   useEffect(() => {

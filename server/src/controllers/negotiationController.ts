@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { NegotiationService } from '../services/negotiationService';
+import { getParam } from '../utils/http';
 
 export class NegotiationController {
   static async createOffer(req: Request, res: Response, next: NextFunction) {
@@ -25,7 +26,7 @@ export class NegotiationController {
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const negotiation = NegotiationService.getNegotiationById(req.params.id, userId);
+      const negotiation = NegotiationService.getNegotiationById(getParam(req, 'id'), userId);
       res.json({ success: true, data: negotiation });
     } catch (err) {
       next(err);
@@ -35,7 +36,7 @@ export class NegotiationController {
   static async counterOffer(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const updated = NegotiationService.counterOffer(req.params.id, userId, req.body);
+      const updated = NegotiationService.counterOffer(getParam(req, 'id'), userId, req.body);
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -45,7 +46,7 @@ export class NegotiationController {
   static async acceptOffer(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const accepted = NegotiationService.acceptOffer(req.params.id, userId);
+      const accepted = NegotiationService.acceptOffer(getParam(req, 'id'), userId);
       res.json({ success: true, data: accepted });
     } catch (err) {
       next(err);
@@ -55,7 +56,7 @@ export class NegotiationController {
   static async rejectOffer(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const rejected = NegotiationService.rejectOffer(req.params.id, userId);
+      const rejected = NegotiationService.rejectOffer(getParam(req, 'id'), userId);
       res.json({ success: true, data: rejected });
     } catch (err) {
       next(err);
@@ -65,7 +66,7 @@ export class NegotiationController {
   static async withdrawOffer(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const withdrawn = NegotiationService.withdrawOffer(req.params.id, userId);
+      const withdrawn = NegotiationService.withdrawOffer(getParam(req, 'id'), userId);
       res.json({ success: true, data: withdrawn });
     } catch (err) {
       next(err);
@@ -75,7 +76,7 @@ export class NegotiationController {
   static async getDealSummary(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const thread = NegotiationService.getNegotiationById(req.params.id, userId);
+      const thread = NegotiationService.getNegotiationById(getParam(req, 'id'), userId);
       if (!thread.dealSummary) {
         return res.status(400).json({
           success: false,
@@ -90,7 +91,7 @@ export class NegotiationController {
 
   static async getPriceSlabs(req: Request, res: Response, next: NextFunction) {
     try {
-      const slabs = NegotiationService.getPriceSlabs(req.params.productId);
+      const slabs = NegotiationService.getPriceSlabs(getParam(req, 'productId'));
       res.json({ success: true, data: slabs });
     } catch (err) {
       next(err);

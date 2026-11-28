@@ -1,6 +1,7 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { AdminService } from '../services/adminService';
 import { DeviceBanService } from '../services/deviceBanService';
+import { getParam } from '../utils/http';
 
 export class AdminController {
   static async getKPIs(req: Request, res: Response, next: NextFunction) {
@@ -30,7 +31,7 @@ export class AdminController {
 
   static async toggleUserStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = AdminService.toggleUserStatus(req.params.id, req.user!.id);
+      const result = AdminService.toggleUserStatus(getParam(req, 'id'), req.user!.id);
       res.json({
         success: true,
         data: result,
@@ -43,10 +44,22 @@ export class AdminController {
   static async verifyFarmer(req: Request, res: Response, next: NextFunction) {
     try {
       const { status } = req.body;
-      const result = AdminService.verifyFarmer(req.params.id, status, req.user!.id);
+      const result = AdminService.verifyFarmer(getParam(req, 'id'), status, req.user!.id);
       res.json({
         success: true,
         data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async listCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categories = AdminService.listAllCategories();
+      res.json({
+        success: true,
+        data: categories,
       });
     } catch (err) {
       next(err);
@@ -60,6 +73,32 @@ export class AdminController {
       res.status(201).json({
         success: true,
         data: cat,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async toggleCategoryActive(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const cat = AdminService.toggleCategoryActive(id, req.user!.id);
+      res.json({
+        success: true,
+        data: cat,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async deleteCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = AdminService.deleteCategory(id, req.user!.id);
+      res.json({
+        success: true,
+        data: result,
       });
     } catch (err) {
       next(err);
@@ -95,7 +134,7 @@ export class AdminController {
     try {
       const { KycService } = await import('../services/kycService');
       const { decision, reason } = req.body;
-      const result = KycService.adminReviewKYC(req.params.id, req.user!.id, decision, reason);
+      const result = KycService.adminReviewKYC(getParam(req, 'id'), req.user!.id, decision, reason);
       res.json({
         success: true,
         data: result,
@@ -133,7 +172,7 @@ export class AdminController {
 
   static async unbanDevice(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = DeviceBanService.unbanDevice(req.params.id);
+      const result = DeviceBanService.unbanDevice(getParam(req, 'id'));
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);

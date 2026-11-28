@@ -1,6 +1,7 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import { CustomerProfileService } from '../services/customerProfileService';
 import { AddressService } from '../services/addressService';
+import { getParam } from '../utils/http';
 
 export class CustomerController {
   static async getMe(req: Request, res: Response, next: NextFunction) {
@@ -61,7 +62,7 @@ export class CustomerController {
 
   static async updateAddress(req: Request, res: Response, next: NextFunction) {
     try {
-      const address = AddressService.updateAddress(req.user!.id, req.params.id, req.body);
+      const address = AddressService.updateAddress(req.user!.id, getParam(req, 'id'), req.body);
       res.json({ success: true, data: address });
     } catch (err) {
       next(err);
@@ -70,7 +71,7 @@ export class CustomerController {
 
   static async deleteAddress(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = AddressService.deleteAddress(req.user!.id, req.params.id);
+      const result = AddressService.deleteAddress(req.user!.id, getParam(req, 'id'));
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -79,7 +80,7 @@ export class CustomerController {
 
   static async setDefaultAddress(req: Request, res: Response, next: NextFunction) {
     try {
-      const address = AddressService.setDefaultAddress(req.user!.id, req.params.id);
+      const address = AddressService.setDefaultAddress(req.user!.id, getParam(req, 'id'));
       res.json({ success: true, data: address });
     } catch (err) {
       next(err);

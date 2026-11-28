@@ -7,10 +7,19 @@ export class PaymentService {
    * Record order payment & calculate marketplace split (90% farmer, 10% platform)
    * IDEMPOTENT: Prevents duplicate webhook / payment replay attacks
    */
-  static recordOrderPayment(orderId: string, paymentMethod: string, transactionRef?: string) {
+  static recordOrderPayment(
+    orderId: string,
+    paymentMethod: string,
+    transactionRef?: string,
+    actor?: { id: string; role: string }
+  ) {
     const order = Database.get<any>('SELECT * FROM orders WHERE id = ?', [orderId]);
     if (!order) {
       throw AppError.notFound('Order record not found for payment verification');
+    }
+
+    if (actor && actor.role !== 'admin' && order.customer_id !== actor.id) {
+      throw AppError.forbidden("You are not authorized to confirm payment for another user's order.");
     }
 
     // Idempotency check: If already paid or already logged in payout ledger, return existing state

@@ -335,10 +335,34 @@ export class ApiClient {
     });
   }
 
+  static getCategories() {
+    return this.request<any[]>('/categories');
+  }
+
+  static getPublicSettings() {
+    return this.request<Record<string, string | number>>('/settings/public');
+  }
+
+  static getAdminCategories() {
+    return this.request<any[]>('/admin/categories');
+  }
+
   static addCategory(name: string, emoji?: string, image?: string) {
     return this.request('/admin/categories', {
       method: 'POST',
       body: { name, emoji, image },
+    });
+  }
+
+  static toggleCategoryActive(categoryId: string) {
+    return this.request(`/admin/categories/${categoryId}/toggle`, {
+      method: 'PATCH',
+    });
+  }
+
+  static deleteCategory(categoryId: string) {
+    return this.request(`/admin/categories/${categoryId}`, {
+      method: 'DELETE',
     });
   }
 
@@ -1137,8 +1161,8 @@ export class ApiClient {
 
   static async updateFinancialSettings(settings: Record<string, string | number>): Promise<any> {
     return this.request<any>('/finance/settings', {
-      method: 'PATCH',
-      body: settings,
+      method: 'PUT',
+      body: { settings },
     });
   }
 

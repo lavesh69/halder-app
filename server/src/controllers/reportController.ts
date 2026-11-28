@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ReportService } from '../services/reportService';
+import { getParam } from '../utils/http';
 
 export class ReportController {
   static async create(req: Request, res: Response, next: NextFunction) {
@@ -34,7 +35,7 @@ export class ReportController {
 
   static async updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = ReportService.updateStatus(req.params.id, req.body, req.user!.id);
+      const result = ReportService.updateStatus(getParam(req, 'id'), req.body, req.user!.id);
       res.json({ success: true, message: 'Grievance ticket status updated', data: result });
     } catch (err) {
       next(err);

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Database } from '../db/database';
 import { AppError } from '../utils/errors';
+import { getParam } from '../utils/http';
 
 export class LogisticsController {
   // GET /api/v1/logistics/partners
@@ -65,7 +66,7 @@ export class LogisticsController {
   // PATCH /api/v1/logistics/partners/:id/status
   static updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const { is_available, current_lat, current_lng, status } = req.body;
 
       const partner = Database.get<any>('SELECT * FROM delivery_partners WHERE id = ?', [id]);
@@ -142,9 +143,9 @@ export class LogisticsController {
   }
 
   // GET /api/v1/logistics/tasks/order/:orderId
-  static getTaskByOrderId(req: Request, res: Response, next: NextFunction) {
+  static getTaskByOrderId(req: Request, res: Response, next: NextFunction): void {
     try {
-      const { orderId } = req.params;
+      const orderId = getParam(req, 'orderId');
       const task = Database.get<any>(`
         SELECT dt.*, 
                o.order_number, o.customer_name, o.customer_phone, o.farmer_name, o.farm_name, o.order_status,
@@ -192,7 +193,7 @@ export class LogisticsController {
   // PATCH /api/v1/logistics/tasks/:taskId/assign
   static assignPartner(req: Request, res: Response, next: NextFunction) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, 'taskId');
       const { partnerId } = req.body;
 
       if (!partnerId) {
@@ -222,7 +223,7 @@ export class LogisticsController {
   // PATCH /api/v1/logistics/tasks/:taskId/status
   static updateTaskStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, 'taskId');
       const { status, notes, proof_image } = req.body;
 
       const validStatuses = ['assigned', 'pickup_in_progress', 'picked_up', 'out_for_delivery', 'delivered', 'failed', 'returned', 'cancelled'];
@@ -291,7 +292,7 @@ export class LogisticsController {
   // POST /api/v1/logistics/tasks/:taskId/verify-otp
   static verifyDeliveryOtp(req: Request, res: Response, next: NextFunction) {
     try {
-      const { taskId } = req.params;
+      const taskId = getParam(req, 'taskId');
       const { otp } = req.body;
 
       if (!otp) {
@@ -343,7 +344,7 @@ export class LogisticsController {
   // POST /api/v1/logistics/partners/:id/telemetry
   static updateTelemetry(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = getParam(req, 'id');
       const { lat, lng, speed_kmh, heading_deg, is_simulated } = req.body;
 
       if (lat == null || lng == null) {

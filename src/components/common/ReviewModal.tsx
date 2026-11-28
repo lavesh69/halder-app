@@ -44,9 +44,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       } else if (msg.includes('Delivered') || msg.includes('delivered')) {
         showToast('Reviews can only be submitted after your harvest is delivered.', 'info');
       } else {
-        // Demo / offline fallback
-        showToast(`⭐ Harvest review saved! Thank you for rating ${farmerName}.`, 'success');
-        onClose();
+        showToast(msg || 'Please sign in to submit a harvest review.', 'error');
       }
     } finally {
       setIsSubmitting(false);

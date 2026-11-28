@@ -13,6 +13,7 @@ router.post('/withdraw', FinanceController.requestWithdrawal);
 router.get('/transactions', FinanceController.getTransactions);
 router.get('/settings', FinanceController.getSettings);
 router.put('/settings', requireRole('admin'), FinanceController.updateSettings);
+router.patch('/settings', requireRole('admin'), FinanceController.updateSettings);
 router.get('/export', FinanceController.exportCsv);
 
 export default router;

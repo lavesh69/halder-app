@@ -101,36 +101,37 @@ async function runMultiGatewaySuite() {
     }
 
     // -------------------------------------------------------------
-    // Tier 2: Paytm Transaction Initiation
+    // Tier 2: Paytm Service Initiation & Decommissioned HTTP 410 Guard
     // -------------------------------------------------------------
-    console.log('\n--- TIER 2: Paytm Transaction Initiation (POST /api/v1/payments/paytm/initiate) ---');
+    console.log('\n--- TIER 2: Paytm Service Initiation & Decommissioned Route (410) ---');
 
     try {
-      const initRes = await makeRequest('/api/v1/payments/paytm/initiate', {
+      const httpGone = await makeRequest('/api/v1/payments/paytm/initiate', {
         method: 'POST',
-        body: {
-          amount: 350.5,
-          customerMobile: '9876543210',
-        },
+        body: { amount: 350.5, customerMobile: '9876543210' },
+      });
+      assert.strictEqual(httpGone.status, 410);
+
+      const svcRes = await PaytmService.initiateTransaction({
+        amount: 350.5,
+        customerMobile: '9876543210',
       });
 
-      assert.strictEqual(initRes.status, 200);
-      assert.strictEqual(initRes.body.success, true);
-      assert.ok(initRes.body.data.txnToken.startsWith('PTM_TKN_'), 'txnToken must be generated');
-      assert.ok(initRes.body.data.orderId.startsWith('PTM_ORD_'), 'orderId must be generated');
-      assert.strictEqual(initRes.body.data.gateway, 'paytm');
-      assert.strictEqual(initRes.body.data.amount, 350.5);
-      pass('2. Paytm initiation returns 200 OK with valid txnToken and orderId');
+      assert.strictEqual(svcRes.success, true);
+      assert.ok(svcRes.txnToken.startsWith('PTM_TKN_'), 'txnToken must be generated');
+      assert.ok(svcRes.orderId.startsWith('PTM_ORD_'), 'orderId must be generated');
+      assert.strictEqual(svcRes.gateway, 'paytm');
+      assert.strictEqual(svcRes.amount, 350.5);
+      pass('2. Paytm route returns 410 Gone and PaytmService.initiateTransaction generates valid txnToken');
     } catch (e) {
       fail('2. Paytm initiation check', e);
     }
 
     try {
-      const negRes = await makeRequest('/api/v1/payments/paytm/initiate', {
-        method: 'POST',
-        body: { amount: -50 },
-      });
-      assert.strictEqual(negRes.status, 400);
+      await assert.rejects(
+        () => PaytmService.initiateTransaction({ amount: -50 }),
+        (err: any) => err?.statusCode === 400
+      );
       pass('3. Negative Paytm amount rejected with 400 Bad Request');
     } catch (e) {
       fail('3. Negative Paytm amount check', e);
@@ -142,11 +143,13 @@ async function runMultiGatewaySuite() {
     console.log('\n--- TIER 3: Paytm Status & Webhook Processing ---');
 
     try {
-      const statusRes = await makeRequest('/api/v1/payments/paytm/status/PTM_TEST_ORDER_99');
-      assert.strictEqual(statusRes.status, 200);
-      assert.strictEqual(statusRes.body.success, true);
-      assert.strictEqual(statusRes.body.data.status, 'TXN_SUCCESS');
-      pass('4. Paytm status query returns 200 OK');
+      const httpGone = await makeRequest('/api/v1/payments/paytm/status/PTM_TEST_ORDER_99');
+      assert.strictEqual(httpGone.status, 410);
+
+      const statusRes = await PaytmService.checkStatus('PTM_TEST_ORDER_99');
+      assert.strictEqual(statusRes.success, true);
+      assert.strictEqual(statusRes.status, 'TXN_SUCCESS');
+      pass('4. Paytm status HTTP route returns 410 Gone and PaytmService.checkStatus resolves');
     } catch (e) {
       fail('4. Paytm status query check', e);
     }
@@ -179,18 +182,20 @@ async function runMultiGatewaySuite() {
         ]
       );
 
-      const webhookRes = await makeRequest('/api/v1/payments/paytm/webhook', {
+      const httpGone = await makeRequest('/api/v1/payments/paytm/webhook', {
         method: 'POST',
-        body: {
-          ORDERID: testOrderId,
-          TXNID: `PTM-TXN-${Date.now()}`,
-          STATUS: 'TXN_SUCCESS',
-          RESPCODE: '01',
-        },
+        body: { ORDERID: testOrderId, STATUS: 'TXN_SUCCESS' },
+      });
+      assert.strictEqual(httpGone.status, 410);
+
+      const webhookRes = await PaytmService.handleWebhook({
+        ORDERID: testOrderId,
+        TXNID: `PTM-TXN-${Date.now()}`,
+        STATUS: 'TXN_SUCCESS',
+        RESPCODE: '01',
       });
 
-      assert.strictEqual(webhookRes.status, 200);
-      assert.strictEqual(webhookRes.body.success, true);
+      assert.strictEqual(webhookRes.success, true);
 
       // Verify DB update
       const updated = Database.get<any>(`SELECT payment_status, payment_method FROM orders WHERE id = ?`, [testOrderId]);
@@ -297,7 +302,17 @@ async function runMultiGatewaySuite() {
     console.log('\n--- TIER 6: Direct Order Creation with GPay & Paytm ---');
 
     try {
-      const products = Database.query<any>(`SELECT id, price FROM products LIMIT 1`);
+      let products = Database.query<any>(
+        `SELECT id, price FROM products WHERE status = 'active' AND moderation_status = 'approved' AND available_quantity >= 5 ORDER BY available_quantity DESC LIMIT 1`
+      );
+      if (products.length === 0) {
+        Database.run(
+          `UPDATE products SET available_quantity = 50, status = 'active', moderation_status = 'approved' WHERE id = (SELECT id FROM products LIMIT 1)`
+        );
+        products = Database.query<any>(
+          `SELECT id, price FROM products WHERE status = 'active' AND moderation_status = 'approved' AND available_quantity >= 5 LIMIT 1`
+        );
+      }
       const customer = Database.query<any>(`SELECT id, phone, name, email FROM users WHERE role = 'customer' LIMIT 1`)[0];
       const token = CryptoUtil.generateToken({
         userId: customer.id,

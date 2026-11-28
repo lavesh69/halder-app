@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RequirementService } from '../services/requirementService';
+import { getParam } from '../utils/http';
 
 export class RequirementController {
   static async create(req: Request, res: Response, next: NextFunction) {
@@ -45,7 +46,7 @@ export class RequirementController {
     try {
       const { latitude, longitude } = req.query as any;
       const requirement = RequirementService.getRequirementById(
-        req.params.id,
+        getParam(req, 'id'),
         latitude ? Number(latitude) : undefined,
         longitude ? Number(longitude) : undefined
       );
@@ -59,7 +60,7 @@ export class RequirementController {
     try {
       const buyerId = req.user!.id;
       const { status } = req.body;
-      const updated = RequirementService.updateRequirementStatus(req.params.id, buyerId, status);
+      const updated = RequirementService.updateRequirementStatus(getParam(req, 'id'), buyerId, status);
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
@@ -69,7 +70,7 @@ export class RequirementController {
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const buyerId = req.user!.id;
-      const result = RequirementService.deleteRequirement(req.params.id, buyerId);
+      const result = RequirementService.deleteRequirement(getParam(req, 'id'), buyerId);
       res.json(result);
     } catch (err) {
       next(err);
@@ -79,7 +80,7 @@ export class RequirementController {
   static async submitQuotation(req: Request, res: Response, next: NextFunction) {
     try {
       const farmerUserId = req.user!.id;
-      const quote = RequirementService.submitQuotation(farmerUserId, req.params.id, req.body);
+      const quote = RequirementService.submitQuotation(farmerUserId, getParam(req, 'id'), req.body);
       res.status(201).json({ success: true, data: quote });
     } catch (err) {
       next(err);
@@ -89,7 +90,7 @@ export class RequirementController {
   static async listQuotations(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = req.user!.id;
-      const quotes = RequirementService.listQuotationsForRequirement(req.params.id, currentUserId);
+      const quotes = RequirementService.listQuotationsForRequirement(getParam(req, 'id'), currentUserId);
       res.json({ success: true, data: quotes });
     } catch (err) {
       next(err);
@@ -109,7 +110,7 @@ export class RequirementController {
     try {
       const currentUserId = req.user!.id;
       const { action, counterPrice } = req.body;
-      const result = RequirementService.respondToQuotation(req.params.quoteId, currentUserId, action, counterPrice);
+      const result = RequirementService.respondToQuotation(getParam(req, 'quoteId'), currentUserId, action, counterPrice);
       res.json(result);
     } catch (err) {
       next(err);

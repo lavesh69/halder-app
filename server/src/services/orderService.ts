@@ -20,6 +20,7 @@ export interface CreateOrderInput {
   paymentMethod: 'upi' | 'cod' | 'card' | 'wallet' | 'phonepe' | 'gpay' | 'paytm';
   farmerTip?: number;
   deliverySlot?: string;
+  deliveryDistanceKm?: number;
 }
 
 export class OrderService {
@@ -380,12 +381,12 @@ export class OrderService {
         userId: order.customer_id,
         recipientRole: 'customer',
         type: 'order',
-        title: newStatus === 'dispatched'
+        title: newStatus === 'out_for_delivery'
           ? '🚚 Kisan Fleet En Route!'
           : newStatus === 'delivered'
           ? '✅ Harvest Delivered!'
           : `Order Update: ${newStatus.toUpperCase()} 📦`,
-        message: newStatus === 'dispatched'
+        message: newStatus === 'out_for_delivery'
           ? `Farmer ${order.farmer_name} is personally delivering your order ${order.order_number} via Kisan Vahan!`
           : newStatus === 'delivered'
           ? `Your order ${order.order_number} has been delivered fresh from the farm.`

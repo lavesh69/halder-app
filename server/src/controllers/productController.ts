@@ -3,6 +3,7 @@ import { ProductService } from '../services/productService';
 import { Database } from '../db/database';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeText } from '../utils/sanitize';
+import { getParam } from '../utils/http';
 
 export class ProductController {
   static async list(req: Request, res: Response, next: NextFunction) {
@@ -60,7 +61,7 @@ export class ProductController {
 
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = ProductService.getById(req.params.id, Boolean(req.user));
+      const product = ProductService.getById(getParam(req, 'id'), Boolean(req.user));
       res.json({
         success: true,
         data: product,
@@ -125,7 +126,7 @@ export class ProductController {
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const product = await ProductService.update(req.params.id, req.body, baseUrl);
+      const product = await ProductService.update(getParam(req, 'id'), req.body, baseUrl);
       res.json({
         success: true,
         data: product,
@@ -144,7 +145,7 @@ export class ProductController {
           error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can update stock.' },
         });
       }
-      const product = ProductService.updateStock(req.params.id, farmerId, req.body);
+      const product = ProductService.updateStock(getParam(req, 'id'), farmerId, req.body);
       res.json({
         success: true,
         data: product,
@@ -163,7 +164,7 @@ export class ProductController {
           error: { code: 'FARMER_PROFILE_REQUIRED', message: 'Only registered farmers can view stock history.' },
         });
       }
-      const history = ProductService.getStockHistory(req.params.id, farmerId);
+      const history = ProductService.getStockHistory(getParam(req, 'id'), farmerId);
       res.json({
         success: true,
         data: history,
@@ -183,7 +184,7 @@ export class ProductController {
         });
       }
       const { statusAction } = req.body;
-      const product = ProductService.updateStatus(req.params.id, farmerId, statusAction);
+      const product = ProductService.updateStatus(getParam(req, 'id'), farmerId, statusAction);
       res.json({
         success: true,
         data: product,
@@ -195,7 +196,7 @@ export class ProductController {
 
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = ProductService.delete(req.params.id);
+      const result = ProductService.delete(getParam(req, 'id'));
       res.json(result);
     } catch (err) {
       next(err);

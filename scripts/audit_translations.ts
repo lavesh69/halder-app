@@ -1,7 +1,9 @@
-import { translations } from '../src/i18n/LanguageContext';
+import { ensureLanguageLoaded, translations } from '../src/i18n/translationUtils';
 import { SUPPORTED_LANGUAGES } from '../src/i18n/types';
 
-const baseline = Object.keys(translations.en);
+await Promise.all(SUPPORTED_LANGUAGES.map((l) => ensureLanguageLoaded(l.code)));
+
+const baseline = Object.keys(translations.en!);
 console.log('========================================================');
 console.log(`🌐 HALDER TRANSLATION AUDIT: ${SUPPORTED_LANGUAGES.length} LANGUAGES`);
 console.log(`Baseline English Keys: ${baseline.length}`);
@@ -19,7 +21,7 @@ for (const lang of SUPPORTED_LANGUAGES) {
   const untranslated: string[] = [];
   if (lang.code !== 'en') {
     for (const k of baseline) {
-      if (dict[k] && dict[k] === translations.en[k as keyof typeof translations.en]) {
+      if (dict[k] && dict[k] === translations.en![k as keyof NonNullable<typeof translations.en>]) {
         // If it's not a short brand/symbol or formatting
         const val = dict[k];
         if (typeof val === 'string' && val.length > 5 && !val.includes('₹') && !val.includes('HALDHAR') && !val.includes('GPS') && !val.includes('OTP')) {

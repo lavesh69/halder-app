@@ -83,7 +83,7 @@ export class SmsService {
             numbers: phone,
           }),
         });
-        const data = await response.json();
+        const data = (await response.json()) as { return?: boolean };
         if (data.return) {
           dispatched = true;
           Logger.info(`[SmsService] Fast2SMS OTP dispatched to +91${phone}`);
